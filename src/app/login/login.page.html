@@ -1,0 +1,38 @@
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Iniciar sesión</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-input
+        label="Correo electrónico"
+        labelPlacement="floating"
+        [(ngModel)]="email"
+        type="email"
+        placeholder="correo@ejemplo.com">
+      </ion-input>
+
+      <ion-input
+        label="Contraseña"
+        labelPlacement="floating"
+        [(ngModel)]="password"
+        type="password"
+        placeholder="Tu contraseña">
+      </ion-input>
+
+      <ion-button expand="block" color="primary" (click)="login()">Entrar</ion-button>
+
+      <ion-spinner *ngIf="loading" name="dots" color="primary"></ion-spinner>
+
+      <ion-text color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-text>
+
+      <p class="ion-text-center">
+        ¿No tienes cuenta?
+        <ion-button fill="clear" color="secondary" (click)="goToRegister()">
+          Crear cuenta
+        </ion-button>
+      </p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
