@@ -1,13 +1,22 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>sucursales</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header></app-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">sucursales</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="contenido">
+    <h1>Nuestras Sucursales</h1>
+    <div class="sucursales-grid">
+      <ion-card *ngFor="let sucursal of sucursales">
+        <ion-img [src]="sucursal.imagen" alt="{{sucursal.nombre}}"></ion-img>
+        <ion-card-header>
+          <ion-card-title>{{ sucursal.nombre }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p><strong>Dirección:</strong> {{ sucursal.direccion }}</p>
+          <p><strong>Teléfono:</strong> {{ sucursal.telefono }}</p>
+          <p><strong>Horario:</strong> {{ sucursal.horario }}</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <app-footer></app-footer>
 </ion-content>

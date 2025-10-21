@@ -1,0 +1,140 @@
+$dark-blue: #19226d;
+$pink-magenta: #ed156f;
+
+.main-toolbar {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --background: #ffffff;
+  color: $dark-blue;
+
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+.imglogo {
+  width: 250px;
+  height: auto;
+}
+
+.nav-links-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  ion-button {
+    --background: transparent;
+    --color: $dark-blue;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 15px;
+
+    &:hover {
+      --color: $pink-magenta;
+    }
+  }
+}
+
+.dropdown-menu {
+  position: fixed;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  z-index: 9999;
+  flex-direction: column;
+  min-width: 150px;
+  display: flex;
+  color: $dark-blue;
+  
+  .dropdown-item {
+    --background: transparent;
+    --color: $dark-blue;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
+    width: 100%;
+    justify-content: flex-start;
+
+    &:hover {
+      color: $pink-magenta;
+    }
+  }
+}
+
+.bicolor-bar {
+  display: flex;
+  width: 100%;
+  height: 8px;
+
+  .color-left {
+    background-color: $dark-blue;
+    flex: 1;
+  }
+
+  .color-right {
+    background-color: $pink-magenta;
+    flex: 1;
+  }
+}
+
+/* =============================== */
+/* MENÚ RESPONSIVO */
+/* =============================== */
+
+.menu-toggle {
+  display: none;
+}
+
+.menu-icon {
+  font-size: 32px;
+  color: $dark-blue;
+}
+
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background-color: #ffffff;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 100%;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+}
+
+.mobile-item {
+  --background: transparent;
+  --color: $dark-blue;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: left;
+  padding-left: 20px;
+
+  &:hover {
+    color: $pink-magenta;
+  }
+}
+
+/* =============================== */
+/* RESPONSIVE */
+/* =============================== */
+@media (max-width: 768px) {
+  .nav-links-container {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: flex;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+  }
+}

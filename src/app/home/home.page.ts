@@ -27,7 +27,12 @@ import {
   IonSpinner
 } from '@ionic/angular/standalone';
 
+// 🔹 Iconos
 import { menuOutline, logOutOutline, logInOutline } from 'ionicons/icons';
+
+// 🔹 Importamos tus componentes personalizados
+import { HeaderComponent } from '../components/header/header.component';
+import { FooterComponent } from '../components/footer/footer.component';
 
 @Component({
   selector: 'app-home',
@@ -38,6 +43,8 @@ import { menuOutline, logOutOutline, logInOutline } from 'ionicons/icons';
     CommonModule,
     FormsModule,
     RouterLink,
+    HeaderComponent, // ✅ ahora sí reconoce <app-header>
+    FooterComponent, // ✅ y <app-footer>
     IonHeader,
     IonToolbar,
     IonTitle,

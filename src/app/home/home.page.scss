@@ -1,259 +1,138 @@
-/*================================*/
-/*GLOBAL*/
+/* home.page.scss - Estilos esenciales para el contenido */
+
+// Colores de referencia (ajusta si tu paleta es diferente)
 :root {
-  color-scheme: only light;
+  --ion-color-success: #19226d;     /* Verde primario ecológico */
+  --ion-color-secondary: #ed156f;   /* Azul para botones secundarios */
 }
 
-ion-card,
-ion-footer,
-ion-toolbar{
-  --background: #ffffff !important;
-  --ion-background-color: #ffffff !important;
-  --ion-text-color: #19226d !important;
-  --color: black;
-}
-
-ion-content {
-      --background: radial-gradient(at 20% 30%, #ecd2dd 0px, transparent 70%),
-              radial-gradient(at 80% 70%, #d1d4f0 0px, transparent 70%),
-              #ffffff;
-}
-
-
-h1, h2, h3, h4, h5, h6, p {
-    color: #000000;
-}
-
-//colores del logoxd
-$dark-blue: #19226d;
-$pink-magenta: #ed156f;
-/*================================*/
-
-.main-toolbar {
-  --padding-start: 20px;
-  --padding-end: 20px;
-  --padding-top: 10px;
-  --padding-bottom: 10px;
-  --background: #ffffff;
-  color: $dark-blue;
-
-  display: flex;
-  align-items: center;
-  position: relative;
-  z-index: 10;
-}
-
-.imglogo {
-  width: 250px;
-  height: auto;
-}
-
-.nav-links-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  ion-button {
-    --background: transparent;
-    --color: $dark-blue;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 15px;
-
-    &:hover {
-      --color: $pink-magenta;
-    }
-  }
-}
-
-.navboton:hover {
-  transition: color 0.5s ease;
-  color: $pink-magenta;
-}
-
-.dropdown-menu {
-  position: fixed;
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  z-index: 9999;
-  flex-direction: column;
-  min-width: 150px;
-  display: flex;
-  color: $dark-blue;
-  
-  --padding-start: 20px;
-  --padding-end: 20px;
-  --padding-top: 20px;
-  --padding-bottom: 20px;
-  
-
-  .dropdown-item {
-    --background: transparent;
-    --color: $dark-blue;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 14px;
-    width: 100%;
-    justify-content: flex-start;
-    
-
-    &:hover {
-      color: $pink-magenta;
-    }
-  }
-}
-
-.bicolor-bar {
-  display: flex;
-  width: 100%;
-  height: 8px;
-
-  .color-left {
-    background-color: $dark-blue;
-    flex: 1;
-  }
-
-  .color-right {
-    background-color: $pink-magenta;
-    flex: 1;
-  }
-}
-
-//CONTENIDO
-
-ion-content{
-  
-}
-.contenido {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-  padding: 20px;
-}
-
-.imgcont{
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-
-//FOOTER
-.footer-toolbar{
-  --padding-start: 60px;
-  --padding-end: 60px;
-  --padding-top: 20px;
-  --padding-bottom:30px;
-  --background: #ffffff;
-  color: $dark-blue;
-}
-
-.footer-divider {
-  width: 2px;
-  height: 100px;
-  background-color: #e0e0e0;
-}
-
-
-.footer-icon{
-  width: 40px;
-}
-
-.footer-cont{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(1, auto);
-
-  text-align: center;
-  align-items: center;
-
-  text-transform: uppercase;
-}
-
-.f-title{
-  color: $dark-blue;
-    font-weight: 600;
-}
-
-.f-text{
-  color: #5e5e5e;
-    font-weight: 300;
-}
-
-
-.fila3-icons{
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-}
-
-/* =============================== */
-/* MENÚ RESPONSIVO */
-/* =============================== */
-
-.menu-toggle {
-  display: none;
-}
-
-.menu-icon {
-  font-size: 32px;
-  color: #19226d; /* color del texto del nav */
-}
-
-/* Menú hamburguesa desplegable */
-.mobile-menu {
-  display: none;
-  flex-direction: column;
-  background-color: #ffffff;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 100%;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-  z-index: 999;
-}
-
-.mobile-item {
-  --background: transparent;
-  --color: #19226d;
-  font-weight: 600;
-  text-transform: uppercase;
-  text-align: left;
-  padding-left: 20px;
-
-  &:hover {
-    color: #ed156f;
-  }
-}
-
-/* =============================== */
-/* RESPONSIVE */
-/* =============================== */
-@media (max-width: 768px) {
-  .nav-links-container {
-    display: none;
-  }
-
-  .menu-toggle {
-    display: block;
-  }
-
-  .mobile-menu {
+// 1. HERO SECTION: Banner principal de ancho completo
+.hero-section {
+    position: relative;
+    height: 70vh; /* Ocupa la mayor parte de la altura visible */
     display: flex;
-  }
-
-  .dropdown-menu{
-    width: 100%;
-  }
-
-  .footer-cont{
-    grid-template-columns: repeat(1,1fr);
-    grid-template-rows: repeat(3, auto);
-  }
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    // 💡 Usa una imagen relevante en tu carpeta assets
+    background: url('/assets/img/hero-background.jpg') no-repeat center center/cover;
+    color: white;
 }
 
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Oscurece la imagen para resaltar el texto */
+}
 
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 20px;
+}
 
-  
+.hero-content h1 {
+    font-size: clamp(2em, 5vw, 3.5em); /* Fuente responsiva */
+    font-weight: 700;
+    margin-bottom: 0.5em;
+    line-height: 1.2;
+}
+
+.hero-content p {
+    font-size: clamp(1em, 2vw, 1.3em);
+    margin-bottom: 2em;
+}
+
+// explora nuestros productos
+.stats-section {
+    background-color: #6d6d6d; 
+    padding: 40px 20px;
+}
+
+.sub-header {
+    font-size: 1.1em;
+    color: #000000;
+    max-width: 900px;
+    margin: 0 auto 30px auto;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stat-card {  
+    text-align: center;
+    border-radius: 10px;
+    border-bottom: 5px solid var(--ion-color-secondary); /* Borde de color */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-card ion-card-title {
+    font-size: 2.2em;
+    font-weight: 700;
+    color: var(--ion-color-success-shade);
+}
+
+.stat-card ion-card-content {
+    color: #333;
+    font-weight: 500;
+}
+
+// 3. FEATURED PRODUCTS: Galería de productos
+.products-section {
+    padding: 50px 20px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.product-card {
+    margin: 0; 
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card ion-img {
+    height: 250px;
+    object-fit: cover;
+}
+
+.product-card ion-card-header {
+    padding-bottom: 0;
+}
+
+.product-card ion-card-content {
+    padding-top: 10px;
+}
+
+.product-card .price {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #f1f1f1;
+    margin: 10px 0;
+}

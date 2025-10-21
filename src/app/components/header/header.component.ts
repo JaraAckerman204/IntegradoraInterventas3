@@ -1,65 +1,48 @@
-import { Component, HostListener, ElementRef } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButtons,
-  IonButton,
-  IonIcon,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonFooter,
-  IonImg,
-} from '@ionic/angular/standalone';
+import { Router, RouterLink } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import { menuOutline } from 'ionicons/icons';
-
-// IMPORTA TUS COMPONENTES REUTILIZABLES
-import { HeaderComponent } from '../components/header/header.component';
-import { FooterComponent } from '../components/footer/footer.component';
+import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 
 @Component({
-  selector: 'app-sucursales',
-  templateUrl: 'sucursales.page.html',
-  styleUrls: ['sucursales.page.scss'],
+  selector: 'app-header',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonButtons,
-    IonButton,
-    IonIcon,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonFooter,
-    IonImg,
-
-    // 🔹 Agrega los componentes aquí
-    HeaderComponent,
-    FooterComponent
-  ],
+  imports: [CommonModule, IonicModule, RouterLink],
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
 })
-export class SucursalesPage {
+export class HeaderComponent implements OnInit {
+  // 🔽 Variables existentes
   showNosotrosDropdown = false;
   showSucursalesDropdown = false;
   showMobileMenu = false;
   dropdownPosition = { top: '0px', left: '0px' };
   menuOutline = menuOutline;
 
-  constructor(private elRef: ElementRef) {}
+  // 🔥 Firebase
+  user: User | null = null;
 
+  constructor(private elRef: ElementRef, private router: Router) {}
+
+  // ✅ Detecta si hay usuario logueado
+  ngOnInit() {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      this.user = user;
+    });
+  }
+
+  // 🔥 Cierra sesión
+  logout() {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      this.user = null;
+      this.router.navigate(['/login']);
+    });
+  }
+
+  // 🟢 Menú hamburguesa
   toggleMenu() {
     this.showMobileMenu = !this.showMobileMenu;
     this.closeDropdowns();
@@ -69,6 +52,7 @@ export class SucursalesPage {
     this.showMobileMenu = false;
   }
 
+  // 🟢 Dropdowns (Nosotros / Sucursales)
   toggleDropdown(menu: 'nosotros' | 'sucursales', event: MouseEvent) {
     const target = event.target as HTMLElement;
     const rect = target.getBoundingClientRect();
@@ -89,7 +73,7 @@ export class SucursalesPage {
     if (menu === 'nosotros') {
       this.showNosotrosDropdown = !this.showNosotrosDropdown;
       this.showSucursalesDropdown = false;
-    } else if (menu === 'sucursales') {
+    } else {
       this.showSucursalesDropdown = !this.showSucursalesDropdown;
       this.showNosotrosDropdown = false;
     }
@@ -100,6 +84,7 @@ export class SucursalesPage {
     this.showSucursalesDropdown = false;
   }
 
+  // 🧠 Cerrar menús si se hace click fuera
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
@@ -113,21 +98,4 @@ export class SucursalesPage {
       this.showMobileMenu = false;
     }
   }
-
-  sucursales = [
-    {
-      nombre: 'Sucursal Centro',
-      direccion: 'Av. Principal #123, Ciudad Central',
-      telefono: '(123) 456-7890',
-      horario: 'Lun - Vie: 9:00 AM - 6:00 PM',
-      imagen: '../../assets/img/sucursales/sucursal1.jpg',
-    },
-    {
-      nombre: 'Sucursal Norte',
-      direccion: 'Calle Norte #45, Zona Industrial',
-      telefono: '(123) 555-9876',
-      horario: 'Lun - Sáb: 10:00 AM - 7:00 PM',
-      imagen: '../../assets/img/sucursales/sucursal2.jpg',
-    },
-  ];
 }
