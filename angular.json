@@ -39,12 +39,12 @@
               },
               {
                 "glob": "manifest.webmanifest",
-                "input": "public",
+                "input": "src",
                 "output": "/"
               },
               {
                 "glob": "icons/*",
-                "input": "public",
+                "input": "src",
                 "output": "/"
               }
             ],
