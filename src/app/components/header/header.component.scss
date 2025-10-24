@@ -1,42 +1,133 @@
 $dark-blue: #19226d;
-$pink-magenta: #ed156f;
+$pink-magenta: #ed1370;
+
+// Fuentes (NO MOVER)
+:root {
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Lato', sans-serif;
+}
+
+//BOTONES DE LOGIN
+#botonusuario{
+  --background: white;
+}
+
+/* =============================== */
+/* TOOLBAR PRINCIPAL */
+/* =============================== */
 
 .main-toolbar {
   --padding-start: 20px;
   --padding-end: 20px;
-  --padding-top: 10px;
-  --padding-bottom: 10px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
   --background: #ffffff;
+  --min-height: 70px;
   color: $dark-blue;
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
   position: relative;
   z-index: 10;
 }
 
-.imglogo {
-  width: 250px;
-  height: auto;
+/* Contenedor general del contenido (logo + menú + botón) */
+.toolbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
 }
+
+/* =============================== */
+/* SECCIONES */
+/* =============================== */
+
+.left-section {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; // Evita que se comprima
+}
+
+.center-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 15px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+ion-img.imglogo {
+  width: 180px !important;
+  height: auto !important;
+  max-width: none !important;
+  flex-shrink: 0; // Evita que se comprima
+
+  @media (max-width: 768px) {
+    width: 130px !important;
+  }
+
+  @media (max-width: 480px) {
+    width: 115px !important;
+  }
+}
+
+/* =============================== */
+/* BOTONES DE NAVEGACIÓN */
+/* =============================== */
 
 .nav-links-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  ion-button {
-    --background: transparent;
-    --color: $dark-blue;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 15px;
-
-    &:hover {
-      --color: $pink-magenta;
-    }
-  }
+  gap: 25px;
 }
+
+ion-button.navboton {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --background: transparent;
+  --box-shadow: none;
+  --border-radius: 0;
+  min-width: auto;
+  height: auto;
+  margin: 0;
+}
+
+ion-button.navboton::part(native) {
+  padding: 0;
+  font-weight: 600;
+  color: $dark-blue;
+  text-transform: uppercase;
+  font-family: 'Lato', sans-serif;
+  font-size: 17px;
+  transition: color 0.2s ease;
+}
+
+ion-button.navboton:hover::part(native) {
+  color: $pink-magenta;
+}
+
+/* =============================== */
+/* DROPDOWN MENÚ */
+/* =============================== */
 
 .dropdown-menu {
   position: fixed;
@@ -48,7 +139,7 @@ $pink-magenta: #ed156f;
   min-width: 150px;
   display: flex;
   color: $dark-blue;
-  
+
   .dropdown-item {
     --background: transparent;
     --color: $dark-blue;
@@ -64,20 +155,66 @@ $pink-magenta: #ed156f;
   }
 }
 
+/* =============================== */
+/* AUTH INFO (Login/Logout) */
+/* =============================== */
+
+.auth-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: $dark-blue;
+    white-space: nowrap;
+  }
+
+  strong {
+    color: $pink-magenta;
+  }
+}
+
+/* =============================== */
+/* BOTÓN LOGIN */
+/* =============================== */
+
+.btn-login-gradient,
+ion-button[routerLink="/login"] {
+  --background: #{$dark-blue} !important;
+  --background-hover: #{$dark-blue} !important;
+  --background-activated: #{$dark-blue} !important;
+  --background-focused: #{$dark-blue} !important;
+  --box-shadow: none !important;
+  --border-radius: 15px;
+
+  &::part(native) {
+    background: $dark-blue !important;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: white !important;
+  }
+
+  &:hover::part(native) {
+    opacity: 0.9;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+  }
+}
+
+/* =============================== */
+/* BARRA DE COLORES INFERIOR */
+/* =============================== */
+
 .bicolor-bar {
   display: flex;
   width: 100%;
   height: 8px;
-
-  .color-left {
-    background-color: $dark-blue;
-    flex: 1;
-  }
-
-  .color-right {
-    background-color: $pink-magenta;
-    flex: 1;
-  }
+  background: linear-gradient(to right, #27318d, #ed1370);
 }
 
 /* =============================== */
@@ -99,30 +236,72 @@ $pink-magenta: #ed156f;
   background-color: #ffffff;
   position: absolute;
   top: 100%;
+  left: 0;
   right: 0;
   width: 100%;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
   z-index: 999;
+  padding: 10px 0;
 }
 
 .mobile-item {
   --background: transparent;
-  --color: $dark-blue;
+  --color: #{$dark-blue};
   font-weight: 600;
   text-transform: uppercase;
   text-align: left;
   padding-left: 20px;
+  width: 100%;
+  justify-content: flex-start;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+
+  &::part(native) {
+    color: $dark-blue !important;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 14px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
 
   &:hover {
+    --color: #{$pink-magenta};
+  }
+
+  &:hover::part(native) {
+    color: $pink-magenta !important;
+  }
+}
+
+.mobile-auth {
+  padding: 20px;
+  border-top: 1px solid rgba(25, 34, 109, 0.1);
+  margin-top: 10px;
+
+  p {
+    margin: 0;
+    margin-bottom: 0;
+    color: $dark-blue !important;
+    font-size: 14px;
+  }
+
+  strong {
     color: $pink-magenta;
+  }
+
+  // OCULTAR botones en el menú móvil
+  ion-button {
+    display: none !important;
   }
 }
 
 /* =============================== */
 /* RESPONSIVE */
 /* =============================== */
+
 @media (max-width: 768px) {
-  .nav-links-container {
+  .center-section {
     display: none;
   }
 
@@ -136,5 +315,116 @@ $pink-magenta: #ed156f;
 
   .dropdown-menu {
     width: 100%;
+  }
+
+  // MANTENER auth-info visible en el toolbar móvil
+  .auth-info {
+    display: flex !important;
+    
+    // Ocultar el texto de bienvenida en el nav
+    p {
+      display: none;
+    }
+    
+    // Mantener solo el botón visible
+    ion-button {
+      display: block !important;
+    }
+  }
+
+  // MOSTRAR botón de login en la barra superior en móvil
+  .right-section > .btn-login-gradient,
+  .right-section > ion-button[routerLink="/login"] {
+    display: block !important;
+  }
+
+  // Ajustar toolbar para móvil - MÁS ALTO
+  .main-toolbar {
+    --padding-start: 15px;
+    --padding-end: 15px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    --min-height: 65px;
+  }
+
+  .toolbar-content {
+    gap: 10px;
+  }
+
+  .right-section {
+    gap: 12px;
+  }
+
+  // Botón más proporcional
+  .btn-login-gradient,
+  ion-button[routerLink="/login"] {
+    --border-radius: 12px;
+
+    &::part(native) {
+      padding: 9px 18px;
+      font-size: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+  }
+
+  // Ajustar botón de cerrar sesión en móvil
+  .auth-info ion-button {
+    --border-radius: 12px;
+    font-size: 12px;
+
+    &::part(native) {
+      padding: 9px 18px;
+      font-size: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+  }
+
+  // Ajustar tamaño del ícono de menú
+  .menu-icon {
+    font-size: 32px;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .main-toolbar {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    --min-height: 60px;
+  }
+
+  .menu-icon {
+    font-size: 28px;
+  }
+
+  .right-section {
+    gap: 10px;
+  }
+
+  // Botón ajustado para pantallas pequeñas
+  .btn-login-gradient,
+  ion-button[routerLink="/login"] {
+    --border-radius: 10px;
+
+    &::part(native) {
+      padding: 8px 14px;
+      font-size: 11px;
+      border-radius: 10px;
+    }
+  }
+
+  // Ajustar botón de cerrar sesión en pantallas pequeñas
+  .auth-info ion-button {
+    --border-radius: 10px;
+
+    &::part(native) {
+      padding: 8px 14px;
+      font-size: 11px;
+      border-radius: 10px;
+    }
   }
 }

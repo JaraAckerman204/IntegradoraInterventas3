@@ -1,42 +1,57 @@
-
-  <div class="bicolor-bar">
-    <div class="color-left"></div>
-    <div class="color-right"></div>
-  </div>
+<ion-footer>
+  <!-- Barra de colores superior -->
+  <div class="bicolor-bar"></div>
+  
   <ion-toolbar class="footer-toolbar">
     <div class="footer-cont">
+      
+      <!-- Columna 1: Información -->
       <div class="fila1">
-        <p class="f-title">INFORMACION</p>
-        <p class="f-text">NOSOTROS</p>
-        <p class="f-text">PREGUNTAS FRECUENTES</p>
+        <p class="f-title">Información</p>
+        <a class="f-text-link" routerLink="/nosotros">Nosotros</a>
+        <a class="f-text-link" routerLink="/preguntas">Preguntas Frecuentes</a>
+        <a class="f-text-link" routerLink="/terminos">Términos y Condiciones</a>
+        <a class="f-text-link" routerLink="/privacidad">Política de Privacidad</a>
       </div>
+      
+      <!-- Columna 2: Ubicación -->
       <div class="fila2">
-        <p class="f-title">UBICACIÓN</p>
+        <p class="f-title">Ubicación</p>
         <p class="f-text">Torreón, Gómez Palacio y Durango.</p>
         <p class="f-text">
-          Encuentra tu tienda más cercana
-          <b><a style="color: #ed156f;" routerLink="/sucursales">aquí</a></b>
+          Encuentra tu tienda más cercana 
+          <a routerLink="/sucursales">aquí</a>
         </p>
+        <p class="f-text">Horarios: Lun - Sáb 9:00 AM - 7:00 PM</p>
       </div>
+      
+      <!-- Columna 3: Redes Sociales -->
       <div class="fila3">
-        <p class="f-title">Síguenos en nuestras redes!</p>
+        <p class="f-title">Síguenos en redes</p>
         <div class="fila3-icons">
-          <a href="https://www.facebook.com/GrupoInterventas/">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-fb.png"></ion-img>
+          <a href="https://www.facebook.com/GrupoInterventas/" target="_blank" rel="noopener">
+            <ion-img class="footer-icon" src="../../assets/icon/ico-fb.png" alt="Facebook"></ion-img>
           </a>
-          <a href="https://www.youtube.com/channel/UCiKzc2KkdIApv_DzZh-9Syw">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-yt.png"></ion-img>
+          <a href="https://www.youtube.com/channel/UCiKzc2KkdIApv_DzZh-9Syw" target="_blank" rel="noopener">
+            <ion-img class="footer-icon" src="../../assets/icon/ico-yt.png" alt="YouTube"></ion-img>
           </a>
-          <a href="http://wa.link/jfiopz">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-ws.png"></ion-img>
+          <a href="http://wa.link/jfiopz" target="_blank" rel="noopener">
+            <ion-img class="footer-icon" src="../../assets/icon/ico-ws.png" alt="WhatsApp"></ion-img>
           </a>
-          <a href="https://www.instagram.com/grupointerventas/">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-insta.png"></ion-img>
+          <a href="https://www.instagram.com/grupointerventas/" target="_blank" rel="noopener">
+            <ion-img class="footer-icon" src="../../assets/icon/ico-insta.png" alt="Instagram"></ion-img>
           </a>
-          <a href="https://www.tiktok.com/@grupointerventas">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-tt.png"></ion-img>
+          <a href="https://www.tiktok.com/@grupointerventas" target="_blank" rel="noopener">
+            <ion-img class="footer-icon" src="../../assets/icon/ico-tt.png" alt="TikTok"></ion-img>
           </a>
         </div>
       </div>
+      
     </div>
   </ion-toolbar>
+  
+  <!-- Barra de copyright -->
+  <div class="footer-bottom">
+    <p>© 2025 Grupo Interventas. Todos los derechos reservados.</p>
+  </div>
+</ion-footer>

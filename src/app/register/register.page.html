@@ -1,44 +1,77 @@
-<ion-content class="ion-padding">
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Crear cuenta</ion-card-title>
-    </ion-card-header>
+<app-header></app-header>
 
-    <ion-card-content>
-      <ion-input
-        label="Correo electrónico"
-        labelPlacement="floating"
-        [(ngModel)]="email"
-        type="email"
-        placeholder="correo@ejemplo.com">
-      </ion-input>
+<ion-content [fullscreen]="true">
+  
+  <!-- Hero Section -->
+  <section class="register-hero-section">
+    <div class="register-hero-overlay"></div>
+    <div class="register-hero-content">
+      <h1 class="blurred-title">Únete a nuestra comunidad</h1>
+      <h2 class="main-title">Crear Cuenta</h2>
+    </div>
+  </section>
 
-      <ion-input
-        label="Contraseña"
-        labelPlacement="floating"
-        [(ngModel)]="password"
-        type="password"
-        placeholder="Tu contraseña">
-      </ion-input>
+  <!-- Formulario de Registro -->
+  <section class="register-form-section">
+    <ion-card class="register-card">
+      <ion-card-header>
+        <ion-card-title>Regístrate ahora</ion-card-title>
+        <p class="subtitle">Completa los campos para crear tu cuenta</p>
+      </ion-card-header>
 
-      <ion-input
-        label="Confirmar contraseña"
-        labelPlacement="floating"
-        [(ngModel)]="confirmPassword"
-        type="password"
-        placeholder="Repite tu contraseña">
-      </ion-input>
+      <ion-card-content>
+        <div class="input-group">
+          <ion-input
+            label="Correo electrónico"
+            labelPlacement="floating"
+            [(ngModel)]="email"
+            type="email"
+            placeholder="correo@ejemplo.com">
+          </ion-input>
+        </div>
 
-      <ion-button expand="block" color="primary" (click)="register()">Registrarse</ion-button>
+        <div class="input-group">
+          <ion-input
+            label="Contraseña"
+            labelPlacement="floating"
+            [(ngModel)]="password"
+            type="password"
+            placeholder="Tu contraseña">
+          </ion-input>
+        </div>
 
-      <ion-text color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-text>
+        <div class="input-group">
+          <ion-input
+            label="Confirmar contraseña"
+            labelPlacement="floating"
+            [(ngModel)]="confirmPassword"
+            type="password"
+            placeholder="Repite tu contraseña">
+          </ion-input>
+        </div>
 
-      <p class="ion-text-center">
-        ¿Ya tienes cuenta?
-        <ion-button fill="clear" color="secondary" (click)="goToLogin()">
-          Iniciar sesión
+        <ion-button 
+          expand="block" 
+          class="register-btn" 
+          (click)="register()"
+          [disabled]="loading">
+          <span *ngIf="!loading">Registrarse</span>
+          <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
         </ion-button>
-      </p>
-    </ion-card-content>
-  </ion-card>
+
+        <ion-text color="danger" class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </ion-text>
+
+        <div class="login-link">
+          <p>¿Ya tienes cuenta?</p>
+          <ion-button fill="clear" class="login-btn-link" (click)="goToLogin()">
+            Iniciar sesión
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </section>
+
+<app-footer></app-footer>
 </ion-content>

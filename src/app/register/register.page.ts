@@ -2,6 +2,11 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// 🧩 Importar el componente de header
+import { HeaderComponent } from '../components/header/header.component';
+import { FooterComponent } from '../components/footer/footer.component';
+
 import {
   IonContent,
   IonInput,
@@ -11,6 +16,7 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../services/auth.service';
 
@@ -18,6 +24,8 @@ import { AuthService } from '../services/auth.service';
   selector: 'app-register',
   standalone: true,
   imports: [
+    HeaderComponent,
+    FooterComponent,
     CommonModule,
     FormsModule,
     IonContent,
@@ -28,6 +36,7 @@ import { AuthService } from '../services/auth.service';
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
+    IonSpinner
   ],
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
@@ -37,6 +46,7 @@ export class RegisterPage {
   password = '';
   confirmPassword = '';
   errorMessage = '';
+  loading = false;
 
   constructor(private auth: AuthService, private router: Router) {}
 

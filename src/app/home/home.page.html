@@ -2,54 +2,20 @@
 
 <ion-content [fullscreen]="true">
 
+  <!-- 1. BANNER HERO -->
   <section class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <h1 class="ion-text-center">Suministros Mayoristas de Confianza</h1>
-      <p class="ion-text-center">Somos tu socio estratégico en la compra y venta de materias primas, ofreciendo calidad y precios competitivos en empaques y desechables.</p>
+      <h1 class="ion-text-center">Empaques que simplifican tu día y cuidan tu negocio.</h1>
+      <p>Desde desechables hasta productos biodegradables, contamos con una amplia línea de soluciones prácticas para negocios, restaurantes y emprendedores. Calidad, rapidez y confianza en cada pedido.</p>
       
-      <ion-button size="large" shape="round" color="secondary" routerLink="/productos">
-        VER CATÁLOGO COMPLETO
+      <ion-button class="botonbanner" size="large" routerLink="/productos">
+        CATÁLOGO COMPLETO
       </ion-button>
     </div>
   </section>
 
-  <section class="stats-section ion-padding">
-    <h2 class="ion-text-center ion-margin-bottom">Explora Nuestro Catálogo</h2>
-    <p class="ion-text-center sub-header">Trabajamos para brindarte seguridad y calidad en todas nuestras líneas de productos.</p>
-    
-    <div class="stats-grid">
-      
-      <ion-card class="stat-card" routerLink="/productos/empaques">
-        <ion-card-header>
-          <ion-card-title>EMPAQUES</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          Ver la variedad de productos.
-        </ion-card-content>
-      </ion-card>
-      
-      <ion-card class="stat-card" routerLink="/productos/desechables">
-        <ion-card-header>
-          <ion-card-title>DESECHABLES</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          Vasos, platos, cubiertos y más.
-        </ion-card-content>
-      </ion-card>
-      
-      <ion-card class="stat-card" routerLink="/productos/biodegradables">
-        <ion-card-header>
-          <ion-card-title>BIODEGRADABLES</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          Opciones amigables con el ambiente.
-        </ion-card-content>
-      </ion-card>
-      
-    </div>
-  </section>
-
+  <!-- 2. PRODUCTOS DESTACADOS -->
   <section class="products-section ion-padding">
     <h2 class="ion-text-center">Productos Destacados</h2>
     <p class="ion-text-center sub-header ion-margin-bottom">Nuestra selección más vendida de desechables y empaques.</p>
@@ -93,11 +59,74 @@
       </ion-card>
       
     </div>
+  </section>
 
-    <div class="ion-text-center ion-margin-top ion-padding-top">
-      <ion-button fill="solid" color="dark" routerLink="/productos">VER TODO EL CATÁLOGO</ion-button>
+  <!-- 3. MARCAS DESTACADAS -->
+  <section class="brands-section ion-padding">
+    <h2 class="ion-text-center">Marcas Destacadas</h2>
+    <p class="ion-text-center sub-header ion-margin-bottom">Trabajamos con las marcas líderes en calidad y confianza.</p>
+    
+    <div class="brands-grid">
+      <div class="brand-item">
+        <img src="assets/img/brands/reyma.jpeg" alt="Reymaq">
+      </div>
+      <div class="brand-item">
+        <img src="assets/img/brands/chiligrin.png" alt="Chiligrin">
+      </div>
+      <div class="brand-item">
+        <img src="assets/img/brands/anguiplast.jpeg" alt="Anguiplast">
+      </div>
+      <div class="brand-item">
+        <img src="assets/img/brands/dart.png" alt="Dart">
+      </div>
+      <div class="brand-item">
+        <img src="assets/img/brands/monarch.jpeg" alt="Monarch">
+      </div>
     </div>
   </section>
+
+  <!-- 4. EXPLORA NUESTRO CATÁLOGO -->
+  <section class="stats-section ion-padding">
+    <h2 class="ion-text-center ion-margin-bottom">Explora Nuestro Catálogo</h2>
+    <p class="ion-text-center sub-header">Trabajamos para brindarte seguridad y calidad en todas nuestras líneas de productos.</p>
+    
+    <div class="stats-grid">
+      
+      <ion-card class="stat-card" routerLink="/productos/empaques">
+        <ion-card-header>
+          <ion-card-title>EMPAQUES</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Ver la variedad de productos.
+        </ion-card-content>
+      </ion-card>
+      
+      <ion-card class="stat-card" routerLink="/productos/desechables">
+        <ion-card-header>
+          <ion-card-title>DESECHABLES</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Vasos, platos, cubiertos y más.
+        </ion-card-content>
+      </ion-card>
+      
+      <ion-card class="stat-card" routerLink="/productos/biodegradables">
+        <ion-card-header>
+          <ion-card-title>BIODEGRADABLES</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Opciones amigables con el ambiente.
+        </ion-card-content>
+      </ion-card>
+      
+    </div>
+
+    <div class="ion-text-center ion-margin-top ion-padding-top">
+      <ion-button class="catalog-btn" fill="solid" routerLink="/productos">
+        VER TODO EL CATÁLOGO
+      </ion-button>
+    </div>
+  </section>
+
 <app-footer></app-footer>
 </ion-content>
-
