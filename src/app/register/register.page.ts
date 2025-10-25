@@ -3,10 +3,11 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-// 🧩 Importar el componente de header
+// 🧩 Componentes personalizados
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 
+// 🧱 Componentes de Ionic
 import {
   IonContent,
   IonInput,
@@ -18,6 +19,7 @@ import {
   IonCardContent,
   IonSpinner,
 } from '@ionic/angular/standalone';
+
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -36,7 +38,7 @@ import { AuthService } from '../services/auth.service';
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonSpinner
+    IonSpinner,
   ],
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
@@ -56,15 +58,25 @@ export class RegisterPage {
       return;
     }
 
+    this.loading = true;
+    this.errorMessage = '';
+
     try {
-      await this.auth.register(this.email, this.password);
-      this.router.navigateByUrl('/home', { replaceUrl: true });
+      // 🧩 Crear usuario
+      const userCredential = await this.auth.register(this.email, this.password);
+
+      // 📨 Enviar correo de verificación
+      await this.auth.resendVerificationEmail();
+
+      // 🚀 Redirigir a la página de verificación
+      this.router.navigateByUrl('/verificar', { replaceUrl: true });
     } catch (error: any) {
       this.errorMessage = 'Error al registrar: ' + (error.message || '');
+    } finally {
+      this.loading = false;
     }
   }
 
-  // 👇 Este método te lleva al login
   goToLogin() {
     this.router.navigateByUrl('/login');
   }
