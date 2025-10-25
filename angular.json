@@ -32,6 +32,7 @@
                 "input": "src/assets",
                 "output": "assets"
               },
+              "src/firebase-messaging-sw.js",
               {
                 "glob": "ngsw-config.json",
                 "input": "src",
@@ -152,4 +153,3 @@
     }
   }
 }
-

@@ -1,9 +1,10 @@
-import { Component, HostListener, ElementRef } from '@angular/core';
+import { Component, HostListener, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { FirebaseService } from '../services/firebase.service';
 import { AuthService } from '../services/auth.service';
+import { PushService } from '../services/push.service';
 
 import {
   IonHeader,
@@ -30,7 +31,7 @@ import {
 // 🔹 Iconos
 import { menuOutline, logOutOutline, logInOutline } from 'ionicons/icons';
 
-// 🔹 Importamos tus componentes personalizados
+// 🔹 Componentes personalizados
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 
@@ -43,8 +44,8 @@ import { FooterComponent } from '../components/footer/footer.component';
     CommonModule,
     FormsModule,
     RouterLink,
-    HeaderComponent, // ✅ ahora sí reconoce <app-header>
-    FooterComponent, // ✅ y <app-footer>
+    HeaderComponent,
+    FooterComponent,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -66,7 +67,7 @@ import { FooterComponent } from '../components/footer/footer.component';
     IonSpinner
   ]
 })
-export class HomePage {
+export class HomePage implements OnInit {
   // 🧭 Navegación y menú
   showNosotrosDropdown = false;
   showSucursalesDropdown = false;
@@ -87,10 +88,15 @@ export class HomePage {
     private elRef: ElementRef,
     private firebaseService: FirebaseService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private push: PushService // ✅ Se inyecta el servicio Push
   ) {}
 
   ngOnInit() {
+    // 🔔 Notificaciones push
+    this.push.requestPermission();
+    this.push.listenMessages();
+
     // 🔥 Obtener productos
     this.firebaseService.getProducts().subscribe({
       next: (data) => {
