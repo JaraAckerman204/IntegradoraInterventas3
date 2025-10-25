@@ -10,12 +10,26 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-    // 👀 sin guard, todos pueden entrar
+    // 👀 Página pública
   },
   {
     path: 'productos',
     loadComponent: () => import('./productos/productos.page').then((m) => m.ProductosPage),
-    canActivate: [authGuard], // 🔒 solo usuarios logeados
+    canActivate: [authGuard], // 🔒 Solo usuarios logeados y verificados
+  },
+  {
+    path: 'informacion',
+    loadComponent: () => import('./informacion/informacion.page').then((m) => m.InformacionPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'sucursales',
+    loadComponent: () => import('./sucursales/sucursales.page').then((m) => m.SucursalesPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'nosotros',
+    loadComponent: () => import('./nosotros/nosotros.page').then((m) => m.NosotrosPage),
   },
   {
     path: 'login',
@@ -26,15 +40,18 @@ export const routes: Routes = [
     loadComponent: () => import('./register/register.page').then((m) => m.RegisterPage),
   },
   {
-    path: 'informacion',
-    loadComponent: () => import('./informacion/informacion.page').then( m => m.InformacionPage)
+    path: 'verificar',
+    loadComponent: () => import('./verificar/verificar.page').then((m) => m.VerificarPage),
+    // ✅ Nueva página para mostrar mensaje o reenviar correo de verificación
   },
   {
-    path: 'nosotros',
-    loadComponent: () => import('./nosotros/nosotros.page').then( m => m.NosotrosPage)
+    path: '**',
+    redirectTo: 'home',
   },
-  {
-    path: 'sucursales',
-    loadComponent: () => import('./sucursales/sucursales.page').then( m => m.SucursalesPage)
-  },
+{
+  path: 'correo-enviado',
+  loadComponent: () => import('./correo-enviado/correo-enviado.page').then(m => m.CorreoEnviadoPage)
+},
+
+
 ];
