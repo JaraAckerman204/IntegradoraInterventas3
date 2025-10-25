@@ -6,10 +6,10 @@
 
       <!-- IZQUIERDA: solo logo -->
       <div class="left-section">
-        <ion-img class="imglogo" src="../../assets/img/logo.png" alt="Logo Interventas"></ion-img>
+        <ion-img class="imglogo" src="../../assets/img/logo.png" alt="Logo Interventas" routerLink="/home"></ion-img>
       </div>
 
-      <!-- CENTRO: secciones -->
+      <!-- CENTRO: secciones (solo desktop) -->
       <div class="center-section">
         <ion-button fill="clear" class="navboton" routerLink="/home">INICIO</ion-button>
         <ion-button fill="clear" class="navboton" (click)="toggleDropdown('nosotros', $event)">NOSOTROS</ion-button>
@@ -46,10 +46,35 @@
 
   </ion-toolbar>
 
-  <!-- Menú móvil -->
+  <!-- ========================================== -->
+  <!-- DROPDOWN NOSOTROS (DESKTOP) -->
+  <!-- ========================================== -->
+  <div class="dropdown-menu desktop-dropdown" 
+       *ngIf="showNosotrosDropdown" 
+       [style.top]="dropdownPosition['top']"
+       [style.left]="dropdownPosition['left']">
+    <ion-button fill="clear" class="dropdown-item" routerLink="/contacto" (click)="closeMenu()">CONTACTO</ion-button>
+    <ion-button fill="clear" class="dropdown-item" routerLink="/informacion" (click)="closeMenu()">INFORMACIÓN</ion-button>
+    <div class="bicolor-bar"></div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MENÚ MÓVIL -->
+  <!-- ========================================== -->
   <div class="mobile-menu" *ngIf="showMobileMenu">
     <ion-button fill="clear" class="mobile-item" routerLink="/home" (click)="closeMenu()">INICIO</ion-button>
-    <ion-button fill="clear" class="mobile-item" (click)="toggleDropdown('nosotros', $event)">NOSOTROS</ion-button>
+    
+    <!-- NOSOTROS con submenu -->
+    <ion-button fill="clear" class="mobile-item" (click)="toggleDropdown('nosotros', $event)">
+      NOSOTROS
+    </ion-button>
+    
+    <!-- Dropdown dentro del menú móvil -->
+    <div class="dropdown-menu" *ngIf="showNosotrosDropdown && showMobileMenu">
+      <ion-button fill="clear" class="dropdown-item" routerLink="/contacto" (click)="closeMenu()">CONTACTO</ion-button>
+      <ion-button fill="clear" class="dropdown-item" routerLink="/informacion" (click)="closeMenu()">INFORMACIÓN</ion-button>
+    </div>
+
     <ion-button fill="clear" class="mobile-item" routerLink="/productos" (click)="closeMenu()">PRODUCTOS</ion-button>
     <ion-button fill="clear" class="mobile-item" routerLink="/sucursales" (click)="closeMenu()">SUCURSALES</ion-button>
 
@@ -64,13 +89,6 @@
         <ion-button expand="block" class="btn-login-gradient" routerLink="/login" (click)="closeMenu()">Iniciar sesión</ion-button>
       </ng-template>
     </div>
-  </div>
-
-  <!-- Dropdown Nosotros -->
-  <div class="dropdown-menu" *ngIf="showNosotrosDropdown" [ngStyle]="dropdownPosition">
-    <ion-button fill="clear" class="dropdown-item" routerLink="/contacto">CONTACTO</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/informacion">INFORMACIÓN</ion-button>
-    <div class="bicolor-bar"></div>
   </div>
 
   <!-- Barra de color inferior -->

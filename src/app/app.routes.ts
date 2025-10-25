@@ -48,10 +48,8 @@ export const routes: Routes = [
     path: '**',
     redirectTo: 'home',
   },
-{
-  path: 'correo-enviado',
-  loadComponent: () => import('./correo-enviado/correo-enviado.page').then(m => m.CorreoEnviadoPage)
-},
-
-
+  {
+    path: 'sucursales',
+    loadComponent: () => import('./sucursales/sucursales.page').then( m => m.SucursalesPage)
+  },
 ];

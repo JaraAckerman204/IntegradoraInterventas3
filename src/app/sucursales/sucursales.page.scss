@@ -1,296 +1,526 @@
+/* sucursales.page.scss - Estructura separada Mayoreo/Menudeo con tu línea de diseño */
 
-
+// ===== VARIABLES =====
 :root {
-  color-scheme: only light;
+  --ion-color-success: #19226d;
+  --ion-color-secondary: #ed1370;
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Lato', sans-serif;
 }
 
-ion-card,
-ion-footer,
-ion-toolbar {
-  --background: #ffffff !important;
-  --ion-background-color: #ffffff !important;
-  --ion-text-color: #19226d !important;
-  --color: black;
-}
+$dark-blue: #27318d;
+$pink-magenta: #ed1370;
 
+// ===== RESET ION-CONTENT =====
 ion-content {
-  --background: radial-gradient(at 20% 30%, #ecd2dd 0px, transparent 70%),
-                radial-gradient(at 80% 70%, #d1d4f0 0px, transparent 70%),
-                #ffffff;
-}
-
-h1, h2, h3, h4, h5, h6, p {
-  color: #000000;
-}
-
-//colores del logoxd
-$dark-blue: #19226d;
-$pink-magenta: #ed156f;
-
-
-/* =============================== */
-/* NAVBAR */
-/* =============================== */
-
-.main-toolbar {
-  --padding-start: 20px;
-  --padding-end: 20px;
-  --padding-top: 10px;
-  --padding-bottom: 10px;
   --background: #ffffff;
-  color: $dark-blue;
+}
 
-  display: flex;
-  align-items: center;
+// ===== HERO SECTION =====
+.hero-section {
   position: relative;
-  z-index: 10;
-}
-
-.imglogo {
-  width: 250px;
-  height: auto;
-}
-
-.nav-links-container {
+  height: 50vh;
+  min-height: 400px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  text-align: center;
+  background: url('../../../src/assets/img/flyers/flyer1.png') no-repeat center center/cover;
+  color: white;
+  overflow: hidden;
+}
 
-  ion-button {
-    --background: transparent;
-    --color: $dark-blue;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 15px;
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(39, 49, 141, 0.85) 0%, rgba(237, 19, 112, 0.75) 100%);
+  animation: pulseOverlay 8s ease-in-out infinite;
+}
 
-    &:hover {
-      --color: $pink-magenta;
+@keyframes pulseOverlay {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.95; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 20px;
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-content h1 {
+  font-size: clamp(2em, 5vw, 3.5em);
+  font-weight: 700;
+  font-family: var(--font-primary);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  margin-bottom: 20px;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.hero-content p {
+  font-size: clamp(0.9em, 2vw, 1.3em);
+  font-family: var(--font-secondary);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 0;
+  opacity: 0.95;
+  color: #ffffff;
+  line-height: 1.6;
+}
+
+// ===== SECCIONES MAYOREO Y MENUDEO =====
+.sucursales-section {
+  padding: 60px 20px;
+  position: relative;
+  
+  &.mayoreo-section {
+    background: white;
+  }
+  
+  &.menudeo-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, $dark-blue, $pink-magenta);
     }
   }
 }
 
-.navboton:hover {
-  transition: color 0.5s ease;
-  color: $pink-magenta;
+.section-header {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  
+  h2 {
+    font-family: var(--font-primary);
+    font-weight: 800;
+    font-size: 2.5em;
+    color: $dark-blue;
+    margin-bottom: 15px;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    
+    &::after {
+      content: '';
+      display: block;
+      margin: 15px auto 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(to right, $dark-blue, $pink-magenta);
+      border-radius: 2px;
+    }
+  }
 }
 
-.dropdown-menu {
-  position: fixed;
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  z-index: 9999;
-  flex-direction: column;
-  min-width: 150px;
-  display: flex;
-  color: $dark-blue;
+.sub-header {
+  font-size: 1.2em;
+  color: #495057;
+  max-width: 700px;
+  margin: 20px auto 0;
+  font-family: var(--font-secondary);
+  line-height: 1.6;
+  text-align: center;
+}
+
+// ===== GRID DE SUCURSALES =====
+.sucursales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// ===== CARDS DE SUCURSALES =====
+.sucursal-card {
+  margin: 0 !important;
+  border-radius: 20px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  cursor: pointer;
   
-  --padding-start: 20px;
-  --padding-end: 20px;
-  --padding-top: 20px;
-  --padding-bottom: 20px;
-
-  .dropdown-item {
-    --background: transparent;
-    --color: $dark-blue;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 14px;
-    width: 100%;
-    justify-content: flex-start;
-
-    &:hover {
+  // Barra inferior con gradiente
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, $dark-blue, $pink-magenta);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+    z-index: 3;
+  }
+  
+  &:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 50px rgba($pink-magenta, 0.25);
+    
+    &::before {
+      transform: scaleX(1);
+    }
+    
+    ion-card-title {
+      background: linear-gradient(to right, $dark-blue, $pink-magenta);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    ion-icon {
+      transform: scale(1.1);
       color: $pink-magenta;
     }
   }
 }
 
-.bicolor-bar {
-  display: flex;
+// ===== MAPA CONTAINER =====
+.map-container {
   width: 100%;
-  height: 8px;
-
-  .color-left {
-    background-color: $dark-blue;
-    flex: 1;
-  }
-
-  .color-right {
-    background-color: $pink-magenta;
-    flex: 1;
-  }
-}
-
-/* =============================== */
-/* FOOTER */
-/* =============================== */
-
-.footer-toolbar {
-  --padding-start: 60px;
-  --padding-end: 60px;
-  --padding-top: 20px;
-  --padding-bottom: 30px;
-  --background: #ffffff;
-  color: $dark-blue;
-}
-
-.footer-divider {
-  width: 2px;
-  height: 100px;
-  background-color: #e0e0e0;
-}
-
-.footer-icon {
-  width: 40px;
-}
-
-.footer-cont {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(1, auto);
-  text-align: center;
-  align-items: center;
-  text-transform: uppercase;
-}
-
-.f-title {
-  color: $dark-blue;
-  font-weight: 600;
-}
-
-.f-text {
-  color: #5e5e5e;
-  font-weight: 300;
-}
-
-.fila3-icons {
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-}
-
-/* =============================== */
-/* MENÚ RESPONSIVO */
-/* =============================== */
-
-.menu-toggle {
-  display: none;
-}
-
-.menu-icon {
-  font-size: 32px;
-  color: #19226d;
-}
-
-/* Menú hamburguesa desplegable */
-.mobile-menu {
-  display: none;
-  flex-direction: column;
-  background-color: #ffffff;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 100%;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-  z-index: 999;
-}
-
-.mobile-item {
-  --background: transparent;
-  --color: #19226d;
-  font-weight: 600;
-  text-transform: uppercase;
-  text-align: left;
-  padding-left: 20px;
-
-  &:hover {
-    color: #ed156f;
-  }
-}
-
-/* =============================== */
-/* RESPONSIVE */
-/* =============================== */
-@media (max-width: 768px) {
-  .nav-links-container {
-    display: none;
-  }
-
-  .menu-toggle {
-    display: block;
-  }
-
-  .mobile-menu {
-    display: flex;
-  }
-
-  .dropdown-menu {
+  height: 250px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  
+  iframe {
     width: 100%;
-  }
-
-  .footer-cont {
-    grid-template-columns: repeat(1, 1fr);
-    grid-template-rows: repeat(3, auto);
+    height: 100%;
+    display: block;
+    border: none;
+    transition: transform 0.3s ease;
   }
 }
 
-/* =============================== */
-/* CONTENIDO DE PRODUCTOS */
-/* =============================== */
+.sucursal-card:hover .map-container iframe {
+  transform: scale(1.05);
+}
 
-.productos-section {
-  padding: 20px;
-  text-align: center;
+// ===== HEADER DEL CARD =====
+.sucursal-card ion-card-header {
+  padding: 30px 20px 15px;
+  position: relative;
+  z-index: 2;
+  background: white;
+  border-radius: 20px 20px 0 0;
+}
 
-  h1 {
-    margin-bottom: 20px;
+.sucursal-card ion-card-title {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 1.4em;
+  color: $dark-blue;
+  transition: all 0.3s ease;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// ===== CONTENIDO DEL CARD =====
+.sucursal-card ion-card-content {
+  padding: 15px 20px 25px;
+  position: relative;
+  z-index: 2;
+  background: white;
+  border-radius: 0 0 20px 20px;
+}
+
+.info-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+  
+  &:last-child {
+    margin-bottom: 0;
   }
+  
+  ion-icon {
+    font-size: 24px;
+    color: $dark-blue;
+    min-width: 24px;
+    margin-top: 2px;
+    transition: all 0.3s ease;
+  }
+  
+  div {
+    flex: 1;
+    
+    strong {
+      display: block;
+      font-family: var(--font-primary);
+      font-weight: 700;
+      font-size: 0.95em;
+      color: $dark-blue;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    p {
+      font-family: var(--font-secondary);
+      font-size: 0.95em;
+      color: #6c757d;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
 
-  .productos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-
-    .producto-card {
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 8px;
-      }
-
-      h3 {
-        margin: 10px 0 5px 0;
-      }
-
-      p {
-        font-size: 0.9rem;
-        color: #555;
+// ===== ANIMACIONES DE ENTRADA =====
+@media (prefers-reduced-motion: no-preference) {
+  .sucursales-grid .sucursal-card {
+    animation: cardFadeIn 0.6s ease-out backwards;
+    
+    @for $i from 1 through 12 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.1}s;
       }
     }
   }
 }
 
-/* =============================== */
-/* CONTACTO */
-/* =============================== */
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-.contacto-section {
-  padding: 20px;
+// ===== RESPONSIVE =====
+@media (max-width: 1200px) {
+  .sucursales-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+  }
+}
 
-  ion-input,
-  ion-textarea {
+@media (max-width: 992px) {
+  .sucursales-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+  
+  .sucursal-card ion-card-title {
+    font-size: 1.2em;
+  }
+  
+  .info-item {
     margin-bottom: 15px;
+    
+    ion-icon {
+      font-size: 22px;
+    }
+    
+    div {
+      strong {
+        font-size: 0.9em;
+      }
+      
+      p {
+        font-size: 0.9em;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    height: 45vh;
+    min-height: 350px;
+  }
+  
+  .hero-content h1 {
+    font-size: 2em;
+  }
+  
+  .hero-content p {
+    font-size: 1em;
+  }
+  
+  .sucursales-section {
+    padding: 50px 20px;
+  }
+  
+  .section-header {
+    margin-bottom: 35px;
+    
+    h2 {
+      font-size: 2em;
+      
+      &::after {
+        width: 70px;
+      }
+    }
+  }
+  
+  .sub-header {
+    font-size: 1.1em;
+    margin: 20px auto 0;
+  }
+  
+  .sucursales-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .sucursal-card {
+    border-radius: 18px;
+    
+    .card-number {
+      width: 45px;
+      height: 45px;
+      font-size: 1.3em;
+      top: -12px;
+      left: 18px;
+    }
+  }
+  
+  .sucursal-card ion-card-header {
+    padding: 25px 18px 12px;
+  }
+  
+  .sucursal-card ion-card-title {
+    font-size: 1.15em;
+  }
+  
+  .sucursal-card ion-card-content {
+    padding: 12px 18px 20px;
+  }
+  
+  .info-item {
+    gap: 12px;
+    margin-bottom: 15px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+    
+    div {
+      strong {
+        font-size: 0.85em;
+        margin-bottom: 4px;
+      }
+      
+      p {
+        font-size: 0.85em;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    height: 40vh;
+    min-height: 320px;
+  }
+  
+  .hero-content h1 {
+    font-size: 1.6em;
+  }
+  
+  .hero-content p {
+    font-size: 0.9em;
+  }
+  
+  .sucursales-section {
+    padding: 40px 15px;
+  }
+  
+  .section-header {
+    margin-bottom: 30px;
+    
+    h2 {
+      font-size: 1.8em;
+      
+      &::after {
+        width: 60px;
+        height: 3px;
+      }
+    }
+  }
+  
+  .sub-header {
+    font-size: 1em;
+  }
+  
+  .sucursales-grid {
+    gap: 25px;
+    max-width: 400px;
+  }
+  
+  .sucursal-card {
+    border-radius: 15px;
+    
+    .card-number {
+      width: 40px;
+      height: 40px;
+      font-size: 1.2em;
+      top: -10px;
+      left: 15px;
+    }
+  }
+  
+  .sucursal-card ion-card-header {
+    padding: 22px 15px 10px;
+  }
+  
+  .sucursal-card ion-card-title {
+    font-size: 1.05em;
+  }
+  
+  .sucursal-card ion-card-content {
+    padding: 10px 15px 18px;
+  }
+  
+  .info-item {
+    gap: 10px;
+    margin-bottom: 12px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+    
+    div {
+      strong {
+        font-size: 0.8em;
+      }
+      
+      p {
+        font-size: 0.8em;
+        line-height: 1.5;
+      }
+    }
   }
 }
