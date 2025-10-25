@@ -50,12 +50,25 @@ export class HeaderComponent implements OnInit {
 
   closeMenu() {
     this.showMobileMenu = false;
+    this.closeDropdowns();
   }
 
-  // 🟢 Dropdowns (Nosotros / Sucursales)
+  // 🟢 Dropdowns (Nosotros / Sucursales) - CORREGIDO
   toggleDropdown(menu: 'nosotros' | 'sucursales', event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    const rect = target.getBoundingClientRect();
+    event.preventDefault();
+    event.stopPropagation();
+
+    // USAR currentTarget en lugar de target
+    const button = event.currentTarget as HTMLElement;
+    
+    if (!button) {
+      console.error('No se pudo obtener el botón');
+      return;
+    }
+
+    const rect = button.getBoundingClientRect();
+    console.log('Button rect:', rect); // Debug
+    
     const menuWidth = 220;
     const padding = 10;
     const viewportWidth = window.innerWidth;
@@ -66,16 +79,20 @@ export class HeaderComponent implements OnInit {
     }
 
     this.dropdownPosition = {
-      top: `${rect.bottom + 5}px`,
+      top: `${rect.bottom + 8}px`,
       left: `${left}px`,
     };
+
+    console.log('Dropdown position:', this.dropdownPosition); // Debug
 
     if (menu === 'nosotros') {
       this.showNosotrosDropdown = !this.showNosotrosDropdown;
       this.showSucursalesDropdown = false;
+      console.log('showNosotrosDropdown:', this.showNosotrosDropdown); // Debug
     } else {
       this.showSucursalesDropdown = !this.showSucursalesDropdown;
       this.showNosotrosDropdown = false;
+      console.log('showSucursalesDropdown:', this.showSucursalesDropdown); // Debug
     }
   }
 
@@ -84,18 +101,37 @@ export class HeaderComponent implements OnInit {
     this.showSucursalesDropdown = false;
   }
 
-  // 🧠 Cerrar menús si se hace click fuera
+  // 🧠 Cerrar menús si se hace click fuera - MEJORADO
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    const inside =
-      target.closest('.nav-links-container') ||
-      target.closest('.dropdown-menu') ||
-      target.closest('.menu-toggle') ||
-      target.closest('.mobile-menu');
-    if (!inside) {
+    // Solo cerrar en desktop
+    if (window.innerWidth > 768) {
+      const target = event.target as HTMLElement;
+      const inside =
+        target.closest('.center-section') ||
+        target.closest('.desktop-dropdown') ||
+        target.closest('.navboton');
+      
+      if (!inside) {
+        this.closeDropdowns();
+      }
+    }
+  }
+
+  // Cerrar dropdowns al hacer scroll
+  @HostListener('window:scroll', ['$event'])
+  onScroll() {
+    if (window.innerWidth > 768) {
       this.closeDropdowns();
+    }
+  }
+
+  // Cerrar menú móvil al cambiar tamaño de ventana
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    if (window.innerWidth > 768) {
       this.showMobileMenu = false;
+      this.closeDropdowns();
     }
   }
 }
