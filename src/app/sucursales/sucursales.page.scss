@@ -1,4 +1,4 @@
-/* sucursales.page.scss - Estructura separada Mayoreo/Menudeo con tu línea de diseño */
+/* sucursales.page.scss - Diseño con fondo degradado y contenedor blanco */
 
 // ===== VARIABLES =====
 :root {
@@ -13,114 +13,116 @@ $pink-magenta: #ed1370;
 
 // ===== RESET ION-CONTENT =====
 ion-content {
-  --background: #ffffff;
-}
-
-// ===== HERO SECTION =====
-.hero-section {
-  position: relative;
-  height: 50vh;
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: url('../../../src/assets/img/flyers/flyer1.png') no-repeat center center/cover;
-  color: white;
-  overflow: hidden;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(39, 49, 141, 0.85) 0%, rgba(237, 19, 112, 0.75) 100%);
-  animation: pulseOverlay 8s ease-in-out infinite;
-}
-
-@keyframes pulseOverlay {
-  0%, 100% { opacity: 0.85; }
-  50% { opacity: 0.95; }
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  padding: 20px;
-  animation: fadeInUp 1s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.hero-content h1 {
-  font-size: clamp(2em, 5vw, 3.5em);
-  font-weight: 700;
-  font-family: var(--font-primary);
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  margin-bottom: 20px;
-  line-height: 1.2;
-  color: #ffffff;
-}
-
-.hero-content p {
-  font-size: clamp(0.9em, 2vw, 1.3em);
-  font-family: var(--font-secondary);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  margin-bottom: 0;
-  opacity: 0.95;
-  color: #ffffff;
-  line-height: 1.6;
+  --background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
 }
 
 // ===== SECCIONES MAYOREO Y MENUDEO =====
 .sucursales-section {
-  padding: 60px 20px;
+  padding: 80px 20px;
   position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  background: transparent;
   
   &.mayoreo-section {
-    background: white;
+    padding-top: 100px;
   }
-  
-  &.menudeo-section {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(to right, $dark-blue, $pink-magenta);
-    }
+}
+
+// ===== FIGURAS GEOMÉTRICAS GRANDES (SIN BLUR) =====
+.gradient-blob {
+  position: absolute;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  opacity: 0.15;
+  z-index: 0;
+  animation: morphBlob 20s ease-in-out infinite;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.blob-1 {
+  top: -15%;
+  right: -10%;
+  width: 700px;
+  height: 700px;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  top: 25%;
+  left: -15%;
+  width: 650px;
+  height: 650px;
+  animation-delay: 5s;
+}
+
+.blob-3 {
+  bottom: 5%;
+  right: 15%;
+  width: 600px;
+  height: 600px;
+  animation-delay: 10s;
+}
+
+.blob-4 {
+  top: -10%;
+  left: -12%;
+  width: 750px;
+  height: 750px;
+  animation-delay: 2s;
+}
+
+.blob-5 {
+  top: 35%;
+  right: -15%;
+  width: 680px;
+  height: 680px;
+  animation-delay: 7s;
+}
+
+.blob-6 {
+  bottom: -15%;
+  left: 20%;
+  width: 620px;
+  height: 620px;
+  animation-delay: 12s;
+}
+
+@keyframes morphBlob {
+  0%, 100% {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
+    transform: translate(30px, -30px) scale(1.05) rotate(90deg);
+  }
+  50% {
+    border-radius: 50% 50% 30% 70% / 60% 40% 60% 40%;
+    transform: translate(-20px, 40px) scale(0.95) rotate(180deg);
+  }
+  75% {
+    border-radius: 30% 70% 60% 40% / 50% 50% 50% 50%;
+    transform: translate(25px, 15px) scale(1.02) rotate(270deg);
   }
 }
 
 .section-header {
   max-width: 1200px;
   margin: 0 auto 40px;
+  position: relative;
+  z-index: 1;
   
   h2 {
     font-family: var(--font-primary);
     font-weight: 800;
     font-size: 2.5em;
-    color: $dark-blue;
+    color: #ffffff;
     margin-bottom: 15px;
     text-align: center;
     width: 100%;
     position: relative;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     
     &::after {
       content: '';
@@ -128,7 +130,7 @@ ion-content {
       margin: 15px auto 0;
       width: 80px;
       height: 4px;
-      background: linear-gradient(to right, $dark-blue, $pink-magenta);
+      background: rgba(255, 255, 255, 0.8);
       border-radius: 2px;
     }
   }
@@ -136,12 +138,27 @@ ion-content {
 
 .sub-header {
   font-size: 1.2em;
-  color: #495057;
+  color: rgba(255, 255, 255, 0.9);
   max-width: 700px;
   margin: 20px auto 0;
   font-family: var(--font-secondary);
   line-height: 1.6;
   text-align: center;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+}
+
+// ===== CONTENEDOR BLANCO PARA LAS CARDS =====
+.cards-container {
+  position: relative;
+  z-index: 1;
+  background: white;
+  border-radius: 25px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 1300px;
+  margin: 0 auto;
 }
 
 // ===== GRID DE SUCURSALES =====
@@ -149,8 +166,8 @@ ion-content {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 // ===== CARDS DE SUCURSALES =====
@@ -322,12 +339,20 @@ ion-content {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 25px;
   }
+  
+  .cards-container {
+    padding: 35px;
+  }
 }
 
 @media (max-width: 992px) {
   .sucursales-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
+  }
+  
+  .cards-container {
+    padding: 30px;
   }
   
   .sucursal-card ion-card-title {
@@ -354,108 +379,32 @@ ion-content {
 }
 
 @media (max-width: 768px) {
-  .hero-section {
-    height: 45vh;
-    min-height: 350px;
-  }
-  
-  .hero-content h1 {
-    font-size: 2em;
-  }
-  
-  .hero-content p {
-    font-size: 1em;
-  }
-  
   .sucursales-section {
-    padding: 50px 20px;
-  }
-  
-  .section-header {
-    margin-bottom: 35px;
+    padding: 50px 15px;
     
-    h2 {
-      font-size: 2em;
-      
-      &::after {
-        width: 70px;
-      }
+    &.mayoreo-section {
+      padding-top: 60px;
     }
   }
   
-  .sub-header {
-    font-size: 1.1em;
-    margin: 20px auto 0;
+  // Ajustar tamaño de blobs en móvil
+  .gradient-blob {
+    opacity: 0.12;
   }
   
-  .sucursales-grid {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    max-width: 500px;
-    margin: 0 auto;
+  .blob-1, .blob-4 {
+    width: 500px;
+    height: 500px;
   }
   
-  .sucursal-card {
-    border-radius: 18px;
-    
-    .card-number {
-      width: 45px;
-      height: 45px;
-      font-size: 1.3em;
-      top: -12px;
-      left: 18px;
-    }
+  .blob-2, .blob-5 {
+    width: 450px;
+    height: 450px;
   }
   
-  .sucursal-card ion-card-header {
-    padding: 25px 18px 12px;
-  }
-  
-  .sucursal-card ion-card-title {
-    font-size: 1.15em;
-  }
-  
-  .sucursal-card ion-card-content {
-    padding: 12px 18px 20px;
-  }
-  
-  .info-item {
-    gap: 12px;
-    margin-bottom: 15px;
-    
-    ion-icon {
-      font-size: 20px;
-    }
-    
-    div {
-      strong {
-        font-size: 0.85em;
-        margin-bottom: 4px;
-      }
-      
-      p {
-        font-size: 0.85em;
-      }
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-section {
-    height: 40vh;
-    min-height: 320px;
-  }
-  
-  .hero-content h1 {
-    font-size: 1.6em;
-  }
-  
-  .hero-content p {
-    font-size: 0.9em;
-  }
-  
-  .sucursales-section {
-    padding: 40px 15px;
+  .blob-3, .blob-6 {
+    width: 400px;
+    height: 400px;
   }
   
   .section-header {
@@ -473,31 +422,34 @@ ion-content {
   
   .sub-header {
     font-size: 1em;
+    margin: 15px auto 0;
+  }
+  
+  .cards-container {
+    padding: 20px;
+    border-radius: 20px;
+    max-width: 500px;
   }
   
   .sucursales-grid {
-    gap: 25px;
-    max-width: 400px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .map-container {
+    height: 180px;
   }
   
   .sucursal-card {
     border-radius: 15px;
-    
-    .card-number {
-      width: 40px;
-      height: 40px;
-      font-size: 1.2em;
-      top: -10px;
-      left: 15px;
-    }
   }
   
   .sucursal-card ion-card-header {
-    padding: 22px 15px 10px;
+    padding: 20px 15px 10px;
   }
   
   .sucursal-card ion-card-title {
-    font-size: 1.05em;
+    font-size: 1em;
   }
   
   .sucursal-card ion-card-content {
@@ -515,11 +467,85 @@ ion-content {
     div {
       strong {
         font-size: 0.8em;
+        margin-bottom: 3px;
       }
       
       p {
         font-size: 0.8em;
         line-height: 1.5;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .sucursales-section {
+    padding: 40px 12px;
+  }
+  
+  .section-header {
+    margin-bottom: 25px;
+    
+    h2 {
+      font-size: 1.6em;
+      
+      &::after {
+        width: 50px;
+        height: 3px;
+      }
+    }
+  }
+  
+  .sub-header {
+    font-size: 0.9em;
+  }
+  
+  .cards-container {
+    padding: 15px;
+    border-radius: 15px;
+    max-width: 400px;
+  }
+  
+  .sucursales-grid {
+    gap: 15px;
+  }
+  
+  .map-container {
+    height: 160px;
+  }
+  
+  .sucursal-card {
+    border-radius: 12px;
+  }
+  
+  .sucursal-card ion-card-header {
+    padding: 18px 12px 8px;
+  }
+  
+  .sucursal-card ion-card-title {
+    font-size: 0.95em;
+  }
+  
+  .sucursal-card ion-card-content {
+    padding: 8px 12px 15px;
+  }
+  
+  .info-item {
+    gap: 8px;
+    margin-bottom: 10px;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+    
+    div {
+      strong {
+        font-size: 0.75em;
+      }
+      
+      p {
+        font-size: 0.75em;
+        line-height: 1.4;
       }
     }
   }

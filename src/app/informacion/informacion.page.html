@@ -1,13 +1,120 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>informacion</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header></app-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">informacion</ion-title>
+      <ion-title size="large">Información</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Grupo Interventas</h1>
+      <p>Más de 30 años de experiencia en el mercado</p>
+    </div>
+  </div>
+
+  <!-- About Section -->
+  <div class="about-section">
+    <div class="about-container">
+      <h2>¿Quiénes Somos?</h2>
+      <p class="about-text">
+        Somos una empresa dedicada a la venta y distribución de las mejores marcas de productos de empaques, 
+        desechables y biodegradables con más de 30 años de experiencia en el mercado. Abastecemos de forma 
+        rápida y eficiente la más amplia variedad de productos que se puedan encontrar en el mercado.
+      </p>
+    </div>
+  </div>
+
+  <!-- Values Section -->
+  <div class="values-section">
+    <h2>Nuestros Valores</h2>
+    
+    <div class="values-grid">
+      <!-- Misión Card -->
+      <ion-card class="value-card">
+        <ion-card-header>
+          <div class="icon-wrapper mission-icon">
+            <ion-icon name="rocket-outline"></ion-icon>
+          </div>
+          <ion-card-title>Misión</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Ser los proveedores de productos biodegradables, plásticos, empaques y desechables más confiables 
+          para las empresas comercializadoras y usuarios finales de todo México, apoyados en un canal de 
+          distribución eficiente, moderno y eficaz.
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Visión Card -->
+      <ion-card class="value-card">
+        <ion-card-header>
+          <div class="icon-wrapper vision-icon">
+            <ion-icon name="eye-outline"></ion-icon>
+          </div>
+          <ion-card-title>Visión</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Nuestra misión es ser los socios comerciales más rentables de las empresas comercializadoras y 
+          distribuidoras de productos de plástico, empaques y desechables de todo México.
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Filosofía Card -->
+      <ion-card class="value-card">
+        <ion-card-header>
+          <div class="icon-wrapper philosophy-icon">
+            <ion-icon name="bulb-outline"></ion-icon>
+          </div>
+          <ion-card-title>Filosofía</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Buscamos ser honestos y serios en los tratos con proveedores, clientes y colaboradores; basamos 
+          nuestro éxito en el trabajo diario y buscamos constantemente la mejora en todos los sentidos.
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Quality Policy Section -->
+  <div class="quality-section">
+    <div class="quality-container">
+      <div class="quality-icon-wrapper">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
+      <h2>Políticas de Calidad</h2>
+      <p class="quality-text">
+        En GRUPO INTERVENTAS S.A DE C.V., nos dedicamos a la comercialización y distribución de plásticos, 
+        empaques, desechables, biodegradables y materias primas con la más alta calidad a través del cumplimiento 
+        de los requisitos de nuestros clientes y de las partes interesadas, del fortalecimiento de las competencias 
+        de nuestro personal y del establecimiento de relaciones efectivas con proveedores, mejorando continuamente 
+        el sistema de gestión de la calidad.
+      </p>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="stats-section">
+    <h2>Nuestra Trayectoria</h2>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">30+</div>
+        <div class="stat-label">Años de Experiencia</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Compromiso con la Calidad</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Atención al Cliente</div>
+      </div>
+    </div>
+  </div>
+
+  <app-footer></app-footer>
 </ion-content>
+
+

@@ -2,7 +2,7 @@ import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { menuOutline } from 'ionicons/icons';
+import { menuOutline, personCircleOutline, logOutOutline, logInOutline } from 'ionicons/icons';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 
 @Component({
@@ -13,12 +13,17 @@ import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit {
-  // 🔽 Variables existentes
+  // 📽 Variables existentes
   showNosotrosDropdown = false;
+  showProductosDropdown = false;
   showSucursalesDropdown = false;
   showMobileMenu = false;
+  showProfileMenu = false; // ⭐ Nuevo menú de perfil
   dropdownPosition = { top: '0px', left: '0px' };
   menuOutline = menuOutline;
+  personCircleOutline = personCircleOutline; // ⭐ Nuevo icono
+  logOutOutline = logOutOutline; // ⭐ Nuevo icono
+  logInOutline = logInOutline; // ⭐ Nuevo icono
 
   // 🔥 Firebase
   user: User | null = null;
@@ -38,14 +43,51 @@ export class HeaderComponent implements OnInit {
     const auth = getAuth();
     signOut(auth).then(() => {
       this.user = null;
+      this.closeProfileMenu();
       this.router.navigate(['/login']);
     });
+  }
+
+  // 🟢 Menú de perfil
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
+    if (this.showProfileMenu) {
+      this.closeMenu();
+      this.closeDropdowns();
+    }
+  }
+
+  closeProfileMenu() {
+    this.showProfileMenu = false;
+  }
+
+  // ✅ Detecta si estamos en la ruta Home
+  isHomeActive(): boolean {
+    return this.router.url === '/home' || this.router.url === '/';
+  }
+
+  // ✅ Detecta si estamos en una ruta de Nosotros
+  isNosotrosActive(): boolean {
+    return this.router.url.startsWith('/nosotros');
+  }
+
+  // ✅ Detecta si estamos en una ruta de Productos
+  isProductosActive(): boolean {
+    return this.router.url.startsWith('/productos');
+  }
+
+  // ✅ Detecta si estamos en la ruta Sucursales
+  isSucursalesActive(): boolean {
+    return this.router.url.startsWith('/sucursales');
   }
 
   // 🟢 Menú hamburguesa
   toggleMenu() {
     this.showMobileMenu = !this.showMobileMenu;
-    this.closeDropdowns();
+    if (this.showMobileMenu) {
+      this.closeDropdowns();
+      this.closeProfileMenu();
+    }
   }
 
   closeMenu() {
@@ -53,8 +95,8 @@ export class HeaderComponent implements OnInit {
     this.closeDropdowns();
   }
 
-  // 🟢 Dropdowns (Nosotros / Sucursales) - CORREGIDO
-  toggleDropdown(menu: 'nosotros' | 'sucursales', event: MouseEvent) {
+  // 🟢 Dropdowns (Nosotros / Productos / Sucursales)
+  toggleDropdown(menu: 'nosotros' | 'productos' | 'sucursales', event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -67,7 +109,6 @@ export class HeaderComponent implements OnInit {
     }
 
     const rect = button.getBoundingClientRect();
-    console.log('Button rect:', rect); // Debug
     
     const menuWidth = 220;
     const padding = 10;
@@ -83,30 +124,43 @@ export class HeaderComponent implements OnInit {
       left: `${left}px`,
     };
 
-    console.log('Dropdown position:', this.dropdownPosition); // Debug
-
     if (menu === 'nosotros') {
       this.showNosotrosDropdown = !this.showNosotrosDropdown;
+      this.showProductosDropdown = false;
       this.showSucursalesDropdown = false;
-      console.log('showNosotrosDropdown:', this.showNosotrosDropdown); // Debug
+    } else if (menu === 'productos') {
+      this.showProductosDropdown = !this.showProductosDropdown;
+      this.showNosotrosDropdown = false;
+      this.showSucursalesDropdown = false;
     } else {
       this.showSucursalesDropdown = !this.showSucursalesDropdown;
       this.showNosotrosDropdown = false;
-      console.log('showSucursalesDropdown:', this.showSucursalesDropdown); // Debug
+      this.showProductosDropdown = false;
     }
   }
 
   closeDropdowns() {
     this.showNosotrosDropdown = false;
+    this.showProductosDropdown = false;
     this.showSucursalesDropdown = false;
   }
 
-  // 🧠 Cerrar menús si se hace click fuera - MEJORADO
+  // 🧠 Cerrar menús si se hace click fuera
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
-    // Solo cerrar en desktop
+    const target = event.target as HTMLElement;
+    
+    // Cerrar menú de perfil si se hace click fuera
+    const insideProfile =
+      target.closest('.profile-menu') ||
+      target.closest('.profile-menu-btn');
+    
+    if (!insideProfile) {
+      this.closeProfileMenu();
+    }
+    
+    // Solo cerrar dropdowns en desktop
     if (window.innerWidth > 768) {
-      const target = event.target as HTMLElement;
       const inside =
         target.closest('.center-section') ||
         target.closest('.desktop-dropdown') ||
