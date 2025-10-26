@@ -112,5 +112,9 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'home',
+  },  {
+    path: 'usuario',
+    loadComponent: () => import('./usuario/usuario.page').then( m => m.UsuarioPage)
   },
+
 ];
