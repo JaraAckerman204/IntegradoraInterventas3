@@ -22,6 +22,9 @@ import {
 
 import { AuthService } from '../services/auth.service';
 
+// 🔥 Importa esto para actualizar el perfil del usuario
+import { updateProfile } from 'firebase/auth';
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -44,6 +47,7 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./register.page.scss'],
 })
 export class RegisterPage {
+  name = ''; // 👈 nuevo campo
   email = '';
   password = '';
   confirmPassword = '';
@@ -62,8 +66,13 @@ export class RegisterPage {
     this.errorMessage = '';
 
     try {
-      // 🧩 Crear usuario
+      // 🧩 Crear usuario en Firebase
       const userCredential = await this.auth.register(this.email, this.password);
+
+      // 🧠 Guardar nombre del usuario en su perfil
+      await updateProfile(userCredential, {
+        displayName: this.name,
+      });
 
     
 
