@@ -71,30 +71,34 @@
   <div class="profile-menu" *ngIf="showProfileMenu">
     <!-- Auth info -->
     <div class="profile-menu-content">
-      <ng-container *ngIf="user; else profileNotLogged">
-        <div class="user-info-header">
-          <ion-icon [icon]="personCircleOutline" class="user-avatar"></ion-icon>
-          <div class="user-details">
-            <p class="greeting">Bienvenido</p>
-            <p class="user-email">{{ user.email }}</p>
-          </div>
-        </div>
-        <ion-button expand="block" color="danger" (click)="logout()" class="logout-btn">
-          <ion-icon [icon]="logOutOutline" slot="start"></ion-icon>
-          Cerrar sesión
-        </ion-button>
-      </ng-container>
+     <ng-container *ngIf="user; else profileNotLogged">
+  <div class="user-info-header">
+    <ion-icon [icon]="personCircleOutline" class="user-avatar"></ion-icon>
+    <div class="user-details">
+      <p class="greeting">Bienvenido</p>
+      <p class="user-email">
+        {{ user.displayName || user.email }}
+      </p>
+    </div>
 
-      <ng-template #profileNotLogged>
-        <div class="not-logged-header">
-          <ion-icon [icon]="personCircleOutline" class="guest-avatar"></ion-icon>
-          <p class="guest-text">Inicia sesión para acceder a tu cuenta</p>
-        </div>
-        <ion-button expand="block" class="btn-login-gradient" routerLink="/login" (click)="closeProfileMenu()">
-          <ion-icon [icon]="logInOutline" slot="start"></ion-icon>
-          Iniciar sesión
-        </ion-button>
-      </ng-template>
+    <ion-button expand="block" color="danger" (click)="logout()" class="logout-btn">
+      <ion-icon [icon]="logOutOutline" slot="start"></ion-icon>
+      Cerrar sesión
+    </ion-button>
+  </div> <!-- ✅ cierre correcto -->
+</ng-container>
+
+<ng-template #profileNotLogged>
+  <div class="not-logged-header">
+    <ion-icon [icon]="personCircleOutline" class="guest-avatar"></ion-icon>
+    <p class="guest-text">Inicia sesión para acceder a tu cuenta</p>
+  </div>
+  <ion-button expand="block" class="btn-login-gradient" routerLink="/login" (click)="closeProfileMenu()">
+    <ion-icon [icon]="logInOutline" slot="start"></ion-icon>
+    Iniciar sesión
+  </ion-button>
+</ng-template>
+
     </div>
   </div>
 

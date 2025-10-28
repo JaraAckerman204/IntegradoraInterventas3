@@ -20,6 +20,19 @@
       </ion-card-header>
 
       <ion-card-content>
+
+        <!-- 🟣 Campo para el nombre (nuevo) -->
+        <div class="input-group">
+          <ion-input
+            label="Nombre completo"
+            labelPlacement="floating"
+            [(ngModel)]="name"
+            type="text"
+            placeholder="Tu nombre completo">
+          </ion-input>
+        </div>
+        <!-- 🟣 Fin del nuevo campo -->
+
         <div class="input-group">
           <ion-input
             label="Correo electrónico"
