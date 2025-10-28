@@ -105,6 +105,14 @@ export const routes: Routes = [
     path: 'privacidad',
     loadComponent: () => import('./privacidad/privacidad.page').then((m) => m.PrivacidadPage)
   },
+
+   // 🌱 SECCIÓN ADMIN
+  {
+    path: 'admin',
+    loadComponent: () => import('./admin/admin.page').then(m => m.AdminPage),
+    canActivate: [adminGuard],
+  },
+
   // ==========================================
   // RUTA 404
   // ==========================================
