@@ -39,7 +39,7 @@ export class AuthService {
 
       return user;
     } catch (error: any) {
-      console.error('Error al iniciar sesión:', error);
+      console.error('Error al iniciar sesión', error);
       throw error;
     }
   }
