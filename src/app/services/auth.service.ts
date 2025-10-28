@@ -9,36 +9,36 @@ import {
   reload,
   User
 } from '@angular/fire/auth';
+import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
-  // 👤 Observable que guarda el usuario actual
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  // 👇 undefined = aún cargando, null = sin sesión, User = sesión activa
+  private currentUserSubject = new BehaviorSubject<User | null | undefined>(undefined);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private auth: Auth) {
-    // 🔥 Escucha el estado de autenticación en tiempo real
+  constructor(private auth: Auth, private firestore: Firestore) {
+    // 🔥 Escuchar cambios en la sesión (Firebase maneja persistencia)
     onAuthStateChanged(this.auth, (user) => {
       this.currentUserSubject.next(user);
     });
   }
 
-  // 🔑 Iniciar sesión
+  /** 🔑 Iniciar sesión */
   async login(email: string, password: string) {
     try {
       const { user } = await signInWithEmailAndPassword(this.auth, email, password);
-      await reload(user); // actualiza estado de verificación
+      await reload(user);
 
       if (!user.emailVerified) {
-        // Si el correo no está verificado, cerrar sesión
         await signOut(this.auth);
         throw new Error('Debes verificar tu correo antes de iniciar sesión.');
       }
 
+      this.currentUserSubject.next(user); // ✅ sincroniza el estado
       return user;
     } catch (error: any) {
       console.error('Error al iniciar sesión:', error);
@@ -46,43 +46,51 @@ export class AuthService {
     }
   }
 
-  // 🧾 Registrar usuario
+  /** 🧾 Registrar usuario */
   async register(email: string, password: string) {
-    try {
-      const { user } = await createUserWithEmailAndPassword(this.auth, email, password);
+    const { user } = await createUserWithEmailAndPassword(this.auth, email, password);
+    await sendEmailVerification(user);
 
-      // Enviar correo de verificación
-      await sendEmailVerification(user);
-      console.log('Correo de verificación enviado a:', user.email);
+    const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+    await setDoc(userRef, { email, rol: 'cliente' });
 
-      // Opcional: cerrar sesión hasta que verifique
-      await signOut(this.auth);
-      return user;
-    } catch (error: any) {
-      console.error('Error al registrar usuario:', error);
-      throw error;
-    }
+    await signOut(this.auth);
+    this.currentUserSubject.next(null);
+    return user;
   }
 
-  // 📩 Reenviar correo de verificación
-  async resendVerificationEmail() {
-    const user = this.auth.currentUser;
-    if (user && !user.emailVerified) {
-      await sendEmailVerification(user);
-      console.log('Correo de verificación reenviado a:', user.email);
-    } else {
-      console.warn('El usuario ya está verificado o no ha iniciado sesión.');
-    }
-  }
-
-  // 🚪 Cerrar sesión
+  /** 🚪 Cerrar sesión */
   async logout() {
     await signOut(this.auth);
     this.currentUserSubject.next(null);
   }
 
-  // 🔍 Obtener usuario actual directamente
+  /** 🧠 Obtener rol del usuario */
+  async getUserRole(uid: string): Promise<string | null> {
+    const docRef = doc(this.firestore, `usuarios/${uid}`);
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+      const data = snapshot.data() as any;
+      return data.rol;
+    }
+    return null;
+  }
+
+  /** 🔍 Usuario actual */
   getCurrentUser() {
     return this.auth.currentUser;
   }
+
+    /** 📧 Reenviar correo de verificación */
+  async resendVerificationEmail() {
+    const user = this.auth.currentUser;
+    if (user) {
+      await sendEmailVerification(user);
+    } else {
+      throw new Error('No hay usuario autenticado para reenviar el correo.');
+    }
+  }
+
+
 }
+
