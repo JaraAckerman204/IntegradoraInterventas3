@@ -74,6 +74,11 @@ export class RegisterPage {
         displayName: this.name,
       });
 
+      // 🧠 Guardar nombre del usuario en su perfil
+      await updateProfile(userCredential, {
+        displayName: this.name,
+      });
+
     
 
       // 🚀 Redirigir a la página de verificación
