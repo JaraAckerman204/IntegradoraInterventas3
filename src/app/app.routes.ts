@@ -31,9 +31,17 @@ export const routes: Routes = [
 
   // 🌱 SECCIÓN ADMIN
   {
-    path: 'admin',
-    loadComponent: () => import('./admin/admin.page').then(m => m.AdminPage),
-    canActivate: [adminGuard],
+    path: 'nosotros',
+    loadComponent: () => import('./nosotros/nosotros.page').then((m) => m.NosotrosPage),
+  },
+  {
+    path: 'nosotros/contacto',
+    loadComponent: () => import('./contacto/contacto.page').then((m) => m.ContactoPage)
+  },
+  {
+    path: 'nosotros/informacion',
+    loadComponent: () => import('./informacion/informacion.page').then((m) => m.InformacionPage),
+    canActivate: [authGuard],
   },
 
   // 🌱 SECCIÓN PRODUCTOS (protegida por login)
@@ -42,8 +50,64 @@ export const routes: Routes = [
     loadComponent: () => import('./productos/productos.page').then((m) => m.ProductosPage),
     canActivate: [authGuard],
   },
-
-  // 🌱 RUTA 404
+  {
+    path: 'productos/todos',
+    loadComponent: () => import('./todos/todos.page').then((m) => m.TodosPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/desechables',
+    loadComponent: () => import('./desechables/desechables.page').then((m) => m.DesechablesPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/biodegradables',
+    loadComponent: () => import('./biodegradables/biodegradables.page').then((m) => m.BiodegradablesPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/bolsas',
+    loadComponent: () => import('./bolsas/bolsas.page').then((m) => m.BolsasPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/cocina-reposteria',
+    loadComponent: () => import('./cocina-reposteria/cocina-reposteria.page').then((m) => m.CocinaReposteriaPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/alimentos',
+    loadComponent: () => import('./alimentos/alimentos.page').then((m) => m.AlimentosPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/higienicos-servilletas',
+    loadComponent: () => import('./higienicos-servilletas/higienicos-servilletas.page').then((m) => m.HigienicosServilletasPage),
+    canActivate: [authGuard],
+  },
+  // ==========================================
+  // OTRAS SECCIONES
+  // ==========================================
+  {
+    path: 'sucursales',
+    loadComponent: () => import('./sucursales/sucursales.page').then((m) => m.SucursalesPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'preguntas',
+    loadComponent: () => import('./preguntas/preguntas.page').then((m) => m.PreguntasPage)
+  },
+  {
+    path: 'terminos',
+    loadComponent: () => import('./terminos/terminos.page').then((m) => m.TerminosPage)
+  },
+  {
+    path: 'privacidad',
+    loadComponent: () => import('./privacidad/privacidad.page').then((m) => m.PrivacidadPage)
+  },
+  // ==========================================
+  // RUTA 404
+  // ==========================================
   {
     path: '**',
     redirectTo: 'home',
