@@ -7,11 +7,27 @@ import {
   IonTitle,
   IonToolbar,
   IonButton,
-  IonText
+  IonText,
+  IonIcon,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent
 } from '@ionic/angular/standalone';
 import { AuthService } from '../services/auth.service';
 import { sendEmailVerification } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+
+// 🧩 Importar componentes
+import { HeaderComponent } from '../components/header/header.component';
+import { FooterComponent } from '../components/footer/footer.component';
+
+import { addIcons } from 'ionicons';
+import { 
+  mailOutline, 
+  refreshOutline, 
+  arrowBackOutline 
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-verificar',
@@ -19,12 +35,19 @@ import { Router } from '@angular/router';
   styleUrls: ['./verificar.page.scss'],
   standalone: true,
   imports: [
+    HeaderComponent,
+    FooterComponent,
     IonContent,
     IonHeader,
     IonTitle,
     IonToolbar,
     IonButton,
     IonText,
+    IonIcon,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
     CommonModule,
     FormsModule,
   ],
@@ -33,7 +56,14 @@ export class VerificarPage {
   reenviando = false; // 🔄 para desactivar el botón temporalmente
   mensaje = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {
+    // Registrar los iconos de Ionicons
+    addIcons({
+      'mail-outline': mailOutline,
+      'refresh-outline': refreshOutline,
+      'arrow-back-outline': arrowBackOutline
+    });
+  }
 
   async reenviarVerificacion() {
     const user = this.authService.getCurrentUser();
@@ -59,7 +89,7 @@ export class VerificarPage {
     }
   }
 
-  // 👇 Este método arregla tu error y permite volver al login
+  // 👇 Este método permite volver al login
   goToLogin() {
     this.router.navigateByUrl('/login');
   }

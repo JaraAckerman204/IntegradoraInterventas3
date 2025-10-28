@@ -1,0 +1,458 @@
+/* verificar.page.scss - Diseño mejorado con tarjeta centrada */
+
+// ===== VARIABLES =====
+:root {
+  --ion-color-success: #19226d;
+  --ion-color-secondary: #ed1370;
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Lato', sans-serif;
+}
+
+// ===== RESET ION-CONTENT =====
+ion-content {
+  --background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+}
+
+// ===== HERO SECTION =====
+.verification-hero-section {
+  position: relative;
+  height: 45vh;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  overflow: hidden;
+  padding-bottom: 40px;
+}
+
+.verification-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  animation: pulseOverlay 8s ease-in-out infinite;
+}
+
+@keyframes pulseOverlay {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.verification-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  padding: 20px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Icono de correo
+.email-icon-wrapper {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: float 3s ease-in-out infinite;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  
+  ion-icon {
+    font-size: 50px;
+    color: white;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+// Título difuminado
+.blurred-title {
+  font-size: clamp(0.9em, 3vw, 1.2em);
+  font-weight: 400;
+  font-family: var(--font-secondary);
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+  filter: blur(0.5px);
+  opacity: 0.85;
+}
+
+// Título principal
+.main-title {
+  font-size: clamp(2.5em, 6vw, 3.5em);
+  font-weight: 800;
+  font-family: var(--font-primary);
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  line-height: 1.2;
+}
+
+// ===== FORM SECTION =====
+.verification-form-section {
+  padding: 0 20px 80px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+  
+  // Elementos decorativos flotantes
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    animation: floatBubbles 15s infinite ease-in-out;
+    pointer-events: none;
+  }
+  
+  &::before {
+    width: 250px;
+    height: 250px;
+    bottom: 10%;
+    left: 5%;
+    animation-delay: 0s;
+  }
+  
+  &::after {
+    width: 180px;
+    height: 180px;
+    top: 20%;
+    right: 8%;
+    animation-delay: 3s;
+  }
+}
+
+@keyframes floatBubbles {
+  0%, 100% { 
+    transform: translateY(0) scale(1); 
+    opacity: 0.6;
+  }
+  50% { 
+    transform: translateY(-20px) scale(1.05); 
+    opacity: 0.8;
+  }
+}
+
+.verification-card {
+  width: 100%;
+  max-width: 500px;
+  margin: -60px auto 0;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: white;
+  position: relative;
+  z-index: 10;
+  
+  // Borde superior con gradiente
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, #27318d, #ed1370);
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+.verification-card ion-card-header {
+  padding: 35px 30px 20px;
+  text-align: center;
+}
+
+.verification-card ion-card-title {
+  font-family: var(--font-primary);
+  font-weight: 800;
+  font-size: 1.8em;
+  color: #27318d;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-family: var(--font-secondary);
+  font-size: 0.95em;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.verification-card ion-card-content {
+  padding: 25px 30px 35px;
+}
+
+// ===== BOTONES =====
+ion-button {
+  --border-radius: 12px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --box-shadow: 0 8px 20px rgba(237, 19, 112, 0.3);
+  
+  font-weight: 700;
+  font-family: var(--font-primary);
+  font-size: 0.95em;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  
+  &[expand="block"] {
+    --background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    --background-hover: linear-gradient(135deg, #1e2470 0%, #d01160 100%);
+    --background-activated: linear-gradient(135deg, #1e2470 0%, #d01160 100%);
+    --color: white;
+    position: relative;
+    overflow: hidden;
+    
+    // Asegurar que el texto sea blanco
+    span, ion-icon {
+      color: white !important;
+    }
+    
+    // Efecto de brillo
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+      z-index: 0;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      --box-shadow: 0 12px 30px rgba(237, 19, 112, 0.4);
+      
+      &::before {
+        left: 100%;
+      }
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &[disabled] {
+      --background: #e9ecef;
+      --color: #adb5bd;
+      --box-shadow: none;
+      opacity: 0.6;
+      cursor: not-allowed;
+      
+      span, ion-icon {
+        color: #adb5bd !important;
+      }
+      
+      &::before {
+        display: none;
+      }
+    }
+  }
+  
+  &[fill="clear"] {
+    --color: #ed1370;
+    font-weight: 600;
+    text-transform: none;
+    font-size: 0.9em;
+    margin-top: 15px;
+    
+    span, ion-icon {
+      color: #ed1370;
+    }
+    
+    &:hover {
+      --color: #27318d;
+      text-decoration: underline;
+      
+      span, ion-icon {
+        color: #27318d;
+      }
+    }
+  }
+  
+  ion-icon {
+    margin-right: 8px;
+    font-size: 1.2em;
+  }
+}
+
+// ===== MESSAGE TEXT =====
+ion-text {
+  display: block;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 12px;
+  font-family: var(--font-secondary);
+  font-size: 0.95em;
+  text-align: center;
+  line-height: 1.6;
+  animation: fadeIn 0.5s ease;
+  font-weight: 500;
+  
+  &[color="primary"] {
+    background: rgba(39, 49, 141, 0.1);
+    color: #27318d;
+    border-left: 4px solid #27318d;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ===== DIVIDER =====
+.divider {
+  margin: 25px 0 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .verification-hero-section {
+    height: 40vh;
+    min-height: 280px;
+  }
+  
+  .email-icon-wrapper {
+    width: 90px;
+    height: 90px;
+    
+    ion-icon {
+      font-size: 45px;
+    }
+  }
+  
+  .blurred-title {
+    font-size: 0.85em;
+    letter-spacing: 2px;
+  }
+  
+  .main-title {
+    font-size: 2.2em;
+  }
+  
+  .verification-form-section {
+    padding: 0 15px 60px;
+    
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+  
+  .verification-card {
+    margin-top: -50px;
+    max-width: 100%;
+  }
+  
+  .verification-card ion-card-header {
+    padding: 30px 25px 18px;
+  }
+  
+  .verification-card ion-card-title {
+    font-size: 1.6em;
+  }
+  
+  .verification-card ion-card-content {
+    padding: 20px 25px 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .verification-hero-section {
+    height: 38vh;
+    min-height: 260px;
+  }
+  
+  .email-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+    
+    ion-icon {
+      font-size: 40px;
+    }
+  }
+  
+  .blurred-title {
+    font-size: 0.75em;
+    letter-spacing: 1.5px;
+  }
+  
+  .main-title {
+    font-size: 1.8em;
+  }
+  
+  .verification-form-section {
+    padding: 0 15px 50px;
+  }
+  
+  .verification-card {
+    margin-top: -45px;
+    border-radius: 15px;
+  }
+  
+  .verification-card ion-card-header {
+    padding: 25px 20px 15px;
+  }
+  
+  .verification-card ion-card-title {
+    font-size: 1.4em;
+  }
+  
+  .subtitle {
+    font-size: 0.85em;
+  }
+  
+  .verification-card ion-card-content {
+    padding: 18px 20px 25px;
+  }
+  
+  ion-button {
+    font-size: 0.85em;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+  }
+}
