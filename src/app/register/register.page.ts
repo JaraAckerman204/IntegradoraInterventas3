@@ -65,8 +65,7 @@ export class RegisterPage {
       // 🧩 Crear usuario
       const userCredential = await this.auth.register(this.email, this.password);
 
-      // 📨 Enviar correo de verificación
-      await this.auth.resendVerificationEmail();
+    
 
       // 🚀 Redirigir a la página de verificación
       this.router.navigateByUrl('/verificar', { replaceUrl: true });
