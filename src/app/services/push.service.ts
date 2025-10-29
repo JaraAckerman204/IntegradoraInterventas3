@@ -12,7 +12,7 @@ export class PushService {
       });
       if (token) {
         console.log('✅ Token de notificaciones:', token);
-        alert('Permiso otorgado. Token en consola.');
+      
       } else {
         console.warn('⚠️ No se pudo obtener el token.');
       }
