@@ -1,13 +1,125 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>privacidad</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header></app-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">privacidad</ion-title>
+      <ion-title size="large">Política de Privacidad</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Hero -->
+  <div class="hero-section privacidad-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Política de Privacidad</h1>
+      <p>Protegemos tus datos y respetamos tu privacidad. Conoce cómo recopilamos, usamos y protegemos tu información.</p>
+    </div>
+  </div>
+
+  <!-- Policy content -->
+  <div class="policy-section">
+    <div class="policy-container">
+      <div class="policy-grid">
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon mission">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <h3>Introducción</h3>
+          <p>
+            En Grupo Interventas ("nosotros", "nuestro"), valoramos la privacidad de nuestros clientes y usuarios. Esta
+            política describe qué información recopilamos, con qué finalidad y cómo la protegemos.
+          </p>
+        </section>
+
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon data">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <h3>Información que recopilamos</h3>
+          <p>
+            Recopilamos información que nos proporcionas directamente (nombre, correo, teléfono, direcciones),
+            datos de pedido y comportamiento anónimo para mejorar nuestros servicios.
+          </p>
+        </section>
+
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon usage">
+            <ion-icon name="cog-outline"></ion-icon>
+          </div>
+          <h3>Uso de la información</h3>
+          <p>
+            Utilizamos tus datos para procesar pedidos, ofrecer soporte, personalizar la experiencia y enviar
+            comunicaciones relevantes. También realizamos análisis anónimos para mejorar la plataforma.
+          </p>
+        </section>
+
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon cookie">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <h3>Cookies y tecnologías</h3>
+          <p>
+            Usamos cookies para preferencias y analítica. Puedes gestionar el almacenamiento desde tu navegador, aunque
+            podría afectar la experiencia.
+          </p>
+        </section>
+
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon share">
+            <ion-icon name="share-social-outline"></ion-icon>
+          </div>
+          <h3>Compartir información</h3>
+          <p>
+            No vendemos tus datos. Compartimos información con proveedores que nos ayudan a operar (pagos, envíos,
+            análisis) bajo acuerdos que protegen la confidencialidad.
+          </p>
+        </section>
+
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon lock">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+          <h3>Seguridad</h3>
+          <p>
+            Implementamos medidas técnicas y administrativas razonables para proteger tus datos. Aunque hacemos lo
+            posible, ninguna medida es infalible.
+          </p>
+        </section>
+
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon clock">
+            <ion-icon name="time-outline"></ion-icon>
+          </div>
+          <h3>Conservación</h3>
+          <p>
+            Conservamos datos mientras sean necesarios para cumplir la finalidad o por obligaciones legales. Luego se
+            eliminan o anonimiza la información.
+          </p>
+        </section>
+
+        <section class="policy-card reveal" #reveal>
+          <div class="card-icon rights">
+            <ion-icon name="document-text-outline"></ion-icon>
+          </div>
+          <h3>Derechos</h3>
+          <p>
+            Puedes solicitar acceso, rectificación o eliminación de tus datos según la legislación aplicable. Contáctanos
+            para ejercer tus derechos.
+          </p>
+        </section>
+      </div>
+
+      <div class="policy-bottom reveal" #reveal>
+        <h2>Contacto y cambios</h2>
+        <p>
+          Para dudas o solicitudes sobre privacidad escríbenos a <a href="mailto:privacidad@grupointerventas.com">privacidad@grupointerventas.com</a>
+          o llama al <a href="tel:+521800000000">(800) 000 0000</a>.
+        </p>
+        <p class="small-note">Última actualización: Octubre 2025</p>
+      </div>
+    </div>
+  </div>
+
+  <app-footer></app-footer>
+
 </ion-content>
