@@ -16,7 +16,6 @@ export class PushService {
 
       if (token) {
         console.log('✅ Token de notificaciones:', token);
-        // Ya no mostramos alert.
       } else {
         console.warn('⚠️ No se pudo obtener el token.');
       }
