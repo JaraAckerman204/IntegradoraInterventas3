@@ -91,7 +91,6 @@ export const routes: Routes = [
   {
     path: 'sucursales',
     loadComponent: () => import('./sucursales/sucursales.page').then((m) => m.SucursalesPage),
-    canActivate: [authGuard],
   },
   {
     path: 'preguntas',
