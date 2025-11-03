@@ -46,11 +46,6 @@ export const routes: Routes = [
 
   // 🌱 SECCIÓN PRODUCTOS (protegida por login)
   {
-    path: 'productos',
-    loadComponent: () => import('./productos/productos.page').then((m) => m.ProductosPage),
-    canActivate: [authGuard],
-  },
-  {
     path: 'productos/todos',
     loadComponent: () => import('./todos/todos.page').then((m) => m.TodosPage),
     canActivate: [authGuard],
