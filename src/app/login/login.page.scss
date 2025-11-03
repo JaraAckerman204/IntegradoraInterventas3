@@ -1,4 +1,4 @@
-/* login.page.scss - Diseño mejorado con tarjeta centrada */
+/* login.page.scss - Diseño mejorado con animación de preloader */
 
 // ===== VARIABLES =====
 :root {
@@ -6,6 +6,8 @@
   --ion-color-secondary: #ed1370;
   --font-primary: 'Montserrat', sans-serif;
   --font-secondary: 'Lato', sans-serif;
+  --color-gradient-start: #27318d;
+  --color-gradient-end: #ed1370;
 }
 
 // ===== RESET ION-CONTENT =====
@@ -13,6 +15,133 @@ ion-content {
   --background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
 }
 
+// ===== PRELOADER Y ANIMACIÓN DEL LOGO =====
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(213, 213, 213, 0.399);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.2s ease-out 1.7s, visibility 0s 2.2s;
+  
+  &.preloader-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.logo-svg {
+  width: 600px;
+  height: auto;
+  transform-origin: center center;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: 
+    logo-fade-in 0.5s ease-out forwards,
+    logo-pulse 0.6s ease-in-out infinite alternate 0.5s,
+    logo-reveal-exit 0.5s ease-in forwards 1.2s;
+  
+  // Círculos con animación flotante
+  #circulo-1, #circulo-r {
+    transform-origin: center;
+    animation: circle-float 3s ease-in-out infinite;
+  }
+  
+  #punto-i {
+    transform-origin: center;
+    animation: dot-bounce 2s ease-in-out infinite;
+  }
+  
+  // Curva principal con movimiento suave
+  #curva-principal {
+    transform-origin: center;
+    animation: curve-float 3.5s ease-in-out infinite alternate;
+  }
+  
+  // Letras con animación escalonada
+  #letra-i { animation: letter-wave 2s ease-in-out infinite 0.1s; }
+  #letra-n-1 { animation: letter-wave 2s ease-in-out infinite 0.2s; }
+  #letra-t-1 { animation: letter-wave 2s ease-in-out infinite 0.3s; }
+  #letra-e-1 { animation: letter-wave 2s ease-in-out infinite 0.4s; }
+  #letra-r { animation: letter-wave 2s ease-in-out infinite 0.5s; }
+  #letra-v { animation: letter-wave 2s ease-in-out infinite 0.6s; }
+  #letra-e-2 { animation: letter-wave 2s ease-in-out infinite 0.7s; }
+  #letra-n-2 { animation: letter-wave 2s ease-in-out infinite 0.8s; }
+  #letra-a { animation: letter-wave 2s ease-in-out infinite 0.9s; }
+  #letra-s { animation: letter-wave 2s ease-in-out infinite 1s; }
+  #letra-t-2 { animation: letter-wave 2s ease-in-out infinite 1.1s; }
+  #marca-r { animation: letter-wave 2s ease-in-out infinite 1.2s; }
+}
+
+// Animación principal de entrada
+@keyframes logo-fade-in {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+// Pulso suave del logo
+@keyframes logo-pulse {
+  0% { 
+    transform: scale(1); 
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2)); 
+  }
+  100% { 
+    transform: scale(1.05); 
+    filter: drop-shadow(0 0 25px #ed1370); 
+  }
+}
+
+// Animación de salida explosiva
+@keyframes logo-reveal-exit {
+  0% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  100% {
+    opacity: 0;
+    transform: scale(5);
+    filter: blur(10px) drop-shadow(0 0 50px #ed1370);
+  }
+}
+
+// Flotación de círculos
+@keyframes circle-float {
+  0%, 100% { transform: translateY(-3px); }
+  50% { transform: translateY(3px); }
+}
+
+// Rebote del punto de la i
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+// Flotación de la curva principal
+@keyframes curve-float {
+  0%, 100% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+}
+
+// Ola de letras
+@keyframes letter-wave {
+  0%, 100% { 
+    transform: translateY(0); 
+    opacity: 1;
+  }
+  50% { 
+    transform: translateY(-3px); 
+    opacity: 0.8;
+  }
+}
 // ===== HERO SECTION =====
 .login-hero-section {
   position: relative;
@@ -185,7 +314,6 @@ ion-content {
   margin-bottom: 22px;
   position: relative;
   
-  // Wrapper para el borde degradado
   .input-wrapper {
     position: relative;
     padding: 2px;
@@ -245,7 +373,6 @@ ion-content {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  color: #27318d;
   
   // Efecto de brillo
   &::before {
@@ -370,6 +497,18 @@ ion-content {
   .input-group {
     margin-bottom: 20px;
   }
+  
+  .logo-svg {
+    width: 280px;
+  }
+  
+  .welcome-text {
+    font-size: 2em;
+  }
+  
+  .welcome-subtext {
+    font-size: 1em;
+  }
 }
 
 @media (max-width: 480px) {
@@ -416,5 +555,17 @@ ion-content {
     font-size: 0.95em;
     --padding-top: 14px;
     --padding-bottom: 14px;
+  }
+  
+  .logo-svg {
+    width: 220px;
+  }
+  
+  .welcome-text {
+    font-size: 1.8em;
+  }
+  
+  .welcome-subtext {
+    font-size: 0.9em;
   }
 }

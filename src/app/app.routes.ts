@@ -41,15 +41,9 @@ export const routes: Routes = [
   {
     path: 'nosotros/informacion',
     loadComponent: () => import('./informacion/informacion.page').then((m) => m.InformacionPage),
-    canActivate: [authGuard],
   },
 
   // 🌱 SECCIÓN PRODUCTOS (protegida por login)
-  {
-    path: 'productos',
-    loadComponent: () => import('./productos/productos.page').then((m) => m.ProductosPage),
-    canActivate: [authGuard],
-  },
   {
     path: 'productos/todos',
     loadComponent: () => import('./todos/todos.page').then((m) => m.TodosPage),
@@ -95,10 +89,6 @@ export const routes: Routes = [
   {
     path: 'preguntas',
     loadComponent: () => import('./preguntas/preguntas.page').then((m) => m.PreguntasPage)
-  },
-  {
-    path: 'terminos',
-    loadComponent: () => import('./terminos/terminos.page').then((m) => m.TerminosPage)
   },
   {
     path: 'privacidad',

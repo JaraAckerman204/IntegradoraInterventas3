@@ -2,55 +2,79 @@
 
 <ion-content [fullscreen]="true">
 
-  <!-- 1. BANNER HERO -->
-  <section class="hero-section">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1 class="ion-text-center">Empaques que simplifican tu día y cuidan tu negocio.</h1>
-      <p>Desde desechables hasta productos biodegradables, contamos con una amplia línea de soluciones prácticas para negocios, restaurantes y emprendedores. Calidad, rapidez y confianza en cada pedido.</p>
+  <!-- 1. BANNER HERO - CARRUSEL -->
+<section class="hero-section">
+  <div class="carousel-container">
+    <div class="carousel-slide" [class.active]="currentSlide === 0">
+      <img src="../../assets/img/flyers/flyer1.png" alt="Slide 1">
     </div>
-  </section>
+    <div class="carousel-slide" [class.active]="currentSlide === 1">
+      <img src="../../assets/img/flyers/flyer2.png" alt="Slide 2">
+    </div>
+    <div class="carousel-slide" [class.active]="currentSlide === 2">
+      <img src="../../assets/img/flyers/flyer3.png" alt="Slide 3">
+    </div>
+  </div>
 
-  <!-- 2. PRODUCTOS DESTACADOS -->
+<!-- Controles del carrusel -->
+<div class="carousel-controls">
+  <button class="carousel-btn prev" (click)="previousSlide()">‹</button>
+  <button class="carousel-btn next" (click)="nextSlide()">›</button>
+</div>
+</section>
+
+  <!-- 2. PRODUCTOS DESTACADOS - 4 productos -->
   <section class="products-section ion-padding">
     <h2 class="ion-text-center">Productos Destacados</h2>
-    <p class="ion-text-center sub-header ion-margin-bottom">Nuestra selección más vendida de desechables y empaques.</p>
+    <p class="ion-text-center sub-header">Nuestra selección más vendida de desechables y empaques.</p>
 
     <div class="product-grid">
       
-      <ion-card class="product-card">
-        <ion-img src="assets/img/bolsa-mega-fuerte.jpg" alt="Charola para alimentos"></ion-img>
+      <ion-card class="product-card" (click)="openProductModal(productosDestacados[0])">
+        <ion-img src="../../assets/img/products/charolagrande.png" alt="Charola para alimentos"></ion-img>
         <ion-card-header>
           <ion-card-title>Charola Grande C-10</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <p>Ideal para pastelerías, carnicerías y catering.</p>
           <div class="price">Desde $37.00</div>
-          <ion-button fill="clear" color="accent" routerLink="/producto/1">Ver Detalle</ion-button>
+          <ion-button fill="clear" color="accent">Clic para más detalles</ion-button>
         </ion-card-content>
       </ion-card>
 
-      <ion-card class="product-card">
-        <ion-img src="assets/img/boutique-reutilizable.jpg" alt="Vaso desechable"></ion-img>
+      <ion-card class="product-card" (click)="openProductModal(productosDestacados[1])">
+        <ion-img src="../../assets/img/products/vasotermico.png" alt="Vaso desechable"></ion-img>
         <ion-card-header>
           <ion-card-title>Vaso Térmico No.10</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <p>Excelente aislamiento, perfecto para bebidas frías y calientes.</p>
           <div class="price">$26.00 (Paquete)</div>
-          <ion-button fill="clear" color="accent" routerLink="/producto/2">Ver Detalle</ion-button>
+          <ion-button fill="clear" color="accent">Ver Detalle</ion-button>
         </ion-card-content>
       </ion-card>
       
-      <ion-card class="product-card">
-        <ion-img src="assets/img/cubierto-ecologico.jpg" alt="Cuchara de plástico"></ion-img>
+      <ion-card class="product-card" (click)="openProductModal(productosDestacados[2])">
+        <ion-img src="../../assets/img/products/cucharamediana.png" alt="Cuchara de plástico"></ion-img>
         <ion-card-header>
           <ion-card-title>Cuchara Plástica Mediana</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <p>La opción económica y resistente para eventos y restaurantes.</p>
           <div class="price">Desde $14.00 (Caja)</div>
-          <ion-button fill="clear" color="accent" routerLink="/producto/3">Ver Detalle</ion-button>
+          <ion-button fill="clear" color="accent">Ver Detalle</ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="product-card" (click)="openProductModal(productosDestacados[3])">
+        <ion-img src="../../assets/img/products/platobiodegradable.png" alt="Plato biodegradable"></ion-img>
+        <ion-card-header>
+          <ion-card-title>Plato Biodegradable 9"</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Amigable con el ambiente, resistente y elegante para cualquier evento.</p>
+          <div class="price">$52.00 (Paquete 50)</div>
+          <ion-button fill="clear" color="accent">Ver Detalle</ion-button>
         </ion-card-content>
       </ion-card>
       
@@ -116,13 +140,145 @@
       </ion-card>
       
     </div>
-
-    <div class="ion-text-center ion-margin-top ion-padding-top">
-      <ion-button class="catalog-btn" fill="solid" routerLink="/productos">
-        VER TODO EL CATÁLOGO
-      </ion-button>
-    </div>
   </section>
+
+<!-- 5. SECCIÓN DE NEWSLETTER -->
+<section class="newsletter-section ion-padding">
+  <div class="newsletter-container">
+    
+    <!-- Icono Flotante Central -->
+    <div class="newsletter-icon">
+      <ion-icon name="mail-outline"></ion-icon>
+    </div>
+    
+    <!-- Título y Descripción -->
+    <h2>¡Suscríbete a Nuestro Newsletter!</h2>
+    <p class="newsletter-description">
+      Recibe las mejores ofertas, descuentos exclusivos y novedades directamente en tu correo.
+    </p>
+    
+    <!-- Formulario -->
+    <form class="newsletter-form" (submit)="subscribeNewsletter($event)">
+      <div class="form-row">
+        <div class="form-group">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <input 
+            type="text" 
+            placeholder="Tu nombre" 
+            [(ngModel)]="subscriberName"
+            name="subscriberName"
+            class="newsletter-input"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <input 
+            type="email" 
+            placeholder="Tu correo electrónico" 
+            [(ngModel)]="subscriberEmail"
+            name="subscriberEmail"
+            class="newsletter-input"
+            required
+          >
+        </div>
+        
+        <button type="submit" class="subscribe-btn" [disabled]="isSubscribing">
+          <span *ngIf="!isSubscribing">
+            <ion-icon name="send-outline"></ion-icon>
+            Suscribirme
+          </span>
+          <span *ngIf="isSubscribing">
+            <ion-spinner name="crescent"></ion-spinner>
+          </span>
+        </button>
+      </div>
+    </form>
+    
+    <!-- Beneficios -->
+    <div class="newsletter-benefits">
+      <div class="benefit-item">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>Descuentos exclusivos</span>
+      </div>
+      <div class="benefit-item">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>Promociones especiales</span>
+      </div>
+      <div class="benefit-item">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>Novedades de productos</span>
+      </div>
+    </div>
+    
+    <!-- Nota de Privacidad -->
+    <p class="privacy-note">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      Tu información está 100% protegida. No compartimos tu correo con terceros.
+    </p>
+    
+  </div>
+</section>
+
+  <!-- MODAL DE PRODUCTO -->
+  <div class="product-modal-overlay" *ngIf="showProductModal" (click)="closeProductModal()" [@fadeIn]>
+    <div class="product-modal" (click)="$event.stopPropagation()">
+      
+      <!-- Botón Cerrar -->
+      <button class="modal-close-btn" (click)="closeProductModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+
+      <div class="modal-content">
+        
+        <!-- Lado Izquierdo: Imagen -->
+        <div class="modal-image-section">
+          <div class="image-wrapper">
+            <img [src]="selectedProduct?.imagen" [alt]="selectedProduct?.nombre">
+          </div>
+        </div>
+
+        <!-- Lado Derecho: Información -->
+        <div class="modal-info-section">
+          
+          <h2 class="product-title">{{ selectedProduct?.nombre }}</h2>
+          
+          <div class="product-description">
+            <p>{{ selectedProduct?.descripcion }}</p>
+          </div>
+
+          <!-- Características del producto -->
+          <div class="product-features">
+            <div class="feature-item">
+              <ion-icon name="ribbon-outline"></ion-icon>
+              <span><strong>Marca:</strong> {{ selectedProduct?.marca }}</span>
+            </div>
+            <div class="feature-item">
+              <ion-icon name="cube-outline"></ion-icon>
+              <span><strong>Piezas:</strong> {{ selectedProduct?.piezas }}</span>
+            </div>
+          </div>
+
+          <div class="product-price-section">
+            <div class="price-label">Precio</div>
+            <div class="price-amount">{{ selectedProduct?.precio }}</div>
+          </div>
+
+          <button class="add-to-cart-btn" (click)="addToCart()">
+            <ion-icon name="cart-outline" slot="start"></ion-icon>
+            <span>Añadir al Carrito</span>
+          </button>
+
+          <div class="modal-footer-note">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Compra segura garantizada</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
 <app-footer></app-footer>
 </ion-content>

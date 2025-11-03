@@ -1,13 +1,220 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>contacto</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header></app-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">contacto</ion-title>
-    </ion-toolbar>
-  </ion-header>
+
+  <!-- SECCIÓN HERO CONTACTO -->
+  <section class="contact-hero">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+      </div>
+      <h1>¡Estamos para Ayudarte!</h1>
+      <p>Resuelve tus dudas, solicita cotizaciones o comunícate con nosotros. Tu satisfacción es nuestra prioridad.</p>
+    </div>
+  </section>
+
+  <!-- SECCIÓN PRINCIPAL DE CONTACTO -->
+  <section class="contact-section ion-padding">
+    <div class="contact-container">
+
+      <!-- COLUMNA IZQUIERDA: FORMULARIO Y MAPA -->
+      <div class="left-column">
+        
+        <!-- FORMULARIO DE CONTACTO -->
+        <div class="contact-form-wrapper">
+          <div class="form-header">
+            <h2>Envíanos un Mensaje</h2>
+            <p>Llena el formulario y con gusto te atenderemos en breve.</p>
+          </div>
+
+          <form class="contact-form" (submit)="sendMessage($event)">
+            
+            <div class="form-group">
+              <ion-icon name="person-outline" class="input-icon"></ion-icon>
+              <input 
+                type="text" 
+                placeholder="Tu nombre completo *" 
+                [(ngModel)]="formData.name"
+                name="name"
+                class="contact-input"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+              <input 
+                type="email" 
+                placeholder="Tu correo electrónico *" 
+                [(ngModel)]="formData.email"
+                name="email"
+                class="contact-input"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <ion-icon name="call-outline" class="input-icon"></ion-icon>
+              <input 
+                type="tel" 
+                placeholder="Tu teléfono" 
+                [(ngModel)]="formData.phone"
+                name="phone"
+                class="contact-input"
+              >
+            </div>
+
+            <div class="form-group">
+              <ion-icon name="business-outline" class="input-icon"></ion-icon>
+              <input 
+                type="text" 
+                placeholder="Empresa (opcional)" 
+                [(ngModel)]="formData.company"
+                name="company"
+                class="contact-input"
+              >
+            </div>
+
+            <div class="form-group full-width">
+              <ion-icon name="chatbox-outline" class="input-icon textarea-icon"></ion-icon>
+              <textarea 
+                placeholder="¿En qué podemos ayudarte? *" 
+                [(ngModel)]="formData.message"
+                name="message"
+                class="contact-textarea"
+                rows="5"
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" [disabled]="isSending">
+              <span *ngIf="!isSending">
+                <ion-icon name="send-outline"></ion-icon>
+                Enviar Mensaje
+              </span>
+              <span *ngIf="isSending">
+                <ion-spinner name="crescent"></ion-spinner>
+                Enviando...
+              </span>
+            </button>
+
+          </form>
+        </div>
+
+        <!-- MAPA EN CARTA -->
+        <div class="map-card">
+          <div class="map-card-header">
+            <div class="map-icon">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <div>
+              <h3>Encuéntranos</h3>
+              <p>Visítanos en nuestras instalaciones</p>
+            </div>
+          </div>
+          <div class="map-embed">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d57344.93397893665!2d-103.48093!3d25.54389!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x868fdaf3ce9445d1%3A0x7d1f5e0d389e4e8b!2zVG9ycmXDs24sIENvYWguLCBNw6l4aWNv!5e0!3m2!1ses!2smx!4v1234567890"
+              style="border:0;" 
+              allowfullscreen="" 
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: INFORMACIÓN DE CONTACTO -->
+      <div class="right-column">
+        
+        <div class="info-header">
+          <h3>Información de Contacto</h3>
+          <p>Múltiples formas de comunicarte con nosotros</p>
+        </div>
+
+        <div class="contact-cards">
+          
+          <!-- Teléfonos -->
+          <div class="info-card">
+            <div class="card-icon phone">
+              <ion-icon name="call-outline"></ion-icon>
+            </div>
+            <h4>Teléfonos</h4>
+            <a href="tel:+528711893530" class="contact-link">
+              <ion-icon name="call"></ion-icon>
+              (871) 189-3530
+            </a>
+            <a href="tel:+528717168770" class="contact-link">
+              <ion-icon name="call"></ion-icon>
+              (871) 716-8770
+            </a>
+          </div>
+
+          <!-- Email -->
+          <div class="info-card">
+            <div class="card-icon email">
+              <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <h4>Correo Electrónico</h4>
+            <a href="mailto:ventas@grupointerventas.mx" class="contact-link">
+              <ion-icon name="mail"></ion-icon>
+              ventas@grupointerventas.mx
+            </a>
+          </div>
+
+          <!-- Ubicación -->
+          <div class="info-card">
+            <div class="card-icon location">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <h4>Ubicación Principal</h4>
+            <p class="address">
+              <ion-icon name="location"></ion-icon>
+              Torreón, Coahuila, México
+            </p>
+          </div>
+
+          <!-- Horarios -->
+          <div class="info-card">
+            <div class="card-icon schedule">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <h4>Horario de Atención</h4>
+            <p class="schedule-text">
+              <ion-icon name="time"></ion-icon>
+              Lunes a Viernes<br>
+              <strong>9:00 AM - 6:00 PM</strong>
+            </p>
+            <p class="schedule-text">
+              <ion-icon name="time"></ion-icon>
+              Sábados<br>
+              <strong>9:00 AM - 2:00 PM</strong>
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Redes Sociales con fondo blanco -->
+        <div class="social-section">
+          <h4>Síguenos en Redes</h4>
+          <div class="social-links">
+            <a href="#" class="social-btn facebook">
+              <ion-icon name="logo-facebook"></ion-icon>
+            </a>
+            <a href="#" class="social-btn instagram">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+            <a href="#" class="social-btn whatsapp">
+              <ion-icon name="logo-whatsapp"></ion-icon>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+
 </ion-content>

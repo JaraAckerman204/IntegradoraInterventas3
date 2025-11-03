@@ -1,144 +1,278 @@
 <ion-header>
-  <ion-toolbar class="main-toolbar">
-
-    <!-- Contenedor principal -->
-    <div class="toolbar-content">
-
-      <!-- IZQUIERDA: solo logo -->
-      <div class="left-section">
-        <ion-img class="imglogo" src="../../assets/img/logo.png" alt="Logo Interventas" routerLink="/home"></ion-img>
+  <ion-toolbar class="modern-toolbar">
+    
+    <!-- Contenedor Principal con Flex Mejorado -->
+    <div class="header-container">
+      
+      <!-- Logo Section -->
+      <div class="logo-section">
+        <div class="logo-wrapper" routerLink="/home">
+          <ion-img class="logo-img" src="../../assets/img/logo.png" alt="Logo Interventas"></ion-img>
+          <div class="logo-glow"></div>
+        </div>
       </div>
 
-      <!-- CENTRO: secciones (solo desktop) -->
-      <div class="center-section">
-        <ion-button fill="clear" class="navboton" routerLink="/home" [class.active-link]="isHomeActive()">INICIO</ion-button>
-        <ion-button fill="clear" class="navboton" (click)="toggleDropdown('nosotros', $event)" [class.active-link]="isNosotrosActive()">NOSOTROS</ion-button>
-        <ion-button fill="clear" class="navboton" (click)="toggleDropdown('productos', $event)" [class.active-link]="isProductosActive()">PRODUCTOS</ion-button>
-        <ion-button fill="clear" class="navboton" routerLink="/sucursales" [class.active-link]="isSucursalesActive()">SUCURSALES</ion-button>
-      </div>
-
-      <!-- DERECHA: ícono de perfil + menú móvil -->
-      <div class="right-section">
-        <!-- Botón de perfil -->
-        <ion-button fill="clear" (click)="toggleProfileMenu()" class="profile-menu-btn">
-          <ion-icon [icon]="personCircleOutline" class="profile-icon"></ion-icon>
+      <!-- Desktop Navigation -->
+      <nav class="desktop-nav">
+        <ion-button 
+          fill="clear" 
+          class="nav-link" 
+          routerLink="/home" 
+          [class.active]="isHomeActive()">
+          <span class="link-text">Inicio</span>
+          <div class="link-underline"></div>
         </ion-button>
 
-        <!-- Botón hamburguesa (solo móvil) -->
-        <ion-buttons slot="end" class="menu-toggle">
-          <ion-button (click)="toggleMenu()">
-            <ion-icon [icon]="menuOutline" class="menu-icon"></ion-icon>
+        <div class="nav-dropdown">
+          <ion-button 
+            fill="clear" 
+            class="nav-link" 
+            (click)="toggleDropdown('nosotros', $event)"
+            [class.active]="isNosotrosActive()">
+            <span class="link-text">Nosotros</span>
+            <ion-icon name="chevron-down-outline" class="dropdown-icon"></ion-icon>
+            <div class="link-underline"></div>
           </ion-button>
-        </ion-buttons>
+        </div>
+
+        <div class="nav-dropdown">
+          <ion-button 
+            fill="clear" 
+            class="nav-link" 
+            (click)="toggleDropdown('productos', $event)"
+            [class.active]="isProductosActive()">
+            <span class="link-text">Productos</span>
+            <ion-icon name="chevron-down-outline" class="dropdown-icon"></ion-icon>
+            <div class="link-underline"></div>
+          </ion-button>
+        </div>
+
+        <ion-button 
+          fill="clear" 
+          class="nav-link" 
+          routerLink="/sucursales"
+          [class.active]="isSucursalesActive()">
+          <span class="link-text">Sucursales</span>
+          <div class="link-underline"></div>
+        </ion-button>
+      </nav>
+
+      <!-- Actions Section -->
+      <div class="actions-section">
+        
+        <!-- Search Button (opcional) -->
+        <ion-button fill="clear" class="action-btn search-btn">
+          <ion-icon name="search-outline" class="action-icon"></ion-icon>
+        </ion-button>
+
+        <!-- Cart Button -->
+        <ion-button fill="clear" class="action-btn cart-btn" routerLink="/carrito">
+          <ion-icon [icon]="cartOutline" class="action-icon"></ion-icon>
+          <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+        </ion-button>
+
+        <!-- User Section -->
+        <div class="user-section">
+          <!-- Not Logged In -->
+          <ng-container *ngIf="!user">
+            <ion-button class="login-btn" routerLink="/login">
+              <ion-icon [icon]="logInOutline" slot="start"></ion-icon>
+              <span>Iniciar Sesión</span>
+            </ion-button>
+          </ng-container>
+
+          <!-- Logged In -->
+          <ng-container *ngIf="user">
+            <ion-button fill="clear" class="profile-btn" (click)="toggleProfileMenu()">
+              <ion-icon [icon]="personCircleOutline" class="profile-icon"></ion-icon>
+            </ion-button>
+          </ng-container>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <ion-button fill="clear" class="mobile-menu-btn" (click)="toggleMenu()">
+          <ion-icon [icon]="menuOutline" class="mobile-icon"></ion-icon>
+        </ion-button>
       </div>
 
-    </div> <!-- /.toolbar-content -->
+    </div>
+
+    <!-- Gradient Border Bottom -->
+    <div class="gradient-border"></div>
 
   </ion-toolbar>
 
   <!-- ========================================== -->
-  <!-- DROPDOWN NOSOTROS (DESKTOP) -->
+  <!-- DROPDOWN NOSOTROS -->
   <!-- ========================================== -->
-  <div class="dropdown-menu desktop-dropdown" 
+  <div class="modern-dropdown" 
        *ngIf="showNosotrosDropdown" 
        [style.top]="dropdownPosition['top']"
        [style.left]="dropdownPosition['left']">
-    <ion-button fill="clear" class="dropdown-item" routerLink="/nosotros/contacto" (click)="closeMenu()">CONTACTO</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/nosotros/informacion" (click)="closeMenu()">INFORMACIÓN</ion-button>
-    <div class="bicolor-bar"></div>
+    <div class="dropdown-header">
+      <h3>Nosotros</h3>
+    </div>
+    <div class="dropdown-content">
+      <a class="dropdown-link" routerLink="/nosotros/contacto" (click)="closeMenu()">
+        <ion-icon name="mail-outline" class="link-icon"></ion-icon>
+        <div class="link-info">
+          <span class="link-title">Contacto</span>
+          <span class="link-desc">Ponte en contacto con nosotros</span>
+        </div>
+      </a>
+      <a class="dropdown-link" routerLink="/nosotros/informacion" (click)="closeMenu()">
+        <ion-icon name="information-circle-outline" class="link-icon"></ion-icon>
+        <div class="link-info">
+          <span class="link-title">Información</span>
+          <span class="link-desc">Conoce más sobre nosotros</span>
+        </div>
+      </a>
+    </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- DROPDOWN PRODUCTOS (DESKTOP) -->
+  <!-- DROPDOWN PRODUCTOS -->
   <!-- ========================================== -->
-  <div class="dropdown-menu desktop-dropdown" 
+  <div class="modern-dropdown products-dropdown" 
        *ngIf="showProductosDropdown" 
        [style.top]="dropdownPosition['top']"
        [style.left]="dropdownPosition['left']">
-    <ion-button fill="clear" class="dropdown-item" routerLink="/productos/todos" (click)="closeMenu()">TODOS</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/productos/desechables" (click)="closeMenu()">DESECHABLES</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/productos/biodegradables" (click)="closeMenu()">BIODEGRADABLES</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/productos/bolsas" (click)="closeMenu()">BOLSAS</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/productos/cocina-reposteria" (click)="closeMenu()">COCINA Y REPOSTERÍA</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/productos/alimentos" (click)="closeMenu()">ALIMENTOS</ion-button>
-    <ion-button fill="clear" class="dropdown-item" routerLink="/productos/higienicos-servilletas" (click)="closeMenu()">HIGIÉNICOS Y SERVILLETAS</ion-button>
-    <div class="bicolor-bar"></div>
+    <div class="dropdown-header">
+      <h3>Nuestros Productos</h3>
+    </div>
+    <div class="dropdown-content grid-layout">
+      <a class="dropdown-link" routerLink="/productos/todos" (click)="closeMenu()">
+        <ion-icon name="grid-outline" class="link-icon"></ion-icon>
+        <span class="link-title">Todos</span>
+      </a>
+      <a class="dropdown-link" routerLink="/productos/desechables" (click)="closeMenu()">
+        <ion-icon name="cafe-outline" class="link-icon"></ion-icon>
+        <span class="link-title">Desechables</span>
+      </a>
+      <a class="dropdown-link" routerLink="/productos/biodegradables" (click)="closeMenu()">
+        <ion-icon name="leaf-outline" class="link-icon"></ion-icon>
+        <span class="link-title">Biodegradables</span>
+      </a>
+      <a class="dropdown-link" routerLink="/productos/bolsas" (click)="closeMenu()">
+        <ion-icon name="bag-outline" class="link-icon"></ion-icon>
+        <span class="link-title">Bolsas</span>
+      </a>
+      <a class="dropdown-link" routerLink="/productos/cocina-reposteria" (click)="closeMenu()">
+        <ion-icon name="restaurant-outline" class="link-icon"></ion-icon>
+        <span class="link-title">Cocina</span>
+      </a>
+      <a class="dropdown-link" routerLink="/productos/alimentos" (click)="closeMenu()">
+        <ion-icon name="pizza-outline" class="link-icon"></ion-icon>
+        <span class="link-title">Alimentos</span>
+      </a>
+      <a class="dropdown-link" routerLink="/productos/higienicos-servilletas" (click)="closeMenu()">
+        <ion-icon name="water-outline" class="link-icon"></ion-icon>
+        <span class="link-title">Higiénicos</span>
+      </a>
+    </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- MENÚ DE PERFIL -->
+  <!-- PROFILE MENU -->
   <!-- ========================================== -->
-  <div class="profile-menu" *ngIf="showProfileMenu">
-    <!-- Auth info -->
-    <div class="profile-menu-content">
-     <ng-container *ngIf="user; else profileNotLogged">
-  <div class="user-info-header">
-    <ion-icon [icon]="personCircleOutline" class="user-avatar"></ion-icon>
-    <div class="user-details">
-      <p class="greeting">Bienvenido</p>
-      <p class="user-email">
-        {{ user.displayName || user.email }}
-      </p>
+  <div class="profile-dropdown" *ngIf="showProfileMenu && user">
+    <div class="profile-header">
+      <ion-icon [icon]="personCircleOutline" class="profile-avatar"></ion-icon>
+      <div class="profile-info">
+        <span class="profile-greeting">¡Hola!</span>
+        <span class="profile-name">{{ user.displayName || user.email }}</span>
+      </div>
     </div>
-
-    <ion-button expand="block" color="danger" (click)="logout()" class="logout-btn">
+    <div class="profile-divider"></div>
+    <ion-button expand="block" class="logout-button" (click)="logout()">
       <ion-icon [icon]="logOutOutline" slot="start"></ion-icon>
-      Cerrar sesión
+      <span>Cerrar Sesión</span>
     </ion-button>
-  </div> <!-- ✅ cierre correcto -->
-</ng-container>
-
-<ng-template #profileNotLogged>
-  <div class="not-logged-header">
-    <ion-icon [icon]="personCircleOutline" class="guest-avatar"></ion-icon>
-    <p class="guest-text">Inicia sesión para acceder a tu cuenta</p>
-  </div>
-  <ion-button expand="block" class="btn-login-gradient" routerLink="/login" (click)="closeProfileMenu()">
-    <ion-icon [icon]="logInOutline" slot="start"></ion-icon>
-    Iniciar sesión
-  </ion-button>
-</ng-template>
-
-    </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- MENÚ MÓVIL DE NAVEGACIÓN -->
+  <!-- MOBILE SIDEBAR MENU -->
   <!-- ========================================== -->
-  <div class="mobile-menu" *ngIf="showMobileMenu">
-    <ion-button fill="clear" class="mobile-item" routerLink="/home" [class.active-link]="isHomeActive()" (click)="closeMenu()">INICIO</ion-button>
+  <div class="mobile-sidebar" [class.open]="showMobileMenu">
+    <div class="sidebar-overlay" (click)="closeMenu()"></div>
     
-    <!-- NOSOTROS con submenu -->
-    <ion-button fill="clear" class="mobile-item" (click)="toggleDropdown('nosotros', $event)" [class.active-link]="isNosotrosActive()">
-      NOSOTROS
-    </ion-button>
-    
-    <!-- Dropdown NOSOTROS dentro del menú móvil -->
-    <div class="dropdown-menu" *ngIf="showNosotrosDropdown && showMobileMenu">
-      <ion-button fill="clear" class="dropdown-item" routerLink="/nosotros/contacto" (click)="closeMenu()">CONTACTO</ion-button>
-      <ion-button fill="clear" class="dropdown-item" routerLink="/nosotros/informacion" (click)="closeMenu()">INFORMACIÓN</ion-button>
-    </div>
+    <div class="sidebar-content">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <ion-img class="sidebar-logo" src="../../assets/img/logo.png" alt="Logo"></ion-img>
+        <ion-button fill="clear" class="close-btn" (click)="closeMenu()">
+          <ion-icon name="close-outline"></ion-icon>
+        </ion-button>
+      </div>
 
-    <!-- PRODUCTOS con submenu -->
-    <ion-button fill="clear" class="mobile-item" (click)="toggleDropdown('productos', $event)" [class.active-link]="isProductosActive()">
-      PRODUCTOS
-    </ion-button>
-    
-    <!-- Dropdown PRODUCTOS dentro del menú móvil -->
-    <div class="dropdown-menu" *ngIf="showProductosDropdown && showMobileMenu">
-      <ion-button fill="clear" class="dropdown-item" routerLink="/productos/todos" (click)="closeMenu()">TODOS</ion-button>
-      <ion-button fill="clear" class="dropdown-item" routerLink="/productos/desechables" (click)="closeMenu()">DESECHABLES</ion-button>
-      <ion-button fill="clear" class="dropdown-item" routerLink="/productos/biodegradables" (click)="closeMenu()">BIODEGRADABLES</ion-button>
-      <ion-button fill="clear" class="dropdown-item" routerLink="/productos/bolsas" (click)="closeMenu()">BOLSAS</ion-button>
-      <ion-button fill="clear" class="dropdown-item" routerLink="/productos/cocina-reposteria" (click)="closeMenu()">COCINA Y REPOSTERÍA</ion-button>
-      <ion-button fill="clear" class="dropdown-item" routerLink="/productos/alimentos" (click)="closeMenu()">ALIMENTOS</ion-button>
-      <ion-button fill="clear" class="dropdown-item" routerLink="/productos/higienicos-servilletas" (click)="closeMenu()">HIGIÉNICOS Y SERVILLETAS</ion-button>
-    </div>
+      <!-- User Info Mobile -->
+      <div class="sidebar-user" *ngIf="user">
+        <ion-icon [icon]="personCircleOutline" class="sidebar-avatar"></ion-icon>
+        <div class="sidebar-user-info">
+          <span class="sidebar-greeting">Bienvenido</span>
+          <span class="sidebar-name">{{ user.displayName || user.email }}</span>
+        </div>
+      </div>
 
-    <ion-button fill="clear" class="mobile-item" routerLink="/sucursales" [class.active-link]="isSucursalesActive()" (click)="closeMenu()">SUCURSALES</ion-button>
+      <!-- Mobile Navigation -->
+      <nav class="sidebar-nav">
+        <a class="sidebar-link" routerLink="/home" [class.active]="isHomeActive()" (click)="closeMenu()">
+          <ion-icon name="home-outline" class="sidebar-icon"></ion-icon>
+          <span>Inicio</span>
+        </a>
+
+        <div class="sidebar-dropdown">
+          <button class="sidebar-link dropdown-trigger" (click)="toggleDropdown('nosotros', $event)" [class.active]="isNosotrosActive()">
+            <ion-icon name="people-outline" class="sidebar-icon"></ion-icon>
+            <span>Nosotros</span>
+            <ion-icon name="chevron-down-outline" class="chevron" [class.rotate]="showNosotrosDropdown"></ion-icon>
+          </button>
+          <div class="sidebar-submenu" *ngIf="showNosotrosDropdown">
+            <a routerLink="/nosotros/contacto" (click)="closeMenu()">Contacto</a>
+            <a routerLink="/nosotros/informacion" (click)="closeMenu()">Información</a>
+          </div>
+        </div>
+
+        <div class="sidebar-dropdown">
+          <button class="sidebar-link dropdown-trigger" (click)="toggleDropdown('productos', $event)" [class.active]="isProductosActive()">
+            <ion-icon name="cube-outline" class="sidebar-icon"></ion-icon>
+            <span>Productos</span>
+            <ion-icon name="chevron-down-outline" class="chevron" [class.rotate]="showProductosDropdown"></ion-icon>
+          </button>
+          <div class="sidebar-submenu" *ngIf="showProductosDropdown">
+            <a routerLink="/productos/todos" (click)="closeMenu()">Todos</a>
+            <a routerLink="/productos/desechables" (click)="closeMenu()">Desechables</a>
+            <a routerLink="/productos/biodegradables" (click)="closeMenu()">Biodegradables</a>
+            <a routerLink="/productos/bolsas" (click)="closeMenu()">Bolsas</a>
+            <a routerLink="/productos/cocina-reposteria" (click)="closeMenu()">Cocina y Repostería</a>
+            <a routerLink="/productos/alimentos" (click)="closeMenu()">Alimentos</a>
+            <a routerLink="/productos/higienicos-servilletas" (click)="closeMenu()">Higiénicos y Servilletas</a>
+          </div>
+        </div>
+
+        <a class="sidebar-link" routerLink="/sucursales" [class.active]="isSucursalesActive()" (click)="closeMenu()">
+          <ion-icon name="location-outline" class="sidebar-icon"></ion-icon>
+          <span>Sucursales</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <ng-container *ngIf="!user">
+          <ion-button expand="block" class="sidebar-login-btn" routerLink="/login" (click)="closeMenu()">
+            <ion-icon [icon]="logInOutline" slot="start"></ion-icon>
+            <span>Iniciar Sesión</span>
+          </ion-button>
+        </ng-container>
+
+        <ng-container *ngIf="user">
+          <ion-button expand="block" color="danger" class="sidebar-logout-btn" (click)="logout()">
+            <ion-icon [icon]="logOutOutline" slot="start"></ion-icon>
+            <span>Cerrar Sesión</span>
+          </ion-button>
+        </ng-container>
+      </div>
+    </div>
   </div>
-
-  <!-- Barra de color inferior -->
-  <div class="bicolor-bar"></div>
 
 </ion-header>

@@ -1,163 +1,371 @@
-/* =============================== */
-/* FOOTER */
-/* =============================== */
 $dark-blue: #19226d;
-$pink-magenta: #ed156f;
+$pink-magenta: #ed1370;
+$light-bg: #fafaff;
 
-// Barra de colores superior del footer
-.bicolor-bar {
-  display: flex;
+/* =============================== */
+/* FOOTER BASE */
+/* =============================== */
+
+.modern-footer {
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* =============================== */
+/* GRADIENT BORDER */
+/* =============================== */
+
+.footer-gradient-border {
+  height: 3px;
   width: 100%;
-  height: 8px;
-  background: linear-gradient(to right, #27318d, #ed1370);
+  background: linear-gradient(90deg, 
+    $dark-blue 0%, 
+    #7b2db8 25%,
+    #c92589 50%,
+    #e91876 75%,
+    $pink-magenta 100%
+  );
+  animation: gradientFlow 3s ease infinite;
+  background-size: 200% 100%;
 }
 
-.footer-toolbar {
-  --padding-start: 60px;
-  --padding-end: 60px;
-  --padding-top: 40px;
-  --padding-bottom: 40px;
-  --background: #ffffff;
-  color: $dark-blue;
-  border-top: 1px solid rgba(25, 34, 109, 0.1);
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
-.footer-cont {
+/* =============================== */
+/* MAIN FOOTER */
+/* =============================== */
+
+.footer-main {
+  padding: 40px 40px 20px;
+  background: #ffffff;
+  position: relative;
+
+  @media (max-width: 768px) {
+    padding: 30px 20px 20px;
+  }
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-  text-align: left;
-  align-items: flex-start;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 50px;
+  position: relative;
+  z-index: 2;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
 }
 
-// Estilos de columnas
-.fila1,
-.fila2,
-.fila3 {
+/* =============================== */
+/* BRAND SECTION */
+/* =============================== */
+
+.brand-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
+  gap: 16px;
 
-.f-title {
-  color: $dark-blue;
-  font-weight: 700;
-  font-size: 18px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-}
-
-// Texto normal del footer CON EFECTO HOVER
-.f-text {
-  color: #5e5e5e;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 4px 0;
-  text-transform: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: fit-content;
-  
-  &:hover {
-    transform: scale(1.08);
-    background: linear-gradient(90deg, $dark-blue, $pink-magenta);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 600;
-  }
-  
-  a {
-    color: $pink-magenta;
-    font-weight: 600;
-    text-decoration: none;
+  .footer-logo-wrapper {
+    width: 180px;
+    height: 55px;
+    cursor: pointer;
     transition: all 0.3s ease;
-    display: inline-block;
-    
+
     &:hover {
-      background: linear-gradient(90deg, $dark-blue, $pink-magenta);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-decoration: underline;
-      transform: scale(1.08);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      margin: 0 auto;
+    }
+  }
+
+  .footer-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .brand-tagline {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(25, 34, 109, 0.7);
+    margin: 0;
+    max-width: 280px;
+
+    @media (max-width: 768px) {
+      text-align: center;
+      margin: 0 auto;
+    }
+  }
+
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, rgba(237, 19, 112, 0.1), rgba(25, 34, 109, 0.05));
+    border-radius: 10px;
+    border: 1px solid rgba(237, 19, 112, 0.2);
+    width: fit-content;
+
+    .badge-icon {
+      font-size: 18px;
+      color: $pink-magenta;
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: 600;
+      color: $dark-blue;
+      letter-spacing: 0.3px;
+    }
+
+    @media (max-width: 768px) {
+      margin: 0 auto;
     }
   }
 }
 
-// Links clickeables con efecto hover
-.f-text-link {
-  color: #5e5e5e;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 4px 0;
-  text-transform: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  width: fit-content;
-  
-  &:hover {
-    transform: scale(1.08);
-    background: linear-gradient(90deg, $dark-blue, $pink-magenta);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 600;
+/* =============================== */
+/* FOOTER SECTIONS */
+/* =============================== */
+
+.footer-section {
+  @media (max-width: 768px) {
+    text-align: center;
   }
 }
 
-// Sección de redes sociales
-.fila3 {
-  align-items: flex-start;
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: $dark-blue;
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 }
 
-.fila3-icons {
+/* =============================== */
+/* LINKS GRID */
+/* =============================== */
+
+.links-grid {
   display: flex;
-  gap: 15px;
-  margin-top: 8px;
+  flex-direction: column;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    align-items: center;
+  }
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  text-decoration: none;
+  color: rgba(25, 34, 109, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  width: fit-content;
+
+  ion-icon {
+    font-size: 16px;
+    color: $dark-blue;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    background: rgba(237, 19, 112, 0.08);
+    color: $pink-magenta;
+    transform: translateX(4px);
+
+    ion-icon {
+      color: $pink-magenta;
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin: 0 auto;
+    transform: none;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+/* =============================== */
+/* SOCIAL SECTION */
+/* =============================== */
+
+.social-section {
+  .social-description {
+    font-size: 12px;
+    color: rgba(25, 34, 109, 0.6);
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+
+    @media (max-width: 768px) {
+      text-align: center;
+    }
+  }
+}
+
+.social-grid {
+  display: flex;
+  gap: 14px;
   flex-wrap: wrap;
 
-  a {
-    display: flex;
-    align-items: center;
+  @media (max-width: 768px) {
     justify-content: center;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: rgba(25, 34, 109, 0.08);
-    transition: all 0.3s ease;
-    
-    &:hover {
-      background: linear-gradient(135deg, $dark-blue, $pink-magenta);
-      transform: translateY(-3px) scale(1.1);
-      box-shadow: 0 6px 15px rgba(237, 19, 112, 0.4);
-    }
   }
 }
 
-.footer-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  background: #ffffff;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border: none;
+  padding: 10px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $dark-blue, $pink-magenta);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+  }
+
+  .social-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: all 0.4s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  &:hover {
+    transform: translateY(-6px) scale(1.1);
+    box-shadow: 0 12px 28px rgba(237, 19, 112, 0.35);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .social-icon {
+      transform: scale(1.05);
+      filter: brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    }
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(1.05);
+  }
 }
 
 /* =============================== */
-/* COPYRIGHT / BOTTOM BAR */
+/* FOOTER BOTTOM */
 /* =============================== */
+
 .footer-bottom {
-  background: #f8f9fa;
-  padding: 20px 60px;
-  text-align: center;
-  border-top: 1px solid rgba(25, 34, 109, 0.05);
-  
-  p {
-    color: #5e5e5e;
-    font-size: 13px;
-    margin: 0;
+  background: linear-gradient(135deg, #fafaff, #f5f5ff);
+  border-top: 1px solid rgba(237, 19, 112, 0.1);
+  padding: 16px 40px;
+
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+  }
+}
+
+.bottom-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
+
+.copyright {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(25, 34, 109, 0.7);
+  font-weight: 500;
+
+  ion-icon {
+    font-size: 16px;
+    color: $pink-magenta;
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.legal-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .legal-link {
+    font-size: 12px;
+    color: rgba(25, 34, 109, 0.7);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 6px;
+
+    &:hover {
+      color: $pink-magenta;
+      background: rgba(237, 19, 112, 0.08);
+    }
+  }
+
+  .separator {
+    color: rgba(237, 19, 112, 0.3);
     font-weight: 300;
   }
 }
@@ -165,89 +373,69 @@ $pink-magenta: #ed156f;
 /* =============================== */
 /* RESPONSIVE */
 /* =============================== */
-@media (max-width: 992px) {
-  .footer-toolbar {
-    --padding-start: 40px;
-    --padding-end: 40px;
-    --padding-top: 35px;
-    --padding-bottom: 35px;
-  }
-  
-  .footer-cont {
-    gap: 30px;
-  }
-}
-
-@media (max-width: 768px) {
-  .footer-toolbar {
-    --padding-start: 25px;
-    --padding-end: 25px;
-    --padding-top: 30px;
-    --padding-bottom: 30px;
-  }
-
-  .footer-cont {
-    grid-template-columns: 1fr;
-    gap: 35px;
-    text-align: center;
-  }
-  
-  .fila1,
-  .fila2,
-  .fila3 {
-    align-items: center;
-    gap: 10px;
-    
-    .f-text {
-      margin: 0 auto;
-      width: fit-content;
-    }
-  }
-  
-  .f-text-link {
-    margin: 0 auto;
-  }
-  
-  .fila3-icons {
-    justify-content: center;
-    gap: 12px;
-  }
-  
-  .footer-bottom {
-    padding: 15px 25px;
-  }
-}
 
 @media (max-width: 480px) {
-  .footer-toolbar {
-    --padding-start: 20px;
-    --padding-end: 20px;
-    --padding-top: 25px;
-    --padding-bottom: 25px;
+  .footer-main {
+    padding: 24px 16px 16px;
   }
-  
-  .f-title {
-    font-size: 15px;
-  }
-  
-  .f-text,
-  .f-text-link {
-    font-size: 13px;
-  }
-  
-  .fila3-icons {
-    a {
-      width: 42px;
-      height: 42px;
+
+  .brand-section {
+    .footer-logo-wrapper {
+      width: 150px;
+      height: 45px;
+    }
+
+    .brand-tagline {
+      font-size: 13px;
+    }
+
+    .brand-badge {
+      padding: 6px 12px;
+
+      .badge-icon {
+        font-size: 16px;
+      }
+
+      span {
+        font-size: 11px;
+      }
     }
   }
-  
-  .footer-icon {
-    width: 22px;
-    height: 22px;
+
+  .section-title {
+    font-size: 13px;
+    margin-bottom: 12px;
   }
-  
-  .footer-bottom p {
+
+  .footer-link {
     font-size: 12px;
+    padding: 5px 8px;
+
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+
+  .social-btn {
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+
+    .social-icon {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .footer-bottom {
+    padding: 14px 16px;
+  }
+
+  .copyright {
+    font-size: 11px;
+  }
+
+  .legal-links {
+    font-size: 11px;
   }
 }

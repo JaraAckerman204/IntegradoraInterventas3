@@ -1,56 +1,100 @@
-<ion-footer>
-  <!-- Barra de colores superior -->
-  <div class="bicolor-bar"></div>
-  
-  <ion-toolbar class="footer-toolbar">
-    <div class="footer-cont">
-      
-      <!-- Columna 1: Información -->
-      <div class="fila1">
-        <p class="f-title">Información</p>
-        <a class="f-text-link" routerLink="/preguntas">Preguntas Frecuentes</a>
-        <a class="f-text-link" routerLink="/terminos">Términos y Condiciones</a>
-        <a class="f-text-link" routerLink="/privacidad">Política de Privacidad</a>
-      </div>
-      
-      <!-- Columna 2: Ubicación -->
-      <div class="fila2">
-        <p class="f-title">Ubicación</p>
-        <p class="f-text">Torreón, Gómez Palacio y Durango.</p>
-        <p class="f-text">
-          Encuentra tu tienda más cercana 
-          <a routerLink="/sucursales">aquí</a>
+<ion-footer class="modern-footer">
+
+  <!-- Gradient Border Top -->
+  <div class="footer-gradient-border"></div>
+
+  <!-- Main Footer Content -->
+  <div class="footer-main">
+    <div class="footer-container">
+
+      <!-- Brand Section -->
+      <div class="footer-section brand-section">
+        <div class="footer-logo-wrapper" routerLink="/home">
+          <ion-img class="footer-logo" src="../../assets/img/logo.png" alt="Logo Interventas"></ion-img>
+        </div>
+        <p class="brand-tagline">
+          Distribuidores de productos desechables y biodegradables de la más alta calidad.
         </p>
-        <p class="f-text"><b>Envíos a toda la republica.</b></p>
+        <div class="brand-badge">
+          <ion-icon name="checkmark-circle" class="badge-icon"></ion-icon>
+          <span>Calidad Garantizada</span>
+        </div>
       </div>
-      
-      <!-- Columna 3: Redes Sociales -->
-      <div class="fila3">
-        <p class="f-title">Síguenos en redes</p>
-        <div class="fila3-icons">
-          <a href="https://www.facebook.com/GrupoInterventas/" target="_blank" rel="noopener">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-fb.png" alt="Facebook"></ion-img>
+
+      <!-- Quick Links -->
+      <div class="footer-section links-section">
+        <h3 class="section-title">Enlaces Rápidos</h3>
+        <div class="links-grid">
+          <a class="footer-link" routerLink="/nosotros/informacion">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <span>Nosotros</span>
           </a>
-          <a href="https://www.youtube.com/channel/UCiKzc2KkdIApv_DzZh-9Syw" target="_blank" rel="noopener">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-yt.png" alt="YouTube"></ion-img>
+          <a class="footer-link" routerLink="/sucursales">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>Sucursales</span>
           </a>
-          <a href="http://wa.link/jfiopz" target="_blank" rel="noopener">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-ws.png" alt="WhatsApp"></ion-img>
-          </a>
-          <a href="https://www.instagram.com/grupointerventas/" target="_blank" rel="noopener">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-insta.png" alt="Instagram"></ion-img>
-          </a>
-          <a href="https://www.tiktok.com/@grupointerventas" target="_blank" rel="noopener">
-            <ion-img class="footer-icon" src="../../assets/icon/ico-tt.png" alt="TikTok"></ion-img>
+          <a class="footer-link" routerLink="/nosotros/contacto">
+            <ion-icon name="mail-outline"></ion-icon>
+            <span>Contacto</span>
           </a>
         </div>
       </div>
-      
+
+      <!-- Products Section -->
+      <div class="footer-section products-section">
+        <h3 class="section-title">Productos</h3>
+        <div class="links-grid">
+          <a class="footer-link" routerLink="/productos/desechables">
+            <ion-icon name="cafe-outline"></ion-icon>
+            <span>Desechables</span>
+          </a>
+          <a class="footer-link" routerLink="/productos/biodegradables">
+            <ion-icon name="leaf-outline"></ion-icon>
+            <span>Biodegradables</span>
+          </a>
+          <a class="footer-link" routerLink="/productos/bolsas">
+            <ion-icon name="bag-outline"></ion-icon>
+            <span>Bolsas</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Social Section -->
+      <div class="footer-section social-section">
+        <h3 class="section-title">Síguenos</h3>
+        <p class="social-description">Mantente conectado con nosotros</p>
+        <div class="social-grid">
+          <a href="https://www.facebook.com/GrupoInterventas/" target="_blank" rel="noopener" class="social-btn">
+            <ion-img class="social-icon" src="../../assets/icon/ico-fb.png" alt="Facebook"></ion-img>
+          </a>
+          <a href="https://www.instagram.com/grupointerventas/" target="_blank" rel="noopener" class="social-btn">
+            <ion-img class="social-icon" src="../../assets/icon/ico-insta.png" alt="Instagram"></ion-img>
+          </a>
+          <a href="https://www.tiktok.com/@grupointerventas" target="_blank" rel="noopener" class="social-btn">
+            <ion-img class="social-icon" src="../../assets/icon/ico-tt.png" alt="TikTok"></ion-img>
+          </a>
+          <a href="https://www.youtube.com/channel/UCiKzc2KkdIApv_DzZh-9Syw" target="_blank" rel="noopener" class="social-btn">
+            <ion-img class="social-icon" src="../../assets/icon/ico-yt.png" alt="YouTube"></ion-img>
+          </a>
+        </div>
+      </div>
+
     </div>
-  </ion-toolbar>
-  
-  <!-- Barra de copyright -->
-  <div class="footer-bottom">
-    <p>© 2025 Grupo Interventas. Todos los derechos reservados.</p>
   </div>
+
+  <!-- Footer Bottom -->
+  <div class="footer-bottom">
+    <div class="bottom-container">
+      <div class="copyright">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>© 2025 Grupo Interventas – Todos los derechos reservados.</span>
+      </div>
+      <div class="legal-links">
+        <a routerLink="/privacidad" class="legal-link">Privacidad</a>
+        <span class="separator">•</span>
+        <a routerLink="/preguntas" class="legal-link">FAQ</a>
+      </div>
+    </div>
+  </div>
+
 </ion-footer>
