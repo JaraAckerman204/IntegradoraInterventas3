@@ -41,9 +41,15 @@ export const routes: Routes = [
   {
     path: 'nosotros/informacion',
     loadComponent: () => import('./informacion/informacion.page').then((m) => m.InformacionPage),
+    canActivate: [authGuard],
   },
 
   // 🌱 SECCIÓN PRODUCTOS (protegida por login)
+  {
+    path: 'productos',
+    loadComponent: () => import('./productos/productos.page').then((m) => m.ProductosPage),
+    canActivate: [authGuard],
+  },
   {
     path: 'productos/todos',
     loadComponent: () => import('./todos/todos.page').then((m) => m.TodosPage),
@@ -85,6 +91,7 @@ export const routes: Routes = [
   {
     path: 'sucursales',
     loadComponent: () => import('./sucursales/sucursales.page').then((m) => m.SucursalesPage),
+    canActivate: [authGuard],
   },
   {
     path: 'preguntas',
@@ -108,7 +115,8 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'home',
-  },  {
+  },
+  {
     path: 'pendejinestebannaco',
     loadComponent: () => import('./pendejinestebannaco/pendejinestebannaco.page').then( m => m.PendejinestebannacoPage)
   },
