@@ -1,13 +1,30 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>preguntas</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-header></app-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">preguntas</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="faq-content">
+  <section class="faq-container">
+    <h2 class="faq-title">Preguntas Frecuentes</h2>
+
+    <div class="faq-list">
+      <div class="faq-item" *ngFor="let faq of faqs; let i = index">
+        <button class="faq-question" (click)="toggleFaq(i)">
+          <span>{{ faq.question }}</span>
+          <ion-icon
+            [name]="faq.open ? 'chevron-up-outline' : 'chevron-down-outline'"
+            class="faq-icon"
+          ></ion-icon>
+        </button>
+
+        <div
+          class="faq-answer"
+          [class.open]="faq.open"
+          [style.maxHeight]="faq.open ? '400px' : '0px'"
+        >
+          <p [innerHTML]="faq.answer"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer dentro del scroll -->
+  <app-footer class="faq-footer"></app-footer>
 </ion-content>
