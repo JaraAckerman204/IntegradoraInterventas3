@@ -1,27 +1,48 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Panel de Administrador</ion-title>
-    <ion-button slot="end" fill="clear" color="light" (click)="logout()">Cerrar sesión</ion-button>
+  <ion-toolbar>
+    <ion-title>Panel Admin</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Bienvenido Administrador 👨‍💼</h2>
-  <p>Puedes modificar información desde aquí.</p>
+  <h2>Agregar producto</h2>
+
+  <ion-item>
+    <ion-label position="stacked">Nombre</ion-label>
+    <ion-input [(ngModel)]="producto.nombre"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Precio</ion-label>
+    <ion-input type="number" [(ngModel)]="producto.precio"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Descripción</ion-label>
+    <ion-input [(ngModel)]="producto.descripcion"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">URL Imagen</ion-label>
+    <ion-input [(ngModel)]="producto.imagen"></ion-input>
+  </ion-item>
+
+  <ion-button expand="block" (click)="guardarProducto()">Guardar</ion-button>
+
+  <h2 class="ion-margin-top">Lista de productos</h2>
 
   <ion-list>
-    <ion-item>
-      <ion-label position="floating">Nombre del producto</ion-label>
-      <ion-input [(ngModel)]="producto.nombre"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="floating">Precio</ion-label>
-      <ion-input type="number" [(ngModel)]="producto.precio"></ion-input>
+    <ion-item *ngFor="let p of productos$ | async">
+      <ion-label>
+        <h3>{{ p.nombre }}</h3>
+        <p>{{ p.descripcion }}</p>
+        <p>💲 {{ p.precio }}</p>
+      </ion-label>
+      <ion-button fill="clear" color="danger" (click)="eliminarProducto(p.id)">
+        Eliminar
+      </ion-button>
     </ion-item>
   </ion-list>
 
-  <ion-button expand="block" (click)="guardarProducto()">
-    Guardar producto
-  </ion-button>
+  <ion-button expand="block" color="medium" (click)="logout()">Cerrar sesión</ion-button>
 </ion-content>
