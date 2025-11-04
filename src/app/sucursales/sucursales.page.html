@@ -2,21 +2,32 @@
 
 <ion-content [fullscreen]="true">
 
-  <!-- MAYOREO SECTION -->
-  <section class="sucursales-section mayoreo-section ion-padding">
-    <div class="gradient-blob blob-1"></div>
-    <div class="gradient-blob blob-2"></div>
-    <div class="gradient-blob blob-3"></div>
-    
-    <div class="section-header">
-      <h2 class="ion-text-center">Mayoreo</h2>
-      <p class="ion-text-center sub-header">Nuestras sucursales especializadas en ventas al mayoreo.</p>
+  <!-- SECCIÓN HERO -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="location-outline"></ion-icon>
+      </div>
+      <h1>Nuestras Sucursales</h1>
+      <p>Encuéntranos en nuestras ubicaciones estratégicas en toda la región</p>
     </div>
+  </section>
 
-    <!-- CONTENEDOR BLANCO PARA TODAS LAS CARDS -->
-    <div class="cards-container">
+  <!-- SECCIÓN MAYOREO -->
+  <section class="sucursales-section ion-padding">
+    <div class="section-container">
+      <div class="section-header-card">
+        <div class="header-icon mayoreo-icon">
+          <ion-icon name="business-outline"></ion-icon>
+        </div>
+        <div>
+          <h2>Sucursales de Mayoreo</h2>
+          <p class="section-description">Nuestras sucursales especializadas en ventas al mayoreo con amplio inventario</p>
+        </div>
+      </div>
+
       <div class="sucursales-grid">
-        <ion-card class="sucursal-card" *ngFor="let sucursal of sucursalesMayoreo">
+        <div class="sucursal-card" *ngFor="let sucursal of sucursalesMayoreo">
           <div class="map-container" *ngIf="sucursal.mapsUrl">
             <iframe 
               [src]="sucursal.mapsUrl" 
@@ -27,10 +38,10 @@
               referrerpolicy="no-referrer-when-downgrade">
             </iframe>
           </div>
-          <ion-card-header>
-            <ion-card-title>{{ sucursal.nombre }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
+          
+          <div class="card-content">
+            <h3>{{ sucursal.nombre }}</h3>
+            
             <div class="info-item">
               <ion-icon name="location-outline"></ion-icon>
               <div>
@@ -54,27 +65,27 @@
                 <p>{{ sucursal.horario }}</p>
               </div>
             </div>
-          </ion-card-content>
-        </ion-card>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- MENUDEO SECTION -->
-  <section class="sucursales-section menudeo-section ion-padding">
-    <div class="gradient-blob blob-4"></div>
-    <div class="gradient-blob blob-5"></div>
-    <div class="gradient-blob blob-6"></div>
-    
-    <div class="section-header">
-      <h2 class="ion-text-center">Menudeo</h2>
-      <p class="ion-text-center sub-header">Puntos de venta al menudeo para compras pequeñas.</p>
-    </div>
+  <!-- SECCIÓN MENUDEO -->
+  <section class="sucursales-section menudeo-bg ion-padding">
+    <div class="section-container">
+      <div class="section-header-card">
+        <div class="header-icon menudeo-icon">
+          <ion-icon name="cart-outline"></ion-icon>
+        </div>
+        <div>
+          <h2>Sucursales de Menudeo</h2>
+          <p class="section-description">Puntos de venta al menudeo para compras pequeñas y atención personalizada</p>
+        </div>
+      </div>
 
-    <!-- CONTENEDOR BLANCO PARA TODAS LAS CARDS -->
-    <div class="cards-container">
       <div class="sucursales-grid">
-        <ion-card class="sucursal-card" *ngFor="let sucursal of sucursalesMenudeo">
+        <div class="sucursal-card" *ngFor="let sucursal of sucursalesMenudeo">
           <div class="map-container" *ngIf="sucursal.mapsUrl">
             <iframe 
               [src]="sucursal.mapsUrl" 
@@ -85,10 +96,10 @@
               referrerpolicy="no-referrer-when-downgrade">
             </iframe>
           </div>
-          <ion-card-header>
-            <ion-card-title>{{ sucursal.nombre }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
+          
+          <div class="card-content">
+            <h3>{{ sucursal.nombre }}</h3>
+            
             <div class="info-item">
               <ion-icon name="location-outline"></ion-icon>
               <div>
@@ -112,11 +123,12 @@
                 <p>{{ sucursal.horario }}</p>
               </div>
             </div>
-          </ion-card-content>
-        </ion-card>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <app-footer></app-footer>
+
 </ion-content>

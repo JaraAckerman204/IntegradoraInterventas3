@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
-import { locationOutline, callOutline, timeOutline } from 'ionicons/icons';
+import { locationOutline, callOutline, timeOutline, businessOutline } from 'ionicons/icons';
 import {
   IonHeader,
   IonToolbar,
@@ -57,7 +57,7 @@ export class SucursalesPage {
     private sanitizer: DomSanitizer
   ) {
     // Registrar los iconos necesarios
-    addIcons({ locationOutline, callOutline, timeOutline });
+    addIcons({ locationOutline, callOutline, timeOutline, businessOutline });
   }
 
   // ===== SUCURSALES MAYOREO =====

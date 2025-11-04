@@ -203,8 +203,8 @@ ion-content {
     pointer-events: all;
     width: 50px;
     height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border-radius: 12px;
+    background: #19226d;
     border: none;
     display: flex;
     align-items: center;
@@ -776,7 +776,7 @@ ion-content {
   height: 90px;
   margin: 0 auto 25px;
   background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;

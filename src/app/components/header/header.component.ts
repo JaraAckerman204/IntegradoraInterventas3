@@ -186,7 +186,7 @@ export class HeaderComponent implements OnInit {
     if (window.innerWidth > 1024) {
       const rect = button.getBoundingClientRect();
       
-      const menuWidth = menu === 'productos' ? 420 : 320;
+      const menuWidth = 320; // Ambos menús ahora tienen el mismo ancho
       const padding = 20;
       const viewportWidth = window.innerWidth;
 

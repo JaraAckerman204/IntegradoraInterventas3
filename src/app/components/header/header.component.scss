@@ -542,35 +542,6 @@ ion-toolbar {
   }
 }
 
-/* Products Dropdown - Grid Layout */
-.products-dropdown {
-  min-width: 400px;
-
-  .dropdown-content {
-    &.grid-layout {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      padding: 12px;
-    }
-
-    .dropdown-link {
-      flex-direction: column;
-      text-align: center;
-      gap: 8px;
-      padding: 16px 12px;
-
-      .link-icon {
-        font-size: 28px;
-      }
-
-      .link-title {
-        font-size: 13px;
-      }
-    }
-  }
-}
-
 /* =============================== */
 /* PROFILE DROPDOWN */
 /* =============================== */

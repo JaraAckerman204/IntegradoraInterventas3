@@ -250,7 +250,7 @@ $light-bg: #fafaff;
   width: 46px;
   height: 46px;
   background: #ffffff;
-  border-radius: 50%;
+  border-radius: 12px;
   text-decoration: none;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -262,7 +262,7 @@ $light-bg: #fafaff;
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 50%;
+    border-radius: 12px;
     background: linear-gradient(135deg, $dark-blue, $pink-magenta);
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -315,7 +315,7 @@ $light-bg: #fafaff;
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; // Cambia de space-between a center
   gap: 20px;
 
   @media (max-width: 768px) {
@@ -326,6 +326,7 @@ $light-bg: #fafaff;
 }
 
 .copyright {
+  left: 50%;
   display: flex;
   align-items: center;
   gap: 8px;

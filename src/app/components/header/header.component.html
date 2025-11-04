@@ -59,11 +59,6 @@
 
       <!-- Actions Section -->
       <div class="actions-section">
-        
-        <!-- Search Button (opcional) -->
-        <ion-button fill="clear" class="action-btn search-btn">
-          <ion-icon name="search-outline" class="action-icon"></ion-icon>
-        </ion-button>
 
         <!-- Cart Button -->
         <ion-button fill="clear" class="action-btn cart-btn" routerLink="/carrito">
@@ -133,41 +128,62 @@
   <!-- ========================================== -->
   <!-- DROPDOWN PRODUCTOS -->
   <!-- ========================================== -->
-  <div class="modern-dropdown products-dropdown" 
+  <div class="modern-dropdown" 
        *ngIf="showProductosDropdown" 
        [style.top]="dropdownPosition['top']"
        [style.left]="dropdownPosition['left']">
     <div class="dropdown-header">
       <h3>Nuestros Productos</h3>
     </div>
-    <div class="dropdown-content grid-layout">
+    <div class="dropdown-content">
       <a class="dropdown-link" routerLink="/productos/todos" (click)="closeMenu()">
         <ion-icon name="grid-outline" class="link-icon"></ion-icon>
-        <span class="link-title">Todos</span>
+        <div class="link-info">
+          <span class="link-title">Todos los Productos</span>
+          <span class="link-desc">Explora nuestro catálogo completo</span>
+        </div>
       </a>
       <a class="dropdown-link" routerLink="/productos/desechables" (click)="closeMenu()">
         <ion-icon name="cafe-outline" class="link-icon"></ion-icon>
-        <span class="link-title">Desechables</span>
+        <div class="link-info">
+          <span class="link-title">Desechables</span>
+          <span class="link-desc">Vasos, platos y cubiertos</span>
+        </div>
       </a>
       <a class="dropdown-link" routerLink="/productos/biodegradables" (click)="closeMenu()">
         <ion-icon name="leaf-outline" class="link-icon"></ion-icon>
-        <span class="link-title">Biodegradables</span>
+        <div class="link-info">
+          <span class="link-title">Biodegradables</span>
+          <span class="link-desc">Productos eco-friendly</span>
+        </div>
       </a>
       <a class="dropdown-link" routerLink="/productos/bolsas" (click)="closeMenu()">
         <ion-icon name="bag-outline" class="link-icon"></ion-icon>
-        <span class="link-title">Bolsas</span>
+        <div class="link-info">
+          <span class="link-title">Bolsas</span>
+          <span class="link-desc">Para todo tipo de uso</span>
+        </div>
       </a>
       <a class="dropdown-link" routerLink="/productos/cocina-reposteria" (click)="closeMenu()">
         <ion-icon name="restaurant-outline" class="link-icon"></ion-icon>
-        <span class="link-title">Cocina</span>
+        <div class="link-info">
+          <span class="link-title">Cocina y Repostería</span>
+          <span class="link-desc">Utensilios y accesorios</span>
+        </div>
       </a>
       <a class="dropdown-link" routerLink="/productos/alimentos" (click)="closeMenu()">
         <ion-icon name="pizza-outline" class="link-icon"></ion-icon>
-        <span class="link-title">Alimentos</span>
+        <div class="link-info">
+          <span class="link-title">Alimentos</span>
+          <span class="link-desc">Productos alimenticios</span>
+        </div>
       </a>
       <a class="dropdown-link" routerLink="/productos/higienicos-servilletas" (click)="closeMenu()">
         <ion-icon name="water-outline" class="link-icon"></ion-icon>
-        <span class="link-title">Higiénicos</span>
+        <div class="link-info">
+          <span class="link-title">Higiénicos y Servilletas</span>
+          <span class="link-desc">Papel y productos de limpieza</span>
+        </div>
       </a>
     </div>
   </div>
