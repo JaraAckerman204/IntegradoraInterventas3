@@ -1,5 +1,5 @@
 // ==========================================
-// 📄 home.page.ts - CÓDIGO COMPLETO
+// 📄 home.page.ts - CÓDIGO COMPLETO CON ICONOS
 // ==========================================
 
 import { Component, HostListener, ElementRef, OnInit } from '@angular/core';
@@ -33,7 +33,26 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 
-import { menuOutline, logOutOutline, logInOutline, ribbonOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import { 
+  menuOutline, 
+  logOutOutline, 
+  logInOutline, 
+  ribbonOutline, 
+  chevronBackOutline, 
+  chevronForwardOutline,
+  starOutline,
+  albumsOutline,
+  mailOutline,
+  personOutline,
+  sendOutline,
+  checkmarkCircleOutline,
+  shieldCheckmarkOutline,
+  closeOutline,
+  cubeOutline,
+  cartOutline
+} from 'ionicons/icons';
+
+import { addIcons } from 'ionicons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 
@@ -152,7 +171,27 @@ export class HomePage implements OnInit {
     private router: Router,
     private push: PushService,
     private toastController: ToastController
-  ) {}
+  ) {
+    // 🎨 Registrar TODOS los iconos
+    addIcons({
+      'menu-outline': menuOutline,
+      'log-out-outline': logOutOutline,
+      'log-in-outline': logInOutline,
+      'ribbon-outline': ribbonOutline,
+      'chevron-back-outline': chevronBackOutline,
+      'chevron-forward-outline': chevronForwardOutline,
+      'star-outline': starOutline,
+      'albums-outline': albumsOutline,
+      'mail-outline': mailOutline,
+      'person-outline': personOutline,
+      'send-outline': sendOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+      'close-outline': closeOutline,
+      'cube-outline': cubeOutline,
+      'cart-outline': cartOutline
+    });
+  }
 
   ngOnInit() {
     // 🔔 Notificaciones push
