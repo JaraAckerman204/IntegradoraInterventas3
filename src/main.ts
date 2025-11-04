@@ -3,6 +3,8 @@ import { provideRouter, withPreloading, PreloadAllModules } from '@angular/route
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, shieldCheckmarkOutline } from 'ionicons/icons';
 
 // Firebase imports
 import { initializeApp } from '@angular/fire/app';
@@ -19,6 +21,8 @@ import { provideMessaging } from '@angular/fire/messaging';
 
 import { isDevMode } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
+
+
 
 // ✅ Configuración de Firebase
 const firebaseConfig = {
@@ -43,10 +47,6 @@ bootstrapApplication(AppComponent, {
     provideStorage(() => getStorage()),
     provideMessaging(() => getMessaging()),
 
-    // ✅ Service Worker (PWA / offline + push)
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000'
-    }),
+   
   ],
 });
