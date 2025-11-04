@@ -1,5 +1,5 @@
 // ==========================================
-// 📄 contacto.page.ts - CÓDIGO COMPLETO
+// 📄 contacto.page.ts - CON FIRESTORE + EMAILJS
 // ==========================================
 
 import { Component, OnInit } from '@angular/core';
@@ -37,7 +37,13 @@ import { addIcons } from 'ionicons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 
-// Registrar todos los iconos
+// ✅ Firestore imports
+import { Firestore, collection, addDoc } from '@angular/fire/firestore';
+
+// ✅ EmailJS
+import emailjs from '@emailjs/browser';
+
+// Registrar Iconos
 addIcons({
   'chatbubbles-outline': chatbubblesOutline,
   'person-outline': personOutline,
@@ -78,7 +84,6 @@ addIcons({
 })
 export class ContactoPage implements OnInit {
 
-  // 📋 Datos del formulario
   formData = {
     name: '',
     email: '',
@@ -87,74 +92,78 @@ export class ContactoPage implements OnInit {
     message: ''
   };
 
-  // 🔄 Estado de envío
   isSending = false;
 
   constructor(
-    private toastController: ToastController
-  ) { }
+    private toastController: ToastController,
+    private firestore: Firestore
+  ) {}
 
   ngOnInit() {
     console.log('✅ Página de contacto inicializada');
   }
 
-  // 📧 FUNCIÓN PARA ENVIAR MENSAJE
   async sendMessage(event: Event) {
     event.preventDefault();
-    
-    // Validación básica
+
     if (!this.formData.name.trim() || !this.formData.email.trim() || !this.formData.message.trim()) {
-      await this.showToast('Por favor completa todos los campos requeridos (*)' , 'warning');
+      await this.showToast('Por favor completa los campos requeridos (*)', 'warning');
       return;
     }
-    
-    // Validar formato de email
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.formData.email)) {
-      await this.showToast('Por favor ingresa un correo válido', 'warning');
+      await this.showToast('Correo inválido', 'warning');
       return;
     }
-    
+
     this.isSending = true;
-    
-    // Simular envío de mensaje
-    setTimeout(async () => {
-      // Log para desarrollo
-      console.log('✅ Mensaje enviado:', {
-        nombre: this.formData.name.trim(),
-        email: this.formData.email.trim(),
-        telefono: this.formData.phone.trim(),
-        empresa: this.formData.company.trim(),
-        mensaje: this.formData.message.trim(),
-        fecha: new Date().toISOString()
+
+    try {
+      // ✅ Guardar en Firestore
+      const messagesRef = collection(this.firestore, 'contactMessages');
+      await addDoc(messagesRef, {
+        ...this.formData,
+        date: new Date().toISOString()
       });
-      
-      // Mostrar mensaje de éxito
-      await this.showToast('¡Mensaje enviado con éxito! Te contactaremos pronto', 'success');
-      
-      // Limpiar formulario
+
+   // ✅ Enviar email con EmailJS
+await emailjs.send(
+  'service_i4xbqss',
+  'template_ecmfpdo',
+  {
+    nombre: this.formData.name,
+    email: this.formData.email,
+    phone: this.formData.phone,
+    company: this.formData.company,
+    mensaje: this.formData.message
+  },
+  'eSh72EoK4k2SontZF'
+);
+
+
+      await this.showToast('✅ ¡Mensaje enviado y correo confirmado!', 'success');
+
       this.formData = {
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        message: ''
+        name: '', email: '', phone: '', company: '', message: ''
       };
-      
-      this.isSending = false;
-    }, 2000);
+
+    } catch (error) {
+      console.error(error);
+      await this.showToast('❌ Error enviando mensaje', 'danger');
+    }
+
+    this.isSending = false;
   }
 
-  // 🍞 Toast Helper
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
-      message: message,
+      message,
       duration: 3500,
       position: 'top',
-      color: color,
+      color,
       cssClass: 'custom-toast'
     });
     await toast.present();
   }
-
 }

@@ -20,6 +20,10 @@ import { provideMessaging } from '@angular/fire/messaging';
 import { isDevMode } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
 
+// ✅ EmailJS
+import emailjs from 'emailjs-com';
+emailjs.init("eSh72EoK4k2SontZF"); // <<< 🔑 pega tu Public Key
+
 // ✅ Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB_XyXkGjbBD63DTU_Hfc9RlErYiz79TQI",
@@ -36,17 +40,16 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
 
-    // ✅ Inicialización Firebase (versión modular)
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
     provideMessaging(() => getMessaging()),
 
-    // ✅ Service Worker (PWA / offline + push)
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
     }),
   ],
 });
+
