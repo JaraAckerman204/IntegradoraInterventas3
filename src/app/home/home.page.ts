@@ -415,4 +415,5 @@ export class HomePage implements OnInit {
       this.closeProductModal();
     }
   }
+  
 }

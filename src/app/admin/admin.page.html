@@ -1,48 +1,151 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Panel Admin</ion-title>
+    <ion-title>Panel de Administración</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <h2>Agregar producto</h2>
+<ion-content [fullscreen]="true">
 
-  <ion-item>
-    <ion-label position="stacked">Nombre</ion-label>
-    <ion-input [(ngModel)]="producto.nombre"></ion-input>
-  </ion-item>
+  <!-- SECCIÓN HERO ADMIN -->
+  <section class="admin-hero">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
+      <h1>Panel de Control</h1>
+      <p>Administra tus productos de forma rápida y eficiente. Agrega, edita o elimina productos en tiempo real.</p>
+    </div>
+  </section>
 
-  <ion-item>
-    <ion-label position="stacked">Precio</ion-label>
-    <ion-input type="number" [(ngModel)]="producto.precio"></ion-input>
-  </ion-item>
+  <!-- SECCIÓN PRINCIPAL DE ADMINISTRACIÓN -->
+  <section class="admin-section ion-padding">
+    <div class="admin-container">
 
-  <ion-item>
-    <ion-label position="stacked">Descripción</ion-label>
-    <ion-input [(ngModel)]="producto.descripcion"></ion-input>
-  </ion-item>
+      <!-- COLUMNA IZQUIERDA: FORMULARIO -->
+      <div class="left-column">
+        
+        <!-- FORMULARIO DE PRODUCTO -->
+        <div class="product-form-wrapper">
+          <div class="form-header">
+            <h2>Agregar Nuevo Producto</h2>
+            <p>Completa la información del producto para agregarlo al catálogo</p>
+          </div>
 
-  <ion-item>
-    <ion-label position="stacked">URL Imagen</ion-label>
-    <ion-input [(ngModel)]="producto.imagen"></ion-input>
-  </ion-item>
+          <form class="product-form">
+            
+            <div class="form-group">
+              <ion-icon name="cube-outline" class="input-icon"></ion-icon>
+              <input 
+                type="text" 
+                placeholder="Nombre del producto *" 
+                [(ngModel)]="producto.nombre"
+                name="nombre"
+                class="product-input"
+              >
+            </div>
 
-  <ion-button expand="block" (click)="guardarProducto()">Guardar</ion-button>
+            <div class="form-group">
+              <ion-icon name="cash-outline" class="input-icon"></ion-icon>
+              <input 
+                type="number" 
+                placeholder="Precio *" 
+                [(ngModel)]="producto.precio"
+                name="precio"
+                class="product-input"
+              >
+            </div>
 
-  <h2 class="ion-margin-top">Lista de productos</h2>
+            <div class="form-group full-width">
+              <ion-icon name="document-text-outline" class="input-icon textarea-icon"></ion-icon>
+              <textarea 
+                placeholder="Descripción del producto *" 
+                [(ngModel)]="producto.descripcion"
+                name="descripcion"
+                class="product-textarea"
+                rows="4"
+              ></textarea>
+            </div>
 
-  <ion-list>
-    <ion-item *ngFor="let p of productos$ | async">
-      <ion-label>
-        <h3>{{ p.nombre }}</h3>
-        <p>{{ p.descripcion }}</p>
-        <p>💲 {{ p.precio }}</p>
-      </ion-label>
-      <ion-button fill="clear" color="danger" (click)="eliminarProducto(p.id)">
-        Eliminar
-      </ion-button>
-    </ion-item>
-  </ion-list>
+            <div class="form-group full-width">
+              <ion-icon name="image-outline" class="input-icon"></ion-icon>
+              <input 
+                type="text" 
+                placeholder="URL de la imagen" 
+                [(ngModel)]="producto.imagen"
+                name="imagen"
+                class="product-input"
+              >
+            </div>
 
-  <ion-button expand="block" color="medium" (click)="logout()">Cerrar sesión</ion-button>
+            <button type="button" class="submit-btn" (click)="guardarProducto()">
+              <ion-icon name="save-outline"></ion-icon>
+              Guardar Producto
+            </button>
+
+          </form>
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: LISTA DE PRODUCTOS -->
+      <div class="right-column">
+        
+        <div class="products-header">
+          <h3>Productos Registrados</h3>
+          <p>Gestiona tu inventario de productos</p>
+        </div>
+
+        <div class="products-list" *ngIf="(productos$ | async)?.length; else emptyState">
+          
+          <div class="product-card" *ngFor="let p of productos$ | async">
+            <div class="product-image" *ngIf="p.imagen">
+              <img [src]="p.imagen" [alt]="p.nombre" onerror="this.style.display='none'">
+            </div>
+            <div class="product-image placeholder" *ngIf="!p.imagen">
+              <ion-icon name="image-outline"></ion-icon>
+            </div>
+            
+            <div class="product-info">
+              <h4>{{ p.nombre }}</h4>
+              <p class="product-description">{{ p.descripcion }}</p>
+              <div class="product-price">
+                <ion-icon name="cash-outline"></ion-icon>
+                <span>${{ p.precio }} MXN</span>
+              </div>
+            </div>
+            
+            <div class="product-actions">
+              <button class="delete-btn" (click)="eliminarProducto(p.id)">
+                <ion-icon name="trash-outline"></ion-icon>
+                Eliminar
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <ng-template #emptyState>
+          <div class="empty-state">
+            <div class="empty-icon">
+              <ion-icon name="cube-outline"></ion-icon>
+            </div>
+            <h4>No hay productos registrados</h4>
+            <p>Comienza agregando tu primer producto utilizando el formulario</p>
+          </div>
+        </ng-template>
+
+      </div>
+
+    </div>
+
+    <!-- BOTÓN CERRAR SESIÓN -->
+    <div class="logout-section">
+      <button class="logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Cerrar Sesión
+      </button>
+    </div>
+
+  </section>
+
 </ion-content>
