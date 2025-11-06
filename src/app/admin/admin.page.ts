@@ -20,9 +20,25 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  IonList
+  IonList,
+  IonIcon
 } from '@ionic/angular/standalone';
+
+import {
+  cubeOutline,
+  trashOutline,
+  cashOutline,
+  imageOutline,
+  documentTextOutline,
+  saveOutline,
+  logOutOutline,
+  shieldCheckmarkOutline
+} from 'ionicons/icons';
+
 import { Observable } from 'rxjs';
+import { addIcons } from 'ionicons';
+import { HeaderComponent } from '../components/header/header.component';
+import { FooterComponent } from '../components/footer/footer.component';
 
 @Component({
   selector: 'app-admin',
@@ -38,7 +54,10 @@ import { Observable } from 'rxjs';
     IonInput,
     IonItem,
     IonLabel,
-    IonList
+    IonList,
+    IonIcon,
+    HeaderComponent,
+    FooterComponent
   ],
   templateUrl: './admin.page.html',
   styleUrls: ['./admin.page.scss']
@@ -60,7 +79,19 @@ export class AdminPage {
   productos$: Observable<any[]>;
 
   constructor() {
-    // Cargar productos desde Firestore en tiempo real
+    // 🔧 Registrar todos los iconos que se usan en la página
+    addIcons({
+      'cube-outline': cubeOutline,
+      'trash-outline': trashOutline,
+      'cash-outline': cashOutline,
+      'image-outline': imageOutline,
+      'document-text-outline': documentTextOutline,
+      'save-outline': saveOutline,
+      'log-out-outline': logOutOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+    });
+
+    // 📦 Cargar productos desde Firestore en tiempo real
     const productosRef = collection(this.firestore, 'productos');
     this.productos$ = collectionData(productosRef, { idField: 'id' }) as Observable<any[]>;
   }
