@@ -1,4 +1,3 @@
-// ==========================================
 // 🎨 admin.page.scss - DISEÑO COMPLETO
 // ==========================================
 
@@ -376,160 +375,150 @@ ion-header {
   }
 }
 
-// ===== LISTA DE PRODUCTOS =====
-.products-header {
-  margin-bottom: 20px;
-  
-  h3 {
-    font-family: var(--font-primary);
-    font-weight: 800;
-    font-size: 1.8em;
-    color: #27318d;
-    margin-bottom: 6px;
-    
-    &::after {
-      content: '';
-      display: block;
-      margin-top: 10px;
-      width: 60px;
-      height: 4px;
-      background: linear-gradient(to right, #27318d, #ed1370);
-      border-radius: 2px;
-    }
-  }
-  
-  p {
-    font-family: var(--font-secondary);
-    font-size: 1em;
-    color: #6c757d;
-    margin: 0;
-  }
+/* ===== FORMULARIO DE PRODUCTOS ===== */
+
+.product-form-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 35px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+  max-width: 520px;
+  margin: 0 auto;
+  font-family: var(--font-secondary);
+  color: #212529;
 }
 
-.products-list {
+/* Encabezado */
+.product-form-card .form-header h2 {
+  font-family: var(--font-primary);
+  font-weight: 800;
+  font-size: 1.8em;
+  color: #212529;
+  margin-bottom: 6px;
+}
+
+.product-form-card .form-header h2::after {
+  content: '';
+  display: block;
+  width: 70px;
+  height: 4px;
+  margin-top: 8px;
+  background: linear-gradient(to right, #27318d, #ed1370);
+  border-radius: 2px;
+}
+
+.product-form-card .form-header p {
+  color: #6c757d;
+  margin-bottom: 30px;
+  font-size: 0.95em;
+}
+
+/* Campos */
+.product-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
-
-.product-card {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 2px solid #e9ecef;
-  transition: all 0.3s ease;
-  display: grid;
-  grid-template-columns: 100px 1fr auto;
   gap: 20px;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  animation: slideInRight 0.5s ease-out;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(to right, #27318d, #ed1370);
-    transform: scaleX(0);
-    transition: transform 0.4s ease;
-  }
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(237, 19, 112, 0.2);
-    
-    &::before {
-      transform: scaleX(1);
-    }
-  }
 }
 
-.product-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 12px;
-  overflow: hidden;
+.form-field {
+  position: relative;
+  display: flex;
+  align-items: center;
   background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  padding: 4px 10px;
+}
+
+.form-field:focus-within {
+  border-color: #27318d;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(39, 49, 141, 0.1);
+}
+
+/* Iconos */
+.field-icon {
+  font-size: 22px;
+  color: #27318d;
+  margin-right: 10px;
+}
+
+/* Inputs */
+ion-input,
+ion-textarea {
+  flex: 1;
+  --padding-start: 0;
+  font-size: 1em;
+  color: #212529;
+  background: transparent;
+}
+
+/* Textarea */
+.textarea-field ion-textarea {
+  min-height: 90px;
+}
+
+/* Botón */
+.btn-submit {
+  margin-top: 10px;
+  padding: 14px;
+  background: linear-gradient(to right, #27318d, #ed1370);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  &.placeholder {
-    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
-    
-    ion-icon {
-      font-size: 40px;
-      color: #adb5bd;
-    }
-  }
+  gap: 8px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.product-info {
-  flex: 1;
-  min-width: 0;
-  
-  h4 {
-    font-family: var(--font-primary);
-    font-weight: 700;
-    font-size: 1.2em;
-    color: #212529;
-    margin: 0 0 8px 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .product-description {
-    font-family: var(--font-secondary);
-    font-size: 0.95em;
-    color: #6c757d;
-    margin: 0 0 10px 0;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .product-price {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-primary);
-    font-size: 1.1em;
-    font-weight: 700;
-    color: #27318d;
-    
-    ion-icon {
-      font-size: 20px;
-      color: #ed1370;
-    }
-  }
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.3);
 }
 
+
+// ===== Estilos y diseño para las acciones (EDITAR / ELIMINAR) =====
 .product-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.delete-btn {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  border: none;
+/* Estilo especifico para el botón Editar (color warning / amarillo) */
+ion-button[color="warning"] {
+  --background: #f4b400; /* amarillo tipo warning */
+  --background-hover: #e0a800;
+  --color: #fff;
+  border-radius: 8px;
+  margin-right: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+ion-button[color="warning"]:hover {
+  filter: brightness(1.1);
+  transform: scale(1.05);
+}
+
+/* Efecto en el ícono dentro del botón editar */
+ion-button[color="warning"] ion-icon {
+  transition: transform 0.2s ease;
+}
+
+ion-button[color="warning"]:hover ion-icon {
+  transform: scale(1.2);
+}
+
+/* 🔻 Botón de eliminar (color danger) */
+ion-button[color="danger"] {
+  --background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  --background-hover: #c9302c;
+  --color: #fff;
   border-radius: 10px;
   font-family: var(--font-primary);
   font-size: 0.9em;
@@ -542,21 +531,22 @@ ion-header {
   gap: 8px;
   box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
   white-space: nowrap;
-  
-  ion-icon {
-    font-size: 18px;
-  }
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+
+  /* 🔧 Evita fondo blanco debajo del gradiente */
+  background: none !important;
+  border: none;
 }
+
+ion-button[color="danger"] ion-icon {
+  font-size: 18px;
+}
+
+ion-button[color="danger"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+
 
 // ===== ESTADO VACÍO =====
 .empty-state {
@@ -639,7 +629,6 @@ ion-header {
 }
 
 // ===== RESPONSIVE =====
-
 @media (max-width: 1024px) {
   .admin-container {
     grid-template-columns: 1fr;
@@ -803,5 +792,262 @@ ion-header {
     p {
       font-size: 0.95em;
     }
+  }
+}
+
+/* ===== Utilidades generales para botones Ion (pequeño polish) ===== */
+ion-button {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+/* === TARJETAS DE USUARIOS (misma estética que productos) === */
+
+.users-header {
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+
+.users-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e1e9e;
+  margin-bottom: 4px;
+}
+
+.users-header p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+  border-bottom: 2px solid #f05a94;
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 1rem;
+}
+
+.user-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Avatar del usuario */
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1f1;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.user-avatar ion-icon {
+  font-size: 32px;
+  color: #999;
+}
+
+/* Info del usuario */
+.user-info {
+  flex: 1;
+  margin-left: 16px;
+}
+
+.user-info h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.user-email {
+  color: #555;
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+/* Acciones */
+.user-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.user-actions ion-button {
+  --border-radius: 10px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+}
+
+
+/* ===================================================== */
+/* 🔹 Encabezados generales (productos / usuarios) */
+/* ===================================================== */
+.titulo-seccion {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-top: 16px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: #27318d;
+  font-family: var(--font-primary);
+  letter-spacing: 0.5px;
+  display: block;
+  text-align: left;
+  position: relative;
+}
+
+.titulo-seccion::after {
+  content: '';
+  display: block;
+  margin-top: 6px;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(to right, #27318d, #ed1370);
+  border-radius: 2px;
+}
+
+
+/* === TARJETAS DE PRODUCTOS (mismo diseño base que usuarios) === */
+
+.products-header {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.products-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e1e9e;
+  margin-bottom: 4px;
+}
+
+.products-header p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+  border-bottom: 2px solid #f05a94;
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 1rem;
+}
+
+/* 🧩 Tarjeta individual */
+.product-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 16px;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* 🖼 Imagen */
+.product-image {
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f1f1f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 📄 Info */
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-info h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.product-description {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+  max-height: 3.5em;
+  overflow: hidden;
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1e1e9e;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* ⚙️ Acciones */
+.product-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.product-actions ion-button {
+  --border-radius: 10px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  font-size: 0.9em;
+}
+
+/* ✅ Ajuste responsive */
+@media (max-width: 768px) {
+  .product-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 180px;
+  }
+
+  .product-actions {
+    align-self: flex-end;
   }
 }

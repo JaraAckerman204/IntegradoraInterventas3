@@ -1,149 +1,160 @@
 <ion-header>
-<app-header></app-header>
+  <ion-toolbar>
+    <ion-title>Panel de Administración</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-
-  <!-- SECCIÓN HERO ADMIN -->
-  <section class="admin-hero">
+<ion-content>
+  <!-- 🟣 HERO -->
+  <div class="admin-hero">
     <div class="hero-content">
       <div class="hero-icon">
-        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <ion-icon name="construct-outline"></ion-icon>
       </div>
-      <h1>Administración de Interventas</h1>
-      <p>Administra tus productos de forma rápida y eficiente. Agrega, edita o elimina productos en tiempo real.</p>
+      <h1>Panel de Administración</h1>
+      <p>Gestiona productos y usuarios del sistema</p>
     </div>
-  </section>
+  </div>
 
-  <!-- SECCIÓN PRINCIPAL DE ADMINISTRACIÓN -->
-  <section class="admin-section ion-padding">
+  <!-- 🩵 SECCIÓN PRINCIPAL -->
+  <section class="admin-section">
     <div class="admin-container">
+<!-- 🧩 Columna izquierda: formulario -->
+<div class="left-column">
+  <div class="product-form-card">
+    <div class="form-header">
+      <h2>Gestión de Productos</h2>
+      <p>Agrega o edita productos fácilmente</p>
+    </div>
 
-      <!-- COLUMNA IZQUIERDA: FORMULARIO -->
-      <div class="left-column">
-        
-        <!-- FORMULARIO DE PRODUCTO -->
-        <div class="product-form-wrapper">
-          <div class="form-header">
-            <h2>Agregar Nuevo Producto</h2>
-            <p>Completa la información del producto para agregarlo al catálogo</p>
-          </div>
-
-          <form class="product-form">
-            
-            <div class="form-group">
-              <ion-icon name="cube-outline" class="input-icon"></ion-icon>
-              <input 
-                type="text" 
-                placeholder="Nombre del producto *" 
-                [(ngModel)]="producto.nombre"
-                name="nombre"
-                class="product-input"
-              >
-            </div>
-
-            <div class="form-group">
-              <ion-icon name="cash-outline" class="input-icon"></ion-icon>
-              <input 
-                type="number" 
-                placeholder="Precio *" 
-                [(ngModel)]="producto.precio"
-                name="precio"
-                class="product-input"
-              >
-            </div>
-
-            <div class="form-group full-width">
-              <ion-icon name="document-text-outline" class="input-icon textarea-icon"></ion-icon>
-              <textarea 
-                placeholder="Descripción del producto *" 
-                [(ngModel)]="producto.descripcion"
-                name="descripcion"
-                class="product-textarea"
-                rows="4"
-              ></textarea>
-            </div>
-
-            <div class="form-group full-width">
-              <ion-icon name="image-outline" class="input-icon"></ion-icon>
-              <input 
-                type="text" 
-                placeholder="URL de la imagen" 
-                [(ngModel)]="producto.imagen"
-                name="imagen"
-                class="product-input"
-              >
-            </div>
-
-            <button type="button" class="submit-btn" (click)="guardarProducto()">
-              <ion-icon name="save-outline"></ion-icon>
-              Guardar Producto
-            </button>
-
-          </form>
-        </div>
-
+    <form (ngSubmit)="guardarProducto()" #productForm="ngForm" class="product-form">
+      
+      <!-- Nombre -->
+      <div class="form-field">
+        <ion-icon class="field-icon" name="pricetag-outline"></ion-icon>
+        <ion-input 
+          type="text" 
+          [(ngModel)]="producto.nombre" 
+          name="nombre" 
+          placeholder="Nombre del producto" 
+          required>
+        </ion-input>
       </div>
 
-      <!-- COLUMNA DERECHA: LISTA DE PRODUCTOS -->
+      <!-- Precio -->
+      <div class="form-field">
+        <ion-icon class="field-icon" name="cash-outline"></ion-icon>
+        <ion-input 
+          type="number" 
+          [(ngModel)]="producto.precio" 
+          name="precio" 
+          placeholder="Precio" 
+          required>
+        </ion-input>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-field textarea-field">
+        <ion-icon class="field-icon" name="document-text-outline"></ion-icon>
+        <ion-textarea 
+          [(ngModel)]="producto.descripcion" 
+          name="descripcion" 
+          placeholder="Descripción"
+          auto-grow="true">
+        </ion-textarea>
+      </div>
+
+      <!-- URL imagen -->
+      <div class="form-field">
+        <ion-icon class="field-icon" name="image-outline"></ion-icon>
+        <ion-input 
+          type="text" 
+          [(ngModel)]="producto.imagen" 
+          name="imagen" 
+          placeholder="URL de imagen">
+        </ion-input>
+      </div>
+
+      <!-- Botón -->
+      <button class="btn-submit" type="submit">
+        <ion-icon name="save-outline"></ion-icon>
+        <span>{{ modoEdicion ? 'Actualizar Producto' : 'Agregar Producto' }}</span>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+
+      <!-- 🧩 Columna derecha -->
       <div class="right-column">
-        
+        <!-- 🟢 Productos -->
         <div class="products-header">
-          <h3>Productos Registrados</h3>
-          <p>Gestiona tu inventario de productos</p>
+          <h3>Lista de Productos</h3>
+          <p>Visualiza y administra los productos existentes</p>
         </div>
 
-        <div class="products-list" *ngIf="(productos$ | async)?.length; else emptyState">
-          
-          <div class="product-card" *ngFor="let p of productos$ | async">
-            <div class="product-image" *ngIf="p.imagen">
-              <img [src]="p.imagen" [alt]="p.nombre" onerror="this.style.display='none'">
+        <div class="products-list">
+          <div class="product-card" *ngFor="let producto of productos">
+            <div class="product-image">
+              <img [src]="producto.imagen || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'" />
             </div>
-            <div class="product-image placeholder" *ngIf="!p.imagen">
-              <ion-icon name="image-outline"></ion-icon>
-            </div>
-            
+
             <div class="product-info">
-              <h4>{{ p.nombre }}</h4>
-              <p class="product-description">{{ p.descripcion }}</p>
+              <h4>{{ producto.nombre }}</h4>
+              <p class="product-description">{{ producto.descripcion }}</p>
               <div class="product-price">
                 <ion-icon name="cash-outline"></ion-icon>
-                <span>${{ p.precio }} MXN</span>
+                <span>${{ producto.precio }}</span>
               </div>
             </div>
-            
+
             <div class="product-actions">
-              <button class="delete-btn" (click)="eliminarProducto(p.id)">
+              <ion-button color="warning" (click)="editarProducto(producto)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
+              <ion-button color="danger" (click)="eliminarProducto(producto.id)">
                 <ion-icon name="trash-outline"></ion-icon>
-                Eliminar
-              </button>
+              </ion-button>
             </div>
           </div>
-
         </div>
 
-        <ng-template #emptyState>
-          <div class="empty-state">
-            <div class="empty-icon">
-              <ion-icon name="cube-outline"></ion-icon>
-            </div>
-            <h4>No hay productos registrados</h4>
-            <p>Comienza agregando tu primer producto utilizando el formulario</p>
-          </div>
-        </ng-template>
+        <!-- 🧩 Usuarios -->
+<div class="users-header">
+  <h3>Usuarios Registrados</h3>
+  <p>Gestiona los usuarios activos del sistema</p>
+</div>
+
+<div class="users-list">
+  <div class="user-card" *ngFor="let user of usuarios">
+    <div class="user-avatar">
+      <ion-icon name="person-outline"></ion-icon>
+    </div>
+
+    <div class="user-info">
+      <h4>{{ user.nombre || 'Sin nombre' }}</h4>
+      <p class="user-email">{{ user.email }}</p>
+    </div>
+
+    <div class="user-actions">
+      <ion-button color="warning" (click)="editarUsuario(user)">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button color="danger" (click)="eliminarUsuario(user.id)">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+</div>
+
 
       </div>
-
     </div>
-
-    <!-- BOTÓN CERRAR SESIÓN -->
-    <div class="logout-section">
-      <button class="logout-btn" (click)="logout()">
-        <ion-icon name="log-out-outline"></ion-icon>
-        Cerrar Sesión
-      </button>
-    </div>
-
   </section>
-
 </ion-content>
