@@ -11,7 +11,6 @@ import {
   deleteDoc,
   doc,
   updateDoc
-  
 } from '@angular/fire/firestore';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -28,25 +27,28 @@ import {
   trashOutline,
   logOutOutline,
   personOutline
-  
 } from 'ionicons/icons';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule,HeaderComponent,
-    FooterComponent],
+  imports: [CommonModule, FormsModule, IonicModule, HeaderComponent, FooterComponent],
   templateUrl: './admin.page.html',
   styleUrls: ['./admin.page.scss'],
 })
 export class AdminPage {
+  // Productos
   producto: any = {};
   productos: any[] = [];
   modoEdicion: boolean = false;
   idEditando: string = '';
 
+  // Usuarios
   usuarios: any[] = [];
+  usuarioEditando: any = null;
+  usuarioEditandoId: string = '';
 
+  // Servicios
   firestore = inject(Firestore);
   authService = inject(AuthService);
   router = inject(Router);
@@ -61,7 +63,6 @@ export class AdminPage {
       imageOutline,
       saveOutline,
       createOutline,
-      
       trashOutline,
       logOutOutline,
       personOutline
@@ -70,6 +71,10 @@ export class AdminPage {
     this.obtenerProductos();
     this.obtenerUsuarios();
   }
+
+  // =============================
+  // 🧾 FUNCIONES DE PRODUCTOS
+  // =============================
 
   async mostrarToast(mensaje: string, color: string = 'success') {
     const toast = await this.toastCtrl.create({
@@ -118,6 +123,10 @@ export class AdminPage {
     this.mostrarToast('🗑️ Producto eliminado', 'danger');
   }
 
+  // =============================
+  // 👥 FUNCIONES DE USUARIOS
+  // =============================
+
   obtenerUsuarios() {
     const ref = collection(this.firestore, 'usuarios');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -131,10 +140,36 @@ export class AdminPage {
     this.mostrarToast('🧹 Usuario eliminado', 'danger');
   }
 
-  async editarUsuario(usuario: any) {
-    console.log('Editar usuario:', usuario);
-    this.mostrarToast('✏️ Edición de usuarios próximamente disponible');
+  editarUsuario(usuario: any) {
+    // Habilitar edición inline
+    this.usuarioEditandoId = usuario.id;
+    this.usuarioEditando = { ...usuario };
   }
+
+  cancelarEdicion() {
+    this.usuarioEditandoId = '';
+    this.usuarioEditando = null;
+  }
+
+  async guardarUsuarioEditado(id: string) {
+    try {
+      const docRef = doc(this.firestore, `usuarios/${id}`);
+      await updateDoc(docRef, {
+        nombre: this.usuarioEditando.nombre || '',
+        rol: this.usuarioEditando.rol || '',
+      });
+      this.mostrarToast('✅ Usuario actualizado correctamente');
+      this.usuarioEditandoId = '';
+      this.usuarioEditando = null;
+    } catch (error) {
+      console.error(error);
+      this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
+    }
+  }
+
+  // =============================
+  // 🚪 SESIÓN
+  // =============================
 
   cerrarSesion() {
     this.authService.logout();
