@@ -60,6 +60,17 @@
       <!-- Actions Section -->
       <div class="actions-section">
 
+        <!-- Admin Panel Button (Solo visible para admins) -->
+        <ion-button 
+          *ngIf="isAdmin" 
+          fill="clear" 
+          class="action-btn admin-btn" 
+          routerLink="/admin"
+          [class.active]="isAdminActive()">
+          <ion-icon [icon]="shieldCheckmarkOutline" class="action-icon"></ion-icon>
+          <span class="admin-label">    Administración</span>
+        </ion-button>
+
         <!-- Cart Button -->
         <ion-button fill="clear" class="action-btn cart-btn" routerLink="/carrito">
           <ion-icon [icon]="cartOutline" class="action-icon"></ion-icon>
@@ -232,6 +243,17 @@
 
       <!-- Mobile Navigation -->
       <nav class="sidebar-nav">
+        <!-- Admin Link (Solo visible para admins) -->
+        <a 
+          *ngIf="isAdmin" 
+          class="sidebar-link admin-link" 
+          routerLink="/admin" 
+          [class.active]="isAdminActive()" 
+          (click)="closeMenu()">
+          <ion-icon name="shield-checkmark-outline" class="sidebar-icon"></ion-icon>
+          <span>Panel de Administración</span>
+        </a>
+
         <a class="sidebar-link" routerLink="/home" [class.active]="isHomeActive()" (click)="closeMenu()">
           <ion-icon name="home-outline" class="sidebar-icon"></ion-icon>
           <span>Inicio</span>
@@ -289,6 +311,35 @@
         </ng-container>
       </div>
     </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- BOTÓN FLOTANTE DE WHATSAPP -->
+  <!-- ========================================== -->
+  <div class="whatsapp-container" [class.animate]="showWhatsappTooltip">
+    <div class="tooltip" [class.in]="tooltipAnimateIn" [class.out]="tooltipAnimateOut">
+      <div>
+        <span *ngFor="let letter of tooltipLetters; let i = index"
+              [style.--move]="letter.move"
+              [style.--rotate]="letter.rotate"
+              [style.--part]="letter.part"
+              [innerHTML]="letter.char">
+        </span>
+      </div>
+    </div>
+    
+    <a [href]="whatsappUrl" target="_blank" class="whatsapp-button"
+       [class.in]="buttonAnimateIn" 
+       [class.out]="buttonAnimateOut"
+       (mouseenter)="onWhatsappHover(true)"
+       (mouseleave)="onWhatsappHover(false)">
+      <div class="whatsapp-icon">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 2.825.74 5.577 2.153 7.992L.051 31.847l8.111-2.064A15.927 15.927 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333c-2.471 0-4.896-.688-6.989-2.001l-.502-.313-5.181 1.318 1.338-5.043-.342-.518A13.285 13.285 0 012.667 16c0-7.364 5.969-13.333 13.333-13.333S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.299-9.941c-.401-.201-2.371-1.17-2.738-1.304-.369-.133-.637-.201-.906.201-.268.401-1.037 1.304-1.271 1.572-.234.268-.468.301-.869.1-.401-.2-1.692-.623-3.221-1.986-1.191-1.061-1.995-2.371-2.229-2.772-.234-.401-.025-.617.176-.817.181-.179.401-.468.602-.702.2-.234.268-.401.401-.669.134-.268.067-.502-.033-.702-.1-.201-.906-2.183-1.241-2.989-.326-.783-.659-.677-.906-.69-.234-.012-.502-.015-.77-.015s-.702.1-1.07.502c-.368.401-1.404 1.371-1.404 3.344s1.437 3.879 1.638 4.147c.201.268 2.826 4.315 6.849 6.052.957.413 1.704.66 2.286.845.961.305 1.836.262 2.527.159.771-.115 2.371-.969 2.705-1.904.334-.936.334-1.738.234-1.904-.1-.168-.368-.268-.769-.469z"/>
+        </svg>
+      </div>
+      <div class="click-ring"></div>
+    </a>
   </div>
 
 </ion-header>

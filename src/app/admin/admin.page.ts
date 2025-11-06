@@ -23,18 +23,22 @@ import {
   IonList,
   IonIcon
 } from '@ionic/angular/standalone';
+
+import {
+  cubeOutline,
+  trashOutline,
+  cashOutline,
+  imageOutline,
+  documentTextOutline,
+  saveOutline,
+  logOutOutline,
+  shieldCheckmarkOutline
+} from 'ionicons/icons';
+
 import { Observable } from 'rxjs';
 import { addIcons } from 'ionicons';
-import {
-  shieldCheckmarkOutline,
-  cubeOutline,
-  cashOutline,
-  documentTextOutline,
-  imageOutline,
-  saveOutline,
-  trashOutline,
-  logOutOutline
-} from 'ionicons/icons';
+import { HeaderComponent } from '../components/header/header.component';
+import { FooterComponent } from '../components/footer/footer.component';
 
 @Component({
   selector: 'app-admin',
@@ -51,7 +55,9 @@ import {
     IonItem,
     IonLabel,
     IonList,
-    IonIcon
+    IonIcon,
+    HeaderComponent,
+    FooterComponent
   ],
   templateUrl: './admin.page.html',
   styleUrls: ['./admin.page.scss']
@@ -73,19 +79,19 @@ export class AdminPage {
   productos$: Observable<any[]>;
 
   constructor() {
-    // Registrar iconos de Ionicons
+    // 🔧 Registrar todos los iconos que se usan en la página
     addIcons({
-      'shield-checkmark-outline': shieldCheckmarkOutline,
       'cube-outline': cubeOutline,
-      'cash-outline': cashOutline,
-      'document-text-outline': documentTextOutline,
-      'image-outline': imageOutline,
-      'save-outline': saveOutline,
       'trash-outline': trashOutline,
-      'log-out-outline': logOutOutline
+      'cash-outline': cashOutline,
+      'image-outline': imageOutline,
+      'document-text-outline': documentTextOutline,
+      'save-outline': saveOutline,
+      'log-out-outline': logOutOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
     });
 
-    // Cargar productos desde Firestore en tiempo real
+    // 📦 Cargar productos desde Firestore en tiempo real
     const productosRef = collection(this.firestore, 'productos');
     this.productos$ = collectionData(productosRef, { idField: 'id' }) as Observable<any[]>;
   }
@@ -101,21 +107,14 @@ export class AdminPage {
     const { nombre, precio, descripcion, imagen } = this.producto;
 
     if (!nombre || !precio || !descripcion) {
-      alert('⚠️ Completa todos los campos obligatorios antes de guardar');
+      alert('Completa todos los campos antes de guardar');
       return;
     }
 
     try {
       const productosRef = collection(this.firestore, 'productos');
-      await addDoc(productosRef, { 
-        nombre, 
-        precio: parseFloat(precio), 
-        descripcion, 
-        imagen: imagen || '' 
-      });
+      await addDoc(productosRef, { nombre, precio, descripcion, imagen });
       alert('✅ Producto guardado correctamente');
-      
-      // Limpiar formulario
       this.producto = { nombre: '', precio: '', descripcion: '', imagen: '' };
     } catch (error) {
       console.error('❌ Error al guardar producto:', error);

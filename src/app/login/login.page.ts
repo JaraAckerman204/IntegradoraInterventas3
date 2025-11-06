@@ -82,7 +82,7 @@ export class LoginPage {
         setTimeout(() => {
           // Redirigir según el rol
           if (rol === 'admin') {
-            this.router.navigateByUrl('/admin', { replaceUrl: true });
+            this.router.navigateByUrl('/home', { replaceUrl: true });
           } else {
             this.router.navigateByUrl('/home', { replaceUrl: true });
           }
