@@ -11,9 +11,12 @@ import {
   deleteDoc,
   doc,
   updateDoc
+  
 } from '@angular/fire/firestore';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
+import { HeaderComponent } from '../components/header/header.component';
+import { FooterComponent } from '../components/footer/footer.component';
 import {
   shieldCheckmarkOutline,
   cubeOutline,
@@ -25,12 +28,14 @@ import {
   trashOutline,
   logOutOutline,
   personOutline
+  
 } from 'ionicons/icons';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule,HeaderComponent,
+    FooterComponent],
   templateUrl: './admin.page.html',
   styleUrls: ['./admin.page.scss'],
 })
@@ -56,6 +61,7 @@ export class AdminPage {
       imageOutline,
       saveOutline,
       createOutline,
+      
       trashOutline,
       logOutOutline,
       personOutline
