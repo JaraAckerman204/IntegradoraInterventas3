@@ -23,10 +23,19 @@ import {
   bagOutline,
   restaurantOutline,
   pizzaOutline,
-  waterOutline
+  waterOutline,
+  shieldCheckmarkOutline
 } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
+
+interface TooltipLetter {
+  char: string;
+  move: string;
+  rotate: string;
+  part: string;
+}
 
 @Component({
   selector: 'app-header',
@@ -49,15 +58,28 @@ export class HeaderComponent implements OnInit {
   logOutOutline = logOutOutline;
   logInOutline = logInOutline;
   cartOutline = cartOutline;
+  shieldCheckmarkOutline = shieldCheckmarkOutline;
 
   // Usuario de Firebase
   user: User | null = null;
+  
+  // Rol del usuario
+  isAdmin = false;
 
   // Carrito
   cartItemCount = 0;
 
+  // WhatsApp
+  whatsappUrl = 'https://wa.me/5218711234567'; // Cambia este número por el tuyo
+  tooltipText = '¡Chatea con nosotros!';
+  tooltipLetters: TooltipLetter[] = [];
+  showWhatsappTooltip = false;
+  tooltipAnimateIn = false;
+  tooltipAnimateOut = false;
+  buttonAnimateIn = false;
+  buttonAnimateOut = false;
+
   constructor(private elRef: ElementRef, private router: Router) {
-    // Registrar iconos
     addIcons({ 
       'menu-outline': menuOutline,
       'person-circle-outline': personCircleOutline,
@@ -79,22 +101,91 @@ export class HeaderComponent implements OnInit {
       'bag-outline': bagOutline,
       'restaurant-outline': restaurantOutline,
       'pizza-outline': pizzaOutline,
-      'water-outline': waterOutline
+      'water-outline': waterOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     // Escuchar cambios de autenticación
     const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       this.user = user;
+      
+      if (user) {
+        await this.checkUserRole(user.uid);
+      } else {
+        this.isAdmin = false;
+      }
     });
 
-    // Aquí puedes suscribirte a tu servicio de carrito
-    // Ejemplo:
-    // this.cartService.getCartItemCount().subscribe(count => {
-    //   this.cartItemCount = count;
-    // });
+    // Inicializar letras del tooltip de WhatsApp
+    this.initTooltipLetters();
+  }
+
+  /**
+   * Inicializar las letras del tooltip con sus propiedades de animación
+   */
+  initTooltipLetters() {
+    const letters = this.tooltipText.split('');
+    this.tooltipLetters = letters.map((letter, index) => {
+      const part = (index >= letters.length / 2) ? -1 : 1;
+      const position = (index >= letters.length / 2) 
+        ? letters.length / 2 - index + (letters.length / 2 - 1) 
+        : index;
+      const move = position / (letters.length / 2);
+      const rotate = 1 - move;
+      
+      return {
+        char: !letter.trim() ? '&nbsp;' : letter,
+        move: move.toString(),
+        rotate: rotate.toString(),
+        part: part.toString()
+      };
+    });
+  }
+
+  /**
+   * Manejar hover del botón de WhatsApp
+   */
+  onWhatsappHover(isEnter: boolean) {
+    if (isEnter) {
+      if (!this.tooltipAnimateOut && !this.tooltipAnimateIn) {
+        this.tooltipAnimateIn = true;
+        this.buttonAnimateIn = true;
+      }
+    } else {
+      if (this.tooltipAnimateIn) {
+        this.tooltipAnimateOut = true;
+        this.buttonAnimateOut = true;
+        setTimeout(() => {
+          this.tooltipAnimateIn = false;
+          this.tooltipAnimateOut = false;
+          this.buttonAnimateIn = false;
+          this.buttonAnimateOut = false;
+        }, 950);
+      }
+    }
+  }
+
+  /**
+   * Verificar el rol del usuario en Firestore
+   */
+  async checkUserRole(uid: string) {
+    try {
+      const db = getFirestore();
+      const userDoc = await getDoc(doc(db, 'usuarios', uid));
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        this.isAdmin = userData['rol'] === 'admin';
+      } else {
+        this.isAdmin = false;
+      }
+    } catch (error) {
+      console.error('Error al verificar rol del usuario:', error);
+      this.isAdmin = false;
+    }
   }
 
   // ====================================
@@ -117,6 +208,10 @@ export class HeaderComponent implements OnInit {
     return this.router.url.startsWith('/sucursales');
   }
 
+  isAdminActive(): boolean {
+    return this.router.url.startsWith('/admin');
+  }
+
   // ====================================
   // MÉTODOS DE MENÚ DE PERFIL
   // ====================================
@@ -137,6 +232,7 @@ export class HeaderComponent implements OnInit {
     const auth = getAuth();
     signOut(auth).then(() => {
       this.user = null;
+      this.isAdmin = false;
       this.closeProfileMenu();
       this.closeMenu();
       this.router.navigate(['/login']);
@@ -153,7 +249,6 @@ export class HeaderComponent implements OnInit {
     this.showMobileMenu = !this.showMobileMenu;
     if (this.showMobileMenu) {
       this.closeProfileMenu();
-      // No cerramos dropdowns aquí para permitir navegación en móvil
       document.body.style.overflow = 'hidden';
     } else {
       this.closeDropdowns();
@@ -182,22 +277,18 @@ export class HeaderComponent implements OnInit {
       return;
     }
 
-    // Solo calcular posición en desktop
     if (window.innerWidth > 1024) {
       const rect = button.getBoundingClientRect();
-      
-      const menuWidth = 320; // Ambos menús ahora tienen el mismo ancho
+      const menuWidth = 320;
       const padding = 20;
       const viewportWidth = window.innerWidth;
 
       let left = rect.left;
       
-      // Ajustar si el menú se sale de la pantalla
       if (left + menuWidth + padding > viewportWidth) {
         left = viewportWidth - menuWidth - padding;
       }
 
-      // Asegurar que no se salga por la izquierda
       if (left < padding) {
         left = padding;
       }
@@ -208,18 +299,12 @@ export class HeaderComponent implements OnInit {
       };
     }
 
-    // Toggle del menú correspondiente
     if (menu === 'nosotros') {
       this.showNosotrosDropdown = !this.showNosotrosDropdown;
       this.showProductosDropdown = false;
     } else if (menu === 'productos') {
       this.showProductosDropdown = !this.showProductosDropdown;
       this.showNosotrosDropdown = false;
-    }
-
-    // En móvil, no cerrar el menú principal
-    if (window.innerWidth <= 1024) {
-      // Los dropdowns se manejan dentro del sidebar
     }
   }
 
@@ -236,7 +321,6 @@ export class HeaderComponent implements OnInit {
   onClickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
     
-    // Cerrar menú de perfil si se hace click fuera
     const insideProfile =
       target.closest('.profile-dropdown') ||
       target.closest('.profile-btn');
@@ -245,7 +329,6 @@ export class HeaderComponent implements OnInit {
       this.closeProfileMenu();
     }
     
-    // Solo cerrar dropdowns en desktop
     if (window.innerWidth > 1024) {
       const inside =
         target.closest('.desktop-nav') ||
@@ -257,7 +340,6 @@ export class HeaderComponent implements OnInit {
       }
     }
 
-    // Cerrar sidebar móvil si se hace click en el overlay
     if (target.classList.contains('sidebar-overlay')) {
       this.closeMenu();
     }
@@ -265,7 +347,6 @@ export class HeaderComponent implements OnInit {
 
   @HostListener('window:scroll', ['$event'])
   onScroll() {
-    // Cerrar dropdowns al hacer scroll (solo en desktop)
     if (window.innerWidth > 1024) {
       this.closeDropdowns();
       this.closeProfileMenu();
@@ -274,12 +355,10 @@ export class HeaderComponent implements OnInit {
 
   @HostListener('window:resize', ['$event'])
   onResize() {
-    // Cerrar menú móvil si la ventana se agranda
     if (window.innerWidth > 1024) {
       this.closeMenu();
       document.body.style.overflow = '';
     } else {
-      // Cerrar dropdowns desktop si la ventana se achica
       this.closeDropdowns();
       this.closeProfileMenu();
     }
@@ -287,7 +366,6 @@ export class HeaderComponent implements OnInit {
 
   @HostListener('document:keydown.escape', ['$event'])
   onEscapeKey(event: KeyboardEvent) {
-    // Cerrar menús con tecla ESC
     if (this.showMobileMenu) {
       this.closeMenu();
     }
