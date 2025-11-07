@@ -1,5 +1,5 @@
 /* ============================= */
-/* 🔹 Sección Hero */
+/* 🔹 Sección Hero               */
 /* ============================= */
 .products-hero {
   height: 38vh;
@@ -12,7 +12,7 @@
   color: #ffffff;
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .hero-content {
@@ -32,6 +32,7 @@
   background: linear-gradient(135deg, #ffffff, #f3d1f4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero-content p {
@@ -44,7 +45,7 @@
 }
 
 /* ============================= */
-/* 🔹 Sección Productos */
+/* 🔹 Sección Productos           */
 /* ============================= */
 .products-section {
   padding: 40px 20px;
@@ -65,13 +66,14 @@
 }
 
 /* ============================= */
-/* 🔹 Tarjeta Flip */
+/* 🔹 Tarjeta de producto (Flip) */
 /* ============================= */
 .product-card {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .card {
   position: relative;
   width: 300px;
@@ -79,19 +81,26 @@
   perspective: 1000px;
   overflow: visible;
 }
+
 .content {
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s ease;
   border-radius: 15px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   position: relative;
 }
+
 .card:hover .content {
   transform: rotateY(180deg);
 }
-.front, .back {
+
+/* ============================= */
+/* Lado frontal               */
+/* ============================= */
+.front,
+.back {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -100,11 +109,13 @@
   -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
+
 .front {
   transform: rotateY(0deg);
   background-color: #ffffff;
   color: #1f2b67;
 }
+
 .front .img {
   position: relative;
   width: 100%;
@@ -113,15 +124,46 @@
   border-radius: 15px;
   margin-bottom: 15px;
 }
+
+.circle {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(#27318d55, transparent 60%);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.circle:nth-child(1) {
+  top: -20px;
+  left: -20px;
+}
+
+.circle:nth-child(2) {
+  top: -20px;
+  right: -20px;
+}
+
+.circle:nth-child(3) {
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .prod-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  z-index: 1;
+  position: relative;
   transition: transform 0.5s ease;
 }
+
 .card:hover .prod-img {
   transform: scale(1.08);
 }
+
 .front-content {
   position: absolute;
   top: 0;
@@ -133,13 +175,21 @@
   flex-direction: column;
   justify-content: space-between;
 }
+
 .description {
   box-shadow: none;
   width: 100%;
   padding: 15px;
   background-color: #f8f9fa;
   border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+.description:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
 .title {
   font-size: 18px;
   display: flex;
@@ -147,12 +197,14 @@
   align-items: center;
   margin-bottom: 10px;
 }
+
 .title p {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
   color: #27318d;
 }
+
 .card-footer {
   color: #495057;
   margin-top: 12px;
@@ -161,15 +213,21 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .card-footer .price {
   color: #ed1370;
   font-weight: 700;
   font-size: 16px;
 }
+
 .card-footer .description {
   color: #000000;
   font-size: 14px;
 }
+
+/* ============================= */
+/* 🔸 Lado posterior             */
+/* ============================= */
 .back {
   transform: rotateY(180deg);
   display: flex;
@@ -177,9 +235,10 @@
   align-items: center;
   overflow: hidden;
 }
+
 .back::before {
   position: absolute;
-  content: '';
+  content: "";
   display: block;
   width: 160px;
   height: 160%;
@@ -187,10 +246,16 @@
   animation: rotation_481 5s infinite linear;
   z-index: 0;
 }
+
 @keyframes rotation_481 {
-  0% { transform: rotateZ(0deg); }
-  100% { transform: rotateZ(360deg); }
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
 }
+
 .back-content {
   position: relative;
   width: 97%;
@@ -206,6 +271,25 @@
   text-align: center;
   z-index: 1;
 }
+
+.back-content strong {
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(#27318d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.back-content p:not(.text) {
+  font-size: 14px;
+  color: #000000;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ============================= */
+/*  Botón "Add to Cart" */
+/* ============================= */
 .CartBtn {
   width: 150px;
   height: 42px;
@@ -216,38 +300,95 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition-duration: .5s;
+  transition-duration: 0.5s;
   overflow: hidden;
-  box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
   position: relative;
 }
+
 .IconContainer {
   position: absolute;
   left: -50px;
   width: 30px;
   height: 30px;
+  background-color: transparent;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition-duration: .5s;
+  overflow: hidden;
+  z-index: 2;
+  transition-duration: 0.5s;
 }
+
 .CartBtn .text {
-  color: #fff !important;
+  height: 100%;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff !important;
+  z-index: 1;
+  transition-duration: 0.5s;
   font-size: 1.04em;
   font-weight: 600;
 }
+
 .CartBtn:hover .IconContainer {
   transform: translateX(58px);
+  border-radius: 40px;
+  transition-duration: 0.5s;
 }
+
 .CartBtn:hover .text {
-  transform: translate(10px,0px);
+  transform: translate(10px, 0px);
+  transition-duration: 0.5s;
 }
+
+.CartBtn:active {
+  transform: scale(0.95);
+  transition-duration: 0.3s;
+}
+
+/* ============================= */
+/* Animación de aparición     */
+/* ============================= */
 .reveal {
   opacity: 0;
   transform: translateY(24px) scale(0.995);
-  transition: all 700ms cubic-bezier(.2,.9,.2,1);
+  transition: all 700ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
+
 .reveal.in-view {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+/* ============================= */
+/* Responsividad              */
+/* ============================= */
+@media (max-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    width: 260px;
+    height: 360px;
+  }
+
+  .front .img {
+    height: 180px;
+  }
+
+  .title p {
+    font-size: 16px;
+  }
+
+  .card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }

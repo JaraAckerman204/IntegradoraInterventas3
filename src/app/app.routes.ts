@@ -110,9 +110,6 @@ export const routes: Routes = [
     redirectTo: 'home',
   },
   {
-    path: 'pendejinestebannaco',
-    loadComponent: () => import('./pendejinestebannaco/pendejinestebannaco.page').then( m => m.PendejinestebannacoPage)
-  },  {
     path: 'carrito',
     loadComponent: () => import('./carrito/carrito.page').then( m => m.CarritoPage)
   },
