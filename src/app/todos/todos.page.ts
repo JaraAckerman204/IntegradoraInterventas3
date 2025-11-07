@@ -1,12 +1,14 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { IonContent, IonButton, IonIcon, IonSpinner, IonBadge } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cartOutline } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 import { ProductosService, Producto } from '../services/productos.service';
+import { CartService } from '../services/cart.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-todos',
@@ -18,6 +20,7 @@ import { ProductosService, Producto } from '../services/productos.service';
     IonButton,
     IonIcon,
     IonSpinner,
+    IonBadge,
     CommonModule, 
     FormsModule,
     HeaderComponent,
@@ -27,13 +30,23 @@ import { ProductosService, Producto } from '../services/productos.service';
 export class TodosPage implements OnInit, AfterViewInit {
   products: Producto[] = [];
   loading = true;
+  cartCount = 0;
 
-  constructor(private productosService: ProductosService) {
+  constructor(
+    private productosService: ProductosService,
+    private cartService: CartService,
+    private router: Router
+  ) {
     addIcons({ cartOutline });
   }
 
   ngOnInit() {
     this.loadProducts();
+    
+    // Suscribirse al contador del carrito
+    this.cartService.getCartCount().subscribe(count => {
+      this.cartCount = count;
+    });
   }
 
   ngAfterViewInit() {
@@ -45,7 +58,6 @@ export class TodosPage implements OnInit, AfterViewInit {
       next: (productos) => {
         this.products = productos;
         this.loading = false;
-        // Esperar un tick para que el DOM se actualice antes de aplicar el reveal
         setTimeout(() => this.setupScrollReveal(), 100);
       },
       error: (error) => {
@@ -76,7 +88,19 @@ export class TodosPage implements OnInit, AfterViewInit {
   }
 
   addToCart(product: Producto) {
-    console.log('Agregando al carrito:', product);
-    // TODO: Implementar la lógica del carrito
+    this.cartService.addToCart(product);
+    console.log('Producto agregado al carrito:', product);
+    
+    // Opcional: Mostrar un toast o animación
+    this.showAddedFeedback();
+  }
+
+  private showAddedFeedback() {
+    // Aquí puedes agregar un toast o notificación
+    console.log('¡Producto agregado! Total items:', this.cartCount);
+  }
+
+  goToCart() {
+    this.router.navigate(['/carrito']);
   }
 }

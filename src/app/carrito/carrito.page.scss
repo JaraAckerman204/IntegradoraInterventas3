@@ -1,0 +1,108 @@
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  padding: 20px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 120px;
+    color: #ccc;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  ion-button {
+    max-width: 300px;
+  }
+}
+
+.cart-container {
+  padding: 16px;
+}
+
+.cart-item {
+  margin-bottom: 10px;
+  --padding-start: 10px;
+  --inner-padding-end: 10px;
+
+  ion-thumbnail {
+    width: 80px;
+    height: 80px;
+    margin-right: 10px;
+
+    img {
+      object-fit: cover;
+    }
+  }
+
+  .price {
+    color: var(--ion-color-primary);
+    font-weight: bold;
+    margin-top: 5px;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    ion-badge {
+      min-width: 30px;
+      text-align: center;
+      font-size: 16px;
+    }
+  }
+}
+
+.customer-info-card {
+  margin-top: 20px;
+  
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 10px;
+  }
+}
+
+.summary-card {
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+
+    &.total {
+      border-bottom: none;
+      font-size: 1.2em;
+      padding-top: 15px;
+      margin-top: 10px;
+      border-top: 2px solid #333;
+    }
+  }
+
+  ion-button {
+    margin-top: 15px;
+  }
+
+  .whatsapp-button {
+    --background: #25D366;
+    --background-hover: #128C7E;
+    --background-activated: #075E54;
+    font-weight: bold;
+  }
+}
