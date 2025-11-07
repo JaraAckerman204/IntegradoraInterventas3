@@ -1420,3 +1420,168 @@ ion-button {
     align-self: flex-end;
   }
 }
+
+/* === SECCIÓN DE MENSAJES RECIBIDOS === */
+.messages-section {
+  margin-top: 3rem;
+}
+
+.messages-header {
+  margin-bottom: 1.5rem;
+  
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #19226d;
+    margin-bottom: 0.5rem;
+    
+    ion-icon {
+      font-size: 1.8rem;
+      color: #ed1370;
+    }
+  }
+  
+  p {
+    color: #666;
+    font-size: 0.95rem;
+    margin-left: 42px;
+  }
+}
+
+.no-messages {
+  text-align: center;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, rgba(237, 19, 112, 0.02) 0%, rgba(39, 49, 141, 0.02) 100%);
+  border-radius: 16px;
+  border: 2px dashed rgba(237, 19, 112, 0.2);
+  margin-top: 20px;
+  
+  ion-icon {
+    font-size: 4rem;
+    color: rgba(237, 19, 112, 0.3);
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #888;
+    font-style: italic;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 1rem;
+}
+
+.message-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+  border: 2px solid rgba(237, 19, 112, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(237, 19, 112, 0.15);
+    border-color: rgba(237, 19, 112, 0.2);
+  }
+  
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #19226d;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    
+    small {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #ed1370;
+      background: rgba(237, 19, 112, 0.08);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+  }
+  
+  p {
+    margin: 8px 0;
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    
+    strong {
+      color: #27318d;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+  }
+  
+  ion-button {
+    margin-top: 16px;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    font-weight: 600;
+    transition: all 0.25s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      --box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
+    }
+    
+    ion-icon {
+      margin-right: 6px;
+    }
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .messages-section {
+    margin-top: 2rem;
+  }
+
+  .message-card {
+    padding: 18px;
+    
+    h3 {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      
+      small {
+        font-size: 0.8rem;
+      }
+    }
+  }
+  
+  .no-messages {
+    padding: 40px 20px;
+    
+    ion-icon {
+      font-size: 3rem;
+    }
+  }
+}

@@ -8,93 +8,79 @@
         <ion-icon name="construct-outline"></ion-icon>
       </div>
       <h1>Panel de Administración</h1>
-      <p>Gestiona productos y usuarios del sistema</p>
+      <p>Gestiona productos, usuarios y mensajes del sistema</p>
     </div>
   </div>
 
   <!-- 🩵 SECCIÓN PRINCIPAL -->
   <section class="admin-section">
     <div class="admin-container">
-      <!-- 🧩 Columna izquierda: formulario -->
-      <div class="left-column">
-        <div class="product-form-card">
-          <div class="form-header">
-            <h2>Gestión de Productos</h2>
-            <p>Agrega o edita productos fácilmente</p>
-          </div>
+<!-- 🧩 Columna izquierda: formulario -->
+<div class="left-column">
+  <div class="product-form-card">
+    <div class="form-header">
+      <h2>Gestión de Productos</h2>
+      <p>Agrega o edita productos fácilmente</p>
+    </div>
 
-          <form (ngSubmit)="guardarProducto()" #productForm="ngForm" class="product-form">
-            
-            <!-- ID del Producto -->
-            <div class="form-field" [class.disabled]="modoEdicion">
-              <ion-icon class="field-icon" name="key-outline"></ion-icon>
-              <ion-input 
-                type="text" 
-                [(ngModel)]="producto.id" 
-                name="id" 
-                [placeholder]="modoEdicion ? 'ID: ' + idEditando + ' (no editable)' : 'ID del producto (opcional)'"
-                [disabled]="modoEdicion">
-              </ion-input>
-              <span *ngIf="modoEdicion" class="lock-icon">
-                <ion-icon name="lock-closed-outline"></ion-icon>
-              </span>
-            </div>
-
-            <!-- Nombre -->
-            <div class="form-field">
-              <ion-icon class="field-icon" name="pricetag-outline"></ion-icon>
-              <ion-input 
-                type="text" 
-                [(ngModel)]="producto.nombre" 
-                name="nombre" 
-                placeholder="Nombre del producto" 
-                required>
-              </ion-input>
-            </div>
-
-            <!-- Precio -->
-            <div class="form-field">
-              <ion-icon class="field-icon" name="cash-outline"></ion-icon>
-              <ion-input 
-                type="number" 
-                [(ngModel)]="producto.precio" 
-                name="precio" 
-                placeholder="Precio" 
-                required>
-              </ion-input>
-            </div>
-
-            <!-- Descripción -->
-            <div class="form-field textarea-field">
-              <ion-icon class="field-icon" name="document-text-outline"></ion-icon>
-              <ion-textarea 
-                [(ngModel)]="producto.descripcion" 
-                name="descripcion" 
-                placeholder="Descripción"
-                auto-grow="true">
-              </ion-textarea>
-            </div>
-
-            <!-- URL imagen -->
-            <div class="form-field">
-              <ion-icon class="field-icon" name="image-outline"></ion-icon>
-              <ion-input 
-                type="text" 
-                [(ngModel)]="producto.imagen" 
-                name="imagen" 
-                placeholder="URL de imagen">
-              </ion-input>
-            </div>
-
-            <!-- Botón -->
-            <button class="btn-submit" type="submit">
-              <ion-icon name="save-outline"></ion-icon>
-              <span>{{ modoEdicion ? 'Actualizar Producto' : 'Agregar Producto' }}</span>
-            </button>
-
-          </form>
-        </div>
+    <form (ngSubmit)="guardarProducto()" #productForm="ngForm" class="product-form">
+      
+      <!-- Nombre -->
+      <div class="form-field">
+        <ion-icon class="field-icon" name="pricetag-outline"></ion-icon>
+        <ion-input 
+          type="text" 
+          [(ngModel)]="producto.nombre" 
+          name="nombre" 
+          placeholder="Nombre del producto" 
+          required>
+        </ion-input>
       </div>
+
+      <!-- Precio -->
+      <div class="form-field">
+        <ion-icon class="field-icon" name="cash-outline"></ion-icon>
+        <ion-input 
+          type="number" 
+          [(ngModel)]="producto.precio" 
+          name="precio" 
+          placeholder="Precio" 
+          required>
+        </ion-input>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-field textarea-field">
+        <ion-icon class="field-icon" name="document-text-outline"></ion-icon>
+        <ion-textarea 
+          [(ngModel)]="producto.descripcion" 
+          name="descripcion" 
+          placeholder="Descripción"
+          auto-grow="true">
+        </ion-textarea>
+      </div>
+
+      <!-- URL imagen -->
+      <div class="form-field">
+        <ion-icon class="field-icon" name="image-outline"></ion-icon>
+        <ion-input 
+          type="text" 
+          [(ngModel)]="producto.imagen" 
+          name="imagen" 
+          placeholder="URL de imagen">
+        </ion-input>
+      </div>
+
+      <!-- Botón -->
+      <button class="btn-submit" type="submit">
+        <ion-icon name="save-outline"></ion-icon>
+        <span>{{ modoEdicion ? 'Actualizar Producto' : 'Agregar Producto' }}</span>
+      </button>
+
+    </form>
+  </div>
+</div>
+
 
       <!-- 🧩 Columna derecha -->
       <div class="right-column">
@@ -140,112 +126,31 @@
           <p>Gestiona los usuarios activos del sistema</p>
         </div>
 
-        <div class="users-list">
-          <div class="user-card" *ngFor="let user of usuarios">
-            
-            <!-- Modo Vista Normal -->
-            <ng-container *ngIf="usuarioEditandoId !== user.id">
-              <div class="user-avatar">
-                <ion-icon name="person-outline"></ion-icon>
-              </div>
+<div class="users-list">
+  <div class="user-card" *ngFor="let user of usuarios">
+    <div class="user-avatar">
+      <ion-icon name="person-outline"></ion-icon>
+    </div>
 
-              <div class="user-info">
-                <div class="user-id-label">
-                  <ion-icon name="key-outline"></ion-icon>
-                  <span>ID: {{ user.id }}</span>
-                </div>
-                <h4>{{ user.nombre || 'Sin nombre' }}</h4>
-                <p class="user-email">{{ user.email }}</p>
-                <div class="user-role-badge">
-                  <ion-icon name="shield-checkmark-outline"></ion-icon>
-                  <span>{{ user.rol || 'usuario' }}</span>
-                </div>
-              </div>
+    <div class="user-info">
+      <h4>{{ user.nombre || 'Sin nombre' }}</h4>
+      <p class="user-email">{{ user.email }}</p>
+    </div>
 
-              <div class="user-actions">
-                <ion-button color="warning" (click)="editarUsuario(user)">
-                  <ion-icon name="create-outline"></ion-icon>
-                </ion-button>
-                <ion-button color="danger" (click)="eliminarUsuario(user.id)">
-                  <ion-icon name="trash-outline"></ion-icon>
-                </ion-button>
-              </div>
-            </ng-container>
+    <div class="user-actions">
+      <ion-button color="warning" (click)="editarUsuario(user)">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button color="danger" (click)="eliminarUsuario(user.id)">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+</div>
 
-            <!-- Modo Edición -->
-            <ng-container *ngIf="usuarioEditandoId === user.id">
-              <div class="user-edit-wrapper">
-                <div class="edit-form-header">
-                  <ion-icon name="create-outline"></ion-icon>
-                  <span>Editando usuario</span>
-                </div>
 
-                <div class="user-edit-form">
-                  <!-- ID del Usuario (solo lectura en edición) -->
-                  <div class="form-field disabled">
-                    <ion-icon class="field-icon" name="key-outline"></ion-icon>
-                    <ion-input 
-                      type="text" 
-                      [value]="user.id" 
-                      placeholder="ID del usuario"
-                      disabled>
-                    </ion-input>
-                  </div>
-
-                  <!-- Nombre -->
-                  <div class="form-field">
-                    <ion-icon class="field-icon" name="person-outline"></ion-icon>
-                    <ion-input 
-                      type="text" 
-                      [(ngModel)]="usuarioEditando.nombre"
-                      [name]="'nombre-' + user.id"
-                      placeholder="Nombre del usuario">
-                    </ion-input>
-                  </div>
-
-                  <!-- Email (editable) -->
-                  <div class="form-field">
-                    <ion-icon class="field-icon" name="mail-outline"></ion-icon>
-                    <ion-input 
-                      type="email" 
-                      [(ngModel)]="usuarioEditando.email"
-                      [name]="'email-' + user.id"
-                      placeholder="Email del usuario">
-                    </ion-input>
-                  </div>
-
-                  <!-- Rol -->
-                  <div class="form-field">
-                    <ion-icon class="field-icon" name="shield-checkmark-outline"></ion-icon>
-                    <ion-select 
-                      [(ngModel)]="usuarioEditando.rol"
-                      [name]="'rol-' + user.id"
-                      placeholder="Seleccionar rol"
-                      interface="popover">
-                      <ion-select-option value="usuario">Usuario</ion-select-option>
-                      <ion-select-option value="admin">Admin</ion-select-option>
-                    </ion-select>
-                  </div>
-
-                  <!-- Botones de acción -->
-                  <div class="edit-actions">
-                    <ion-button class="btn-save" expand="block" (click)="guardarUsuarioEditado(user.id)">
-                      <ion-icon name="checkmark-outline"></ion-icon>
-                      Guardar
-                    </ion-button>
-                    <ion-button class="btn-cancel" expand="block" fill="outline" (click)="cancelarEdicion()">
-                      <ion-icon name="close-outline"></ion-icon>
-                      Cancelar
-                    </ion-button>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-
-          </div>
-        </div>
       </div>
     </div>
   </section>
-  
 </ion-content>
+
