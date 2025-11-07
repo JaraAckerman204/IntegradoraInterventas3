@@ -1,4 +1,4 @@
-// 🎨 admin.page.scss - DISEÑO COMPLETO
+// 🎨 admin.page.scss - DISEÑO CON TABS
 // ==========================================
 
 // ===== VARIABLES =====
@@ -41,405 +41,9 @@
   }
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 // ===== RESET ION-CONTENT =====
 ion-content {
   --background: #f8f9fa;
-}
-
-/* ===================================================== */
-/* 🔹 ESTILOS PARA EDICIÓN DE USUARIOS */
-/* ===================================================== */
-
-/* Etiqueta de ID para productos */
-.product-id-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  padding: 3px 10px;
-  background: linear-gradient(135deg, #27318d10 0%, #ed137010 100%);
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #6c757d;
-  font-family: 'Courier New', monospace;
-  border: 1px solid #27318d20;
-  
-  ion-icon {
-    font-size: 14px;
-    color: #27318d;
-  }
-  
-  span {
-    letter-spacing: 0.3px;
-  }
-}
-
-/* Icono de candado para campos bloqueados */
-.lock-icon {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  ion-icon {
-    font-size: 18px;
-    color: #6c757d;
-    opacity: 0.5;
-  }
-}
-
-/* Campo deshabilitado con estilo especial */
-.form-field.disabled {
-  background: #f8f9fa;
-  border-color: #e9ecef;
-  opacity: 0.7;
-  cursor: not-allowed;
-  position: relative;
-  
-  ion-input {
-    cursor: not-allowed;
-  }
-  
-  .field-icon {
-    color: #6c757d;
-    opacity: 0.5;
-  }
-}
-
-/* Etiqueta de ID para usuarios */
-.user-id-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  padding: 3px 10px;
-  background: linear-gradient(135deg, #27318d10 0%, #ed137010 100%);
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #6c757d;
-  font-family: 'Courier New', monospace;
-  border: 1px solid #27318d20;
-  
-  ion-icon {
-    font-size: 14px;
-    color: #27318d;
-  }
-  
-  span {
-    letter-spacing: 0.3px;
-  }
-}
-
-/* Badge del rol del usuario */
-.user-role-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  padding: 4px 12px;
-  background: linear-gradient(135deg, #27318d15 0%, #ed137015 100%);
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #27318d;
-  
-  ion-icon {
-    font-size: 16px;
-    color: #ed1370;
-  }
-}
-
-/* Wrapper del formulario de edición */
-.user-edit-wrapper {
-  width: 100%;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border-radius: 16px;
-  padding: 20px;
-  border: 2px solid #27318d20;
-  box-shadow: 0 4px 20px rgba(39, 49, 141, 0.1);
-}
-
-/* Encabezado del formulario de edición */
-.edit-form-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #27318d20;
-  
-  ion-icon {
-    font-size: 24px;
-    color: #27318d;
-  }
-  
-  span {
-    font-family: var(--font-primary);
-    font-weight: 700;
-    font-size: 1.1em;
-    color: #27318d;
-    letter-spacing: 0.3px;
-  }
-}
-
-/* Formulario de edición */
-.user-edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  .form-field {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    padding: 4px 12px;
-
-    &:focus-within {
-      border-color: #27318d;
-      box-shadow: 0 0 0 3px rgba(39, 49, 141, 0.1);
-    }
-
-    &.disabled {
-      background: #f8f9fa;
-      opacity: 0.7;
-      cursor: not-allowed;
-      
-      &:focus-within {
-        border-color: #e9ecef;
-        box-shadow: none;
-      }
-    }
-
-    .field-icon {
-      font-size: 22px;
-      color: #27318d;
-      margin-right: 12px;
-      flex-shrink: 0;
-    }
-
-    ion-input,
-    ion-select {
-      flex: 1;
-      --padding-start: 0;
-      --padding-end: 0;
-      font-size: 1em;
-      font-family: var(--font-secondary);
-      color: #212529;
-      background: transparent;
-
-      &::placeholder {
-        color: #adb5bd;
-      }
-    }
-
-    ion-input[disabled] {
-      opacity: 1;
-      color: #6c757d;
-    }
-
-    ion-select {
-      --placeholder-color: #adb5bd;
-      --placeholder-opacity: 1;
-    }
-  }
-}
-
-/* Botones de acción */
-.edit-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-
-  ion-button {
-    flex: 1;
-    height: 48px;
-    font-family: var(--font-primary);
-    font-weight: 700;
-    font-size: 0.95em;
-    letter-spacing: 0.5px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-
-    ion-icon {
-      font-size: 20px;
-      margin-right: 6px;
-    }
-  }
-
-  .btn-save {
-    --background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
-    --background-hover: linear-gradient(135deg, #1a2365 0%, #d01160 100%);
-    --color: #fff;
-    box-shadow: 0 6px 20px rgba(237, 19, 112, 0.3);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(237, 19, 112, 0.4);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-  }
-
-  .btn-cancel {
-    --border-color: #6c757d;
-    --border-width: 2px;
-    --color: #6c757d;
-    --background: transparent;
-    --background-hover: #f8f9fa;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-  }
-}
-
-/* Animación de entrada */
-.user-edit-wrapper {
-  animation: slideInDown 0.3s ease-out;
-}
-
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===================================================== */
-/* 📱 RESPONSIVE PARA EDICIÓN DE USUARIOS */
-/* ===================================================== */
-
-@media (max-width: 768px) {
-  .user-edit-wrapper {
-    padding: 16px;
-  }
-
-  .edit-form-header {
-    margin-bottom: 16px;
-    
-    ion-icon {
-      font-size: 20px;
-    }
-    
-    span {
-      font-size: 1em;
-    }
-  }
-
-  .user-edit-form {
-    gap: 14px;
-
-    .form-field {
-      .field-icon {
-        font-size: 20px;
-        margin-right: 10px;
-      }
-
-      ion-input,
-      ion-select {
-        font-size: 0.95em;
-      }
-    }
-  }
-
-  .edit-actions {
-    flex-direction: column;
-    gap: 10px;
-
-    ion-button {
-      width: 100%;
-      height: 44px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .user-role-badge {
-    font-size: 0.8rem;
-    padding: 3px 10px;
-    
-    ion-icon {
-      font-size: 14px;
-    }
-  }
-
-  .user-edit-wrapper {
-    padding: 14px;
-  }
-
-  .user-edit-form {
-    .form-field {
-      padding: 3px 10px;
-
-      .field-icon {
-        font-size: 18px;
-        margin-right: 8px;
-      }
-
-      ion-input,
-      ion-select {
-        font-size: 0.9em;
-      }
-    }
-  }
-
-  .edit-actions {
-    ion-button {
-      height: 42px;
-      font-size: 0.9em;
-
-      ion-icon {
-        font-size: 18px;
-      }
-    }
-  }
-}
-
-// ===== HEADER =====
-ion-header {
-  ion-toolbar {
-    --background: linear-gradient(135deg, #1a2365 0%, #27318d 100%);
-    --color: white;
-    --border-width: 0;
-    
-    ion-title {
-      font-family: var(--font-primary);
-      font-weight: 700;
-      font-size: 1.2em;
-      letter-spacing: 0.5px;
-    }
-  }
 }
 
 // ===== HERO SECTION =====
@@ -539,83 +143,94 @@ ion-header {
 .admin-section {
   padding: 40px 20px;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -10%;
-    left: -5%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(39, 49, 141, 0.06) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: pulse 8s ease-in-out infinite;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10%;
-    right: -5%;
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, rgba(237, 19, 112, 0.06) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: pulse 8s ease-in-out infinite 4s;
-  }
+  min-height: calc(100vh - 200px);
 }
 
 .admin-container {
-  max-width: 1300px;
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+// ===== TABS NAVIGATION =====
+.tabs-navigation {
   display: grid;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 35px;
-  position: relative;
-  z-index: 1;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-// ===== COLUMNAS =====
-.left-column {
-  animation: fadeInUp 0.8s ease-out;
+.tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 15px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: 0.95em;
+  color: #6c757d;
+  
+  ion-icon {
+    font-size: 32px;
+    color: #adb5bd;
+    transition: all 0.3s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(39, 49, 141, 0.15);
+    border-color: rgba(39, 49, 141, 0.2);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    color: white;
+    border-color: #27318d;
+    box-shadow: 0 8px 25px rgba(237, 19, 112, 0.3);
+    
+    ion-icon {
+      color: white;
+      transform: scale(1.1);
+    }
+  }
 }
 
-.right-column {
-  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+// ===== TAB CONTENT =====
+.tab-content {
+  min-height: 400px;
+  animation: fadeInUp 0.5s ease-out;
 }
 
-// ===== FORMULARIO DE PRODUCTO =====
-.product-form-wrapper {
+.content-wrapper {
   background: white;
   border-radius: 20px;
-  padding: 35px 30px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  border: 2px solid #e9ecef;
-  position: sticky;
-  top: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.form-header {
-  margin-bottom: 25px;
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
   
   h2 {
     font-family: var(--font-primary);
     font-weight: 800;
     font-size: 1.8em;
     color: #27318d;
-    margin-bottom: 8px;
-    
-    &::after {
-      content: '';
-      display: block;
-      margin-top: 8px;
-      width: 55px;
-      height: 4px;
-      background: linear-gradient(to right, #27318d, #ed1370);
-      border-radius: 2px;
-    }
+    margin: 0 0 5px 0;
   }
   
   p {
@@ -626,55 +241,247 @@ ion-header {
   }
 }
 
-.product-form {
+// ===== BOTÓN AGREGAR PRODUCTO =====
+.btn-add-product {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.3);
+  
+  ion-icon {
+    font-size: 24px;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(237, 19, 112, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+// ===== 🔍 BARRA DE BÚSQUEDA =====
+
+// 🔍 MODAL DE BÚSQUEDA - CORREGIDO
+.search-modal {
+  --width: 90%;
+  --max-width: 600px;
+  --height: auto;
+  --border-radius: 20px;
+  --box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --backdrop-opacity: 0.6;
+  
+  &::part(backdrop) {
+    background: linear-gradient(135deg, rgba(39, 49, 141, 0.75) 0%, rgba(26, 35, 101, 0.75) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  &::part(content) {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Wrapper del modal - SIN ::before ni ::after
+.search-modal .modal-wrapper {
+  background: #f8f9fa;
+  width: 100%;
+  max-height: 85vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  position: relative;
 }
 
-.form-group {
+// Header del modal
+.search-modal .modal-header-custom {
+  background: linear-gradient(135deg, #27318d 0%, #1a2365 100%);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+  
+  // Barra superior decorativa
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #ed1370, #ff4d94, #ed1370);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.search-modal .header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.search-modal .header-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(237, 19, 112, 0.4);
+  flex-shrink: 0;
   position: relative;
   
-  &.full-width {
-    width: 100%;
-  }
-  
-  .input-icon {
-    position: absolute;
-    left: 18px;
-    top: 18px;
-    font-size: 22px;
-    color: #27318d;
-    z-index: 2;
-    pointer-events: none;
-  }
-  
-  .textarea-icon {
-    top: 18px;
+  // Quitar el ::before que causa el problema
+  ion-icon {
+    font-size: 28px;
+    color: white;
   }
 }
 
-.product-input,
-.product-textarea {
-  width: 100%;
-  padding: 14px 18px 14px 50px;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  font-family: var(--font-secondary);
-  font-size: 1em;
-  color: #212529;
-  transition: all 0.3s ease;
-  background: white;
+.search-modal .header-text {
+  flex: 1;
   
-  &::placeholder {
-    color: #adb5bd;
+  h2 {
+    font-family: var(--font-primary);
+    font-weight: 800;
+    font-size: 1.5em;
+    color: white;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
   }
   
-  &:focus {
-    outline: none;
-    border-color: #ed1370;
-    box-shadow: 0 0 0 4px rgba(237, 19, 112, 0.1);
-    transform: translateY(-2px);
+  p {
+    font-family: var(--font-secondary);
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    line-height: 1.3;
+  }
+}
+
+.search-modal .close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 24px;
+    color: white;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1) rotate(90deg);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Body del modal - SIN overflow visible que cause problemas
+.search-modal .modal-body-custom {
+  padding: 28px;
+  overflow-y: auto;
+  max-height: calc(85vh - 110px);
+  background: #f8f9fa;
+  position: relative;
+  z-index: 1;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #e9ecef;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border-radius: 3px;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
+    }
+  }
+}
+
+// Formulario
+.search-modal .search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search-modal .form-group-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search-modal .form-label-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  color: #212529;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #27318d;
+  }
+}
+
+.search-modal .input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 3px solid #e9ecef;
+  border-radius: 16px;
+  padding: 0 18px;
+  transition: all 0.3s ease;
+  min-height: 52px;
+  
+  &:focus-within {
+    border-color: #27318d;
+    box-shadow: 0 0 0 4px rgba(39, 49, 141, 0.1);
+    background: #ffffff;
   }
   
   &:hover {
@@ -682,314 +489,88 @@ ion-header {
   }
 }
 
-.product-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 15px 30px;
-  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
-  color: white;
+.search-modal .custom-input {
+  flex: 1;
   border: none;
-  border-radius: 12px;
-  font-family: var(--font-primary);
-  font-size: 1em;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 8px 25px rgba(237, 19, 112, 0.4);
-  position: relative;
-  overflow: hidden;
-  height: 54px;
-  margin-top: 10px;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #ed1370 0%, #27318d 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  ion-icon,
-  span {
-    position: relative;
-    z-index: 1;
-  }
-  
-  ion-icon {
-    font-size: 22px;
-  }
-  
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 35px rgba(237, 19, 112, 0.5);
-    
-    &::before {
-      opacity: 1;
-    }
-  }
-  
-  &:active {
-    transform: translateY(-1px);
-  }
-}
-
-/* ===== FORMULARIO DE PRODUCTOS ===== */
-
-.product-form-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 35px;
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
-  max-width: 520px;
-  margin: 0 auto;
+  outline: none;
+  font-size: 0.95em;
   font-family: var(--font-secondary);
   color: #212529;
-}
-
-/* Encabezado */
-.product-form-card .form-header h2 {
-  font-family: var(--font-primary);
-  font-weight: 800;
-  font-size: 1.8em;
-  color: #212529;
-  margin-bottom: 6px;
-}
-
-.product-form-card .form-header h2::after {
-  content: '';
-  display: block;
-  width: 70px;
-  height: 4px;
-  margin-top: 8px;
-  background: linear-gradient(to right, #27318d, #ed1370);
-  border-radius: 2px;
-}
-
-.product-form-card .form-header p {
-  color: #6c757d;
-  margin-bottom: 30px;
-  font-size: 0.95em;
-}
-
-/* Campos */
-.product-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-field {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: #f8f9fa;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  padding: 4px 10px;
-}
-
-.form-field:focus-within {
-  border-color: #27318d;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(39, 49, 141, 0.1);
-}
-
-/* Iconos */
-.field-icon {
-  font-size: 22px;
-  color: #27318d;
-  margin-right: 10px;
-}
-
-/* Inputs */
-ion-input,
-ion-textarea {
-  flex: 1;
-  --padding-start: 0;
-  font-size: 1em;
-  color: #212529;
   background: transparent;
+  padding: 0;
+  width: 100%;
+  
+  &::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+  }
 }
 
-/* Textarea */
-.textarea-field ion-textarea {
-  min-height: 90px;
+.search-modal .clear-input-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(237, 19, 112, 0.1);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #ed1370;
+  }
+  
+  &:hover {
+    background: rgba(237, 19, 112, 0.2);
+    transform: scale(1.1);
+  }
 }
 
-/* Botón */
-.btn-submit {
-  margin-top: 10px;
-  padding: 14px;
-  background: linear-gradient(to right, #27318d, #ed1370);
-  color: #fff;
+// Footer del modal
+.search-modal .modal-footer-custom {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 3px solid #e9ecef;
+}
+
+.search-modal .btn-submit,
+.search-modal .btn-clear {
+  flex: 1;
+  height: 54px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-primary);
   font-weight: 700;
-  border: none;
-  border-radius: 12px;
-  font-size: 1em;
+  font-size: 0.95em;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.3);
-}
-
-
-// ===== Estilos y diseño para las acciones (EDITAR / ELIMINAR) =====
-.product-actions {
-  display: flex;
-  flex-direction: column;
   gap: 10px;
-}
-
-/* Estilo especifico para el botón Editar (color warning / amarillo) */
-ion-button[color="warning"] {
-  --background: #f4b400; /* amarillo tipo warning */
-  --background-hover: #e0a800;
-  --color: #fff;
-  border-radius: 8px;
-  margin-right: 6px;
-  transition: all 0.2s ease-in-out;
-}
-
-ion-button[color="warning"]:hover {
-  filter: brightness(1.1);
-  transform: scale(1.05);
-}
-
-/* Efecto en el ícono dentro del botón editar */
-ion-button[color="warning"] ion-icon {
-  transition: transform 0.2s ease;
-}
-
-ion-button[color="warning"]:hover ion-icon {
-  transform: scale(1.2);
-}
-
-/* 🔻 Botón de eliminar (color danger) */
-ion-button[color="danger"] {
-  --background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  --background-hover: #c9302c;
-  --color: #fff;
-  border-radius: 10px;
-  font-family: var(--font-primary);
-  font-size: 0.9em;
-  font-weight: 600;
-  cursor: pointer;
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-  white-space: nowrap;
-
-  /* 🔧 Evita fondo blanco debajo del gradiente */
-  background: none !important;
-  border: none;
-}
-
-ion-button[color="danger"] ion-icon {
-  font-size: 18px;
-}
-
-ion-button[color="danger"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-}
-
-
-
-// ===== ESTADO VACÍO =====
-.empty-state {
-  background: white;
-  border-radius: 16px;
-  padding: 60px 40px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 2px solid #e9ecef;
-  
-  .empty-icon {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 20px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    ion-icon {
-      font-size: 50px;
-      color: #adb5bd;
-    }
-  }
-  
-  h4 {
-    font-family: var(--font-primary);
-    font-weight: 700;
-    font-size: 1.4em;
-    color: #495057;
-    margin-bottom: 10px;
-  }
-  
-  p {
-    font-family: var(--font-secondary);
-    font-size: 1em;
-    color: #6c757d;
-    margin: 0;
-  }
-}
-
-// ===== CERRAR SESIÓN =====
-.logout-section {
-  max-width: 1300px;
-  margin: 30px auto 0;
-  text-align: center;
-}
-
-.logout-btn {
-  padding: 14px 40px;
-  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-family: var(--font-primary);
-  font-size: 1em;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   
   ion-icon {
     font-size: 22px;
   }
+}
+
+.search-modal .btn-submit {
+  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.35);
   
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-    background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+    box-shadow: 0 10px 30px rgba(237, 19, 112, 0.45);
   }
   
   &:active {
@@ -997,489 +578,774 @@ ion-button[color="danger"]:hover {
   }
 }
 
-// ===== RESPONSIVE =====
-@media (max-width: 1024px) {
-  .admin-container {
-    grid-template-columns: 1fr;
-    gap: 30px;
+.search-modal .btn-clear {
+  background: white;
+  color: #6c757d;
+  border: 3px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    background: #f8f9fa;
+    border-color: #ced4da;
+    color: #495057;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   }
   
-  .product-form-wrapper {
-    position: static;
+  &:active {
+    transform: translateY(0);
   }
 }
 
+// RESPONSIVE
 @media (max-width: 768px) {
-  .admin-hero {
-    padding: 60px 20px 50px;
+  .search-modal {
+    --width: 96%;
+    --max-width: 100%;
   }
   
-  .hero-icon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 20px;
+  .search-modal .modal-header-custom {
+    padding: 20px 22px;
+  }
+  
+  .search-modal .header-icon {
+    width: 48px;
+    height: 48px;
     
     ion-icon {
-      font-size: 40px;
+      font-size: 26px;
     }
   }
   
-  .hero-content h1 {
-    font-size: 2.2em;
-  }
-  
-  .hero-content p {
-    font-size: 1.05em;
-  }
-  
-  .admin-section {
-    padding: 45px 20px;
-  }
-  
-  .product-form-wrapper {
-    padding: 35px 25px;
-  }
-  
-  .form-header h2 {
-    font-size: 1.6em;
-  }
-  
-  .product-card {
-    grid-template-columns: 80px 1fr;
-    gap: 15px;
-    
-    .product-actions {
-      grid-column: 1 / -1;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-  }
-  
-  .product-image {
-    width: 80px;
-    height: 80px;
-    
-    &.placeholder ion-icon {
-      font-size: 35px;
-    }
+  .search-modal .modal-body-custom {
+    padding: 24px 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .admin-hero {
-    padding: 50px 15px 40px;
+  .search-modal {
+    --width: 98%;
   }
   
-  .hero-icon {
-    width: 70px;
-    height: 70px;
+  .search-modal .modal-header-custom {
+    padding: 18px 20px;
+  }
+  
+  .search-modal .header-text h2 {
+    font-size: 1.3em;
+  }
+  
+  .search-modal .modal-footer-custom {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .search-modal .btn-submit,
+  .search-modal .btn-clear {
+    height: 50px;
+  }
+}
+
+.search-bar-container {
+  margin-bottom: 25px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 3px solid #e9ecef;
+  border-radius: 16px;
+  padding: 0 18px;
+  transition: all 0.3s ease;
+  height: 56px;
+  
+  &:focus-within {
+    border-color: #27318d;
+    box-shadow: 0 0 0 4px rgba(39, 49, 141, 0.1);
+  }
+  
+  .search-icon {
+    font-size: 24px;
+    color: #27318d;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    font-family: var(--font-secondary);
+    color: #212529;
+    background: transparent;
+    
+    &::placeholder {
+      color: #adb5bd;
+      font-style: italic;
+    }
+  }
+  
+  .clear-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(237, 19, 112, 0.1);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 8px;
     
     ion-icon {
-      font-size: 35px;
-    }
-  }
-  
-  .hero-content h1 {
-    font-size: 1.9em;
-  }
-  
-  .hero-content p {
-    font-size: 1em;
-  }
-  
-  .admin-section {
-    padding: 40px 15px;
-  }
-  
-  .product-form-wrapper {
-    padding: 30px 20px;
-  }
-  
-  .form-header h2 {
-    font-size: 1.5em;
-  }
-  
-  .product-input,
-  .product-textarea {
-    padding: 14px 16px 14px 48px;
-    font-size: 0.95em;
-  }
-  
-  .form-group .input-icon {
-    left: 15px;
-    font-size: 20px;
-  }
-  
-  .submit-btn {
-    font-size: 0.95em;
-    padding: 14px 25px;
-  }
-  
-  .product-card {
-    grid-template-columns: 70px 1fr;
-    padding: 15px;
-  }
-  
-  .product-image {
-    width: 70px;
-    height: 70px;
-    
-    &.placeholder ion-icon {
-      font-size: 30px;
-    }
-  }
-  
-  .product-info h4 {
-    font-size: 1.1em;
-  }
-  
-  .product-info .product-description {
-    font-size: 0.9em;
-  }
-  
-  .delete-btn {
-    padding: 10px 16px;
-    font-size: 0.85em;
-  }
-  
-  .empty-state {
-    padding: 50px 30px;
-    
-    .empty-icon {
-      width: 80px;
-      height: 80px;
-      
-      ion-icon {
-        font-size: 40px;
-      }
+      font-size: 20px;
+      color: #ed1370;
     }
     
-    h4 {
-      font-size: 1.2em;
-    }
-    
-    p {
-      font-size: 0.95em;
+    &:hover {
+      background: rgba(237, 19, 112, 0.2);
+      transform: scale(1.1);
     }
   }
 }
 
-/* ===== Utilidades generales para botones Ion (pequeño polish) ===== */
-ion-button {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-/* === TARJETAS DE USUARIOS (misma estética que productos) === */
-
-.users-header {
-  margin-top: 40px;
-  margin-bottom: 10px;
-}
-
-.users-header h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e1e9e;
-  margin-bottom: 4px;
-}
-
-.users-header p {
-  color: #666;
-  font-size: 0.9rem;
-  margin: 0;
-  border-bottom: 2px solid #f05a94;
-  display: inline-block;
-  padding-bottom: 4px;
-}
-
-.users-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 1rem;
-}
-
-.user-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.user-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-}
-
-/* Avatar del usuario */
-.user-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f1f1;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  flex-shrink: 0;
-}
-
-.user-avatar ion-icon {
-  font-size: 32px;
-  color: #999;
-}
-
-/* Info del usuario */
-.user-info {
-  flex: 1;
-  margin-left: 16px;
-}
-
-.user-info h4 {
-  margin: 0;
-  font-size: 1rem;
+.results-count {
+  margin-top: 10px;
+  text-align: right;
+  font-family: var(--font-secondary);
+  font-size: 0.9em;
+  color: #6c757d;
   font-weight: 600;
-  color: #222;
 }
 
-.user-email {
-  color: #555;
-  font-size: 0.9rem;
-  margin-top: 2px;
+// ===== 🎨 GRID DE PRODUCTOS (3 COLUMNAS) =====
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  animation: fadeInUp 0.5s ease-out;
 }
 
-/* Acciones */
-.user-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.user-actions ion-button {
-  --border-radius: 10px;
-  --padding-start: 8px;
-  --padding-end: 8px;
-}
-
-
-/* ===================================================== */
-/* 🔹 Encabezados generales (productos / usuarios) */
-/* ===================================================== */
-.titulo-seccion {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-top: 16px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  color: #27318d;
-  font-family: var(--font-primary);
-  letter-spacing: 0.5px;
-  display: block;
-  text-align: left;
-  position: relative;
-}
-
-.titulo-seccion::after {
-  content: '';
-  display: block;
-  margin-top: 6px;
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(to right, #27318d, #ed1370);
-  border-radius: 2px;
-}
-
-
-/* === TARJETAS DE PRODUCTOS (mismo diseño base que usuarios) === */
-
-.products-header {
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.products-header h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e1e9e;
-  margin-bottom: 4px;
-}
-
-.products-header p {
-  color: #666;
-  font-size: 0.9rem;
-  margin: 0;
-  border-bottom: 2px solid #f05a94;
-  display: inline-block;
-  padding-bottom: 4px;
-}
-
-.products-list {
+// ===== LISTAS (USUARIOS Y MENSAJES) =====
+.users-list,
+.messages-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin-top: 1rem;
 }
 
-/* 🧩 Tarjeta individual */
+// ===== TARJETAS DE PRODUCTO =====
 .product-card {
-  background: #fff;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+  border: 2px solid rgba(237, 19, 112, 0.08);
   border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 20px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  gap: 16px;
+  flex-direction: column;
+  gap: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(237, 19, 112, 0.2);
+    border-color: rgba(237, 19, 112, 0.3);
+  }
 }
 
-.product-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-}
-
-/* 🖼 Imagen */
 .product-image {
-  width: 90px;
-  height: 90px;
-  flex-shrink: 0;
+  width: 100%;
+  height: 180px;
   border-radius: 12px;
   overflow: hidden;
   background: #f1f1f1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
-.product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 📄 Info */
 .product-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  
+  h4 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #212529;
+    margin: 0;
+    line-height: 1.3;
+    min-height: 2.6em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .product-description {
+    font-family: var(--font-secondary);
+    font-size: 0.9em;
+    color: #6c757d;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+.product-id-label {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
-}
-
-.product-info h4 {
-  margin: 0;
-  font-size: 1rem;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #27318d10 0%, #ed137010 100%);
+  border-radius: 12px;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: #222;
-}
-
-.product-description {
-  font-size: 0.9rem;
-  color: #555;
-  margin: 0;
-  line-height: 1.4;
-  max-height: 3.5em;
-  overflow: hidden;
+  color: #6c757d;
+  font-family: 'Courier New', monospace;
+  border: 1px solid #27318d20;
+  width: fit-content;
+  
+  ion-icon {
+    font-size: 12px;
+    color: #27318d;
+  }
 }
 
 .product-price {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #1e1e9e;
-  font-weight: bold;
-  font-size: 1rem;
-}
-
-/* ⚙️ Acciones */
-.product-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.product-actions ion-button {
-  --border-radius: 10px;
-  --padding-start: 8px;
-  --padding-end: 8px;
-  font-size: 0.9em;
-}
-
-/* ✅ Ajuste responsive */
-@media (max-width: 768px) {
-  .product-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .product-image {
-    width: 100%;
-    height: 180px;
-  }
-
-  .product-actions {
-    align-self: flex-end;
-  }
-}
-
-/* === SECCIÓN DE MENSAJES RECIBIDOS === */
-.messages-section {
-  margin-top: 3rem;
-}
-
-.messages-header {
-  margin-bottom: 1.5rem;
-  
-  h3 {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #19226d;
-    margin-bottom: 0.5rem;
-    
-    ion-icon {
-      font-size: 1.8rem;
-      color: #ed1370;
-    }
-  }
-  
-  p {
-    color: #666;
-    font-size: 0.95rem;
-    margin-left: 42px;
-  }
-}
-
-.no-messages {
-  text-align: center;
-  padding: 60px 40px;
-  background: linear-gradient(135deg, rgba(237, 19, 112, 0.02) 0%, rgba(39, 49, 141, 0.02) 100%);
-  border-radius: 16px;
-  border: 2px dashed rgba(237, 19, 112, 0.2);
-  margin-top: 20px;
+  color: #27318d;
+  font-weight: 700;
+  font-size: 1.3em;
+  font-family: var(--font-primary);
+  margin-top: auto;
   
   ion-icon {
-    font-size: 4rem;
-    color: rgba(237, 19, 112, 0.3);
-    margin-bottom: 16px;
+    font-size: 22px;
+    color: #ed1370;
+  }
+}
+
+.product-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 2px solid #f1f1f1;
+  
+  ion-button {
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    height: 44px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    flex: 1;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+  
+  h2 {
+    font-family: var(--font-primary);
+    font-weight: 800;
+    font-size: 1.8em;
+    color: #27318d;
+    margin: 0 0 5px 0;
   }
   
   p {
-    color: #888;
-    font-style: italic;
-    font-size: 1.05rem;
+    font-family: var(--font-secondary);
+    font-size: 0.95em;
+    color: #6c757d;
     margin: 0;
   }
 }
 
+// ===== BOTONES DE ACCIÓN EN HEADER =====
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: white;
+  color: #27318d;
+  border: 3px solid #27318d;
+  border-radius: 12px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(39, 49, 141, 0.15);
+  
+  ion-icon {
+    font-size: 22px;
+  }
+  
+  &:hover {
+    background: #27318d;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(39, 49, 141, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+// ===== BOTÓN AGREGAR PRODUCTO =====
+.btn-add-product {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.3);
+  
+  ion-icon {
+    font-size: 24px;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(237, 19, 112, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+// ===== LISTAS =====
+.products-list,
+.users-list,
 .messages-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  margin-top: 1rem;
+  gap: 15px;
 }
 
+// ===== TARJETAS DE PRODUCTO =====
+.product-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+  border: 2px solid rgba(237, 19, 112, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(237, 19, 112, 0.15);
+    border-color: rgba(237, 19, 112, 0.2);
+  }
+}
+
+.product-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f1f1f1;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
+  h4 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #212529;
+    margin: 0;
+  }
+  
+  .product-description {
+    font-family: var(--font-secondary);
+    font-size: 0.9em;
+    color: #6c757d;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.product-id-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #27318d10 0%, #ed137010 100%);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+  font-family: 'Courier New', monospace;
+  border: 1px solid #27318d20;
+  width: fit-content;
+  
+  ion-icon {
+    font-size: 14px;
+    color: #27318d;
+  }
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #27318d;
+  font-weight: 700;
+  font-size: 1.1em;
+  font-family: var(--font-primary);
+  
+  ion-icon {
+    font-size: 20px;
+    color: #ed1370;
+  }
+}
+
+.product-actions {
+  display: flex;
+  gap: 10px;
+  
+  ion-button {
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    height: 44px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// ===== TARJETAS DE USUARIO =====
+.user-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+  border: 2px solid rgba(39, 49, 141, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(39, 49, 141, 0.15);
+    border-color: rgba(39, 49, 141, 0.2);
+  }
+}
+
+.user-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 36px;
+    color: #adb5bd;
+  }
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  
+  h4 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #212529;
+    margin: 0;
+  }
+  
+  .user-email {
+    font-family: var(--font-secondary);
+    font-size: 0.9em;
+    color: #6c757d;
+    margin: 0;
+  }
+}
+
+.user-id-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #27318d10 0%, #ed137010 100%);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+  font-family: 'Courier New', monospace;
+  border: 1px solid #27318d20;
+  width: fit-content;
+  
+  ion-icon {
+    font-size: 14px;
+    color: #27318d;
+  }
+}
+
+.user-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #27318d15 0%, #ed137015 100%);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #27318d;
+  width: fit-content;
+  
+  ion-icon {
+    font-size: 16px;
+    color: #ed1370;
+  }
+}
+
+.user-actions {
+  display: flex;
+  gap: 10px;
+  
+  ion-button {
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    height: 44px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// ===== EDICIÓN DE USUARIO =====
+
+ion-select {
+  font-family: var(--font-secondary);
+  font-size: 0.95em;
+  color: #212529 !important;
+  --placeholder-color: #adb5bd;
+  --placeholder-opacity: 1;
+  &.select-wrapper {
+    ion-select {
+      --placeholder-color: #adb5bd;
+      --placeholder-opacity: 1;
+      color: #212529 !important;
+      --highlight-color-focused: transparent;
+      --highlight-color-valid: transparent;
+      --highlight-color-invalid: transparent;
+      --highlight-height: 0;
+      
+      &::part(container) {
+        border-bottom: none !important;
+      }
+      
+      &::part(icon) {
+        color: #27318d !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+  
+  .select-icon {
+    font-size: 20px;
+    color: #27318d;
+    margin-left: 8px;
+    flex-shrink: 0;
+    pointer-events: none;
+  }
+}
+
+// Estilos globales para ion-select
+ion-select {
+  --highlight-color-focused: transparent !important;
+  --highlight-color-valid: transparent !important;
+  --highlight-color-invalid: transparent !important;
+  
+  &::part(container) {
+    border-bottom: none !important;
+  }
+  
+  &::part(icon) {
+    color: #27318d !important;
+  }
+}
+
+ion-select-option {
+  font-family: var(--font-secondary);
+  font-size: 1em;
+  color: #212529;
+}
+
+.user-edit-wrapper {
+  width: 100%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 16px;
+  padding: 20px;
+  border: 2px solid #27318d20;
+  box-shadow: 0 4px 20px rgba(39, 49, 141, 0.1);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.edit-form-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #27318d20;
+  
+  ion-icon {
+    font-size: 24px;
+    color: #27318d;
+  }
+  
+  span {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #27318d;
+  }
+}
+
+.user-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  padding: 4px 12px;
+  
+  &:focus-within {
+    border-color: #27318d;
+    box-shadow: 0 0 0 3px rgba(39, 49, 141, 0.1);
+  }
+  
+  &.disabled {
+    background: #f8f9fa;
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .field-icon {
+    font-size: 22px;
+    color: #27318d;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  
+  ion-input,
+  ion-select {
+    flex: 1;
+    --padding-start: 0;
+    --padding-end: 0;
+    font-size: 1em;
+    font-family: var(--font-secondary);
+    color: #ffffff;
+    background: transparent;
+  }
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  
+  ion-button {
+    flex: 1;
+    height: 48px;
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 0.95em;
+    border-radius: 12px;
+    
+    ion-icon {
+      font-size: 20px;
+      margin-right: 6px;
+    }
+  }
+}
+
+// ===== MENSAJES =====
 .message-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
   border: 2px solid rgba(237, 19, 112, 0.08);
@@ -1503,7 +1369,6 @@ ion-button {
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(237, 19, 112, 0.15);
-    border-color: rgba(237, 19, 112, 0.2);
   }
   
   h3 {
@@ -1538,18 +1403,16 @@ ion-button {
       margin-right: 6px;
     }
   }
+}
+
+.message-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
   
   ion-button {
-    margin-top: 16px;
     --border-radius: 12px;
-    --box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
     font-weight: 600;
-    transition: all 0.25s ease;
-    
-    &:hover {
-      transform: translateY(-2px);
-      --box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
-    }
     
     ion-icon {
       margin-right: 6px;
@@ -1557,31 +1420,993 @@ ion-button {
   }
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .messages-section {
-    margin-top: 2rem;
-  }
-
-  .message-card {
-    padding: 18px;
+// ===== ESTADO VACÍO =====
+.empty-state {
+  text-align: center;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, rgba(237, 19, 112, 0.02) 0%, rgba(39, 49, 141, 0.02) 100%);
+  border-radius: 16px;
+  border: 2px dashed rgba(237, 19, 112, 0.2);
+  
+  .empty-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
-    h3 {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      
-      small {
-        font-size: 0.8rem;
-      }
+    ion-icon {
+      font-size: 50px;
+      color: #adb5bd;
     }
   }
   
-  .no-messages {
-    padding: 40px 20px;
+  h4 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 1.4em;
+    color: #495057;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    font-family: var(--font-secondary);
+    font-size: 1em;
+    color: #6c757d;
+    margin: 0;
+  }
+}
+
+.no-messages {
+  text-align: center;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, rgba(237, 19, 112, 0.02) 0%, rgba(39, 49, 141, 0.02) 100%);
+  border-radius: 16px;
+  border: 2px dashed rgba(237, 19, 112, 0.2);
+  
+  ion-icon {
+    font-size: 4rem;
+    color: rgba(237, 19, 112, 0.3);
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #888;
+    font-style: italic;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+}
+
+// 🎨 ESTILOS PARA EL MODAL DE PRODUCTOS - ESTILO LIMPIO Y MODERNO
+// Agregar al final de admin.page.scss
+
+.user-modal{
+    --width: 90%;
+  --max-width: 800px;
+  --height: auto;
+  --border-radius: 20px;
+  --box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --backdrop-opacity: 0.6;
+  
+  &::part(backdrop) {
+    background: linear-gradient(135deg, rgba(39, 49, 141, 0.75) 0%, rgba(26, 35, 101, 0.75) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  &::part(content) {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// ===== MODAL PRODUCTO =====
+.product-modal {
+  --width: 90%;
+  --max-width: 800px;
+  --height: auto;
+  --border-radius: 20px;
+  --box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --backdrop-opacity: 0.6;
+  
+  &::part(backdrop) {
+    background: linear-gradient(135deg, rgba(39, 49, 141, 0.75) 0%, rgba(26, 35, 101, 0.75) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  &::part(content) {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.modal-wrapper {
+  background: #f8f9fa;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// ===== HEADER DEL MODAL =====
+.modal-header-custom {
+  background: linear-gradient(135deg, #27318d 0%, #1a2365 100%);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  
+  // Barra de progreso decorativa
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #ed1370, #ff4d94, #ed1370);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.header-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(237, 19, 112, 0.4);
+  flex-shrink: 0;
+  animation: float 3s ease-in-out infinite;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
+    opacity: 0.2;
+    z-index: -1;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  ion-icon {
+    font-size: 28px;
+    color: white;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.1); opacity: 0.3; }
+}
+
+.header-text {
+  flex: 1;
+  
+  h2 {
+    font-family: var(--font-primary);
+    font-weight: 800;
+    font-size: 1.6em;
+    color: white;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+  }
+  
+  p {
+    font-family: var(--font-secondary);
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    line-height: 1.3;
+  }
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 24px;
+    color: white;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1) rotate(90deg);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// ===== BODY DEL MODAL =====
+.modal-body-custom {
+  padding: 28px;
+  overflow-y: auto;
+  max-height: calc(90vh - 110px);
+  background: #f8f9fa;
+  
+  // Scrollbar personalizado
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #e9ecef;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border-radius: 3px;
     
-    ion-icon {
-      font-size: 3rem;
+    &:hover {
+      background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
     }
   }
+}
+
+// ===== PREVIEW DE IMAGEN =====
+.image-preview-container {
+  margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.9em;
+  color: #27318d;
+  
+  ion-icon {
+    font-size: 18px;
+    color: #ed1370;
+  }
+}
+
+.preview-image {
+  width: 100%;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+  border: 3px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 15px;
+  }
+}
+
+// ===== FORMULARIO =====
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeInUp 0.4s ease-out;
+  animation-fill-mode: both;
+  
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.04}s;
+    }
+  }
+}
+
+.form-label-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  color: #212529;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #27318d;
+  }
+  
+  &.required::after {
+    content: '*';
+    color: #ed1370;
+    font-size: 1.3em;
+    margin-left: 4px;
+  }
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 3px solid #e9ecef;
+  border-radius: 16px;
+  padding: 0 18px;
+  transition: all 0.3s ease;
+  min-height: 52px;
+  
+  &:focus-within {
+    border-color: #27318d;
+    box-shadow: 0 0 0 4px rgba(39, 49, 141, 0.1);
+    background: #ffffff;
+  }
+  
+  &:hover:not(.disabled) {
+    border-color: #ced4da;
+  }
+  
+  &.disabled {
+    background: #f8f9fa;
+    opacity: 0.7;
+    cursor: not-allowed;
+    border-color: #dee2e6;
+  }
+  
+  &.textarea-wrapper {
+    padding: 14px 18px;
+    align-items: flex-start;
+    min-height: 120px;
+  }
+  
+  &.price-wrapper {
+    padding-left: 50px;
+  }
+}
+
+.custom-input,
+.custom-textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.95em;
+  font-family: var(--font-secondary);
+  color: #212529;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  
+  &::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    color: #6c757d;
+  }
+}
+
+.custom-textarea {
+  resize: none;
+  line-height: 1.6;
+  min-height: 90px;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 20px;
+  font-size: 1.2em;
+  font-weight: 800;
+  color: #27318d;
+  pointer-events: none;
+}
+
+.input-icon-right {
+  font-size: 20px;
+  color: #adb5bd;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.input-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8em;
+  color: #6c757d;
+  font-family: var(--font-secondary);
+  margin-top: -4px;
+  padding-left: 4px;
+  
+  ion-icon {
+    font-size: 14px;
+    color: #adb5bd;
+  }
+}
+
+// ===== FOOTER DEL MODAL =====
+.modal-footer-custom {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 3px solid #e9ecef;
+}
+
+.btn-submit,
+.btn-cancel {
+  flex: 1;
+  height: 54px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  
+  ion-icon {
+    font-size: 22px;
+  }
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.35);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  span, ion-icon {
+    position: relative;
+    z-index: 1;
+  }
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(237, 19, 112, 0.45);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 6px 20px rgba(237, 19, 112, 0.2);
+  }
+}
+
+.btn-cancel {
+  background: white;
+  color: #6c757d;
+  border: 3px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    background: #f8f9fa;
+    border-color: #ced4da;
+    color: #495057;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ===== ANIMACIONES =====
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .product-modal {
+    --width: 96%;
+    --max-width: 100%;
+    --border-radius: 18px;
+  }
+  
+  .modal-header-custom {
+    padding: 20px 22px;
+  }
+  
+  .header-icon {
+    width: 48px;
+    height: 48px;
+    
+    ion-icon {
+      font-size: 26px;
+    }
+  }
+  
+  .header-text {
+    h2 {
+      font-size: 1.4em;
+    }
+    
+    p {
+      font-size: 0.88em;
+    }
+  }
+  
+  .close-btn {
+    width: 38px;
+    height: 38px;
+    
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+  
+  .modal-body-custom {
+    padding: 24px 20px;
+  }
+  
+  .preview-image {
+    height: 170px;
+  }
+  
+  .form-group-custom {
+    gap: 9px;
+  }
+  
+  .input-wrapper {
+    min-height: 50px;
+    padding: 0 16px;
+    border-width: 2px;
+    
+    &.price-wrapper {
+      padding-left: 46px;
+    }
+    
+    &.textarea-wrapper {
+      padding: 12px 16px;
+    }
+  }
+  
+  .custom-input,
+  .custom-textarea {
+    font-size: 0.92em;
+  }
+  
+  .btn-submit,
+  .btn-cancel {
+    height: 52px;
+    font-size: 0.9em;
+    border-radius: 12px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .product-modal {
+    --width: 98%;
+    --border-radius: 16px;
+  }
+  
+  .modal-header-custom {
+    padding: 18px 20px;
+    flex-wrap: wrap;
+  }
+  
+  .header-left {
+    gap: 12px;
+  }
+  
+  .header-icon {
+    width: 44px;
+    height: 44px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+  
+  .header-text {
+    h2 {
+      font-size: 1.25em;
+    }
+    
+    p {
+      font-size: 0.82em;
+    }
+  }
+  
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+  
+  .modal-body-custom {
+    padding: 20px 18px;
+  }
+  
+  .preview-image {
+    height: 150px;
+  }
+  
+  .form-label-custom {
+    font-size: 0.88em;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+  
+  .custom-input,
+  .custom-textarea {
+    font-size: 0.88em;
+  }
+  
+  .input-wrapper {
+    min-height: 48px;
+    padding: 0 14px;
+    border-width: 2px;
+    border-radius: 14px;
+    
+    &.price-wrapper {
+      padding-left: 42px;
+    }
+  }
+  
+  .currency-symbol {
+    left: 16px;
+    font-size: 1.1em;
+  }
+  
+  .input-icon-right {
+    font-size: 18px;
+  }
+  
+  .modal-footer-custom {
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 20px;
+  }
+  
+  .btn-submit,
+  .btn-cancel {
+    height: 50px;
+    font-size: 0.88em;
+    border-radius: 12px;
+    
+    ion-icon {
+      font-size: 19px;
+    }
+  }
+  
+  .btn-cancel {
+    border-width: 2px;
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .product-modal {
+    --width: 96%;
+    --max-width: 100%;
+    --border-radius: 16px;
+  }
+  
+  .modal-header-custom {
+    padding: 18px 20px;
+    min-height: 85px;
+  }
+  
+  .header-icon {
+    width: 45px;
+    height: 45px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+  
+  .header-text {
+    h2 {
+      font-size: 1.3em;
+    }
+    
+    p {
+      font-size: 0.85em;
+    }
+  }
+  
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+  
+  .modal-body-custom {
+    padding: 20px 18px;
+  }
+  
+  .preview-image {
+    height: 160px;
+  }
+  
+  .form-group-custom {
+    gap: 7px;
+  }
+  
+  .input-wrapper {
+    min-height: 46px;
+    padding: 0 12px;
+  }
+  
+  .btn-submit,
+  .btn-cancel {
+    height: 48px;
+    font-size: 0.9em;
+    
+    ion-icon {
+      font-size: 19px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .product-modal {
+    --width: 98%;
+  }
+  
+  .modal-header-custom {
+    padding: 16px 18px;
+    min-height: 80px;
+    flex-wrap: wrap;
+  }
+  
+  .header-left {
+    gap: 12px;
+  }
+  
+  .header-icon {
+    width: 42px;
+    height: 42px;
+    
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+  
+  .header-text {
+    h2 {
+      font-size: 1.2em;
+    }
+    
+    p {
+      font-size: 0.8em;
+    }
+  }
+  
+  .close-btn {
+    width: 34px;
+    height: 34px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+  
+  .modal-body-custom {
+    padding: 18px 16px;
+  }
+  
+  .preview-image {
+    height: 140px;
+  }
+  
+  .form-label-custom {
+    font-size: 0.85em;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+  
+  .custom-input,
+  .custom-textarea {
+    font-size: 0.9em;
+  }
+  
+  .input-wrapper {
+    min-height: 44px;
+    padding: 0 12px;
+    
+    &.price-wrapper {
+      padding-left: 36px;
+    }
+  }
+  
+  .currency-symbol {
+    left: 14px;
+    font-size: 1em;
+  }
+  
+  .input-icon-right {
+    font-size: 16px;
+  }
+  
+  .modal-footer-custom {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .btn-submit,
+  .btn-cancel {
+    height: 46px;
+    font-size: 0.88em;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 1024px) {
+  .tabs-navigation {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2em;
+  }
+  
+  .tabs-navigation {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 15px;
+  }
+  
+  .tab-btn {
+    padding: 15px 10px;
+    font-size: 0.85em;
+    
+    ion-icon {
+      font-size: 28px;
+    }
+  }
+  
+  .content-wrapper {
+    padding: 20px;
+  }
+  
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    
+    h2 {
+      font-size: 1.5em;
+    }
+  }
+  
+  .product-card,
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .product-actions,
+  .user-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .tabs-navigation {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-btn {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 15px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+  
+  .btn-add-product {
+    width: 100%;
+    justify-content: center;
+  }
+  
 }
