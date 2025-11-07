@@ -27,7 +27,14 @@ import {
   createOutline,
   trashOutline,
   logOutOutline,
-  personOutline
+  personOutline,
+  pricetagOutline,
+  constructOutline,
+  mailOutline,
+  checkmarkOutline,
+  closeOutline,
+  keyOutline,
+  lockClosedOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -38,21 +45,29 @@ import {
   styleUrls: ['./admin.page.scss'],
 })
 export class AdminPage {
-  // Productos
+  // =============================
+  // 🧾 PRODUCTOS
+  // =============================
   producto: any = {};
   productos: any[] = [];
   modoEdicion: boolean = false;
   idEditando: string = '';
 
-  // Usuarios
+  // =============================
+  // 👥 USUARIOS
+  // =============================
   usuarios: any[] = [];
   usuarioEditando: any = null;
   usuarioEditandoId: string = '';
 
-  // Mensajes de contacto
+  // =============================
+  // 📩 MENSAJES DE CONTACTO
+  // =============================
   mensajes: any[] = [];
 
-  // Servicios
+  // =============================
+  // 🔧 SERVICIOS
+  // =============================
   firestore = inject(Firestore);
   authService = inject(AuthService);
   router = inject(Router);
@@ -69,18 +84,24 @@ export class AdminPage {
       createOutline,
       trashOutline,
       logOutOutline,
-      personOutline
+      personOutline,
+      pricetagOutline,
+      constructOutline,
+      mailOutline,
+      checkmarkOutline,
+      closeOutline,
+      keyOutline,
+      lockClosedOutline
     });
 
     this.obtenerProductos();
     this.obtenerUsuarios();
-    this.obtenerMensajes(); // 👈 Nuevo
+    this.obtenerMensajes();
   }
 
   // =============================
-  // 🧾 PRODUCTOS
+  // 🔔 TOAST GENERAL
   // =============================
-
   async mostrarToast(mensaje: string, color: string = 'success') {
     const toast = await this.toastCtrl.create({
       message: mensaje,
@@ -91,6 +112,9 @@ export class AdminPage {
     await toast.present();
   }
 
+  // =============================
+  // 🧾 PRODUCTOS
+  // =============================
   obtenerProductos() {
     const ref = collection(this.firestore, 'productos');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -101,7 +125,6 @@ export class AdminPage {
   async guardarProducto() {
     try {
       if (this.modoEdicion) {
-        // Actualizar producto existente
         const docRef = doc(this.firestore, `productos/${this.idEditando}`);
         const { id, ...productoSinId } = this.producto;
         await updateDoc(docRef, productoSinId);
@@ -109,15 +132,12 @@ export class AdminPage {
         this.modoEdicion = false;
         this.idEditando = '';
       } else {
-        // Agregar nuevo producto
         if (this.producto.id && this.producto.id.trim() !== '') {
-          // Si se especificó un ID, usar setDoc
           const docRef = doc(this.firestore, `productos/${this.producto.id}`);
           const { id, ...productoSinId } = this.producto;
           await setDoc(docRef, productoSinId);
           this.mostrarToast('✅ Producto agregado con ID: ' + this.producto.id);
         } else {
-          // Si no se especificó ID, generar uno automático
           const ref = collection(this.firestore, 'productos');
           await addDoc(ref, this.producto);
           this.mostrarToast('✅ Producto agregado');
@@ -133,14 +153,12 @@ export class AdminPage {
   editarProducto(p: any) {
     this.modoEdicion = true;
     this.idEditando = p.id;
-    // Copiar el producto sin el id para evitar confusiones
     this.producto = { 
       nombre: p.nombre,
       precio: p.precio,
       descripcion: p.descripcion,
       imagen: p.imagen
     };
-    console.log('Editando producto:', this.producto);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -153,7 +171,6 @@ export class AdminPage {
   // =============================
   // 👥 USUARIOS
   // =============================
-
   obtenerUsuarios() {
     const ref = collection(this.firestore, 'usuarios');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -168,7 +185,6 @@ export class AdminPage {
   }
 
   editarUsuario(usuario: any) {
-    // Habilitar edición inline
     this.usuarioEditandoId = usuario.id;
     this.usuarioEditando = { 
       id: usuario.id,
@@ -176,30 +192,12 @@ export class AdminPage {
       email: usuario.email || '',
       rol: usuario.rol || 'usuario'
     };
-    console.log('Editando usuario:', this.usuarioEditando);
   }
 
   cancelarEdicion() {
-    console.log('Cancelando edición');
     this.usuarioEditandoId = '';
     this.usuarioEditando = null;
   }
-
-  responderMensaje(email: string, mensajeOriginal: string) {
-  if (!email) return;
-
-  const subject = encodeURIComponent('Respuesta a tu mensaje en Interventas');
-  const body = encodeURIComponent(
-    `Hola ${email.split('@')[0]},\n\nGracias por contactarte con nosotros. A continuación te respondemos:\n\n\n---\nMensaje original:\n${mensajeOriginal}\n---`
-  );
-
-  // 👉 Esto abrirá directamente Gmail en una nueva pestaña
-  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
-  window.open(gmailUrl, '_blank');
-}
-
-
-
 
   async guardarUsuarioEditado(id: string) {
     try {
@@ -208,8 +206,6 @@ export class AdminPage {
         return;
       }
 
-      console.log('Guardando usuario:', id, this.usuarioEditando);
-
       const docRef = doc(this.firestore, `usuarios/${id}`);
       const datosActualizar = {
         nombre: this.usuarioEditando.nombre || '',
@@ -217,10 +213,7 @@ export class AdminPage {
         rol: this.usuarioEditando.rol || 'usuario',
       };
 
-      console.log('Datos a actualizar:', datosActualizar);
-
       await updateDoc(docRef, datosActualizar);
-      
       this.mostrarToast('✅ Usuario actualizado correctamente');
       this.usuarioEditandoId = '';
       this.usuarioEditando = null;
@@ -233,11 +226,9 @@ export class AdminPage {
   // =============================
   // 📩 MENSAJES DE CONTACTO
   // =============================
-
   obtenerMensajes() {
     const ref = collection(this.firestore, 'contactMessages');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
-      // Ordenar por fecha (más recientes primero)
       this.mensajes = data.sort((a: any, b: any) => b.date.localeCompare(a.date));
     });
   }
@@ -248,10 +239,26 @@ export class AdminPage {
     this.mostrarToast('🗑️ Mensaje eliminado', 'danger');
   }
 
+  responderMensaje(email: string, mensajeOriginal: string) {
+    if (!email || !email.includes('@')) {
+      this.mostrarToast('❌ Correo inválido', 'danger');
+      return;
+    }
+
+    const subject = encodeURIComponent('Respuesta a tu mensaje en Interventas');
+    const body = encodeURIComponent(
+      `Hola ${email.split('@')[0]},\n\nGracias por contactarte con nosotros. A continuación te respondemos:\n\n\n---\nMensaje original:\n${mensajeOriginal}\n---`
+    );
+
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+    if (typeof window !== 'undefined') {
+      window.open(gmailUrl, '_blank');
+    }
+  }
+
   // =============================
   // 🚪 SESIÓN
   // =============================
-
   cerrarSesion() {
     this.authService.logout();
     this.router.navigate(['/login']);
