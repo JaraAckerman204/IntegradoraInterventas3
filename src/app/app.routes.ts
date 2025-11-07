@@ -101,14 +101,21 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
 
-  // 🌱 RUTAS ADICIONALES
+  // ==========================================
+  // RUTA 404
+  // ==========================================
   {
     path: 'carrito',
     loadComponent: () => import('./carrito/carrito.page').then((m) => m.CarritoPage),
   },
-  // 🚫 RUTA 404 - SIEMPRE LA ÚLTIMA
   {
-    path: '**',
-    redirectTo: 'home',
+    path: 'pendejinestebannaco',
+    loadComponent: () => import('./pendejinestebannaco/pendejinestebannaco.page').then( m => m.PendejinestebannacoPage)
   },
+  {
+    path: 'carrito',
+    loadComponent: () => import('./carrito/carrito.page').then( m => m.CarritoPage)
+  },
+
+
 ];
