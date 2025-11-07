@@ -1,20 +1,12 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonButton, IonIcon } from '@ionic/angular/standalone';
+import { IonContent, IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cartOutline } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
-
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-  priceType?: 'desde' | 'fijo';
-  image: string;
-  isNew?: boolean;
-}
+import { ProductosService, Producto } from '../services/productos.service';
 
 @Component({
   selector: 'app-todos',
@@ -25,6 +17,7 @@ interface Product {
     IonContent, 
     IonButton,
     IonIcon,
+    IonSpinner,
     CommonModule, 
     FormsModule,
     HeaderComponent,
@@ -32,58 +25,34 @@ interface Product {
   ]
 })
 export class TodosPage implements OnInit, AfterViewInit {
-  products: Product[] = [
-    {
-      name: 'Charola Grande C-10',
-      description: 'Ideal para pastelerías, carnicerías y catering.',
-      price: 37.00,
-      priceType: 'desde',
-      image: 'assets/img/vaso1.png',
-    },
-    {
-      name: 'Vaso Térmico No.10',
-      description: 'Excelente aislamiento, perfecto para bebidas frías y calientes.',
-      price: 26.00,
-      image: 'assets/img/products/vaso-termico.jpg',
-      isNew: true
-    },
-    {
-      name: 'Cuchara Plástica Mediana',
-      description: 'La opción económica y resistente para eventos y restaurantes.',
-      price: 14.00,
-      priceType: 'desde',
-      image: 'assets/img/products/cuchara.jpg'
-    },
-    {
-      name: 'Plato Biodegradable',
-      description: 'Ecológico y resistente, perfecto para eventos al aire libre.',
-      price: 45.00,
-      image: 'assets/img/products/plato-bio.jpg',
-      isNew: true
-    },
-    {
-      name: 'Servilletas Premium',
-      description: 'Suaves y absorbentes, ideales para restaurantes de alta gama.',
-      price: 28.50,
-      priceType: 'desde',
-      image: 'assets/img/products/servilletas.jpg'
-    },
-    {
-      name: 'Contenedor Térmico',
-      description: 'Mantiene la temperatura ideal para entregas y eventos.',
-      price: 52.00,
-      image: 'assets/img/products/contenedor.jpg'
-    }
-  ];
+  products: Producto[] = [];
+  loading = true;
 
-  constructor() {
+  constructor(private productosService: ProductosService) {
     addIcons({ cartOutline });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadProducts();
+  }
 
   ngAfterViewInit() {
-    this.setupScrollReveal();
+    // El setupScrollReveal se llama después de cargar los productos
+  }
+
+  loadProducts() {
+    this.productosService.getProductos().subscribe({
+      next: (productos) => {
+        this.products = productos;
+        this.loading = false;
+        // Esperar un tick para que el DOM se actualice antes de aplicar el reveal
+        setTimeout(() => this.setupScrollReveal(), 100);
+      },
+      error: (error) => {
+        console.error('Error cargando productos:', error);
+        this.loading = false;
+      }
+    });
   }
 
   private setupScrollReveal() {
@@ -106,10 +75,8 @@ export class TodosPage implements OnInit, AfterViewInit {
     });
   }
 
-  addToCart(product: Product) {
-    // TODO: Implementar la lógica del carrito
+  addToCart(product: Producto) {
     console.log('Agregando al carrito:', product);
-    // Aquí puedes agregar la lógica para añadir el producto al carrito
-    // Por ejemplo, emitir un evento o llamar a un servicio
+    // TODO: Implementar la lógica del carrito
   }
 }
