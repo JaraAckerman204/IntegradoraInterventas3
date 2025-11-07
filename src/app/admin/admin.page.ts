@@ -34,7 +34,21 @@ import {
   checkmarkOutline,
   closeOutline,
   keyOutline,
-  lockClosedOutline
+  lockClosedOutline,
+  peopleOutline,
+  newspaperOutline,
+  addCircleOutline,
+  mailOpenOutline,
+  informationCircleOutline,
+  cloudUploadOutline,
+  eyeOutline,
+  searchOutline,
+  filterOutline,
+  refreshOutline,
+  closeCircleOutline,
+  folderOutline,
+  ribbonOutline,
+  closeCircle
 } from 'ionicons/icons';
 
 @Component({
@@ -46,12 +60,23 @@ import {
 })
 export class AdminPage {
   // =============================
+  // 🎯 TABS
+  // =============================
+  tabActiva: string = 'productos';
+
+  // =============================
   // 🧾 PRODUCTOS
   // =============================
   producto: any = {};
   productos: any[] = [];
+  productosFiltrados: any[] = [];
+  filtroNombre: string = '';
+  filtroMarca: string = '';
+  filtroCategoria: string = '';
   modoEdicion: boolean = false;
   idEditando: string = '';
+  mostrarModalProducto: boolean = false;
+  mostrarModalBusqueda: boolean = false;
 
   // =============================
   // 👥 USUARIOS
@@ -59,6 +84,7 @@ export class AdminPage {
   usuarios: any[] = [];
   usuarioEditando: any = null;
   usuarioEditandoId: string = '';
+  mostrarModalUsuario: boolean = false;
 
   // =============================
   // 📩 MENSAJES DE CONTACTO
@@ -91,12 +117,33 @@ export class AdminPage {
       checkmarkOutline,
       closeOutline,
       keyOutline,
-      lockClosedOutline
+      lockClosedOutline,
+      peopleOutline,
+      newspaperOutline,
+      addCircleOutline,
+      mailOpenOutline,
+      informationCircleOutline,
+      cloudUploadOutline,
+      eyeOutline,
+      searchOutline,
+      filterOutline,
+      refreshOutline,
+      closeCircleOutline,
+      folderOutline,
+      ribbonOutline,
+      closeCircle
     });
 
     this.obtenerProductos();
     this.obtenerUsuarios();
     this.obtenerMensajes();
+  }
+
+  // =============================
+  // 🎯 NAVEGACIÓN TABS
+  // =============================
+  cambiarTab(tab: string) {
+    this.tabActiva = tab;
   }
 
   // =============================
@@ -119,53 +166,165 @@ export class AdminPage {
     const ref = collection(this.firestore, 'productos');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
       this.productos = data;
+      this.aplicarFiltrosInternos();
     });
   }
 
   async guardarProducto() {
     try {
+      if (!this.producto.nombre || !this.producto.nombre.trim()) {
+        await this.mostrarToast('⚠️ El nombre del producto es requerido', 'warning');
+        return;
+      }
+
+      if (!this.producto.precio || this.producto.precio <= 0) {
+        await this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
+        return;
+      }
+
       if (this.modoEdicion) {
         const docRef = doc(this.firestore, `productos/${this.idEditando}`);
         const { id, ...productoSinId } = this.producto;
         await updateDoc(docRef, productoSinId);
-        this.mostrarToast('✅ Producto actualizado');
-        this.modoEdicion = false;
-        this.idEditando = '';
+        await this.mostrarToast('✅ Producto actualizado correctamente');
+        this.cerrarModalProducto();
       } else {
         if (this.producto.id && this.producto.id.trim() !== '') {
           const docRef = doc(this.firestore, `productos/${this.producto.id}`);
           const { id, ...productoSinId } = this.producto;
           await setDoc(docRef, productoSinId);
-          this.mostrarToast('✅ Producto agregado con ID: ' + this.producto.id);
+          await this.mostrarToast('✅ Producto agregado con ID: ' + this.producto.id);
         } else {
           const ref = collection(this.firestore, 'productos');
           await addDoc(ref, this.producto);
-          this.mostrarToast('✅ Producto agregado');
+          await this.mostrarToast('✅ Producto agregado correctamente');
         }
+        this.cerrarModalProducto();
       }
-      this.producto = {};
     } catch (error) {
       console.error('Error al guardar producto:', error);
-      this.mostrarToast('❌ Error al guardar el producto', 'danger');
+      await this.mostrarToast('❌ Error al guardar el producto', 'danger');
     }
   }
 
-  editarProducto(p: any) {
-    this.modoEdicion = true;
-    this.idEditando = p.id;
-    this.producto = { 
-      nombre: p.nombre,
-      precio: p.precio,
-      descripcion: p.descripcion,
-      imagen: p.imagen
-    };
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  async eliminarProducto(id: string) {
+    try {
+      const docRef = doc(this.firestore, `productos/${id}`);
+      await deleteDoc(docRef);
+      await this.mostrarToast('🗑️ Producto eliminado correctamente', 'danger');
+    } catch (error) {
+      console.error('Error eliminando producto:', error);
+      await this.mostrarToast('❌ Error al eliminar el producto', 'danger');
+    }
   }
 
-  async eliminarProducto(id: string) {
-    const docRef = doc(this.firestore, `productos/${id}`);
-    await deleteDoc(docRef);
-    this.mostrarToast('🗑️ Producto eliminado', 'danger');
+  editarProducto(producto: any) {
+    this.modoEdicion = true;
+    this.idEditando = producto.id;
+    this.producto = { ...producto };
+    this.mostrarModalProducto = true;
+    console.log('Editando producto:', this.producto);
+  }
+
+  abrirModalProducto() {
+    this.mostrarModalProducto = true;
+    this.modoEdicion = false;
+    this.producto = {};
+    this.idEditando = '';
+  }
+
+  cerrarModalProducto() {
+    this.mostrarModalProducto = false;
+    this.modoEdicion = false;
+    this.producto = {};
+    this.idEditando = '';
+  }
+
+  actualizarPreview() {
+    // placeholder si quieres reaccionar a cambios en la URL de imagen
+  }
+
+  onImageError() {
+    console.error('Error cargando imagen');
+  }
+
+  // =============================
+  // 🔍 MODAL DE BÚSQUEDA Y FILTROS
+  // =============================
+  abrirModalBusqueda() {
+    this.mostrarModalBusqueda = true;
+  }
+
+  cerrarModalBusqueda() {
+    this.mostrarModalBusqueda = false;
+  }
+
+aplicarFiltros() {
+  // Normalizar entradas (elimina espacios y vuelve minúsculas)
+  const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
+  const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
+  const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
+
+  this.productosFiltrados = this.productos.filter((producto) => {
+    const nombre = (producto.nombre || '').toLowerCase();
+    const marca = (producto.marca || '').toLowerCase();
+    const categoria = (producto.categoria || '').toLowerCase();
+
+    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
+    const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
+    const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
+
+    return coincideNombre && coincideMarca && coincideCategoria;
+  });
+
+  this.cerrarModalBusqueda();
+}
+
+aplicarFiltrosInternos() {
+  const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
+  const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
+  const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
+
+  // Si no hay ningún filtro, mostrar todos los productos
+  if (!filtroNombre && !filtroMarca && !filtroCategoria) {
+    this.productosFiltrados = [...this.productos];
+    return;
+  }
+
+  this.productosFiltrados = this.productos.filter((producto) => {
+    const nombre = (producto.nombre || '').toLowerCase();
+    const marca = (producto.marca || '').toLowerCase();
+    const categoria = (producto.categoria || '').toLowerCase();
+
+    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
+    const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
+    const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
+
+    return coincideNombre && coincideMarca && coincideCategoria;
+  });
+}
+
+
+  limpiarFiltroNombre() {
+    this.filtroNombre = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarFiltroMarca() {
+    this.filtroMarca = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarFiltroCategoria() {
+    this.filtroCategoria = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarTodosFiltros() {
+    this.filtroNombre = '';
+    this.filtroMarca = '';
+    this.filtroCategoria = '';
+    this.aplicarFiltrosInternos();
   }
 
   // =============================
@@ -178,12 +337,6 @@ export class AdminPage {
     });
   }
 
-  async eliminarUsuario(id: string) {
-    const docRef = doc(this.firestore, `usuarios/${id}`);
-    await deleteDoc(docRef);
-    this.mostrarToast('🧹 Usuario eliminado', 'danger');
-  }
-
   editarUsuario(usuario: any) {
     this.usuarioEditandoId = usuario.id;
     this.usuarioEditando = { 
@@ -192,19 +345,37 @@ export class AdminPage {
       email: usuario.email || '',
       rol: usuario.rol || 'usuario'
     };
+    this.mostrarModalUsuario = true;
+    console.log('Editando usuario:', this.usuarioEditando);
+  }
+
+  abrirModalUsuario(usuario: any) {
+    this.editarUsuario(usuario);
+  }
+
+  cerrarModalUsuario() {
+    this.mostrarModalUsuario = false;
+    this.usuarioEditandoId = '';
+    this.usuarioEditando = null;
   }
 
   cancelarEdicion() {
-    this.usuarioEditandoId = '';
-    this.usuarioEditando = null;
+    this.cerrarModalUsuario();
   }
 
   async guardarUsuarioEditado(id: string) {
     try {
       if (!this.usuarioEditando) {
-        this.mostrarToast('❌ No hay datos para guardar', 'danger');
+        await this.mostrarToast('❌ No hay datos para guardar', 'danger');
         return;
       }
+
+      if (!this.usuarioEditando.email || !this.usuarioEditando.email.includes('@')) {
+        await this.mostrarToast('⚠️ Por favor ingresa un email válido', 'warning');
+        return;
+      }
+
+      console.log('Guardando usuario:', id, this.usuarioEditando);
 
       const docRef = doc(this.firestore, `usuarios/${id}`);
       const datosActualizar = {
@@ -213,13 +384,28 @@ export class AdminPage {
         rol: this.usuarioEditando.rol || 'usuario',
       };
 
+      console.log('Datos a actualizar:', datosActualizar);
+
       await updateDoc(docRef, datosActualizar);
-      this.mostrarToast('✅ Usuario actualizado correctamente');
+      
+      await this.mostrarToast('✅ Usuario actualizado correctamente');
       this.usuarioEditandoId = '';
       this.usuarioEditando = null;
+      this.cerrarModalUsuario();
     } catch (error) {
       console.error('Error al actualizar usuario:', error);
-      this.mostrarToast('❌ Error al actualizar el usuario: ' + error, 'danger');
+      await this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
+    }
+  }
+
+  async eliminarUsuario(id: string) {
+    try {
+      const docRef = doc(this.firestore, `usuarios/${id}`);
+      await deleteDoc(docRef);
+      await this.mostrarToast('🧹 Usuario eliminado correctamente', 'danger');
+    } catch (error) {
+      console.error('Error eliminando usuario:', error);
+      await this.mostrarToast('❌ Error al eliminar el usuario', 'danger');
     }
   }
 
@@ -229,14 +415,24 @@ export class AdminPage {
   obtenerMensajes() {
     const ref = collection(this.firestore, 'contactMessages');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
-      this.mensajes = data.sort((a: any, b: any) => b.date.localeCompare(a.date));
+      this.mensajes = data.sort((a: any, b: any) => {
+        if (b.date && a.date) {
+          return b.date.localeCompare(a.date);
+        }
+        return 0;
+      });
     });
   }
 
   async eliminarMensaje(id: string) {
-    const docRef = doc(this.firestore, `contactMessages/${id}`);
-    await deleteDoc(docRef);
-    this.mostrarToast('🗑️ Mensaje eliminado', 'danger');
+    try {
+      const docRef = doc(this.firestore, `contactMessages/${id}`);
+      await deleteDoc(docRef);
+      await this.mostrarToast('🗑️ Mensaje eliminado correctamente', 'danger');
+    } catch (error) {
+      console.error('Error eliminando mensaje:', error);
+      await this.mostrarToast('❌ Error al eliminar el mensaje', 'danger');
+    }
   }
 
   responderMensaje(email: string, mensajeOriginal: string) {
@@ -247,7 +443,7 @@ export class AdminPage {
 
     const subject = encodeURIComponent('Respuesta a tu mensaje en Interventas');
     const body = encodeURIComponent(
-      `Hola ${email.split('@')[0]},\n\nGracias por contactarte con nosotros. A continuación te respondemos:\n\n\n---\nMensaje original:\n${mensajeOriginal}\n---`
+      `Hola,\n\nGracias por contactarte con nosotros. A continuación te respondemos:\n\n\n---\nMensaje original:\n${mensajeOriginal}\n---`
     );
 
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;

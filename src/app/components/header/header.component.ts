@@ -70,8 +70,8 @@ export class HeaderComponent implements OnInit {
   cartItemCount = 0;
 
   // WhatsApp
-  whatsappUrl = 'https://wa.me/5218711234567'; // Cambia este número por el tuyo
-  tooltipText = '¡Chatea con nosotros!';
+  whatsappUrl = 'https://wa.me/5218711146742'; // Cambia este número por el tuyo
+  tooltipText = '¡Estamos para servirte!';
   tooltipLetters: TooltipLetter[] = [];
   showWhatsappTooltip = false;
   tooltipAnimateIn = false;

@@ -12,243 +12,209 @@
     </div>
   </div>
 
-  <!-- 🩵 SECCIÓN PRINCIPAL -->
+  <!-- 🎯 NAVEGACIÓN CON TABS -->
   <section class="admin-section">
     <div class="admin-container">
       
-      <!-- 🧩 Columna izquierda: formulario -->
-      <div class="left-column">
-        <div class="product-form-card">
-          <div class="form-header">
-            <h2>Gestión de Productos</h2>
-            <p>Agrega o edita productos fácilmente</p>
-          </div>
+      <!-- 📷 Tabs de navegación -->
+      <div class="tabs-navigation">
+        <button 
+          class="tab-btn" 
+          [class.active]="tabActiva === 'productos'"
+          (click)="cambiarTab('productos')">
+          <ion-icon name="cube-outline"></ion-icon>
+          <span>Productos</span>
+        </button>
+        
+        <button 
+          class="tab-btn" 
+          [class.active]="tabActiva === 'usuarios'"
+          (click)="cambiarTab('usuarios')">
+          <ion-icon name="people-outline"></ion-icon>
+          <span>Usuarios</span>
+        </button>
+        
+        <button 
+          class="tab-btn" 
+          [class.active]="tabActiva === 'mensajes'"
+          (click)="cambiarTab('mensajes')">
+          <ion-icon name="mail-outline"></ion-icon>
+          <span>Mensajes</span>
+        </button>
+        
+        <button 
+          class="tab-btn" 
+          [class.active]="tabActiva === 'newsletter'"
+          (click)="cambiarTab('newsletter')">
+          <ion-icon name="newspaper-outline"></ion-icon>
+          <span>Newsletter</span>
+        </button>
+      </div>
 
-          <form (ngSubmit)="guardarProducto()" #productForm="ngForm" class="product-form">
-            
-            <!-- ID del Producto -->
-            <div class="form-field" [class.disabled]="modoEdicion">
-              <ion-icon class="field-icon" name="key-outline"></ion-icon>
-              <ion-input 
-                type="text" 
-                [(ngModel)]="producto.id" 
-                name="id" 
-                [placeholder]="modoEdicion ? 'ID: ' + idEditando + ' (no editable)' : 'ID del producto (opcional)'"
-                [disabled]="modoEdicion">
-              </ion-input>
-              <span *ngIf="modoEdicion" class="lock-icon">
-                <ion-icon name="lock-closed-outline"></ion-icon>
-              </span>
-            </div>
+      <!-- 📷 Contenido de cada tab -->
+      <div class="tab-content">
+        
+<!-- ====================== -->
+<!-- TAB: PRODUCTOS -->
+<!-- ====================== -->
+<div *ngIf="tabActiva === 'productos'" class="content-wrapper">
+  <div class="content-header">
+    <div>
+      <h2>Gestión de Productos</h2>
+      <p>Administra tu catálogo de productos</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-search" (click)="abrirModalBusqueda()">
+        <ion-icon name="search-outline"></ion-icon>
+        <span>Buscar</span>
+      </button>
+      <button class="btn-add-product" (click)="abrirModalProducto()">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <span>Agregar Producto</span>
+      </button>
+    </div>
+  </div>
 
-            <!-- Nombre -->
-            <div class="form-field">
-              <ion-icon class="field-icon" name="pricetag-outline"></ion-icon>
-              <ion-input 
-                type="text" 
-                [(ngModel)]="producto.nombre" 
-                name="nombre" 
-                placeholder="Nombre del producto" 
-                required>
-              </ion-input>
-            </div>
+  <!-- 🔍 FILTROS ACTIVOS -->
+  <div class="active-filters" *ngIf="filtroNombre || filtroMarca">
+    <div class="filter-header">
+      <ion-icon name="filter-outline"></ion-icon>
+      <span>Filtros activos:</span>
+    </div>
+    <div class="filter-tags">
+      <div class="filter-tag" *ngIf="filtroNombre">
+        <span>Nombre: {{ filtroNombre }}</span>
+        <button (click)="limpiarFiltroNombre()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="filter-tag" *ngIf="filtroMarca">
+        <span>Marca: {{ filtroMarca }}</span>
+        <button (click)="limpiarFiltroMarca()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <button class="clear-all-btn" (click)="limpiarTodosFiltros()">
+        Limpiar todos
+      </button>
+    </div>
+    <div class="results-count">
+      <span>{{ productosFiltrados.length }} de {{ productos.length }} productos</span>
+    </div>
+  </div>
 
-            <!-- Precio -->
-            <div class="form-field">
-              <ion-icon class="field-icon" name="cash-outline"></ion-icon>
-              <ion-input 
-                type="number" 
-                [(ngModel)]="producto.precio" 
-                name="precio" 
-                placeholder="Precio" 
-                required>
-              </ion-input>
-            </div>
+  <div class="products-grid" *ngIf="productosFiltrados.length > 0">
+    <div class="product-card" *ngFor="let producto of productosFiltrados">
+      <div class="product-image">
+        <img [src]="producto.imagen || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'" />
+      </div>
 
-            <!-- Descripción -->
-            <div class="form-field textarea-field">
-              <ion-icon class="field-icon" name="document-text-outline"></ion-icon>
-              <ion-textarea 
-                [(ngModel)]="producto.descripcion" 
-                name="descripcion" 
-                placeholder="Descripción"
-                auto-grow="true">
-              </ion-textarea>
-            </div>
-
-            <!-- URL imagen -->
-            <div class="form-field">
-              <ion-icon class="field-icon" name="image-outline"></ion-icon>
-              <ion-input 
-                type="text" 
-                [(ngModel)]="producto.imagen" 
-                name="imagen" 
-                placeholder="URL de imagen">
-              </ion-input>
-            </div>
-
-            <!-- Botón -->
-            <button class="btn-submit" type="submit">
-              <ion-icon name="save-outline"></ion-icon>
-              <span>{{ modoEdicion ? 'Actualizar Producto' : 'Agregar Producto' }}</span>
-            </button>
-          </form>
+      <div class="product-info">
+        <div class="product-id-label">
+          <ion-icon name="key-outline"></ion-icon>
+          <span>ID: {{ producto.id }}</span>
+        </div>
+        <h4>{{ producto.nombre }}</h4>
+        <p class="product-description">{{ producto.descripcion }}</p>
+        <div class="product-price">
+          <ion-icon name="cash-outline"></ion-icon>
+          <span>${{ producto.precio }}</span>
         </div>
       </div>
 
-      <!-- 🧩 Columna derecha -->
-      <div class="right-column">
-        <!-- 🟢 Productos -->
-        <div class="products-header">
-          <h3>Lista de Productos</h3>
-          <p>Visualiza y administra los productos existentes</p>
-        </div>
+      <div class="product-actions">
+        <ion-button color="warning" (click)="editarProducto(producto)">
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button color="danger" (click)="eliminarProducto(producto.id)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
 
-        <div class="products-list">
-          <div class="product-card" *ngFor="let producto of productos">
-            <div class="product-image">
-              <img [src]="producto.imagen || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'" />
+  <div class="empty-state" *ngIf="productosFiltrados.length === 0 && (filtroNombre || filtroMarca)">
+    <div class="empty-icon">
+      <ion-icon name="search-outline"></ion-icon>
+    </div>
+    <h4>No se encontraron productos</h4>
+    <p>Intenta con otros términos de búsqueda</p>
+    <button class="btn-clear-filter" (click)="limpiarTodosFiltros()">
+      <ion-icon name="refresh-outline"></ion-icon>
+      <span>Limpiar filtros</span>
+    </button>
+  </div>
+
+  <div class="empty-state" *ngIf="productos.length === 0">
+    <div class="empty-icon">
+      <ion-icon name="cube-outline"></ion-icon>
+    </div>
+    <h4>No hay productos</h4>
+    <p>Agrega tu primer producto para comenzar</p>
+  </div>
+</div>
+        
+        <!-- ====================== -->
+        <!-- TAB: USUARIOS -->
+        <!-- ====================== -->
+        <div *ngIf="tabActiva === 'usuarios'" class="content-wrapper">
+  <div class="content-header">
+    <div>
+      <h2>Usuarios Registrados</h2>
+      <p>Gestiona los usuarios activos del sistema</p>
+    </div>
+  </div>
+
+  <div class="users-list" *ngIf="usuarios.length > 0">
+    <div class="user-card" *ngFor="let user of usuarios">
+      
+      <div class="user-avatar">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+
+      <div class="user-info">
+        <div class="user-id-label">
+          <ion-icon name="key-outline"></ion-icon>
+          <span>ID: {{ user.id }}</span>
+        </div>
+        <h4>{{ user.nombre || 'Sin nombre' }}</h4>
+        <p class="user-email">{{ user.email }}</p>
+        <div class="user-role-badge">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>{{ user.rol || 'usuario' }}</span>
+        </div>
+      </div>
+
+      <div class="user-actions">
+        <ion-button color="warning" (click)="editarUsuario(user)">
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button color="danger" (click)="eliminarUsuario(user.id)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="usuarios.length === 0">
+    <div class="empty-icon">
+      <ion-icon name="people-outline"></ion-icon>
+    </div>
+    <h4>No hay usuarios</h4>
+    <p>No se encontraron usuarios registrados</p>
+  </div>
+</div>
+
+        <!-- ====================== -->
+        <!-- TAB: MENSAJES -->
+        <!-- ====================== -->
+        <div *ngIf="tabActiva === 'mensajes'" class="content-wrapper">
+          <div class="content-header">
+            <div>
+              <h2>Mensajes Recibidos</h2>
+              <p>Gestiona los mensajes de contacto</p>
             </div>
-
-            <div class="product-info">
-              <div class="product-id-label">
-                <ion-icon name="key-outline"></ion-icon>
-                <span>ID: {{ producto.id }}</span>
-              </div>
-              <h4>{{ producto.nombre }}</h4>
-              <p class="product-description">{{ producto.descripcion }}</p>
-              <div class="product-price">
-                <ion-icon name="cash-outline"></ion-icon>
-                <span>${{ producto.precio }}</span>
-              </div>
-            </div>
-
-            <div class="product-actions">
-              <ion-button color="warning" (click)="editarProducto(producto)">
-                <ion-icon name="create-outline"></ion-icon>
-              </ion-button>
-              <ion-button color="danger" (click)="eliminarProducto(producto.id)">
-                <ion-icon name="trash-outline"></ion-icon>
-              </ion-button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 🧩 Usuarios -->
-        <div class="users-header">
-          <h3>Usuarios Registrados</h3>
-          <p>Gestiona los usuarios activos del sistema</p>
-        </div>
-
-        <div class="users-list">
-          <div class="user-card" *ngFor="let user of usuarios">
-            
-            <!-- Modo Vista -->
-            <ng-container *ngIf="usuarioEditandoId !== user.id">
-              <div class="user-avatar">
-                <ion-icon name="person-outline"></ion-icon>
-              </div>
-
-              <div class="user-info">
-                <div class="user-id-label">
-                  <ion-icon name="key-outline"></ion-icon>
-                  <span>ID: {{ user.id }}</span>
-                </div>
-                <h4>{{ user.nombre || 'Sin nombre' }}</h4>
-                <p class="user-email">{{ user.email }}</p>
-                <div class="user-role-badge">
-                  <ion-icon name="shield-checkmark-outline"></ion-icon>
-                  <span>{{ user.rol || 'usuario' }}</span>
-                </div>
-              </div>
-
-              <div class="user-actions">
-                <ion-button color="warning" (click)="editarUsuario(user)">
-                  <ion-icon name="create-outline"></ion-icon>
-                </ion-button>
-                <ion-button color="danger" (click)="eliminarUsuario(user.id)">
-                  <ion-icon name="trash-outline"></ion-icon>
-                </ion-button>
-              </div>
-            </ng-container>
-
-            <!-- Modo Edición -->
-            <ng-container *ngIf="usuarioEditandoId === user.id">
-              <div class="user-edit-wrapper">
-                <div class="edit-form-header">
-                  <ion-icon name="create-outline"></ion-icon>
-                  <span>Editando usuario</span>
-                </div>
-
-                <div class="user-edit-form">
-                  <div class="form-field disabled">
-                    <ion-icon class="field-icon" name="key-outline"></ion-icon>
-                    <ion-input 
-                      type="text" 
-                      [value]="user.id" 
-                      disabled>
-                    </ion-input>
-                  </div>
-
-                  <div class="form-field">
-                    <ion-icon class="field-icon" name="person-outline"></ion-icon>
-                    <ion-input 
-                      type="text" 
-                      [(ngModel)]="usuarioEditando.nombre"
-                      [name]="'nombre-' + user.id"
-                      placeholder="Nombre del usuario">
-                    </ion-input>
-                  </div>
-
-                  <div class="form-field">
-                    <ion-icon class="field-icon" name="mail-outline"></ion-icon>
-                    <ion-input 
-                      type="email" 
-                      [(ngModel)]="usuarioEditando.email"
-                      [name]="'email-' + user.id"
-                      placeholder="Email del usuario">
-                    </ion-input>
-                  </div>
-
-                  <div class="form-field">
-                    <ion-icon class="field-icon" name="shield-checkmark-outline"></ion-icon>
-                    <ion-select 
-                      [(ngModel)]="usuarioEditando.rol"
-                      [name]="'rol-' + user.id"
-                      placeholder="Seleccionar rol"
-                      interface="popover">
-                      <ion-select-option value="usuario">Usuario</ion-select-option>
-                      <ion-select-option value="admin">Admin</ion-select-option>
-                    </ion-select>
-                  </div>
-
-                  <div class="edit-actions">
-                    <ion-button color="success" expand="block" (click)="guardarUsuarioEditado(user.id)">
-                      <ion-icon name="checkmark-outline"></ion-icon>
-                      Guardar
-                    </ion-button>
-                    <ion-button color="medium" expand="block" fill="outline" (click)="cancelarEdicion()">
-                      <ion-icon name="close-outline"></ion-icon>
-                      Cancelar
-                    </ion-button>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-
-          </div>
-        </div>
-
-        <!-- ================================== -->
-        <!-- 📩 SECCIÓN DE MENSAJES DE CONTACTO -->
-        <!-- ================================== -->
-        <div class="messages-section">
-          <div class="messages-header">
-            <h3>
-              <ion-icon name="mail-outline"></ion-icon>
-              Mensajes Recibidos
-            </h3>
-            <p>Gestiona los mensajes de contacto recibidos</p>
           </div>
 
           <div class="no-messages" *ngIf="mensajes.length === 0">
@@ -278,9 +244,488 @@
             </div>
           </div>
         </div>
-        <!-- ================================== -->
+
+        <!-- ====================== -->
+        <!-- TAB: NEWSLETTER -->
+        <!-- ====================== -->
+        <div *ngIf="tabActiva === 'newsletter'" class="content-wrapper">
+          <div class="content-header">
+            <div>
+              <h2>Newsletter</h2>
+              <p>Próximamente: Gestiona suscriptores y envía boletines</p>
+            </div>
+          </div>
+
+          <div class="empty-state">
+            <div class="empty-icon">
+              <ion-icon name="newspaper-outline"></ion-icon>
+            </div>
+            <h4>Funcionalidad en desarrollo</h4>
+            <p>Esta sección estará disponible próximamente</p>
+          </div>
+        </div>
 
       </div>
     </div>
   </section>
+
+
+
+<!-- 🎨 MODAL AGREGAR/EDITAR PRODUCTO -->
+<ion-modal 
+  [isOpen]="mostrarModalProducto" 
+  (didDismiss)="cerrarModalProducto()"
+  class="product-modal"
+  [backdropDismiss]="false">
+  
+  <ng-template>
+    <div class="modal-wrapper">
+      <!-- 🎯 Header del Modal -->
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon [name]="modoEdicion ? 'create-outline' : 'add-circle-outline'"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>{{ modoEdicion ? 'Editar Producto' : 'Agregar Producto' }}</h2>
+            <p>{{ modoEdicion ? 'Actualiza la información del producto' : 'Completa los datos del nuevo producto' }}</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalProducto()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- 📋 Contenido del Modal -->
+      <div class="modal-body-custom">
+        
+        <!-- 🔍 Formulario -->
+        <form (ngSubmit)="guardarProducto()" #productForm="ngForm">
+          
+          <!-- ID del Producto -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="key-outline"></ion-icon>
+              <span>ID del Producto {{ modoEdicion ? '(no editable)' : '(opcional)' }}</span>
+            </label>
+            <div class="input-wrapper" [class.disabled]="modoEdicion">
+              <input 
+                type="text" 
+                [(ngModel)]="producto.id" 
+                name="id" 
+                placeholder="Dejar vacío para generar automáticamente"
+                [disabled]="modoEdicion"
+                class="custom-input">
+              <ion-icon *ngIf="modoEdicion" name="lock-closed-outline" class="input-icon-right"></ion-icon>
+            </div>
+          </div>
+
+          <!-- Nombre -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="pricetag-outline"></ion-icon>
+              <span>Nombre del Producto</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                [(ngModel)]="producto.nombre" 
+                name="nombre" 
+                placeholder="Ej: Laptop Dell XPS 15" 
+                required
+                class="custom-input">
+            </div>
+          </div>
+          
+          <!-- Categoría -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="folder-outline"></ion-icon>
+              <span>Categoría</span>
+            </label>
+            <div class="input-wrapper select-wrapper">
+              <ion-select 
+                [(ngModel)]="producto.categoria" 
+                name="categoria" 
+                interface="popover"
+                placeholder="Seleccionar categoría"
+                class="custom-select">
+                <ion-select-option value="Desechables">Desechables</ion-select-option>
+                <ion-select-option value="Biodegradables">Biodegradables</ion-select-option>
+                <ion-select-option value="Bolsas">Bolsas</ion-select-option>
+                <ion-select-option value="Cocina y Repostería">Cocina y Repostería</ion-select-option>
+                <ion-select-option value="Alimentos">Alimentos</ion-select-option>
+                <ion-select-option value="Higiénicos y Servilletas">Higiénicos y Servilletas</ion-select-option>
+              </ion-select>
+              <ion-icon name="chevron-down-outline" class="select-icon"></ion-icon>
+            </div>
+          </div>
+
+          <!-- Marca -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="ribbon-outline"></ion-icon>
+              <span>Marca</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                [(ngModel)]="producto.marca" 
+                name="marca" 
+                placeholder="Ej: Coca Cola, Pepsi, etc."
+                class="custom-input">
+            </div>
+          </div>
+
+          <!-- Precio -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="cash-outline"></ion-icon>
+              <span>Precio</span>
+            </label>
+            <div class="input-wrapper price-wrapper">
+              <span class="currency-symbol">$</span>
+              <input 
+                type="number" 
+                [(ngModel)]="producto.precio" 
+                name="precio" 
+                placeholder="0.00" 
+                required
+                min="0"
+                step="0.01"
+                class="custom-input price-input">
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>Descripción</span>
+            </label>
+            <div class="input-wrapper textarea-wrapper">
+              <textarea 
+                [(ngModel)]="producto.descripcion" 
+                name="descripcion" 
+                placeholder="Describe las características principales del producto..."
+                rows="4"
+                class="custom-textarea"></textarea>
+            </div>
+          </div>
+
+          <!-- URL imagen -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="image-outline"></ion-icon>
+              <span>URL de la Imagen</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                [(ngModel)]="producto.imagen" 
+                name="imagen" 
+                placeholder="https://ejemplo.com/imagen.jpg"
+                (ngModelChange)="actualizarPreview()"
+                class="custom-input">
+              <ion-icon name="cloud-upload-outline" class="input-icon-right"></ion-icon>
+            </div>
+            <div class="input-hint">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>Pega la URL de una imagen desde la web</span>
+            </div>
+            
+            <!-- 👁️ Preview de la imagen - JUSTO DEBAJO DEL INPUT -->
+            <div class="image-preview-container" *ngIf="producto.imagen && producto.imagen.trim() !== ''">
+              <div class="preview-header">
+                <ion-icon name="eye-outline"></ion-icon>
+                <span>Vista previa</span>
+              </div>
+              <div class="preview-image">
+                <img 
+                  [src]="producto.imagen" 
+                  (error)="onImageError()"
+                  alt="Preview del producto" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="modal-footer-custom">
+            <button 
+              type="submit"
+              class="btn-submit"
+              [disabled]="!productForm.valid">
+              <ion-icon [name]="modoEdicion ? 'checkmark-outline' : 'add-circle-outline'"></ion-icon>
+              <span>{{ modoEdicion ? 'Actualizar Producto' : 'Agregar Producto' }}</span>
+            </button>
+            
+            <button 
+              type="button"
+              (click)="cerrarModalProducto()"
+              class="btn-cancel">
+              <ion-icon name="close-outline"></ion-icon>
+              <span>Cancelar</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- 🎨 MODAL EDITAR USUARIO -->
+<ion-modal 
+  [isOpen]="mostrarModalUsuario" 
+  (didDismiss)="cerrarModalUsuario()"
+  class="user-modal"
+  [backdropDismiss]="false">
+  
+  <ng-template>
+    <div class="modal-wrapper">
+      <!-- 🎯 Header del Modal -->
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="create-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Editar Usuario</h2>
+            <p>Actualiza la información del usuario</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalUsuario()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- 📋 Contenido del Modal -->
+      <div class="modal-body-custom">
+        
+        <!-- 🔍 Formulario -->
+        <form (ngSubmit)="guardarUsuarioEditado(usuarioEditandoId)" #userForm="ngForm">
+          
+          <!-- Nombre -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="person-outline"></ion-icon>
+              <span>Nombre Completo</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                [(ngModel)]="usuarioEditando.nombre" 
+                name="nombre" 
+                placeholder="Ingresa el nombre completo" 
+                required
+                class="custom-input">
+            </div>
+          </div>
+
+
+          <!-- Email -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="mail-outline"></ion-icon>
+              <span>Correo Electrónico</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="email" 
+                [(ngModel)]="usuarioEditando.email" 
+                name="email" 
+                placeholder="ejemplo@correo.com" 
+                required
+                class="custom-input">
+            </div>
+            <div class="input-hint">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>El correo debe ser válido y único</span>
+            </div>
+          </div>
+
+          <!-- Rol -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              <span>Rol del Usuario</span>
+            </label>
+            <div class="input-wrapper select-wrapper">
+              <ion-select 
+                [(ngModel)]="usuarioEditando.rol" 
+                name="rol" 
+                interface="popover"
+                placeholder="Seleccionar rol"
+                class="custom-select">
+                <ion-select-option value="usuario">Usuario</ion-select-option>
+                <ion-select-option value="admin">Administrador</ion-select-option>
+              </ion-select>
+              <ion-icon name="chevron-down-outline" class="select-icon"></ion-icon>
+            </div>
+            <div class="input-hint">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>Los administradores tienen acceso completo al sistema</span>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="modal-footer-custom">
+            <button 
+              type="submit"
+              class="btn-submit"
+              [disabled]="!userForm.valid">
+              <ion-icon name="checkmark-outline"></ion-icon>
+              <span>Guardar Cambios</span>
+            </button>
+            
+            <button 
+              type="button"
+              (click)="cerrarModalUsuario()"
+              class="btn-cancel">
+              <ion-icon name="close-outline"></ion-icon>
+              <span>Cancelar</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- 🔍 MODAL DE BÚSQUEDA - CORREGIDO -->
+<ion-modal 
+  [isOpen]="mostrarModalBusqueda" 
+  (didDismiss)="cerrarModalBusqueda()"
+  class="search-modal"
+  [backdropDismiss]="true">
+  
+  <ng-template>
+    <div class="modal-wrapper">
+      
+      <!-- 🎯 Header del Modal -->
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="search-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Buscar Productos</h2>
+            <p>Filtra productos por nombre, marca o categoría</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalBusqueda()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- 📋 Contenido del Modal -->
+      <div class="modal-body-custom">
+        
+        <!-- 🔍 Formulario de Búsqueda -->
+        <div class="search-form">
+          
+          <!-- Nombre -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="pricetag-outline"></ion-icon>
+              <span>Nombre del Producto</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                [(ngModel)]="filtroNombre" 
+                name="filtroNombre" 
+                placeholder="Ej: Vaso, Plato, etc."
+                class="custom-input">
+              <button 
+                *ngIf="filtroNombre" 
+                class="clear-input-btn" 
+                (click)="filtroNombre = ''">
+                <ion-icon name="close-circle"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Marca -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="ribbon-outline"></ion-icon>
+              <span>Marca</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                [(ngModel)]="filtroMarca" 
+                name="filtroMarca" 
+                placeholder="Ej: Coca Cola, Pepsi, etc."
+                class="custom-input">
+              <button 
+                *ngIf="filtroMarca" 
+                class="clear-input-btn" 
+                (click)="filtroMarca = ''">
+                <ion-icon name="close-circle"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Categoría -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="folder-outline"></ion-icon>
+              <span>Categoría</span>
+            </label>
+            <div class="input-wrapper select-wrapper">
+              <ion-select 
+                [(ngModel)]="filtroCategoria" 
+                name="filtroCategoria" 
+                interface="popover"
+                placeholder="Seleccionar categoría"
+                class="custom-select">
+                <ion-select-option value="Desechables">Desechables</ion-select-option>
+                <ion-select-option value="Biodegradables">Biodegradables</ion-select-option>
+                <ion-select-option value="Bolsas">Bolsas</ion-select-option>
+                <ion-select-option value="Cocina y Repostería">Cocina y Repostería</ion-select-option>
+                <ion-select-option value="Alimentos">Alimentos</ion-select-option>
+                <ion-select-option value="Higiénicos y Servilletas">Higiénicos y Servilletas</ion-select-option>
+              </ion-select>
+
+              <!-- Botón para limpiar selección -->
+              <button 
+                *ngIf="filtroCategoria" 
+                class="clear-input-btn select-clear-btn" 
+                (click)="filtroCategoria = ''">
+                <ion-icon name="close-circle"></ion-icon>
+              </button>
+
+              <ion-icon name="chevron-down-outline" class="select-icon"></ion-icon>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="modal-footer-custom">
+            <button 
+              type="button"
+              (click)="aplicarFiltros()"
+              class="btn-submit">
+              <ion-icon name="search-outline"></ion-icon>
+              <span>Buscar</span>
+            </button>
+            
+            <button 
+              type="button"
+              (click)="limpiarTodosFiltros()"
+              class="btn-clear">
+              <ion-icon name="refresh-outline"></ion-icon>
+              <span>Limpiar Filtros</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+
 </ion-content>
