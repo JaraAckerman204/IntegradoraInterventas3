@@ -10,7 +10,8 @@ import {
   collectionData,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  setDoc
 } from '@angular/fire/firestore';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -26,7 +27,14 @@ import {
   createOutline,
   trashOutline,
   logOutOutline,
-  personOutline
+  personOutline,
+  pricetagOutline,
+  constructOutline,
+  mailOutline,
+  checkmarkOutline,
+  closeOutline,
+  keyOutline,
+  lockClosedOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -65,7 +73,14 @@ export class AdminPage {
       createOutline,
       trashOutline,
       logOutOutline,
-      personOutline
+      personOutline,
+      pricetagOutline,
+      constructOutline,
+      mailOutline,
+      checkmarkOutline,
+      closeOutline,
+      keyOutline,
+      lockClosedOutline
     });
 
     this.obtenerProductos();
@@ -94,26 +109,48 @@ export class AdminPage {
   }
 
   async guardarProducto() {
-    const ref = collection(this.firestore, 'productos');
-
-    if (this.modoEdicion) {
-      const docRef = doc(this.firestore, `productos/${this.idEditando}`);
-      await updateDoc(docRef, this.producto);
-      this.mostrarToast('✅ Producto actualizado');
-      this.modoEdicion = false;
-      this.idEditando = '';
-    } else {
-      await addDoc(ref, this.producto);
-      this.mostrarToast('✅ Producto agregado');
+    try {
+      if (this.modoEdicion) {
+        // Actualizar producto existente
+        const docRef = doc(this.firestore, `productos/${this.idEditando}`);
+        const { id, ...productoSinId } = this.producto;
+        await updateDoc(docRef, productoSinId);
+        this.mostrarToast('✅ Producto actualizado');
+        this.modoEdicion = false;
+        this.idEditando = '';
+      } else {
+        // Agregar nuevo producto
+        if (this.producto.id && this.producto.id.trim() !== '') {
+          // Si se especificó un ID, usar setDoc
+          const docRef = doc(this.firestore, `productos/${this.producto.id}`);
+          const { id, ...productoSinId } = this.producto;
+          await setDoc(docRef, productoSinId);
+          this.mostrarToast('✅ Producto agregado con ID: ' + this.producto.id);
+        } else {
+          // Si no se especificó ID, generar uno automático
+          const ref = collection(this.firestore, 'productos');
+          await addDoc(ref, this.producto);
+          this.mostrarToast('✅ Producto agregado');
+        }
+      }
+      this.producto = {};
+    } catch (error) {
+      console.error('Error al guardar producto:', error);
+      this.mostrarToast('❌ Error al guardar el producto', 'danger');
     }
-
-    this.producto = {};
   }
 
   editarProducto(p: any) {
     this.modoEdicion = true;
     this.idEditando = p.id;
-    this.producto = { ...p };
+    // Copiar el producto sin el id para evitar confusiones
+    this.producto = { 
+      nombre: p.nombre,
+      precio: p.precio,
+      descripcion: p.descripcion,
+      imagen: p.imagen
+    };
+    console.log('Editando producto:', this.producto);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -141,29 +178,49 @@ export class AdminPage {
   }
 
   editarUsuario(usuario: any) {
-    // Habilitar edición inline
+    // Habilitar edición inline - hacer una copia profunda del objeto
     this.usuarioEditandoId = usuario.id;
-    this.usuarioEditando = { ...usuario };
+    this.usuarioEditando = { 
+      id: usuario.id,
+      nombre: usuario.nombre || '',
+      email: usuario.email || '',
+      rol: usuario.rol || 'usuario'
+    };
+    console.log('Editando usuario:', this.usuarioEditando);
   }
 
   cancelarEdicion() {
+    console.log('Cancelando edición');
     this.usuarioEditandoId = '';
     this.usuarioEditando = null;
   }
 
   async guardarUsuarioEditado(id: string) {
     try {
+      if (!this.usuarioEditando) {
+        this.mostrarToast('❌ No hay datos para guardar', 'danger');
+        return;
+      }
+
+      console.log('Guardando usuario:', id, this.usuarioEditando);
+
       const docRef = doc(this.firestore, `usuarios/${id}`);
-      await updateDoc(docRef, {
+      const datosActualizar = {
         nombre: this.usuarioEditando.nombre || '',
-        rol: this.usuarioEditando.rol || '',
-      });
+        email: this.usuarioEditando.email || '',
+        rol: this.usuarioEditando.rol || 'usuario',
+      };
+
+      console.log('Datos a actualizar:', datosActualizar);
+
+      await updateDoc(docRef, datosActualizar);
+      
       this.mostrarToast('✅ Usuario actualizado correctamente');
       this.usuarioEditandoId = '';
       this.usuarioEditando = null;
     } catch (error) {
-      console.error(error);
-      this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
+      console.error('Error al actualizar usuario:', error);
+      this.mostrarToast('❌ Error al actualizar el usuario: ' + error, 'danger');
     }
   }
 

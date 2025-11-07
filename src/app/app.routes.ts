@@ -29,18 +29,18 @@ export const routes: Routes = [
     loadComponent: () => import('./correo-enviado/correo-enviado.page').then((m) => m.CorreoEnviadoPage),
   },
 
-  // 🌱 SECCIÓN ADMIN
+  // 🌱 SECCIÓN NOSOTROS
   {
     path: 'nosotros',
     loadComponent: () => import('./nosotros/nosotros.page').then((m) => m.NosotrosPage),
   },
   {
     path: 'nosotros/contacto',
-    loadComponent: () => import('./contacto/contacto.page').then((m) => m.ContactoPage)
+    loadComponent: () => import('./contacto/contacto.page').then((m) => m.ContactoPage),
   },
   {
     path: 'nosotros/informacion',
-    loadComponent: () => import('./informacion/informacion.page').then((m) => m.InformacionPage)
+    loadComponent: () => import('./informacion/informacion.page').then((m) => m.InformacionPage),
   },
 
   // 🌱 SECCIÓN PRODUCTOS (protegida por login)
@@ -79,43 +79,41 @@ export const routes: Routes = [
     loadComponent: () => import('./higienicos-servilletas/higienicos-servilletas.page').then((m) => m.HigienicosServilletasPage),
     canActivate: [authGuard],
   },
-  // ==========================================
-  // OTRAS SECCIONES
-  // ==========================================
+
+  // 🌱 OTRAS SECCIONES
   {
     path: 'sucursales',
-    loadComponent: () => import('./sucursales/sucursales.page').then((m) => m.SucursalesPage)
+    loadComponent: () => import('./sucursales/sucursales.page').then((m) => m.SucursalesPage),
   },
   {
     path: 'preguntas',
-    loadComponent: () => import('./preguntas/preguntas.page').then((m) => m.PreguntasPage)
+    loadComponent: () => import('./preguntas/preguntas.page').then((m) => m.PreguntasPage),
   },
   {
     path: 'privacidad',
-    loadComponent: () => import('./privacidad/privacidad.page').then((m) => m.PrivacidadPage)
+    loadComponent: () => import('./privacidad/privacidad.page').then((m) => m.PrivacidadPage),
   },
 
-   // 🌱 SECCIÓN ADMIN
+  // 🌱 ADMIN
   {
     path: 'admin',
-    loadComponent: () => import('./admin/admin.page').then(m => m.AdminPage),
+    loadComponent: () => import('./admin/admin.page').then((m) => m.AdminPage),
     canActivate: [adminGuard],
   },
 
-  // ==========================================
-  // RUTA 404
-  // ==========================================
+  // 🌱 RUTAS ADICIONALES
+  {
+    path: 'carrito',
+    loadComponent: () => import('./carrito/carrito.page').then((m) => m.CarritoPage),
+  },
+  {
+    path: 'pendejinestebannaco',
+    loadComponent: () => import('./pendejinestebannaco/pendejinestebannaco.page').then((m) => m.PendejinestebannacoPage),
+  },
+
+  // 🚫 RUTA 404 - SIEMPRE LA ÚLTIMA
   {
     path: '**',
     redirectTo: 'home',
   },
-  {
-    path: 'pendejinestebannaco',
-    loadComponent: () => import('./pendejinestebannaco/pendejinestebannaco.page').then( m => m.PendejinestebannacoPage)
-  },  {
-    path: 'carrito',
-    loadComponent: () => import('./carrito/carrito.page').then( m => m.CarritoPage)
-  },
-
-
 ];
