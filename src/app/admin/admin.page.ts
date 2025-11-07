@@ -26,7 +26,8 @@ import {
   createOutline,
   trashOutline,
   logOutOutline,
-  personOutline
+  personOutline,
+  mailOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -48,6 +49,9 @@ export class AdminPage {
   usuarioEditando: any = null;
   usuarioEditandoId: string = '';
 
+  // Mensajes de contacto
+  mensajes: any[] = [];
+
   // Servicios
   firestore = inject(Firestore);
   authService = inject(AuthService);
@@ -65,15 +69,17 @@ export class AdminPage {
       createOutline,
       trashOutline,
       logOutOutline,
-      personOutline
+      personOutline,
+      mailOutline
     });
 
     this.obtenerProductos();
     this.obtenerUsuarios();
+    this.obtenerMensajes(); // 👈 Nuevo
   }
 
   // =============================
-  // 🧾 FUNCIONES DE PRODUCTOS
+  // 🧾 PRODUCTOS
   // =============================
 
   async mostrarToast(mensaje: string, color: string = 'success') {
@@ -124,7 +130,7 @@ export class AdminPage {
   }
 
   // =============================
-  // 👥 FUNCIONES DE USUARIOS
+  // 👥 USUARIOS
   // =============================
 
   obtenerUsuarios() {
@@ -141,7 +147,6 @@ export class AdminPage {
   }
 
   editarUsuario(usuario: any) {
-    // Habilitar edición inline
     this.usuarioEditandoId = usuario.id;
     this.usuarioEditando = { ...usuario };
   }
@@ -150,6 +155,22 @@ export class AdminPage {
     this.usuarioEditandoId = '';
     this.usuarioEditando = null;
   }
+
+  responderMensaje(email: string, mensajeOriginal: string) {
+  if (!email) return;
+
+  const subject = encodeURIComponent('Respuesta a tu mensaje en Interventas');
+  const body = encodeURIComponent(
+    `Hola ${email.split('@')[0]},\n\nGracias por contactarte con nosotros. A continuación te respondemos:\n\n\n---\nMensaje original:\n${mensajeOriginal}\n---`
+  );
+
+  // 👉 Esto abrirá directamente Gmail en una nueva pestaña
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+  window.open(gmailUrl, '_blank');
+}
+
+
+
 
   async guardarUsuarioEditado(id: string) {
     try {
@@ -165,6 +186,24 @@ export class AdminPage {
       console.error(error);
       this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
     }
+  }
+
+  // =============================
+  // 📩 MENSAJES DE CONTACTO
+  // =============================
+
+  obtenerMensajes() {
+    const ref = collection(this.firestore, 'contactMessages');
+    collectionData(ref, { idField: 'id' }).subscribe((data) => {
+      // Ordenar por fecha (más recientes primero)
+      this.mensajes = data.sort((a: any, b: any) => b.date.localeCompare(a.date));
+    });
+  }
+
+  async eliminarMensaje(id: string) {
+    const docRef = doc(this.firestore, `contactMessages/${id}`);
+    await deleteDoc(docRef);
+    this.mostrarToast('🗑️ Mensaje eliminado', 'danger');
   }
 
   // =============================
