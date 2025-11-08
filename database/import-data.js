@@ -3,7 +3,6 @@ const fs = require('fs');
 const csv = require('csv-parser');
 const path = require('path');
 
-// Inicializar Firebase Admin
 const serviceAccount = require('./firebase-key.json');
 
 admin.initializeApp({
@@ -11,11 +10,7 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-
-// Leer CSV e importar a Firestore
 const productos = [];
-
-// CAMBIADO: Usa path.join con __dirname para encontrar el CSV en la misma carpeta
 const csvPath = path.join(__dirname, 'productos.csv');
 
 console.log('Buscando archivo en:', csvPath);
@@ -23,20 +18,30 @@ console.log('Buscando archivo en:', csvPath);
 fs.createReadStream(csvPath)
   .pipe(csv())
   .on('data', (row) => {
-    productos.push(row);
+    // Mapear de CSV a formato Angular
+    const producto = {
+      id: parseInt(row['ID del Producto']) || 0,
+      nombre: row['Nombre del Producto'] || '',
+      categoria: row['Categoría'] || '',
+      marca: row['Marca'] || '',
+      precio: parseFloat(row['Precio']) || 0,
+      descripcion: row['Descripción'] || '',
+      imagen: row['URL de la Imagen'] || '' // Angular espera "imagen"
+    };
+    productos.push(producto);
   })
   .on('end', async () => {
     console.log('Importando ' + productos.length + ' productos...');
     
     for (const producto of productos) {
       await db.collection('productos').add(producto);
-      console.log('Producto agregado:', producto['Nombre del Producto']);
+      console.log('✓ Producto agregado:', producto.nombre);
     }
     
-    console.log('¡Importación completa!');
+    console.log('✅ ¡Importación completa! ' + productos.length + ' productos agregados');
     process.exit(0);
   })
   .on('error', (error) => {
-    console.error('Error leyendo archivo CSV:', error);
+    console.error('❌ Error leyendo archivo CSV:', error);
     process.exit(1);
   });

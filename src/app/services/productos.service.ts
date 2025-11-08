@@ -12,8 +12,11 @@ import { Observable } from 'rxjs';
 export interface Producto {
   id?: string;
   nombre: string;
+  categoria?: string;
+  marca?: string;
   descripcion?: string;
   imagen?: string;
+  url?: string;
   precio: number;
 }
 
