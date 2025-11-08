@@ -1,5 +1,5 @@
 // ==========================================
-// 📄 home.page.ts - CÓDIGO COMPLETO CON ICONOS
+// 📄 home.page.ts - CON FUNCIONALIDAD DE NEWSLETTER
 // ==========================================
 
 import { Component, HostListener, ElementRef, OnInit } from '@angular/core';
@@ -9,6 +9,8 @@ import { Router, RouterLink } from '@angular/router';
 import { FirebaseService } from '../services/firebase.service';
 import { AuthService } from '../services/auth.service';
 import { PushService } from '../services/push.service';
+import { Firestore, collection, addDoc, query, where, getDocs } from '@angular/fire/firestore';
+import { inject } from '@angular/core';
 
 import {
   IonHeader,
@@ -18,7 +20,7 @@ import {
   IonButtons,
   IonBackButton,
   IonIcon,
-  IonButton,
+  IonButton,  
   IonCard,
   IonCardHeader,
   IonCardTitle,
@@ -49,12 +51,14 @@ import {
   shieldCheckmarkOutline,
   closeOutline,
   cubeOutline,
-  cartOutline
+  cartOutline,
+  paperPlaneOutline
 } from 'ionicons/icons';
 
 import { addIcons } from 'ionicons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-home',
@@ -164,6 +168,9 @@ export class HomePage implements OnInit {
     }
   ];
 
+  // 🔥 Firestore
+  firestore = inject(Firestore);
+
   constructor(
     private elRef: ElementRef,
     private firebaseService: FirebaseService,
@@ -189,8 +196,12 @@ export class HomePage implements OnInit {
       'shield-checkmark-outline': shieldCheckmarkOutline,
       'close-outline': closeOutline,
       'cube-outline': cubeOutline,
-      'cart-outline': cartOutline
+      'cart-outline': cartOutline,
+      'paper-plane-outline': paperPlaneOutline
     });
+
+    // 🔑 Inicializar EmailJS con tu Public Key
+    emailjs.init('eSh72EoK4k2SontZF'); // Reemplaza con tu Public Key de EmailJS
   }
 
   ngOnInit() {
@@ -228,7 +239,7 @@ export class HomePage implements OnInit {
     }
   }
 
-  // 📧 FUNCIÓN DE SUSCRIPCIÓN AL NEWSLETTER
+  // 📧 FUNCIÓN DE SUSCRIPCIÓN AL NEWSLETTER CON EMAILJS
   async subscribeNewsletter(event: Event) {
     event.preventDefault();
     
@@ -247,23 +258,56 @@ export class HomePage implements OnInit {
     
     this.isSubscribing = true;
     
-    // Simular proceso de suscripción
-    setTimeout(async () => {
-      // Mostrar mensaje de éxito
-      await this.showToast('¡Suscripción exitosa! Recibirás nuestras mejores ofertas', 'success');
+    try {
+      // 🔍 Verificar si el correo ya está suscrito
+      const suscriptoresRef = collection(this.firestore, 'newsletter');
+      const q = query(suscriptoresRef, where('email', '==', this.subscriberEmail.trim().toLowerCase()));
+      const querySnapshot = await getDocs(q);
       
-      // Log para desarrollo
-      console.log('✅ Suscripción registrada:', {
+      if (!querySnapshot.empty) {
+        await this.showToast('⚠️ Este correo ya está suscrito', 'warning');
+        this.isSubscribing = false;
+        return;
+      }
+
+      // 💾 Guardar suscriptor en Firebase
+      const nuevoSuscriptor = {
         nombre: this.subscriberName.trim(),
-        email: this.subscriberEmail.trim(),
-        fecha: new Date().toISOString()
-      });
+        email: this.subscriberEmail.trim().toLowerCase(),
+        fechaSuscripcion: new Date().toISOString(),
+        activo: true
+      };
+
+      await addDoc(collection(this.firestore, 'newsletter'), nuevoSuscriptor);
+
+      // 📧 Enviar correo de bienvenida con EmailJS
+      const templateParams = {
+        to_name: this.subscriberName.trim(),
+        to_email: this.subscriberEmail.trim(),
+        from_name: 'Interventas',
+        message: `¡Bienvenido a nuestro newsletter! Ahora recibirás las mejores ofertas y promociones exclusivas.`
+      };
+
+      await emailjs.send(
+        'service_i4xbqss',        // Reemplaza con tu Service ID
+        'template_vplptng',       // Reemplaza con tu Template ID de bienvenida
+        templateParams
+      );
+
+      console.log('✅ Suscripción registrada:', nuevoSuscriptor);
+      
+      await this.showToast('¡Suscripción exitosa! Revisa tu correo de bienvenida 📧', 'success');
       
       // Limpiar formulario
       this.subscriberName = '';
       this.subscriberEmail = '';
+      
+    } catch (error) {
+      console.error('❌ Error en suscripción:', error);
+      await this.showToast('Error al suscribirse. Intenta nuevamente', 'danger');
+    } finally {
       this.isSubscribing = false;
-    }, 1500);
+    }
   }
 
   // 🍞 Toast Helper
@@ -285,7 +329,6 @@ export class HomePage implements OnInit {
     this.quantity = 1;
     this.showProductModal = true;
     document.body.style.overflow = 'hidden';
-    console.log('✅ showProductModal:', this.showProductModal);
   }
 
   closeProductModal() {
@@ -322,7 +365,7 @@ export class HomePage implements OnInit {
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
-  // 🎠 FUNCIONES DEL CARRUSEL MEJORADO
+  // 🎠 FUNCIONES DEL CARRUSEL
   startCarousel() {
     this.carouselInterval = setInterval(() => {
       this.nextSlide();

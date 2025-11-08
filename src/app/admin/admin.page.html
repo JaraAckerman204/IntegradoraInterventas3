@@ -248,22 +248,308 @@
         <!-- ====================== -->
         <!-- TAB: NEWSLETTER -->
         <!-- ====================== -->
-        <div *ngIf="tabActiva === 'newsletter'" class="content-wrapper">
-          <div class="content-header">
-            <div>
-              <h2>Newsletter</h2>
-              <p>Próximamente: Gestiona suscriptores y envía boletines</p>
+        <!-- ====================== -->
+        <!-- ====================== -->
+<!-- TAB: NEWSLETTER - COMPLETO -->
+<!-- ====================== -->
+<div *ngIf="tabActiva === 'newsletter'" class="content-wrapper">
+  <div class="content-header">
+    <div>
+      <h2>Newsletter</h2>
+      <p>Gestiona suscriptores y envía boletines promocionales</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-search" (click)="filtroEmailNewsletter ? limpiarFiltroNewsletter() : null">
+        <ion-icon [name]="filtroEmailNewsletter ? 'close-outline' : 'search-outline'"></ion-icon>
+        <input 
+          type="text" 
+          [(ngModel)]="filtroEmailNewsletter"
+          (ngModelChange)="aplicarFiltroNewsletter()"
+          placeholder="Buscar por email o nombre..."
+          class="search-input-inline">
+      </button>
+      <button 
+        class="btn-send-newsletter" 
+        (click)="abrirModalEnviarNewsletter()"
+        [disabled]="suscriptores.length === 0">
+        <ion-icon name="send-outline"></ion-icon>
+        <span>Enviar Newsletter</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 📊 Estadísticas -->
+  <div class="newsletter-stats">
+    <div class="stat-card-mini">
+      <ion-icon name="people-outline"></ion-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ suscriptores.length }}</span>
+        <span class="stat-label">Suscriptores</span>
+      </div>
+    </div>
+    <div class="stat-card-mini">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ suscriptoresFiltrados.length }}</span>
+        <span class="stat-label">Mostrados</span>
+      </div>
+    </div>
+    <div class="stat-card-mini" *ngIf="suscriptoresSeleccionados.size > 0">
+      <ion-icon name="mail-outline"></ion-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ suscriptoresSeleccionados.size }}</span>
+        <span class="stat-label">Seleccionados</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📋 Tabla de Suscriptores -->
+  <div class="subscribers-table-container" *ngIf="suscriptoresFiltrados.length > 0">
+    
+    <!-- Controles de selección -->
+    <div class="table-controls">
+      <label class="checkbox-control">
+        <input 
+          type="checkbox" 
+          [(ngModel)]="seleccionarTodos"
+          (change)="toggleSeleccionarTodos()">
+        <span>Seleccionar todos ({{ suscriptoresFiltrados.length }})</span>
+      </label>
+    </div>
+
+    <!-- Tabla -->
+    <div class="subscribers-table">
+      <table>
+        <thead>
+          <tr>
+            <th width="50">
+              <ion-icon name="checkmark-outline"></ion-icon>
+            </th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Fecha de Suscripción</th>
+            <th width="100">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let suscriptor of suscriptoresFiltrados">
+            <td>
+              <label class="checkbox-control-cell">
+                <input 
+                  type="checkbox" 
+                  [checked]="suscriptoresSeleccionados.has(suscriptor.id)"
+                  (change)="toggleSuscriptorSeleccion(suscriptor.id)">
+              </label>
+            </td>
+            <td>
+              <div class="subscriber-name">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>{{ suscriptor.nombre }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="subscriber-email">
+                <ion-icon name="mail-outline"></ion-icon>
+                <span>{{ suscriptor.email }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="subscriber-date">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ suscriptor.fechaSuscripcion | date:'short' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button 
+                  class="btn-icon-table danger" 
+                  (click)="eliminarSuscriptor(suscriptor.id)"
+                  title="Eliminar suscriptor">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="suscriptores.length === 0">
+    <div class="empty-icon">
+      <ion-icon name="newspaper-outline"></ion-icon>
+    </div>
+    <h4>No hay suscriptores</h4>
+    <p>Los usuarios que se suscriban al newsletter aparecerán aquí</p>
+  </div>
+
+  <!-- Sin resultados de búsqueda -->
+  <div class="empty-state" *ngIf="suscriptores.length > 0 && suscriptoresFiltrados.length === 0">
+    <div class="empty-icon">
+      <ion-icon name="search-outline"></ion-icon>
+    </div>
+    <h4>No se encontraron resultados</h4>
+    <p>Intenta con otros términos de búsqueda</p>
+    <button class="btn-clear-filter" (click)="limpiarFiltroNewsletter()">
+      <ion-icon name="refresh-outline"></ion-icon>
+      <span>Limpiar búsqueda</span>
+    </button>
+  </div>
+</div>
+
+<!-- 🎨 MODAL ENVIAR NEWSLETTER - CORREGIDO -->
+<ion-modal 
+  [isOpen]="mostrarModalEnviarNewsletter" 
+  (didDismiss)="cerrarModalEnviarNewsletter()"
+  class="newsletter-modal"
+  [backdropDismiss]="false">
+  
+  <ng-template>
+    <div class="modal-wrapper">
+      
+      <!-- 🎯 Header del Modal -->
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="send-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Enviar Newsletter</h2>
+            <p>Crea y envía tu boletín promocional a los suscriptores</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalEnviarNewsletter()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- 📋 Contenido del Modal -->
+      <div class="modal-body-custom newsletter-body">
+        
+        <!-- Alerta de destinatarios -->
+        <div class="alert-box info" *ngIf="suscriptoresSeleccionados.size === 0">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <div>
+            <strong>Selecciona destinatarios</strong>
+            <p>Debes seleccionar al menos un suscriptor antes de enviar</p>
+          </div>
+        </div>
+
+        <div class="alert-box success" *ngIf="suscriptoresSeleccionados.size > 0">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <div>
+            <strong>{{ suscriptoresSeleccionados.size }} destinatario(s) seleccionado(s)</strong>
+            <p>El newsletter se enviará a estos suscriptores</p>
+          </div>
+        </div>
+
+        <!-- 🔍 Formulario -->
+        <form (ngSubmit)="enviarNewsletter()" #newsletterForm="ngForm">
+          
+          <!-- Asunto -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="text-outline"></ion-icon>
+              <span>Asunto del correo</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                [(ngModel)]="asuntoNewsletter" 
+                name="asunto" 
+                placeholder="Ej: ¡Nuevas Ofertas Exclusivas! 🎉" 
+                required
+                maxlength="150"
+                class="custom-input">
+            </div>
+            <div class="input-hint">
+              <ion-icon name="bulb-outline"></ion-icon>
+              <span>Un asunto atractivo aumenta la tasa de apertura</span>
             </div>
           </div>
 
-          <div class="empty-state">
-            <div class="empty-icon">
-              <ion-icon name="newspaper-outline"></ion-icon>
+          <!-- Mensaje -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>Mensaje del newsletter</span>
+            </label>
+            <div class="input-wrapper textarea-wrapper">
+              <textarea 
+                [(ngModel)]="mensajeNewsletter" 
+                name="mensaje" 
+                placeholder="Escribe aquí tu mensaje promocional...
+
+Ejemplo:
+¡Hola! 👋
+
+Te tenemos excelentes noticias. Esta semana tenemos ofertas especiales en toda nuestra línea de productos desechables.
+
+✨ 20% de descuento en vasos térmicos
+🎁 Compra 2 y lleva 3 en platos biodegradables
+📦 Envío gratis en compras mayores a $500
+
+¡Aprovecha estas promociones antes de que terminen!
+
+Saludos,
+Equipo Interventas"
+                rows="12"
+                required
+                class="custom-textarea"></textarea>
             </div>
-            <h4>Funcionalidad en desarrollo</h4>
-            <p>Esta sección estará disponible próximamente</p>
+            <div class="character-count">
+              {{ mensajeNewsletter?.length || 0 }} caracteres
+            </div>
           </div>
-        </div>
+
+          <!-- Vista previa - CORREGIDA -->
+          <div class="newsletter-preview" *ngIf="asuntoNewsletter || mensajeNewsletter">
+            <div class="preview-header">
+              <ion-icon name="eye-outline"></ion-icon>
+              <span>Vista Previa</span>
+            </div>
+            <div class="preview-content">
+              <div class="preview-subject" *ngIf="asuntoNewsletter">
+                <strong>Asunto:</strong> {{ asuntoNewsletter }}
+              </div>
+              <div class="preview-subject" *ngIf="!asuntoNewsletter">
+                <strong>Asunto:</strong> <em style="color: #a0aec0;">(Sin asunto)</em>
+              </div>
+              <div class="preview-message">
+                <strong>Mensaje:</strong>
+                <p *ngIf="mensajeNewsletter" style="white-space: pre-wrap;">{{ mensajeNewsletter }}</p>
+                <p *ngIf="!mensajeNewsletter"><em style="color: #a0aec0;">(Sin mensaje)</em></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="modal-footer-custom">
+            <button 
+              type="submit"
+              class="btn-submit"
+              [disabled]="!newsletterForm.valid || suscriptoresSeleccionados.size === 0 || enviandoNewsletter">
+              <ion-spinner *ngIf="enviandoNewsletter" name="crescent"></ion-spinner>
+              <ion-icon *ngIf="!enviandoNewsletter" name="send-outline"></ion-icon>
+              <span>{{ enviandoNewsletter ? 'Enviando...' : 'Enviar Newsletter' }}</span>
+            </button>
+            
+            <button 
+              type="button"
+              (click)="cerrarModalEnviarNewsletter()"
+              class="btn-cancel"
+              [disabled]="enviandoNewsletter">
+              <ion-icon name="close-outline"></ion-icon>
+              <span>Cancelar</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
 
       </div>
     </div>
