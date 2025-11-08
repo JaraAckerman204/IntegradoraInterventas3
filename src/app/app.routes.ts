@@ -115,7 +115,11 @@ export const routes: Routes = [
   {
     path: 'carrito',
     loadComponent: () => import('./carrito/carrito.page').then( m => m.CarritoPage)
+  },  {
+    path: 'administrador',
+    loadComponent: () => import('./administrador/administrador.page').then( m => m.AdministradorPage)
   },
+
 
 
 ];
