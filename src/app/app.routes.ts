@@ -109,15 +109,8 @@ export const routes: Routes = [
     loadComponent: () => import('./carrito/carrito.page').then((m) => m.CarritoPage),
   },
   {
-    path: 'pendejinestebannaco',
-    loadComponent: () => import('./pendejinestebannaco/pendejinestebannaco.page').then( m => m.PendejinestebannacoPage)
-  },
-  {
     path: 'carrito',
     loadComponent: () => import('./carrito/carrito.page').then( m => m.CarritoPage)
-  },  {
-    path: 'administrador',
-    loadComponent: () => import('./administrador/administrador.page').then( m => m.AdministradorPage)
   },
 
 

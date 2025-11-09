@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -56,7 +56,8 @@ import {
   calendarOutline,
   textOutline,
   bulbOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  warningOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -75,7 +76,15 @@ export class AdminPage {
   // =============================
   // 🧾 PRODUCTOS
   // =============================
-  producto: any = {};
+  producto: any = {
+    id: '',
+    nombre: '',
+    categoria: '',
+    marca: '',
+    precio: 0,
+    descripcion: '',
+    imagen: ''
+  };
   productos: any[] = [];
   productosFiltrados: any[] = [];
   filtroNombre: string = '';
@@ -90,7 +99,11 @@ export class AdminPage {
   // 👥 USUARIOS
   // =============================
   usuarios: any[] = [];
-  usuarioEditando: any = null;
+  usuarioEditando: any = {
+    nombre: '',
+    email: '',
+    rol: 'usuario'
+  };
   usuarioEditandoId: string = '';
   mostrarModalUsuario: boolean = false;
 
@@ -105,6 +118,8 @@ export class AdminPage {
   suscriptores: any[] = [];
   suscriptoresFiltrados: any[] = [];
   mostrarModalEnviarNewsletter: boolean = false;
+  mostrarModalEliminarSuscriptor: boolean = false;
+  suscriptorAEliminarId: string = '';
   asuntoNewsletter: string = '';
   mensajeNewsletter: string = '';
   enviandoNewsletter: boolean = false;
@@ -120,6 +135,7 @@ export class AdminPage {
   router = inject(Router);
   toastCtrl = inject(ToastController);
   alertCtrl = inject(AlertController);
+  cdr = inject(ChangeDetectorRef);
 
   constructor() {
     addIcons({
@@ -160,19 +176,19 @@ export class AdminPage {
       calendarOutline,
       textOutline,
       bulbOutline,
-      checkmarkCircleOutline
+      checkmarkCircleOutline,
+      warningOutline
     });
 
-    // 🔑 Inicializar EmailJS con tu Public Key
+    // 🔐 Inicializar EmailJS con tu Public Key
     emailjs.init({
       publicKey: 'eSh72EoK4k2SontZF',
     });
- // 👈 REEMPLAZA ESTO
 
     this.obtenerProductos();
     this.obtenerUsuarios();
     this.obtenerMensajes();
-    this.obtenerSuscriptores(); // 📧 Nueva función
+    this.obtenerSuscriptores();
   }
 
   // =============================
@@ -183,7 +199,7 @@ export class AdminPage {
   }
 
   // =============================
-  // 🔔 TOAST GENERAL
+  // 📢 TOAST GENERAL
   // =============================
   async mostrarToast(mensaje: string, color: string = 'success') {
     const toast = await this.toastCtrl.create({
@@ -218,13 +234,16 @@ export class AdminPage {
         return;
       }
 
-      if (this.modoEdicion) {
+      if (this.modoEdicion && this.idEditando) {
+        // MODO EDICIÓN
+        console.log('💾 Actualizando producto existente:', this.idEditando);
         const docRef = doc(this.firestore, `productos/${this.idEditando}`);
         const { id, ...productoSinId } = this.producto;
         await updateDoc(docRef, productoSinId);
         await this.mostrarToast('✅ Producto actualizado correctamente');
-        this.cerrarModalProducto();
       } else {
+        // MODO AGREGAR
+        console.log('➕ Agregando nuevo producto');
         if (this.producto.id && this.producto.id.trim() !== '') {
           const docRef = doc(this.firestore, `productos/${this.producto.id}`);
           const { id, ...productoSinId } = this.producto;
@@ -235,8 +254,9 @@ export class AdminPage {
           await addDoc(ref, this.producto);
           await this.mostrarToast('✅ Producto agregado correctamente');
         }
-        this.cerrarModalProducto();
       }
+      
+      this.cerrarModalProducto();
     } catch (error) {
       console.error('Error al guardar producto:', error);
       await this.mostrarToast('❌ Error al guardar el producto', 'danger');
@@ -255,25 +275,110 @@ export class AdminPage {
   }
 
   editarProducto(producto: any) {
-    this.modoEdicion = true;
-    this.idEditando = producto.id;
-    this.producto = { ...producto };
-    this.mostrarModalProducto = true;
-    console.log('Editando producto:', this.producto);
+    console.log('✏️ Editando producto:', producto);
+    
+    // Primero cerrar cualquier modal abierto
+    this.mostrarModalProducto = false;
+    
+    // Limpiar el producto actual
+    this.producto = {
+      id: '',
+      nombre: '',
+      categoria: '',
+      marca: '',
+      precio: 0,
+      descripcion: '',
+      imagen: ''
+    };
+    
+    // Forzar detección de cambios
+    this.cdr.detectChanges();
+    
+    // Esperar un momento antes de abrir el modal de edición
+    setTimeout(() => {
+      this.modoEdicion = true;
+      this.idEditando = producto.id;
+      
+      // Crear copia profunda del producto
+      this.producto = {
+        id: producto.id || '',
+        nombre: producto.nombre || '',
+        categoria: producto.categoria || '',
+        marca: producto.marca || '',
+        precio: producto.precio || 0,
+        descripcion: producto.descripcion || '',
+        imagen: producto.imagen || ''
+      };
+      
+      console.log('📋 Estado antes de abrir modal:', {
+        modoEdicion: this.modoEdicion,
+        idEditando: this.idEditando,
+        producto: this.producto
+      });
+      
+      // Abrir el modal
+      this.mostrarModalProducto = true;
+      this.cdr.detectChanges();
+      
+      console.log('✅ Modal de edición abierto');
+    }, 150);
   }
 
   abrirModalProducto() {
-    this.mostrarModalProducto = true;
+    console.log('➕ Abriendo modal para nuevo producto...');
+    
+    // Cerrar modal si está abierto
+    this.mostrarModalProducto = false;
+    
+    // Limpiar completamente el estado
     this.modoEdicion = false;
-    this.producto = {};
     this.idEditando = '';
+    this.producto = {
+      id: '',
+      nombre: '',
+      categoria: '',
+      marca: '',
+      precio: 0,
+      descripcion: '',
+      imagen: ''
+    };
+    
+    // Forzar detección de cambios
+    this.cdr.detectChanges();
+    
+    // Esperar antes de abrir
+    setTimeout(() => {
+      console.log('📋 Estado antes de abrir modal nuevo:', {
+        modoEdicion: this.modoEdicion,
+        producto: this.producto
+      });
+      
+      this.mostrarModalProducto = true;
+      this.cdr.detectChanges();
+      
+      console.log('✅ Modal de nuevo producto abierto');
+    }, 150);
   }
 
   cerrarModalProducto() {
+    console.log('❌ Cerrando modal de producto...');
     this.mostrarModalProducto = false;
+    
+    // Limpiar inmediatamente
     this.modoEdicion = false;
-    this.producto = {};
     this.idEditando = '';
+    this.producto = {
+      id: '',
+      nombre: '',
+      categoria: '',
+      marca: '',
+      precio: 0,
+      descripcion: '',
+      imagen: ''
+    };
+    
+    this.cdr.detectChanges();
+    console.log('✅ Modal cerrado y estado limpiado');
   }
 
   actualizarPreview() {
@@ -288,15 +393,22 @@ export class AdminPage {
   // 🔍 MODAL DE BÚSQUEDA Y FILTROS
   // =============================
   abrirModalBusqueda() {
-    this.mostrarModalBusqueda = true;
+    console.log('🔍 Abriendo modal de búsqueda...');
+    setTimeout(() => {
+      this.mostrarModalBusqueda = true;
+      this.cdr.detectChanges();
+      console.log('✅ Modal de búsqueda abierto:', this.mostrarModalBusqueda);
+    }, 0);
   }
 
   cerrarModalBusqueda() {
+    console.log('❌ Cerrando modal de búsqueda...');
     this.mostrarModalBusqueda = false;
+    this.cdr.detectChanges();
+    console.log('✅ Modal de búsqueda cerrado:', this.mostrarModalBusqueda);
   }
 
   aplicarFiltros() {
-    // Normalizar entradas (elimina espacios y vuelve minúsculas)
     const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
     const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
     const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
@@ -321,7 +433,6 @@ export class AdminPage {
     const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
     const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
 
-    // Si no hay ningún filtro, mostrar todos los productos
     if (!filtroNombre && !filtroMarca && !filtroCategoria) {
       this.productosFiltrados = [...this.productos];
       return;
@@ -373,15 +484,44 @@ export class AdminPage {
   }
 
   editarUsuario(usuario: any) {
-    this.usuarioEditandoId = usuario.id;
-    this.usuarioEditando = { 
-      id: usuario.id,
-      nombre: usuario.nombre || '',
-      email: usuario.email || '',
-      rol: usuario.rol || 'usuario'
+    console.log('✏️ Editando usuario:', usuario);
+    
+    // Cerrar el modal si está abierto
+    this.mostrarModalUsuario = false;
+    
+    // Limpiar estado previo
+    this.usuarioEditandoId = '';
+    this.usuarioEditando = {
+      nombre: '',
+      email: '',
+      rol: 'usuario'
     };
-    this.mostrarModalUsuario = true;
-    console.log('Editando usuario:', this.usuarioEditando);
+    
+    // Forzar detección de cambios
+    this.cdr.detectChanges();
+    
+    // Esperar un momento antes de abrir el modal con los nuevos datos
+    setTimeout(() => {
+      this.usuarioEditandoId = usuario.id;
+      
+      // Crear una copia profunda del usuario
+      this.usuarioEditando = { 
+        nombre: usuario.nombre || '',
+        email: usuario.email || '',
+        rol: usuario.rol || 'usuario'
+      };
+      
+      console.log('📋 Datos cargados:', {
+        id: this.usuarioEditandoId,
+        usuario: this.usuarioEditando
+      });
+      
+      // Abrir el modal
+      this.mostrarModalUsuario = true;
+      this.cdr.detectChanges();
+      
+      console.log('✅ Modal de edición de usuario abierto');
+    }, 150);
   }
 
   abrirModalUsuario(usuario: any) {
@@ -389,9 +529,20 @@ export class AdminPage {
   }
 
   cerrarModalUsuario() {
+    console.log('❌ Cerrando modal de usuario...');
     this.mostrarModalUsuario = false;
-    this.usuarioEditandoId = '';
-    this.usuarioEditando = null;
+    this.cdr.detectChanges();
+    
+    setTimeout(() => {
+      this.usuarioEditandoId = '';
+      this.usuarioEditando = {
+        nombre: '',
+        email: '',
+        rol: 'usuario'
+      };
+      this.cdr.detectChanges();
+      console.log('✅ Modal de usuario cerrado y estado limpiado');
+    }, 100);
   }
 
   cancelarEdicion() {
@@ -400,17 +551,17 @@ export class AdminPage {
 
   async guardarUsuarioEditado(id: string) {
     try {
-      if (!this.usuarioEditando) {
+      console.log('💾 Guardando usuario. ID:', id, 'Datos:', this.usuarioEditando);
+      
+      if (!this.usuarioEditando || !this.usuarioEditando.email) {
         await this.mostrarToast('❌ No hay datos para guardar', 'danger');
         return;
       }
 
-      if (!this.usuarioEditando.email || !this.usuarioEditando.email.includes('@')) {
+      if (!this.usuarioEditando.email.includes('@')) {
         await this.mostrarToast('⚠️ Por favor ingresa un email válido', 'warning');
         return;
       }
-
-      console.log('Guardando usuario:', id, this.usuarioEditando);
 
       const docRef = doc(this.firestore, `usuarios/${id}`);
       const datosActualizar = {
@@ -419,16 +570,16 @@ export class AdminPage {
         rol: this.usuarioEditando.rol || 'usuario',
       };
 
-      console.log('Datos a actualizar:', datosActualizar);
+      console.log('🔄 Actualizando en Firestore...', datosActualizar);
 
       await updateDoc(docRef, datosActualizar);
       
       await this.mostrarToast('✅ Usuario actualizado correctamente');
-      this.usuarioEditandoId = '';
-      this.usuarioEditando = null;
       this.cerrarModalUsuario();
+      
+      console.log('✅ Usuario guardado exitosamente');
     } catch (error) {
-      console.error('Error al actualizar usuario:', error);
+      console.error('❌ Error al actualizar usuario:', error);
       await this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
     }
   }
@@ -488,12 +639,9 @@ export class AdminPage {
   }
 
   // =============================
-  // 📧 NEWSLETTER - FUNCIONES NUEVAS
+  // 📧 NEWSLETTER - FUNCIONES
   // =============================
   
-  /**
-   * 📊 Obtener suscriptores desde Firebase
-   */
   obtenerSuscriptores() {
     const ref = collection(this.firestore, 'newsletter');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -508,9 +656,6 @@ export class AdminPage {
     });
   }
 
-  /**
-   * 🔍 Aplicar filtro de búsqueda en newsletter
-   */
   aplicarFiltroNewsletter() {
     const filtro = this.filtroEmailNewsletter.toLowerCase().trim();
     
@@ -524,17 +669,11 @@ export class AdminPage {
     }
   }
 
-  /**
-   * 🧹 Limpiar filtro de newsletter
-   */
   limpiarFiltroNewsletter() {
     this.filtroEmailNewsletter = '';
     this.aplicarFiltroNewsletter();
   }
 
-  /**
-   * ☑️ Toggle selección de un suscriptor
-   */
   toggleSuscriptorSeleccion(suscriptorId: string) {
     if (this.suscriptoresSeleccionados.has(suscriptorId)) {
       this.suscriptoresSeleccionados.delete(suscriptorId);
@@ -542,13 +681,9 @@ export class AdminPage {
       this.suscriptoresSeleccionados.add(suscriptorId);
     }
     
-    // Actualizar estado de "seleccionar todos"
     this.seleccionarTodos = this.suscriptoresSeleccionados.size === this.suscriptoresFiltrados.length;
   }
 
-  /**
-   * ☑️ Toggle seleccionar todos los suscriptores
-   */
   toggleSeleccionarTodos() {
     this.seleccionarTodos = !this.seleccionarTodos;
     
@@ -560,78 +695,104 @@ export class AdminPage {
     }
   }
 
+  // =============================
+  // 🗑️ ELIMINAR SUSCRIPTOR - CON MODAL
+  // =============================
+  
   /**
-   * 🗑️ Eliminar suscriptor con confirmación
+   * Abre el modal de confirmación para eliminar un suscriptor
    */
-  async eliminarSuscriptor(id: string) {
-    const alert = await this.alertCtrl.create({
-      header: '¿Eliminar suscriptor?',
-      message: 'Esta acción no se puede deshacer',
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Eliminar',
-          role: 'confirm',
-          handler: async () => {
-            try {
-              const docRef = doc(this.firestore, `newsletter/${id}`);
-              await deleteDoc(docRef);
-              await this.mostrarToast('🗑️ Suscriptor eliminado', 'danger');
-            } catch (error) {
-              console.error('Error eliminando suscriptor:', error);
-              await this.mostrarToast('❌ Error al eliminar', 'danger');
-            }
-          }
-        }
-      ]
+  eliminarSuscriptor(id: string) {
+    console.log('🗑️ Solicitando eliminar suscriptor:', id);
+    this.suscriptorAEliminarId = id;
+    this.mostrarModalEliminarSuscriptor = true;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Cierra el modal de confirmación sin eliminar
+   */
+  cerrarModalEliminarSuscriptor() {
+    console.log('❌ Cancelando eliminación de suscriptor');
+    this.mostrarModalEliminarSuscriptor = false;
+    this.suscriptorAEliminarId = '';
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Ejecuta la eliminación del suscriptor después de confirmar
+   */
+  async confirmarEliminacionSuscriptor() {
+    if (!this.suscriptorAEliminarId) {
+      console.error('❌ No hay ID de suscriptor para eliminar');
+      return;
+    }
+
+    try {
+      console.log('🗑️ Eliminando suscriptor con ID:', this.suscriptorAEliminarId);
+      
+      const docRef = doc(this.firestore, `newsletter/${this.suscriptorAEliminarId}`);
+      await deleteDoc(docRef);
+      
+      // Remover de seleccionados si estaba seleccionado
+      this.suscriptoresSeleccionados.delete(this.suscriptorAEliminarId);
+      
+      await this.mostrarToast('🗑️ Suscriptor eliminado correctamente', 'danger');
+      console.log('✅ Suscriptor eliminado exitosamente');
+      
+      // Cerrar el modal
+      this.cerrarModalEliminarSuscriptor();
+      
+    } catch (error) {
+      console.error('❌ Error eliminando suscriptor:', error);
+      await this.mostrarToast('❌ Error al eliminar el suscriptor', 'danger');
+      this.cerrarModalEliminarSuscriptor();
+    }
+  }
+
+  // =============================
+  // 📧 ENVIAR NEWSLETTER
+  // =============================
+
+  abrirModalEnviarNewsletter() {
+    console.log('📧 Abriendo modal de newsletter...');
+    
+    if (this.suscriptores.length === 0) {
+      this.mostrarToast('⚠️ No hay suscriptores registrados', 'warning');
+      return;
+    }
+
+    if (this.suscriptoresSeleccionados.size === 0) {
+      this.mostrarToast('⚠️ Selecciona al menos un suscriptor antes de continuar', 'warning');
+      return;
+    }
+
+    // Solo limpiar los campos del formulario, NO la selección de suscriptores
+    this.asuntoNewsletter = '';
+    this.mensajeNewsletter = '';
+    this.mostrarModalEnviarNewsletter = true;
+    this.cdr.detectChanges();
+    
+    console.log('✅ Modal de newsletter abierto. Estado:', {
+      suscriptoresSeleccionados: this.suscriptoresSeleccionados.size,
+      mostrarModal: this.mostrarModalEnviarNewsletter
     });
-
-    await alert.present();
   }
 
-  /**
- * 📧 Abrir modal para enviar newsletter
- */
-abrirModalEnviarNewsletter() {
-  if (this.suscriptores.length === 0) {
-    this.mostrarToast('⚠️ No hay suscriptores registrados', 'warning');
-    return;
+  cerrarModalEnviarNewsletter() {
+    console.log('❌ Cerrando modal de newsletter...');
+    this.mostrarModalEnviarNewsletter = false;
+    
+    // Solo limpiar los campos del formulario
+    this.asuntoNewsletter = '';
+    this.mensajeNewsletter = '';
+    
+    // NO limpiar la selección aquí - solo cuando se envíe exitosamente
+    this.cdr.detectChanges();
+    console.log('✅ Modal de newsletter cerrado');
   }
 
-  this.mostrarModalEnviarNewsletter = true;
-
-  // ✅ Resetea solo campos del modal
-  this.asuntoNewsletter = '';
-  this.mensajeNewsletter = '';
-
-  // ❌ NO limpiar selección aquí
-  // this.suscriptoresSeleccionados.clear();
-  // this.seleccionarTodos = false;
-}
-
-/**
- * ❌ Cerrar modal de enviar newsletter
- */
-cerrarModalEnviarNewsletter() {
-  this.mostrarModalEnviarNewsletter = false;
-
-  // ✅ Resetea campos del modal
-  this.asuntoNewsletter = '';
-  this.mensajeNewsletter = '';
-
-  // ✅ Aquí sí limpiamos la selección
-  this.suscriptoresSeleccionados.clear();
-  this.seleccionarTodos = false;
-}
-
-  /**
-   * 📨 Enviar newsletter (con confirmación)
-   */
   async enviarNewsletter() {
-    // Validaciones
     if (!this.asuntoNewsletter.trim()) {
       await this.mostrarToast('⚠️ El asunto es requerido', 'warning');
       return;
@@ -647,31 +808,9 @@ cerrarModalEnviarNewsletter() {
       return;
     }
 
-    // Confirmar envío
-    const alert = await this.alertCtrl.create({
-      header: 'Confirmar envío',
-      message: `¿Enviar newsletter a ${this.suscriptoresSeleccionados.size} suscriptor(es)?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Enviar',
-          role: 'confirm',
-          handler: async () => {
-            await this.procesarEnvioNewsletter();
-          }
-        }
-      ]
-    });
-
-    await alert.present();
+    await this.procesarEnvioNewsletter();
   }
 
-  /**
-   * 📬 Procesar envío masivo de newsletter
-   */
   async procesarEnvioNewsletter() {
     this.enviandoNewsletter = true;
 
@@ -679,14 +818,12 @@ cerrarModalEnviarNewsletter() {
       let exitosos = 0;
       let fallidos = 0;
 
-      // Obtener suscriptores seleccionados
       const suscriptoresAEnviar = this.suscriptores.filter(s => 
         this.suscriptoresSeleccionados.has(s.id)
       );
 
       console.log(`📧 Enviando newsletter a ${suscriptoresAEnviar.length} suscriptores...`);
 
-      // Enviar correos con EmailJS
       for (const suscriptor of suscriptoresAEnviar) {
         try {
           const templateParams = {
@@ -704,11 +841,9 @@ cerrarModalEnviarNewsletter() {
             templateParams
           );
 
-
           exitosos++;
           console.log(`✅ Correo enviado a ${suscriptor.email}`);
           
-          // Pequeña pausa para evitar rate limiting
           await new Promise(resolve => setTimeout(resolve, 200));
           
         } catch (error) {
@@ -717,7 +852,6 @@ cerrarModalEnviarNewsletter() {
         }
       }
 
-      // Mostrar resultado
       if (fallidos === 0) {
         await this.mostrarToast(`✅ Newsletter enviado a ${exitosos} suscriptor(es)`, 'success');
       } else {
