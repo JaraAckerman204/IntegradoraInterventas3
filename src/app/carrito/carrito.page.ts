@@ -29,7 +29,10 @@ import {
   removeOutline,
   cartOutline,
   arrowBackOutline,
-  logoWhatsapp
+  logoWhatsapp,
+  resizeOutline,
+  layersOutline,
+  storefrontOutline
 } from 'ionicons/icons';
 import { CartService, CartItem } from '../services/cart.service';
 import { Router } from '@angular/router';
@@ -86,7 +89,10 @@ export class CarritoPage implements OnInit {
       removeOutline,
       cartOutline,
       arrowBackOutline,
-      logoWhatsapp
+      logoWhatsapp,
+      resizeOutline,
+      layersOutline,
+      storefrontOutline
     });
   }
 
@@ -98,19 +104,20 @@ export class CarritoPage implements OnInit {
     this.cartService.getCart().subscribe(items => {
       this.cartItems = items;
       this.total = this.cartService.getTotal();
+      console.log('🛒 Carrito cargado:', items);
     });
   }
 
-  incrementQuantity(productId: string) {
-    this.cartService.incrementQuantity(productId);
+  incrementQuantity(cartItemId: string) {
+    this.cartService.incrementQuantity(cartItemId);
   }
 
-  decrementQuantity(productId: string) {
-    this.cartService.decrementQuantity(productId);
+  decrementQuantity(cartItemId: string) {
+    this.cartService.decrementQuantity(cartItemId);
   }
 
-  removeItem(productId: string) {
-    this.cartService.removeFromCart(productId);
+  removeItem(cartItemId: string) {
+    this.cartService.removeFromCart(cartItemId);
   }
 
   clearCart() {
@@ -155,7 +162,7 @@ export class CarritoPage implements OnInit {
       message += `📝 *Notas:* ${this.customerNotes}\n`;
     }
     
-    message += `\n━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `\n━━━━━━━━━━━━━━━━━━━━\n\n`;
     
     // Productos
     message += `🛍️ *PRODUCTOS:*\n\n`;
@@ -164,16 +171,36 @@ export class CarritoPage implements OnInit {
       message += `${index + 1}. *${item.nombre}*\n`;
       message += `   • Cantidad: ${item.quantity}\n`;
       message += `   • Precio unitario: $${item.precio.toFixed(2)}\n`;
-      message += `   • Subtotal: $${(item.precio * item.quantity).toFixed(2)}\n`;
       
-      if (item.descripcion) {
-        message += `   • Descripción: ${item.descripcion}\n`;
+      // ✅ INFORMACIÓN DE MODALIDAD (NUEVO FORMATO)
+      if (item.modalidadSeleccionada) {
+        message += `   • Modalidad: ${item.modalidadSeleccionada.tipo}\n`;
+        message += `   • Tamaño: ${item.modalidadSeleccionada.tamano}\n`;
+        message += `   • Contenido: ${item.modalidadSeleccionada.contenido}\n`;
+      }
+      // ✅ COMPATIBILIDAD CON FORMATO ANTIGUO
+      else {
+        if (item.modalidad) {
+          message += `   • Modalidad: ${item.modalidad}\n`;
+        }
+        if (item.tamano) {
+          message += `   • Tamaño: ${item.tamano}\n`;
+        }
+        if (item.contenido) {
+          message += `   • Contenido: ${item.contenido}\n`;
+        }
       }
       
+      // Sucursal (aplica para ambos formatos)
+      if (item.sucursal) {
+        message += `   • Sucursal: ${item.sucursal}\n`;
+      }
+      
+      message += `   • Subtotal: $${(item.precio * item.quantity).toFixed(2)}\n`;
       message += `\n`;
     });
     
-    message += `━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
     
     // Total
     const totalItems = this.cartService.getTotalItems();

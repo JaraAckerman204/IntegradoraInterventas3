@@ -47,10 +47,132 @@
     }
   }
 
+  ion-label {
+    h2 {
+      margin-bottom: 5px;
+      font-weight: 700;
+      color: #27318d;
+    }
+
+    p {
+      margin: 3px 0;
+      font-size: 0.9em;
+      color: #666;
+    }
+  }
+
   .price {
     color: var(--ion-color-primary);
     font-weight: bold;
-    margin-top: 5px;
+    margin-top: 8px !important;
+    font-size: 1.1em;
+  }
+
+  // ===== INFORMACIÓN DE MODALIDAD =====
+  .modalidad-info {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 10px;
+    border-radius: 8px;
+    margin: 8px 0;
+    border-left: 3px solid var(--ion-color-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .modalidad-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    
+    &.mayoreo {
+      background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(39, 49, 141, 0.3);
+    }
+    
+    &.menudeo {
+      background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(237, 19, 112, 0.3);
+    }
+  }
+
+  .modalidad-details {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 0.85em;
+    color: #495057;
+    
+    .detail-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      
+      ion-icon {
+        font-size: 14px;
+        color: #27318d;
+      }
+    }
+    
+    .detail-separator {
+      color: #adb5bd;
+      font-weight: 600;
+    }
+  }
+
+  // ===== SUCURSAL INFO =====
+  .sucursal-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #e3f2fd;
+    border-radius: 6px;
+    margin: 6px 0;
+    font-size: 0.85em;
+    color: #1976d2;
+    font-weight: 600;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+
+  // ===== OPCIONES SELECCIONADAS (FORMATO ANTIGUO) =====
+  .options-display {
+    background: #f5f5f5;
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin: 8px 0;
+    border-left: 3px solid var(--ion-color-primary);
+
+    .option-item {
+      font-size: 0.85em;
+      color: #555;
+      margin: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      ion-icon {
+        font-size: 14px;
+        color: var(--ion-color-primary);
+        flex-shrink: 0;
+      }
+
+      strong {
+        color: var(--ion-color-primary);
+        font-weight: 600;
+        min-width: 80px;
+      }
+    }
   }
 
   .quantity-controls {
@@ -104,5 +226,91 @@
     --background-hover: #128C7E;
     --background-activated: #075E54;
     font-weight: bold;
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .cart-item {
+    .modalidad-info {
+      padding: 8px;
+    }
+
+    .modalidad-badge {
+      font-size: 0.7em;
+      padding: 3px 8px;
+    }
+
+    .modalidad-details {
+      font-size: 0.8em;
+      
+      .detail-item {
+        ion-icon {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-item {
+    ion-thumbnail {
+      width: 60px;
+      height: 60px;
+    }
+
+    .modalidad-info {
+      padding: 6px 8px;
+    }
+
+    .modalidad-badge {
+      font-size: 0.65em;
+      padding: 2px 6px;
+      margin-bottom: 4px;
+    }
+
+    .modalidad-details {
+      font-size: 0.75em;
+      gap: 4px;
+      
+      .detail-item {
+        gap: 3px;
+        
+        ion-icon {
+          font-size: 11px;
+        }
+      }
+      
+      .detail-separator {
+        display: none;
+      }
+    }
+
+    .sucursal-info {
+      font-size: 0.8em;
+      padding: 4px 8px;
+      
+      ion-icon {
+        font-size: 14px;
+      }
+    }
+
+    .options-display {
+      padding: 6px 8px;
+
+      .option-item {
+        font-size: 0.75em;
+        flex-wrap: wrap;
+
+        ion-icon {
+          font-size: 12px;
+        }
+
+        strong {
+          min-width: auto;
+        }
+      }
+    }
   }
 }

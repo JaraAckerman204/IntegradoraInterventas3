@@ -185,7 +185,6 @@ ion-header {
   gap: 10px;
   padding: 20px 15px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 2px solid transparent;
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -203,13 +202,11 @@ ion-header {
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(39, 49, 141, 0.15);
-    border-color: rgba(39, 49, 141, 0.2);
   }
   
   &.active {
     background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
     color: white;
-    border-color: #27318d;
     box-shadow: 0 8px 25px rgba(237, 19, 112, 0.3);
     
     ion-icon {
@@ -268,10 +265,10 @@ ion-header {
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: white;
-  color: #27318d;
-  border: 3px solid #27318d;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #6c757d;
+  border-radius: 16px;
+  border: 2px solid transparent;
   font-family: var(--font-primary);
   font-weight: 700;
   font-size: 0.95em;
@@ -281,6 +278,7 @@ ion-header {
   
   ion-icon {
     font-size: 22px;
+    color: #6c757d;
   }
   
   .search-input-inline {
@@ -289,25 +287,20 @@ ion-header {
     font-size: 0.875rem;
     width: 200px;
     background: transparent;
-    color: #27318d;
+    color: rgba(255, 255, 255, 0.7);;
 
     &::placeholder {
-      color: #a0aec0;
+      color: #6c757d;
     }
   }
   
   &:hover {
-    background: #27318d;
-    color: white;
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(39, 49, 141, 0.3);
+    box-shadow: 0 6px 20px rgba(39, 49, 141, 0.15);
+    border-color: rgba(39, 49, 141, 0.2);
     
     .search-input-inline {
-      color: white;
-      
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.7);
-      }
+      color: #6c757d;
     }
   }
   
@@ -451,156 +444,360 @@ ion-header {
   font-weight: 600;
 }
 
-// ===== GRID DE PRODUCTOS =====
+// ========================================
+// 🧾 ESTILOS TARJETAS DE PRODUCTOS - REDISEÑADAS
+// ========================================
+
+// ===== GRID DE PRODUCTOS - 4 COLUMNAS =====
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   animation: fadeInUp 0.5s ease-out;
-}
 
-// ===== TARJETAS DE PRODUCTO =====
-.product-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
-  border: 2px solid rgba(237, 19, 112, 0.08);
-  border-radius: 16px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(237, 19, 112, 0.2);
-    border-color: rgba(237, 19, 112, 0.3);
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 
+// ===== TARJETA DE PRODUCTO =====
+.product-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: 300px;
+  width: 220px;
+}
+
+// ===== IMAGEN DEL PRODUCTO =====
 .product-image {
   width: 100%;
-  height: 180px;
-  border-radius: 12px;
+  height: 140px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%);
   overflow: hidden;
-  background: #f1f1f1;
-  flex-shrink: 0;
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.25s ease;
   }
 }
 
-.product-info {
+// ===== CONTENIDO DE LA TARJETA =====
+.product-content {
   flex: 1;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  
-  h4 {
+}
+
+// ===== HEADER (NOMBRE Y SKU) =====
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
+
+  .product-name {
     font-family: var(--font-primary);
-    font-weight: 700;
-    font-size: 1.1em;
-    color: #212529;
-    margin: 0;
-    line-height: 1.3;
-    min-height: 2.6em;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .product-description {
-    font-family: var(--font-secondary);
-    font-size: 0.9em;
-    color: #6c757d;
-    line-height: 1.5;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-}
-
-.product-id-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: linear-gradient(135deg, #27318d10 0%, #ed137010 100%);
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #6c757d;
-  font-family: 'Courier New', monospace;
-  border: 1px solid #27318d20;
-  width: fit-content;
-  
-  ion-icon {
-    font-size: 12px;
     color: #27318d;
+    margin: 0;
+    font-weight: bold;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-sku {
+    font-size: 0.65em;
+    font-weight: 600;
+    color: #999;
+    background: #27318d;
+    color: white;
+    padding: 6px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 }
 
-.product-price {
+// ===== DETALLES (CATEGORÍA Y MARCA) =====
+.product-details {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #27318d;
-  font-weight: 700;
-  font-size: 1.3em;
-  font-family: var(--font-primary);
-  margin-top: auto;
-  
-  ion-icon {
-    font-size: 22px;
-    color: #ed1370;
-  }
-}
-
-.product-actions {
-  display: flex;
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 2px solid #f1f1f1;
-}
-
-.btn-warning,
-.btn-danger {
-  flex: 1;
-  height: 44px;
-  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.75em;
+  text-align: center;
   align-items: center;
   justify-content: center;
-  border: none;
+
+  .detail-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #495057;
+    font-weight: 500;
+
+    ion-icon {
+      font-size: 12px;
+      color: #27318d;
+    }
+  }
+}
+
+// ===== MODALIDADES DISPONIBLES =====
+.product-modalidades {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+    text-align: center;
+  align-items: center;
+  justify-content: center;
+
+  .modalidad-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #27318d15 0%, #ed137015 100%);
+    border: 1.5px solid #27318d40;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: 700;
+    color: #27318d;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 12px;
+      color: #ed1370;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #27318d25 0%, #ed137025 100%);
+      border-color: #27318d;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// ===== FOOTER CON BOTONES =====
+.product-footer {
+  display: flex;
+  gap: 5px;
+  padding: 8px;
+  height: 50px;
+}
+
+.btn-edit,
+.btn-delete {
+
   border-radius: 12px;
+  color: white;
+  flex: 1;
+  border: none;
+  padding: 1px !important;
+  font-family: var(--font-primary);
+  font-weight: 600 !important;
+  font-size: 0.9em !important;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-weight: 600;
-  
+  display: flex;
+  align-items: center !important;
+  justify-content: center;
+  gap: 2px !important;
+  position: relative;
+  overflow: hidden;
+
+
   ion-icon {
-    font-size: 20px;
+    font-size: 16px !important;
   }
-  
+
+  span {
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 0;
+  }
+
   &:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    
+    &::before {
+      opacity: 0.15;
+    }
+  }
+
+  ion-icon,
+  span {
+    position: relative;
+    z-index: 1;
   }
 }
 
-.btn-warning {
-  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+.btn-edit {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%) !important;
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+    color: white !important;
+
+  &::before {
+    background: linear-gradient(135deg, #e0a800 0%, #cc9a00 100%);
+  }
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4) !important;
+  }
 }
 
-.btn-danger {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+.btn-delete {
+  background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%) !important;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+    color: white !important;
+
+  &::before {
+    background: linear-gradient(135deg, #c82333 0%, #ff5252 100%);
+  }
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4) !important;
+  }
+}
+
+// ===== ANIMACIONES =====
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 1400px) {
+  .product-card {
+    .product-header .product-name {
+      font-size: 0.85em;
+    }
+
+    .product-details .detail-item {
+      font-size: 0.7em;
+    }
+
+    .product-sizes .size-badge {
+      font-size: 0.65em;
+    }
+
+    .product-prices {
+      font-size: 0.75em;
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  .product-image {
+    height: 130px;
+  }
+
+  .product-content {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .product-header .product-name {
+    font-size: 0.8em;
+  }
+
+  .btn-edit-product,
+  .btn-delete-product {
+    font-size: 0.75em;
+    padding: 6px 0;
+
+    ion-icon {
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .product-image {
+    height: 110px;
+  }
+
+  .product-content {
+    padding: 8px;
+    gap: 5px;
+  }
+
+  .product-header .product-name {
+    font-size: 0.75em;
+  }
+
+  .product-details {
+    font-size: 0.65em;
+  }
+
+  .product-sizes .size-badge {
+    font-size: 0.6em;
+  }
+
+  .product-prices {
+    font-size: 0.7em;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .btn-edit-product,
+  .btn-delete-product {
+    font-size: 0.65em;
+    padding: 6px 0;
+
+    ion-icon {
+      font-size: 12px;
+    }
+  }
 }
 
 // ===== LISTAS =====
@@ -807,7 +1004,7 @@ ion-header {
   padding: 60px 40px;
   background: linear-gradient(135deg, rgba(237, 19, 112, 0.02) 0%, rgba(39, 49, 141, 0.02) 100%);
   border-radius: 16px;
-  border: 2px dashed rgba(237, 19, 112, 0.2);
+  border: 2px rgba(237, 19, 112, 0.2);
   
   .empty-icon {
     width: 100px;
@@ -850,6 +1047,248 @@ ion-header {
 // ========================================
 // 🎨 MODAL OVERLAY - CRÍTICO PARA POSICIONAMIENTO
 // ========================================
+// ========================================
+// 🎨 ESTILOS PARA LA NUEVA ESTRUCTURA DEL MODAL
+// ========================================
+
+// ===== FILAS DE FORMULARIO =====
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.form-row-optional {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+// ===== SECCIONES CON TOGGLE =====
+.toggle-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 14px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #27318d30;
+    box-shadow: 0 4px 12px rgba(39, 49, 141, 0.08);
+  }
+}
+
+.toggle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  
+  .form-label-custom {
+    margin: 0;
+    font-size: 0.95em;
+  }
+}
+
+// ===== TOGGLE SWITCH MEJORADO =====
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    
+    &:checked + .toggle-slider {
+      background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+      box-shadow: 0 0 8px rgba(237, 19, 112, 0.4);
+      
+      &::before {
+        transform: translateX(22px);
+        background: white;
+      }
+    }
+  }
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ccc;
+  transition: all 0.3s ease;
+  border-radius: 28px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    transition: transform 0.3s ease;
+    border-radius: 50%;
+  }
+}
+
+// ===== MÚLTIPLES VALORES =====
+.multiple-values-container {
+  animation: slideDown 0.3s ease-out;
+  
+  .value-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .value-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #27318d15 0%, #ed137015 100%);
+    border: 2px solid #27318d30;
+    border-radius: 20px;
+    font-size: 0.85em;
+    color: #27318d;
+    font-weight: 600;
+    animation: slideIn 0.2s ease-out;
+    
+    .value-text {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .btn-remove-value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border: none;
+      background: rgba(237, 19, 112, 0.15);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+      
+      ion-icon {
+        font-size: 14px;
+        color: #ed1370;
+      }
+      
+      &:hover {
+        background: rgba(237, 19, 112, 0.3);
+        transform: scale(1.15);
+      }
+    }
+  }
+}
+
+.add-value-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  
+  .input-wrapper {
+    flex: 1;
+    min-height: 44px;
+  }
+  
+  .btn-add-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 14px;
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 0.85em;
+    white-space: nowrap;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(237, 19, 112, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// ===== ANIMACIONES =====
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ===== RESPONSIVE PARA FILAS =====
+@media (max-width: 768px) {
+  .form-row-2col,
+  .form-row-optional {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .toggle-section {
+    padding: 12px;
+  }
+}
+
+// ===== AJUSTES PARA MODAL SCROLL =====
+.modal-body-custom {
+  max-height: 80vh;
+  overflow-y: auto;
+  
+  form {
+    gap: 12px;
+  }
+}
+
+// ===== ESTILOS EXISTENTES (MANTENER) =====
+// Estos estilos deben complementar los que ya tienes en admin.page.scss
+// No elimines los estilos anteriores, solo agrega estos nuevos
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1989,7 +2428,7 @@ form {
 
 .btn-delete {
   flex: 1;
-  height: 54px;
+  height: auto;
   border: none;
   border-radius: 14px;
   font-family: var(--font-primary);
@@ -2083,6 +2522,1373 @@ form {
     .btn-cancel {
       width: 100%;
       height: 48px;
+    }
+  }
+}
+
+// ========== COLOR DOT =====
+.color-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-right: 6px;
+}
+
+// ========== MODALIDAD DE VENTA =====
+.modalidad-venta-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+}
+
+.modalidad-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  padding: 12px;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #27318d;
+    flex-shrink: 0;
+  }
+
+  .checkbox-label {
+    font-family: var(--font-primary);
+    font-weight: 600;
+    font-size: 0.95em;
+    color: #212529;
+  }
+
+  &:hover {
+    border-color: #27318d;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    box-shadow: 0 2px 8px rgba(39, 49, 141, 0.1);
+  }
+
+  input[type="checkbox"]:checked ~ .checkbox-label {
+    color: #27318d;
+  }
+}
+
+// ========== PRECIOS MODALIDAD =====
+.precios-modalidad {
+  animation: slideDown 0.3s ease-out;
+  padding: 12px;
+  background: linear-gradient(135deg, #27318d15 0%, #ed137015 100%);
+  border: 2px solid #27318d30;
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.form-row-1col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+// ========== EMPTY HINT =====
+.empty-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px dashed #adb5bd;
+  border-radius: 10px;
+  color: #6c757d;
+  font-size: 0.9em;
+  font-weight: 500;
+  animation: fadeInUp 0.3s ease-out;
+
+  ion-icon {
+    font-size: 18px;
+    color: #adb5bd;
+  }
+}
+
+// ========== DISABLED STYLES =====
+.input-wrapper {
+  &.disabled {
+    opacity: 0.6;
+    background: #f8f9fa;
+    cursor: not-allowed;
+  }
+
+  &.disabled select {
+    cursor: not-allowed;
+  }
+}
+
+// ========== RESPONSIVE =====
+@media (max-width: 768px) {
+  .modalidad-venta-container {
+    grid-template-columns: 1fr;
+  }
+
+  .precios-modalidad .form-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ========================================
+// 🎨 ESTILOS PARA MODAL REORGANIZADO
+// ========================================
+
+// ===== TÍTULOS DE SECCIÓN =====
+.form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #27318d;
+  font-family: var(--font-primary);
+  font-weight: 800;
+  font-size: 1.1em;
+  color: #27318d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: slideInLeft 0.4s ease-out;
+
+  ion-icon {
+    font-size: 24px;
+    color: #ed1370;
+  }
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ========== FIX: ADD COLOR INLINE - ASEGURAR VISIBILIDAD =====
+.add-color-inline {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+
+  .input-wrapper {
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .custom-input {
+    flex: 1;
+    width: 100%;
+    padding: 0 16px;
+    font-size: 0.95em;
+    font-family: var(--font-secondary);
+    color: #212529;
+    background: transparent;
+    border: none;
+    outline: none;
+
+    &::placeholder {
+      color: #adb5bd;
+      font-style: italic;
+    }
+  }
+
+  .btn-add-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(237, 19, 112, 0.3);
+
+    ion-icon {
+      font-size: 22px;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(237, 19, 112, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// ========== INPUT WRAPPER DENTRO DE ADD-COLOR-INLINE =====
+.add-color-inline .input-wrapper {
+  flex: 1;
+  min-height: 44px;
+  background: white;
+  border: 3px solid #e9ecef;
+  border-radius: 16px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    border-color: #27318d;
+    box-shadow: 0 0 0 4px rgba(39, 49, 141, 0.1);
+  }
+
+  &:hover {
+    border-color: #ced4da;
+  }
+}
+
+// ===== COLORES AGREGADOS =====
+.colores-agregados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+}
+
+.color-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #27318d15 0%, #ed137015 100%);
+  border: 2px solid #27318d30;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #27318d;
+  animation: slideIn 0.2s ease-out;
+
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+  }
+
+  .color-name {
+    display: flex;
+    align-items: center;
+  }
+
+  .btn-remove-color {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: none;
+    background: rgba(237, 19, 112, 0.15);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin-left: 4px;
+
+    ion-icon {
+      font-size: 14px;
+      color: #ed1370;
+    }
+
+    &:hover {
+      background: rgba(237, 19, 112, 0.3);
+      transform: scale(1.15);
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ===== PRECIOS SECCIÓN =====
+.precios-seccion {
+  animation: slideDown 0.3s ease-out;
+  padding: 14px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.form-row-1col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .form-section-title {
+    font-size: 0.95em;
+    margin: 20px 0 12px 0;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  .colores-agregados {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .color-badge {
+    font-size: 0.85em;
+    padding: 6px 10px;
+  }
+
+  .add-color-inline {
+    .btn-add-inline {
+      width: 40px;
+      height: 40px;
+
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .precios-seccion {
+    .form-row-2col {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .form-section-title {
+    font-size: 0.85em;
+    gap: 8px;
+    margin: 16px 0 10px 0;
+    padding-bottom: 8px;
+
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+
+  .colores-agregados {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .color-badge {
+    font-size: 0.8em;
+    padding: 5px 8px;
+
+    .color-dot {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  .add-color-inline {
+    gap: 6px;
+
+    .btn-add-inline {
+      width: 36px;
+      height: 36px;
+
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// ========================================
+// 🎯 ESTILOS PARA OPCIONES DE MODALIDADES
+// ========================================
+
+// Formulario de opciones
+.opcion-modalidad-form {
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.opcion-form-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #27318d;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 1em;
+  color: #27318d;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #ed1370;
+  }
+}
+
+.btn-agregar-opcion {
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  margin-top: 16px;
+  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.3);
+  
+  ion-icon {
+    font-size: 22px;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(237, 19, 112, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+// Lista de opciones agregadas
+.opciones-lista {
+  margin-bottom: 24px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.opciones-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.opcion-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #27318d;
+    box-shadow: 0 4px 12px rgba(39, 49, 141, 0.1);
+  }
+  
+  &:last-of-type {
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 0;
+  }
+}
+
+.opcion-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opcion-row {
+  display: flex;
+  gap: 12px;
+  
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.opcion-item {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  
+  &.full-width {
+    flex: 1 0 100%;
+  }
+  
+  .label {
+    font-family: var(--font-secondary);
+    font-size: 0.85em;
+    color: #6c757d;
+    font-weight: 600;
+  }
+  
+  strong {
+    font-family: var(--font-primary);
+    font-size: 0.95em;
+    color: #27318d;
+    font-weight: 700;
+  }
+}
+
+.btn-remove-opcion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 20px;
+  }
+  
+  &:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Animación de aparición
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .opcion-modalidad-form {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .opcion-form-header {
+    font-size: 0.9em;
+    gap: 8px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+  
+  .btn-agregar-opcion {
+    height: 48px;
+    font-size: 0.9em;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+  
+  .opcion-card {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .opcion-row {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .opcion-item {
+    width: 100%;
+    
+    &.full-width {
+      width: 100%;
+    }
+  }
+  
+  .btn-remove-opcion {
+    width: 36px;
+    height: 36px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .opcion-modalidad-form {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .opcion-form-header {
+    font-size: 0.85em;
+  }
+  
+  .btn-agregar-opcion {
+    height: 44px;
+  }
+  
+  .opcion-card {
+    padding: 10px;
+  }
+  
+  .btn-remove-opcion {
+    width: 32px;
+    height: 32px;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+// ========================================
+// 🧾 ESTILOS TARJETAS DE PRODUCTOS - REDISEÑADAS
+// ========================================
+
+// ===== GRID DE PRODUCTOS - 4 COLUMNAS =====
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  animation: fadeInUp 0.5s ease-out;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+
+// ===== ANIMACIONES =====
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 1400px) {
+  .product-card {
+    .product-header .product-name {
+      font-size: 0.85em;
+    }
+
+    .product-details .detail-item {
+      font-size: 0.7em;
+    }
+
+    .modalidad-badge {
+      font-size: 0.6em;
+    }
+
+    .modalidad-details {
+      font-size: 0.7em;
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  .product-image {
+    height: 130px;
+  }
+
+  .product-content {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .product-header .product-name {
+    font-size: 0.8em;
+  }
+
+  .modalidad-item {
+    padding: 5px 6px;
+  }
+
+  .modalidad-details {
+    font-size: 0.7em;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    font-size: 0.75em;
+    padding: 6px 0;
+
+    ion-icon {
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .product-image {
+    height: 110px;
+  }
+
+  .product-content {
+    padding: 8px;
+    gap: 5px;
+  }
+
+  .product-header .product-name {
+    font-size: 0.75em;
+  }
+
+  .product-details {
+    font-size: 0.65em;
+  }
+
+  .modalidad-item {
+    padding: 4px;
+  }
+
+  .modalidad-badge {
+    font-size: 0.6em;
+    padding: 2px 6px;
+  }
+
+  .modalidad-details {
+    font-size: 0.65em;
+    gap: 3px;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    font-size: 0.65em;
+    padding: 6px 0;
+
+    ion-icon {
+      font-size: 12px;
+    }
+  }
+}
+
+// ========== MODALIDAD SELECT WRAPPER =====
+.modalidad-select-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .input-wrapper {
+    flex: 1;
+  }
+}
+
+.btn-clear-modalidad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+
+  ion-icon {
+    font-size: 24px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ========== RESPONSIVE PARA EL BOTÓN =====
+@media (max-width: 768px) {
+  .modalidad-select-wrapper {
+    flex-direction: row;
+    
+    .btn-clear-modalidad {
+      width: 48px;
+      height: 48px;
+
+      ion-icon {
+        font-size: 22px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-clear-modalidad {
+    width: 44px;
+    height: 44px;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+// ========================================
+// 📊 ESTADÍSTICAS DE USUARIOS
+// ========================================
+.users-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card-user {
+  background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  &.admin {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 4px 12px rgba(39, 49, 141, 0.3);
+  }
+
+  &.regular {
+    background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  ion-icon {
+    font-size: 2.5rem;
+    opacity: 0.9;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .stat-number {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+  }
+}
+
+// ========================================
+// 🔍 FILTROS DE USUARIOS
+// ========================================
+.users-filters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #27318d;
+
+  ion-icon {
+    font-size: 1rem;
+    color: #ed1370;
+  }
+}
+
+.btn-clear-filters {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #6c757d;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-end;
+
+  ion-icon {
+    font-size: 1.25rem;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #ced4da;
+    transform: translateY(-2px);
+  }
+}
+
+// ========================================
+// 📤 BOTONES DE EXPORTAR
+// ========================================
+.btn-export {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+
+  ion-icon {
+    font-size: 22px;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+// ========================================
+// 📋 TABLA DE USUARIOS
+// ========================================
+.users-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.results-info {
+  padding: 1rem 1.5rem;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-family: var(--font-secondary);
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.users-table {
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+      background: #f7fafc;
+
+      tr {
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #e2e8f0;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background: #f7fafc;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 1rem 1.5rem;
+        color: #2d3748;
+      }
+    }
+  }
+}
+
+.user-avatar-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 1.5rem;
+    color: #adb5bd;
+  }
+}
+
+.user-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  strong {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #27318d;
+  }
+
+  .user-id {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+}
+
+.user-email-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  ion-icon {
+    font-size: 1rem;
+    color: #ed1370;
+    opacity: 0.7;
+  }
+
+  span {
+    font-size: 0.875rem;
+    color: #27318d;
+    font-weight: 500;
+  }
+}
+
+// ========================================
+// 🛡️ SELECTOR DE ROL
+// ========================================
+.rol-selector {
+  position: relative;
+}
+
+.rol-select {
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  font-family: var(--font-primary);
+  font-weight: 400;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  color: white;
+    background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
+    box-shadow: 0 4px 15px rgba(39, 49, 141, 0.3);
+
+  text-align: center;
+
+
+  &.admin {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  }
+
+  option {
+    color: #212529;
+  }
+}
+
+// ========================================
+// 🔘 BOTONES DE TABLA
+// ========================================
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.btn-icon-table {
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  ion-icon {
+    font-size: 1.25rem;
+  }
+
+  &.edit {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+
+    &:hover {
+        background: linear-gradient(135deg, #e0a800 0%, #cc9a00 100%);
+    }
+  }
+
+  &.danger {
+  background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+  color: white;
+
+    &:hover {
+        background: linear-gradient(135deg, #b22b39 0%, #c45252 100%);
+    }
+  }
+}
+
+// ========================================
+// 📱 RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .users-table {
+    table {
+      thead {
+        th {
+          padding: 0.75rem 1rem;
+          font-size: 0.75rem;
+        }
+      }
+
+      tbody {
+        td {
+          padding: 0.75rem 1rem;
+        }
+      }
+    }
+  }
+
+  .user-name-cell {
+    strong {
+      font-size: 0.875rem;
+    }
+
+    .user-id {
+      font-size: 0.7rem;
+    }
+  }
+
+  .user-email-cell {
+    span {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .users-table {
+    font-size: 0.875rem;
+
+    table {
+      thead {
+        th {
+          padding: 0.5rem;
+          font-size: 0.7rem;
+        }
+      }
+
+      tbody {
+        td {
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+
+  .user-avatar-small {
+    width: 32px;
+    height: 32px;
+
+    ion-icon {
+      font-size: 1.25rem;
+    }
+  }
+
+  .btn-icon-table {
+    padding: 0.375rem;
+
+    ion-icon {
+      font-size: 1rem;
     }
   }
 }

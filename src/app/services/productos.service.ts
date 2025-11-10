@@ -9,15 +9,31 @@ import {
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
+// Interfaz para Modalidades
+export interface Modalidad {
+  id: string;
+  modalidad: 'Mayoreo' | 'Menudeo';
+  precio: number;
+  tamano: string;
+  contenido: string;
+}
+
 export interface Producto {
   id?: string;
+  sku?: string;
   nombre: string;
   categoria?: string;
+  subcategoria?: string;
   marca?: string;
+  precio: number; // Este será un precio base (opcional)
   descripcion?: string;
   imagen?: string;
+  colores?: string[]; // Array de colores
+  tiendas?: string[]; // Array de sucursales
+  modalidades?: Modalidad[]; // Array de modalidades con precios
   url?: string;
-  precio: number;
+  fechaCreacion?: any;
+  activo?: boolean;
 }
 
 @Injectable({

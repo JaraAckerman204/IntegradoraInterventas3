@@ -57,7 +57,18 @@ import {
   textOutline,
   bulbOutline,
   checkmarkCircleOutline,
-  warningOutline
+  warningOutline,
+  resizeOutline,
+  layersOutline,
+  storefrontOutline,
+  barcodeOutline,
+  cartOutline,
+  colorPaletteOutline,
+  personAddOutline,
+  downloadOutline,
+  documentOutline,
+  shieldOutline,
+  personCircleOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -71,49 +82,102 @@ export class AdminPage {
   // =============================
   // 🎯 TABS
   // =============================
+  
   tabActiva: string = 'productos';
 
   // =============================
-  // 🧾 PRODUCTOS
+  // 🔦 MAPEO DE SUBCATEGORÍAS
   // =============================
+  private subcategoriasMap: { [key: string]: string[] } = {
+    'Desechables': ['Vasos', 'Platos', 'Charolas', 'Envases', 'Cubiertos', 'Tapas', 'Cono de Papel', 'Moldes', 'Popotes', 'Contenedores'],
+    'Biodegradables': ['Vasos', 'Platos', 'Contenedores', 'Bandejas', 'Palillos', 'Servilletas'],
+    'Bolsas': ['Bolsas Pequeñas', 'Bolsas Medianas', 'Bolsas Grandes', 'Bolsas con Asas', 'Bolsas Herméticas'],
+    'Cocina y Repostería': ['Moldes', 'Cortadores', 'Papel Pergamino', 'Papel Aluminio', 'Decoraciones'],
+    'Alimentos': ['Bebidas', 'Snacks', 'Postres', 'Salsas', 'Condimentos'],
+    'Higiénicos y Servilletas': ['Servilletas', 'Pañuelos', 'Toallas de Papel', 'Papel Higiénico', 'Toallitas Desinfectantes']
+  };
+
+  // ========== PRODUCTOS ==========
   producto: any = {
     id: '',
+    sku: '',
     nombre: '',
     categoria: '',
+    subcategoria: '',
     marca: '',
-    precio: 0,
     descripcion: '',
-    imagen: ''
+    imagen: '',
+    colores: [],
+    tiendas: [],
+    modalidades: []
   };
+
   productos: any[] = [];
   productosFiltrados: any[] = [];
   filtroNombre: string = '';
+  filtroSku: string = '';
   filtroMarca: string = '';
   filtroCategoria: string = '';
+  filtroSubcategoria: string = '';
+  subcategorias: string[] = [];
+  subcategoriasFiltro: string[] = [];
+  
+  // Variables temporales para productos
+  nuevoColor: string = '';
+  nuevaTienda: string = '';
+  
+  // Variables para agregar modalidades
+  modalidadSeleccionada: string = ''; // 'Mayoreo', 'Menudeo' o 'Ambas'
+  precioActual: number = 0;
+  tamanoActual: string = '';
+  contenidoActual: string = '';
+
   modoEdicion: boolean = false;
   idEditando: string = '';
   mostrarModalProducto: boolean = false;
   mostrarModalBusqueda: boolean = false;
 
-  // =============================
-  // 👥 USUARIOS
-  // =============================
-  usuarios: any[] = [];
-  usuarioEditando: any = {
-    nombre: '',
-    email: '',
-    rol: 'usuario'
-  };
-  usuarioEditandoId: string = '';
-  mostrarModalUsuario: boolean = false;
+// =============================
+// 👥 USUARIOS - NUEVAS PROPIEDADES
+// =============================
+usuarios: any[] = [];
+usuariosFiltrados: any[] = [];
+usuarioEditando: any = {
+  nombre: '',
+  email: '',
+  rol: 'usuario',
+  password: ''
+};
+usuarioEditandoId: string = '';
+mostrarModalUsuario: boolean = false;
+mostrarModalAgregarUsuario: boolean = false;
+mostrarModalBusquedaUsuarios: boolean = false;
+
+// Filtros de usuarios
+filtroNombreUsuario: string = '';
+filtroEmailUsuario: string = '';
+filtroRolUsuario: string = '';
+
+// Estadísticas
+get totalUsuarios(): number {
+  return this.usuarios.length;
+}
+
+get totalAdmins(): number {
+  return this.usuarios.filter(u => u.rol === 'admin').length;
+}
+
+get totalUsuariosRegulares(): number {
+  return this.usuarios.filter(u => u.rol === 'usuario').length;
+}
 
   // =============================
-  // 📩 MENSAJES DE CONTACTO
+  // 📧 MENSAJES DE CONTACTO
   // =============================
   mensajes: any[] = [];
 
   // =============================
-  // 📧 NEWSLETTER - NUEVA SECCIÓN
+  // 📰 NEWSLETTER
   // =============================
   suscriptores: any[] = [];
   suscriptoresFiltrados: any[] = [];
@@ -177,10 +241,20 @@ export class AdminPage {
       textOutline,
       bulbOutline,
       checkmarkCircleOutline,
-      warningOutline
+      warningOutline,
+      resizeOutline,
+      layersOutline,
+      storefrontOutline,
+      barcodeOutline,
+      cartOutline,
+      colorPaletteOutline,
+      personAddOutline,
+      downloadOutline,
+      documentOutline,
+      shieldOutline,
+      personCircleOutline,
     });
 
-    // 🔐 Inicializar EmailJS con tu Public Key
     emailjs.init({
       publicKey: 'eSh72EoK4k2SontZF',
     });
@@ -199,7 +273,7 @@ export class AdminPage {
   }
 
   // =============================
-  // 📢 TOAST GENERAL
+  // 💬 TOAST GENERAL
   // =============================
   async mostrarToast(mensaje: string, color: string = 'success') {
     const toast = await this.toastCtrl.create({
@@ -214,12 +288,117 @@ export class AdminPage {
   // =============================
   // 🧾 PRODUCTOS
   // =============================
+
+  tieneModalidad(producto: any, modalidad: string): boolean {
+    if (!producto.modalidades || !Array.isArray(producto.modalidades)) {
+      return false;
+    }
+    return producto.modalidades.some((m: any) => m.modalidad === modalidad);
+  }
+
+  getModalidadesDisponibles(producto: any): string[] {
+    if (!producto.modalidades || !Array.isArray(producto.modalidades)) {
+      return [];
+    }
+    const modalidades: string[] = producto.modalidades.map((m: any) => m.modalidad);
+    return Array.from(new Set(modalidades)); // Eliminar duplicados
+}
+  
   obtenerProductos() {
     const ref = collection(this.firestore, 'productos');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
       this.productos = data;
       this.aplicarFiltrosInternos();
     });
+  }
+
+
+  onCategoriaChange() {
+    const categoria = this.producto.categoria;
+    if (categoria && this.subcategoriasMap[categoria]) {
+      this.subcategorias = this.subcategoriasMap[categoria];
+      this.producto.subcategoria = '';
+    } else {
+      this.subcategorias = [];
+      this.producto.subcategoria = '';
+    }
+    this.cdr.detectChanges();
+  }
+
+  // =============================
+  // 🎯 MÉTODOS PARA MODALIDADES
+  // =============================
+
+limpiarModalidadSeleccionada() {
+  this.modalidadSeleccionada = '';
+  this.precioActual = 0;
+  this.tamanoActual = '';
+  this.contenidoActual = '';
+  this.cdr.detectChanges();
+}
+
+  agregarOpcionModalidad() {
+    const precio = this.precioActual;
+    const tamano = this.tamanoActual.trim();
+    const contenido = this.contenidoActual.trim();
+
+    if (!this.modalidadSeleccionada) {
+      this.mostrarToast('⚠️ Selecciona una modalidad (Mayoreo o Menudeo)', 'warning');
+      return;
+    }
+
+    if (precio <= 0) {
+      this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
+      return;
+    }
+
+    if (!tamano) {
+      this.mostrarToast('⚠️ Ingresa un tamaño válido', 'warning');
+      return;
+    }
+
+    if (!contenido) {
+      this.mostrarToast('⚠️ Ingresa un contenido válido', 'warning');
+      return;
+    }
+
+    const opcion = {
+      id: Date.now().toString(),
+      modalidad: this.modalidadSeleccionada,
+      precio: precio,
+      tamano: tamano,
+      contenido: contenido
+    };
+
+    if (!Array.isArray(this.producto.modalidades)) {
+      this.producto.modalidades = [];
+    }
+
+    this.producto.modalidades.push(opcion);
+
+    this.precioActual = 0;
+    this.tamanoActual = '';
+    this.contenidoActual = '';
+
+    this.mostrarToast('✅ Opción de ' + this.modalidadSeleccionada + ' agregada', 'success');
+    this.cdr.detectChanges();
+  }
+
+  eliminarOpcionModalidad(id: string) {
+    this.producto.modalidades = this.producto.modalidades.filter((m: any) => m.id !== id);
+    this.mostrarToast('🗑️ Opción eliminada', 'danger');
+    this.cdr.detectChanges();
+  }
+
+  obtenerOpcionesModalidad(modalidad: string): any[] {
+    if (!Array.isArray(this.producto.modalidades)) {
+      return [];
+    }
+    return this.producto.modalidades.filter((m: any) => m.modalidad === modalidad);
+  }
+
+  tieneOpcionesValidas(): boolean {
+    return Array.isArray(this.producto.modalidades) && this.producto.modalidades.length > 0;
   }
 
   async guardarProducto() {
@@ -229,31 +408,27 @@ export class AdminPage {
         return;
       }
 
-      if (!this.producto.precio || this.producto.precio <= 0) {
-        await this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
+      if (!this.tieneOpcionesValidas()) {
+        await this.mostrarToast('⚠️ Debes agregar al menos una opción de Mayoreo o Menudeo', 'warning');
         return;
       }
 
+      const productoAGuardar = {
+        ...this.producto,
+        colores: Array.isArray(this.producto.colores) ? this.producto.colores : [],
+        tiendas: Array.isArray(this.producto.tiendas) ? this.producto.tiendas : [],
+        modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : []
+      };
+
       if (this.modoEdicion && this.idEditando) {
-        // MODO EDICIÓN
-        console.log('💾 Actualizando producto existente:', this.idEditando);
         const docRef = doc(this.firestore, `productos/${this.idEditando}`);
-        const { id, ...productoSinId } = this.producto;
+        const { id, ...productoSinId } = productoAGuardar;
         await updateDoc(docRef, productoSinId);
         await this.mostrarToast('✅ Producto actualizado correctamente');
       } else {
-        // MODO AGREGAR
-        console.log('➕ Agregando nuevo producto');
-        if (this.producto.id && this.producto.id.trim() !== '') {
-          const docRef = doc(this.firestore, `productos/${this.producto.id}`);
-          const { id, ...productoSinId } = this.producto;
-          await setDoc(docRef, productoSinId);
-          await this.mostrarToast('✅ Producto agregado con ID: ' + this.producto.id);
-        } else {
-          const ref = collection(this.firestore, 'productos');
-          await addDoc(ref, this.producto);
-          await this.mostrarToast('✅ Producto agregado correctamente');
-        }
+        const ref = collection(this.firestore, 'productos');
+        await addDoc(ref, productoAGuardar);
+        await this.mostrarToast('✅ Producto agregado correctamente');
       }
       
       this.cerrarModalProducto();
@@ -261,6 +436,116 @@ export class AdminPage {
       console.error('Error al guardar producto:', error);
       await this.mostrarToast('❌ Error al guardar el producto', 'danger');
     }
+  }
+
+  editarProducto(producto: any) {
+    this.mostrarModalProducto = false;
+    this.producto = {
+      id: '',
+      sku: '',
+      nombre: '',
+      categoria: '',
+      subcategoria: '',
+      marca: '',
+      descripcion: '',
+      imagen: '',
+      colores: [],
+      tiendas: [],
+      modalidades: []
+    };
+    
+    this.cdr.detectChanges();
+    
+    setTimeout(() => {
+      this.modoEdicion = true;
+      this.idEditando = producto.id;
+      
+      this.producto = {
+        id: producto.id || '',
+        sku: producto.sku || '',
+        nombre: producto.nombre || '',
+        categoria: producto.categoria || '',
+        subcategoria: producto.subcategoria || '',
+        marca: producto.marca || '',
+        descripcion: producto.descripcion || '',
+        imagen: producto.imagen || '',
+        colores: Array.isArray(producto.colores) ? [...producto.colores] : [],
+        tiendas: Array.isArray(producto.tiendas) ? [...producto.tiendas] : [],
+        modalidades: Array.isArray(producto.modalidades) ? JSON.parse(JSON.stringify(producto.modalidades)) : []
+      };
+
+      if (this.producto.categoria && this.subcategoriasMap[this.producto.categoria]) {
+        this.subcategorias = this.subcategoriasMap[this.producto.categoria];
+      }
+
+      this.mostrarModalProducto = true;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  abrirModalProducto() {
+    this.mostrarModalProducto = false;
+    
+    this.modoEdicion = false;
+    this.idEditando = '';
+    this.producto = {
+      id: '',
+      sku: '',
+      nombre: '',
+      categoria: '',
+      subcategoria: '',
+      marca: '',
+      descripcion: '',
+      imagen: '',
+      colores: [],
+      tiendas: [],
+      modalidades: []
+    };
+
+    this.subcategorias = [];
+    this.nuevoColor = '';
+    this.nuevaTienda = '';
+    this.modalidadSeleccionada = '';
+    this.precioActual = 0;
+    this.tamanoActual = '';
+    this.contenidoActual = '';
+    
+    this.cdr.detectChanges();
+    
+    setTimeout(() => {
+      this.mostrarModalProducto = true;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  cerrarModalProducto() {
+    this.mostrarModalProducto = false;
+    
+    this.modoEdicion = false;
+    this.idEditando = '';
+    this.producto = {
+      id: '',
+      sku: '',
+      nombre: '',
+      categoria: '',
+      subcategoria: '',
+      marca: '',
+      descripcion: '',
+      imagen: '',
+      colores: [],
+      tiendas: [],
+      modalidades: []
+    };
+
+    this.subcategorias = [];
+    this.nuevoColor = '';
+    this.nuevaTienda = '';
+    this.modalidadSeleccionada = '';
+    this.precioActual = 0;
+    this.tamanoActual = '';
+    this.contenidoActual = '';
+    
+    this.cdr.detectChanges();
   }
 
   async eliminarProducto(id: string) {
@@ -274,330 +559,474 @@ export class AdminPage {
     }
   }
 
-  editarProducto(producto: any) {
-    console.log('✏️ Editando producto:', producto);
-    
-    // Primero cerrar cualquier modal abierto
-    this.mostrarModalProducto = false;
-    
-    // Limpiar el producto actual
-    this.producto = {
-      id: '',
-      nombre: '',
-      categoria: '',
-      marca: '',
-      precio: 0,
-      descripcion: '',
-      imagen: ''
-    };
-    
-    // Forzar detección de cambios
-    this.cdr.detectChanges();
-    
-    // Esperar un momento antes de abrir el modal de edición
-    setTimeout(() => {
-      this.modoEdicion = true;
-      this.idEditando = producto.id;
-      
-      // Crear copia profunda del producto
-      this.producto = {
-        id: producto.id || '',
-        nombre: producto.nombre || '',
-        categoria: producto.categoria || '',
-        marca: producto.marca || '',
-        precio: producto.precio || 0,
-        descripcion: producto.descripcion || '',
-        imagen: producto.imagen || ''
-      };
-      
-      console.log('📋 Estado antes de abrir modal:', {
-        modoEdicion: this.modoEdicion,
-        idEditando: this.idEditando,
-        producto: this.producto
-      });
-      
-      // Abrir el modal
-      this.mostrarModalProducto = true;
-      this.cdr.detectChanges();
-      
-      console.log('✅ Modal de edición abierto');
-    }, 150);
-  }
-
-  abrirModalProducto() {
-    console.log('➕ Abriendo modal para nuevo producto...');
-    
-    // Cerrar modal si está abierto
-    this.mostrarModalProducto = false;
-    
-    // Limpiar completamente el estado
-    this.modoEdicion = false;
-    this.idEditando = '';
-    this.producto = {
-      id: '',
-      nombre: '',
-      categoria: '',
-      marca: '',
-      precio: 0,
-      descripcion: '',
-      imagen: ''
-    };
-    
-    // Forzar detección de cambios
-    this.cdr.detectChanges();
-    
-    // Esperar antes de abrir
-    setTimeout(() => {
-      console.log('📋 Estado antes de abrir modal nuevo:', {
-        modoEdicion: this.modoEdicion,
-        producto: this.producto
-      });
-      
-      this.mostrarModalProducto = true;
-      this.cdr.detectChanges();
-      
-      console.log('✅ Modal de nuevo producto abierto');
-    }, 150);
-  }
-
-  cerrarModalProducto() {
-    console.log('❌ Cerrando modal de producto...');
-    this.mostrarModalProducto = false;
-    
-    // Limpiar inmediatamente
-    this.modoEdicion = false;
-    this.idEditando = '';
-    this.producto = {
-      id: '',
-      nombre: '',
-      categoria: '',
-      marca: '',
-      precio: 0,
-      descripcion: '',
-      imagen: ''
-    };
-    
-    this.cdr.detectChanges();
-    console.log('✅ Modal cerrado y estado limpiado');
-  }
-
-  actualizarPreview() {
-    // placeholder si quieres reaccionar a cambios en la URL de imagen
-  }
+  actualizarPreview() {}
 
   onImageError() {
     console.error('Error cargando imagen');
   }
 
   // =============================
-  // 🔍 MODAL DE BÚSQUEDA Y FILTROS
+  // 🎨 MÉTODOS PARA COLORES
   // =============================
-  abrirModalBusqueda() {
-    console.log('🔍 Abriendo modal de búsqueda...');
-    setTimeout(() => {
-      this.mostrarModalBusqueda = true;
-      this.cdr.detectChanges();
-      console.log('✅ Modal de búsqueda abierto:', this.mostrarModalBusqueda);
-    }, 0);
+  
+  getColorValue(colorName: string): string {
+    const colorMap: { [key: string]: string } = {
+      'Rojo': '#dc3545',
+      'Azul': '#0d6efd',
+      'Verde': '#198754',
+      'Amarillo': '#ffc107',
+      'Negro': '#212529',
+      'Blanco': '#ffffff',
+      'Gris': '#6c757d',
+      'Rosa': '#ed1370',
+      'Naranja': '#fd7e14',
+      'Morado': '#6f42c1',
+      'Marrón': '#8b5a3c',
+      'Turquesa': '#20c997',
+      'Cian': '#0dcaf0',
+      'Indigo': '#4610f2',
+      'Plateado': '#c0c0c0',
+      'Dorado': '#ffd700'
+    };
+    return colorMap[colorName] || '#cccccc';
   }
 
-  cerrarModalBusqueda() {
-    console.log('❌ Cerrando modal de búsqueda...');
-    this.mostrarModalBusqueda = false;
+  agregarColor() {
+    const color = this.nuevoColor.trim();
+    if (!color) {
+      this.mostrarToast('⚠️ Ingresa un color válido', 'warning');
+      return;
+    }
+    if (this.producto.colores.includes(color)) {
+      this.mostrarToast('⚠️ Este color ya existe', 'warning');
+      return;
+    }
+    if (!Array.isArray(this.producto.colores)) {
+      this.producto.colores = [];
+    }
+    this.producto.colores.push(color);
+    this.nuevoColor = '';
+  }
+
+  eliminarColor(index: number) {
+    if (Array.isArray(this.producto.colores) && index >= 0 && index < this.producto.colores.length) {
+      this.producto.colores.splice(index, 1);
+    }
+  }
+
+  agregarTienda() {
+    const tienda = this.nuevaTienda.trim();
+    if (!tienda) {
+      this.mostrarToast('⚠️ Ingresa un nombre de tienda válido', 'warning');
+      return;
+    }
+    if (this.producto.tiendas.includes(tienda)) {
+      this.mostrarToast('⚠️ Esta tienda ya existe', 'warning');
+      return;
+    }
+    if (!Array.isArray(this.producto.tiendas)) {
+      this.producto.tiendas = [];
+    }
+    this.producto.tiendas.push(tienda);
+    this.nuevaTienda = '';
+  }
+
+  eliminarTienda(index: number) {
+    if (Array.isArray(this.producto.tiendas) && index >= 0 && index < this.producto.tiendas.length) {
+      this.producto.tiendas.splice(index, 1);
+    }
+  }
+
+  // =============================
+// 🔍 BÚSQUEDA Y FILTROS
+// =============================
+
+onFiltroCategoriaChange() {
+  const categoria = this.filtroCategoria;
+  if (categoria && this.subcategoriasMap[categoria]) {
+    this.subcategoriasFiltro = this.subcategoriasMap[categoria];
+    this.filtroSubcategoria = '';
+  } else {
+    this.subcategoriasFiltro = [];
+    this.filtroSubcategoria = '';
+  }
+  this.cdr.detectChanges();
+}
+
+abrirModalBusqueda() {
+  setTimeout(() => {
+    this.mostrarModalBusqueda = true;
     this.cdr.detectChanges();
-    console.log('✅ Modal de búsqueda cerrado:', this.mostrarModalBusqueda);
+  }, 0);
+}
+
+cerrarModalBusqueda() {
+  this.mostrarModalBusqueda = false;
+  this.cdr.detectChanges();
+}
+
+aplicarFiltros() {
+  const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
+  const filtroSku = (this.filtroSku || '').trim().toLowerCase();
+  const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
+  const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
+  const filtroSubcategoria = (this.filtroSubcategoria || '').trim().toLowerCase();
+
+  this.productosFiltrados = this.productos.filter((producto) => {
+    const nombre = (producto.nombre || '').toLowerCase();
+    const sku = (producto.sku || '').toLowerCase();
+    const marca = (producto.marca || '').toLowerCase();
+    const categoria = (producto.categoria || '').toLowerCase();
+    const subcategoria = (producto.subcategoria || '').toLowerCase();
+
+    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
+    const coincideSku = filtroSku ? sku.includes(filtroSku) : true;
+    const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
+    const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
+    const coincideSubcategoria = filtroSubcategoria ? subcategoria.includes(filtroSubcategoria) : true;
+
+    return coincideNombre && coincideSku && coincideMarca && coincideCategoria && coincideSubcategoria;
+  });
+
+  this.cerrarModalBusqueda();
+}
+
+aplicarFiltrosInternos() {
+  const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
+  const filtroSku = (this.filtroSku || '').trim().toLowerCase();
+  const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
+  const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
+  const filtroSubcategoria = (this.filtroSubcategoria || '').trim().toLowerCase();
+
+  if (!filtroNombre && !filtroSku && !filtroMarca && !filtroCategoria && !filtroSubcategoria) {
+    this.productosFiltrados = [...this.productos];
+    return;
   }
 
-  aplicarFiltros() {
-    const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
-    const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
-    const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
+  this.productosFiltrados = this.productos.filter((producto) => {
+    const nombre = (producto.nombre || '').toLowerCase();
+    const sku = (producto.sku || '').toLowerCase();
+    const marca = (producto.marca || '').toLowerCase();
+    const categoria = (producto.categoria || '').toLowerCase();
+    const subcategoria = (producto.subcategoria || '').toLowerCase();
 
-    this.productosFiltrados = this.productos.filter((producto) => {
-      const nombre = (producto.nombre || '').toLowerCase();
-      const marca = (producto.marca || '').toLowerCase();
-      const categoria = (producto.categoria || '').toLowerCase();
+    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
+    const coincideSku = filtroSku ? sku.includes(filtroSku) : true;
+    const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
+    const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
+    const coincideSubcategoria = filtroSubcategoria ? subcategoria.includes(filtroSubcategoria) : true;
 
-      const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
-      const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
-      const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
+    return coincideNombre && coincideSku && coincideMarca && coincideCategoria && coincideSubcategoria;
+  });
+}
 
-      return coincideNombre && coincideMarca && coincideCategoria;
-    });
+limpiarFiltroNombre() {
+  this.filtroNombre = '';
+  this.aplicarFiltrosInternos();
+}
 
-    this.cerrarModalBusqueda();
+limpiarFiltroSku() {
+  this.filtroSku = '';
+  this.aplicarFiltrosInternos();
+}
+
+limpiarFiltroMarca() {
+  this.filtroMarca = '';
+  this.aplicarFiltrosInternos();
+}
+
+limpiarFiltroCategoria() {
+  this.filtroCategoria = '';
+  this.filtroSubcategoria = '';
+  this.subcategoriasFiltro = [];
+  this.aplicarFiltrosInternos();
+}
+
+limpiarFiltroSubcategoria() {
+  this.filtroSubcategoria = '';
+  this.aplicarFiltrosInternos();
+}
+
+limpiarTodosFiltros() {
+  this.filtroNombre = '';
+  this.filtroSku = '';
+  this.filtroMarca = '';
+  this.filtroCategoria = '';
+  this.filtroSubcategoria = '';
+  this.subcategoriasFiltro = [];
+  this.aplicarFiltrosInternos();
+}
+
+// =============================
+// 👥 MÉTODOS DE USUARIOS
+// =============================
+
+obtenerUsuarios() {
+  const ref = collection(this.firestore, 'usuarios');
+  collectionData(ref, { idField: 'id' }).subscribe((data) => {
+    this.usuarios = data;
+    this.aplicarFiltrosUsuarios();
+  });
+}
+
+aplicarFiltrosUsuarios() {
+  const filtroNombre = (this.filtroNombreUsuario || '').trim().toLowerCase();
+  const filtroEmail = (this.filtroEmailUsuario || '').trim().toLowerCase();
+  const filtroRol = (this.filtroRolUsuario || '').trim().toLowerCase();
+
+  if (!filtroNombre && !filtroEmail && !filtroRol) {
+    this.usuariosFiltrados = [...this.usuarios];
+    return;
   }
 
-  aplicarFiltrosInternos() {
-    const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
-    const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
-    const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
+  this.usuariosFiltrados = this.usuarios.filter((usuario) => {
+    const nombre = (usuario.nombre || '').toLowerCase();
+    const email = (usuario.email || '').toLowerCase();
+    const rol = (usuario.rol || 'usuario').toLowerCase();
 
-    if (!filtroNombre && !filtroMarca && !filtroCategoria) {
-      this.productosFiltrados = [...this.productos];
+    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
+    const coincideEmail = filtroEmail ? email.includes(filtroEmail) : true;
+    const coincideRol = filtroRol ? rol === filtroRol : true;
+
+    return coincideNombre && coincideEmail && coincideRol;
+  });
+}
+
+limpiarFiltrosUsuarios() {
+  this.filtroNombreUsuario = '';
+  this.filtroEmailUsuario = '';
+  this.filtroRolUsuario = '';
+  this.aplicarFiltrosUsuarios();
+}
+
+abrirModalBusquedaUsuarios() {
+  setTimeout(() => {
+    this.mostrarModalBusquedaUsuarios = true;
+    this.cdr.detectChanges();
+  }, 0);
+}
+
+cerrarModalBusquedaUsuarios() {
+  this.mostrarModalBusquedaUsuarios = false;
+  this.cdr.detectChanges();
+}
+
+aplicarFiltrosUsuariosDesdeModal() {
+  this.aplicarFiltrosUsuarios();
+  this.cerrarModalBusquedaUsuarios();
+}
+
+// Modal Agregar Usuario
+abrirModalAgregarUsuario() {
+  // Limpiar completamente el objeto
+  this.usuarioEditando = {
+    nombre: '',
+    email: '',
+    rol: 'usuario',
+    password: ''
+  };
+  
+  // Forzar detección de cambios antes de abrir
+  this.cdr.detectChanges();
+  
+  // Abrir modal después de un pequeño delay
+  setTimeout(() => {
+    this.mostrarModalAgregarUsuario = true;
+    this.cdr.detectChanges();
+  }, 50);
+}
+
+cerrarModalAgregarUsuario() {
+  this.mostrarModalAgregarUsuario = false;
+  this.usuarioEditando = {
+    nombre: '',
+    email: '',
+    rol: 'usuario',
+    password: ''
+  };
+  this.cdr.detectChanges();
+}
+
+async agregarUsuario() {
+  try {
+    if (!this.usuarioEditando.nombre || !this.usuarioEditando.nombre.trim()) {
+      await this.mostrarToast('⚠️ El nombre es requerido', 'warning');
       return;
     }
 
-    this.productosFiltrados = this.productos.filter((producto) => {
-      const nombre = (producto.nombre || '').toLowerCase();
-      const marca = (producto.marca || '').toLowerCase();
-      const categoria = (producto.categoria || '').toLowerCase();
+    if (!this.usuarioEditando.email || !this.usuarioEditando.email.includes('@')) {
+      await this.mostrarToast('⚠️ Email inválido', 'warning');
+      return;
+    }
 
-      const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
-      const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
-      const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
+    if (!this.usuarioEditando.password || this.usuarioEditando.password.length < 6) {
+      await this.mostrarToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'warning');
+      return;
+    }
 
-      return coincideNombre && coincideMarca && coincideCategoria;
-    });
-  }
+    // Verificar si el email ya existe
+    const emailExiste = this.usuarios.some(u => u.email === this.usuarioEditando.email);
+    if (emailExiste) {
+      await this.mostrarToast('⚠️ Este email ya está registrado', 'warning');
+      return;
+    }
 
-  limpiarFiltroNombre() {
-    this.filtroNombre = '';
-    this.aplicarFiltrosInternos();
-  }
+    const nuevoUsuario = {
+      nombre: this.usuarioEditando.nombre,
+      email: this.usuarioEditando.email,
+      rol: this.usuarioEditando.rol || 'usuario',
+      password: this.usuarioEditando.password,
+      fechaCreacion: new Date().toISOString()
+    };
 
-  limpiarFiltroMarca() {
-    this.filtroMarca = '';
-    this.aplicarFiltrosInternos();
-  }
-
-  limpiarFiltroCategoria() {
-    this.filtroCategoria = '';
-    this.aplicarFiltrosInternos();
-  }
-
-  limpiarTodosFiltros() {
-    this.filtroNombre = '';
-    this.filtroMarca = '';
-    this.filtroCategoria = '';
-    this.aplicarFiltrosInternos();
-  }
-
-  // =============================
-  // 👥 USUARIOS
-  // =============================
-  obtenerUsuarios() {
     const ref = collection(this.firestore, 'usuarios');
-    collectionData(ref, { idField: 'id' }).subscribe((data) => {
-      this.usuarios = data;
-    });
+    await addDoc(ref, nuevoUsuario);
+    
+    await this.mostrarToast('✅ Usuario agregado correctamente');
+    this.cerrarModalAgregarUsuario();
+  } catch (error) {
+    console.error('Error al agregar usuario:', error);
+    await this.mostrarToast('❌ Error al agregar el usuario', 'danger');
   }
+}
 
-  editarUsuario(usuario: any) {
-    console.log('✏️ Editando usuario:', usuario);
+// Modal Editar Usuario
+editarUsuario(usuario: any) {
+  this.mostrarModalUsuario = false;
+  
+  this.usuarioEditandoId = '';
+  this.usuarioEditando = {
+    nombre: '',
+    email: '',
+    rol: 'usuario'
+  };
+  
+  this.cdr.detectChanges();
+  
+  setTimeout(() => {
+    this.usuarioEditandoId = usuario.id;
     
-    // Cerrar el modal si está abierto
-    this.mostrarModalUsuario = false;
+    this.usuarioEditando = { 
+      nombre: usuario.nombre || '',
+      email: usuario.email || '',
+      rol: usuario.rol || 'usuario'
+    };
     
-    // Limpiar estado previo
+    this.mostrarModalUsuario = true;
+    this.cdr.detectChanges();
+  }, 150);
+}
+
+cerrarModalUsuario() {
+  this.mostrarModalUsuario = false;
+  this.cdr.detectChanges();
+  
+  setTimeout(() => {
     this.usuarioEditandoId = '';
     this.usuarioEditando = {
       nombre: '',
       email: '',
       rol: 'usuario'
     };
-    
-    // Forzar detección de cambios
     this.cdr.detectChanges();
+  }, 100);
+}
+
+async guardarUsuarioEditado(id: string) {
+  try {
+    if (!this.usuarioEditando || !this.usuarioEditando.email) {
+      await this.mostrarToast('❌ No hay datos para guardar', 'danger');
+      return;
+    }
+
+    if (!this.usuarioEditando.email.includes('@')) {
+      await this.mostrarToast('⚠️ Por favor ingresa un email válido', 'warning');
+      return;
+    }
+
+    const docRef = doc(this.firestore, `usuarios/${id}`);
+    const datosActualizar = {
+      nombre: this.usuarioEditando.nombre || '',
+      email: this.usuarioEditando.email || '',
+      rol: this.usuarioEditando.rol || 'usuario',
+    };
+
+    await updateDoc(docRef, datosActualizar);
     
-    // Esperar un momento antes de abrir el modal con los nuevos datos
-    setTimeout(() => {
-      this.usuarioEditandoId = usuario.id;
-      
-      // Crear una copia profunda del usuario
-      this.usuarioEditando = { 
-        nombre: usuario.nombre || '',
-        email: usuario.email || '',
-        rol: usuario.rol || 'usuario'
-      };
-      
-      console.log('📋 Datos cargados:', {
-        id: this.usuarioEditandoId,
-        usuario: this.usuarioEditando
-      });
-      
-      // Abrir el modal
-      this.mostrarModalUsuario = true;
-      this.cdr.detectChanges();
-      
-      console.log('✅ Modal de edición de usuario abierto');
-    }, 150);
-  }
-
-  abrirModalUsuario(usuario: any) {
-    this.editarUsuario(usuario);
-  }
-
-  cerrarModalUsuario() {
-    console.log('❌ Cerrando modal de usuario...');
-    this.mostrarModalUsuario = false;
-    this.cdr.detectChanges();
-    
-    setTimeout(() => {
-      this.usuarioEditandoId = '';
-      this.usuarioEditando = {
-        nombre: '',
-        email: '',
-        rol: 'usuario'
-      };
-      this.cdr.detectChanges();
-      console.log('✅ Modal de usuario cerrado y estado limpiado');
-    }, 100);
-  }
-
-  cancelarEdicion() {
+    await this.mostrarToast('✅ Usuario actualizado correctamente');
     this.cerrarModalUsuario();
+  } catch (error) {
+    console.error('Error al actualizar usuario:', error);
+    await this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
+  }
+}
+
+// Cambiar rol directamente
+async cambiarRolUsuario(usuarioId: string, nuevoRol: string) {
+  try {
+    const docRef = doc(this.firestore, `usuarios/${usuarioId}`);
+    await updateDoc(docRef, { rol: nuevoRol });
+    await this.mostrarToast(`✅ Rol actualizado a ${nuevoRol}`, 'success');
+  } catch (error) {
+    console.error('Error al cambiar rol:', error);
+    await this.mostrarToast('❌ Error al cambiar el rol', 'danger');
+  }
+}
+
+async eliminarUsuario(id: string) {
+  try {
+    const docRef = doc(this.firestore, `usuarios/${id}`);
+    await deleteDoc(docRef);
+    await this.mostrarToast('🗑️ Usuario eliminado correctamente', 'danger');
+  } catch (error) {
+    console.error('Error eliminando usuario:', error);
+    await this.mostrarToast('❌ Error al eliminar el usuario', 'danger');
+  }
+}
+
+// Exportar a CSV
+exportarUsuariosCSV() {
+  if (this.usuariosFiltrados.length === 0) {
+    this.mostrarToast('⚠️ No hay usuarios para exportar', 'warning');
+    return;
   }
 
-  async guardarUsuarioEditado(id: string) {
-    try {
-      console.log('💾 Guardando usuario. ID:', id, 'Datos:', this.usuarioEditando);
-      
-      if (!this.usuarioEditando || !this.usuarioEditando.email) {
-        await this.mostrarToast('❌ No hay datos para guardar', 'danger');
-        return;
-      }
+  const headers = ['ID', 'Nombre', 'Email', 'Rol', 'Fecha Creación'];
+  const rows = this.usuariosFiltrados.map(u => [
+    u.id,
+    u.nombre || 'Sin nombre',
+    u.email,
+    u.rol || 'usuario',
+    u.fechaCreacion || 'N/A'
+  ]);
 
-      if (!this.usuarioEditando.email.includes('@')) {
-        await this.mostrarToast('⚠️ Por favor ingresa un email válido', 'warning');
-        return;
-      }
+  let csvContent = headers.join(',') + '\n';
+  rows.forEach(row => {
+    csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+  });
 
-      const docRef = doc(this.firestore, `usuarios/${id}`);
-      const datosActualizar = {
-        nombre: this.usuarioEditando.nombre || '',
-        email: this.usuarioEditando.email || '',
-        rol: this.usuarioEditando.rol || 'usuario',
-      };
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', `usuarios_${new Date().getTime()}.csv`);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  this.mostrarToast('✅ Usuarios exportados correctamente', 'success');
+}
 
-      console.log('🔄 Actualizando en Firestore...', datosActualizar);
 
-      await updateDoc(docRef, datosActualizar);
-      
-      await this.mostrarToast('✅ Usuario actualizado correctamente');
-      this.cerrarModalUsuario();
-      
-      console.log('✅ Usuario guardado exitosamente');
-    } catch (error) {
-      console.error('❌ Error al actualizar usuario:', error);
-      await this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
-    }
-  }
 
-  async eliminarUsuario(id: string) {
-    try {
-      const docRef = doc(this.firestore, `usuarios/${id}`);
-      await deleteDoc(docRef);
-      await this.mostrarToast('🧹 Usuario eliminado correctamente', 'danger');
-    } catch (error) {
-      console.error('Error eliminando usuario:', error);
-      await this.mostrarToast('❌ Error al eliminar el usuario', 'danger');
-    }
-  }
 
   // =============================
-  // 📩 MENSAJES DE CONTACTO
+  // 📧 MENSAJES DE CONTACTO
   // =============================
+
   obtenerMensajes() {
     const ref = collection(this.firestore, 'contactMessages');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -639,7 +1068,7 @@ export class AdminPage {
   }
 
   // =============================
-  // 📧 NEWSLETTER - FUNCIONES
+  // 📰 NEWSLETTER
   // =============================
   
   obtenerSuscriptores() {
@@ -652,7 +1081,6 @@ export class AdminPage {
         return 0;
       });
       this.aplicarFiltroNewsletter();
-      console.log('✅ Suscriptores cargados:', this.suscriptores.length);
     });
   }
 
@@ -695,68 +1123,40 @@ export class AdminPage {
     }
   }
 
-  // =============================
-  // 🗑️ ELIMINAR SUSCRIPTOR - CON MODAL
-  // =============================
-  
-  /**
-   * Abre el modal de confirmación para eliminar un suscriptor
-   */
   eliminarSuscriptor(id: string) {
-    console.log('🗑️ Solicitando eliminar suscriptor:', id);
     this.suscriptorAEliminarId = id;
     this.mostrarModalEliminarSuscriptor = true;
     this.cdr.detectChanges();
   }
 
-  /**
-   * Cierra el modal de confirmación sin eliminar
-   */
   cerrarModalEliminarSuscriptor() {
-    console.log('❌ Cancelando eliminación de suscriptor');
     this.mostrarModalEliminarSuscriptor = false;
     this.suscriptorAEliminarId = '';
     this.cdr.detectChanges();
   }
 
-  /**
-   * Ejecuta la eliminación del suscriptor después de confirmar
-   */
   async confirmarEliminacionSuscriptor() {
     if (!this.suscriptorAEliminarId) {
-      console.error('❌ No hay ID de suscriptor para eliminar');
       return;
     }
 
     try {
-      console.log('🗑️ Eliminando suscriptor con ID:', this.suscriptorAEliminarId);
-      
       const docRef = doc(this.firestore, `newsletter/${this.suscriptorAEliminarId}`);
       await deleteDoc(docRef);
       
-      // Remover de seleccionados si estaba seleccionado
       this.suscriptoresSeleccionados.delete(this.suscriptorAEliminarId);
       
       await this.mostrarToast('🗑️ Suscriptor eliminado correctamente', 'danger');
-      console.log('✅ Suscriptor eliminado exitosamente');
-      
-      // Cerrar el modal
       this.cerrarModalEliminarSuscriptor();
       
     } catch (error) {
-      console.error('❌ Error eliminando suscriptor:', error);
+      console.error('Error eliminando suscriptor:', error);
       await this.mostrarToast('❌ Error al eliminar el suscriptor', 'danger');
       this.cerrarModalEliminarSuscriptor();
     }
   }
 
-  // =============================
-  // 📧 ENVIAR NEWSLETTER
-  // =============================
-
   abrirModalEnviarNewsletter() {
-    console.log('📧 Abriendo modal de newsletter...');
-    
     if (this.suscriptores.length === 0) {
       this.mostrarToast('⚠️ No hay suscriptores registrados', 'warning');
       return;
@@ -767,29 +1167,19 @@ export class AdminPage {
       return;
     }
 
-    // Solo limpiar los campos del formulario, NO la selección de suscriptores
     this.asuntoNewsletter = '';
     this.mensajeNewsletter = '';
     this.mostrarModalEnviarNewsletter = true;
     this.cdr.detectChanges();
-    
-    console.log('✅ Modal de newsletter abierto. Estado:', {
-      suscriptoresSeleccionados: this.suscriptoresSeleccionados.size,
-      mostrarModal: this.mostrarModalEnviarNewsletter
-    });
   }
 
   cerrarModalEnviarNewsletter() {
-    console.log('❌ Cerrando modal de newsletter...');
     this.mostrarModalEnviarNewsletter = false;
     
-    // Solo limpiar los campos del formulario
     this.asuntoNewsletter = '';
     this.mensajeNewsletter = '';
     
-    // NO limpiar la selección aquí - solo cuando se envíe exitosamente
     this.cdr.detectChanges();
-    console.log('✅ Modal de newsletter cerrado');
   }
 
   async enviarNewsletter() {
@@ -822,8 +1212,6 @@ export class AdminPage {
         this.suscriptoresSeleccionados.has(s.id)
       );
 
-      console.log(`📧 Enviando newsletter a ${suscriptoresAEnviar.length} suscriptores...`);
-
       for (const suscriptor of suscriptoresAEnviar) {
         try {
           const templateParams = {
@@ -842,12 +1230,10 @@ export class AdminPage {
           );
 
           exitosos++;
-          console.log(`✅ Correo enviado a ${suscriptor.email}`);
-          
           await new Promise(resolve => setTimeout(resolve, 200));
           
         } catch (error) {
-          console.error(`❌ Error enviando a ${suscriptor.email}:`, error);
+          console.error(`Error enviando a ${suscriptor.email}:`, error);
           fallidos++;
         }
       }
@@ -871,6 +1257,7 @@ export class AdminPage {
   // =============================
   // 🚪 SESIÓN
   // =============================
+  
   cerrarSesion() {
     this.authService.logout();
     this.router.navigate(['/login']);

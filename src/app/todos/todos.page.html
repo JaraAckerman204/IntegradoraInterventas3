@@ -47,22 +47,13 @@
                 [alt]="product.nombre"
                 (error)="$event.target.src='assets/img/placeholder.png'"
               >
-              <div class="image-overlay">
-                <button class="quick-view-btn" (click)="viewProduct(product)">
-                  <ion-icon name="eye-outline"></ion-icon>
-                  Ver detalles
-                </button>
-              </div>
             </div>
 
             <!-- Información del producto -->
             <div class="product-info">
               
-              <!-- ID y Categoría -->
+              <!-- Categoría -->
               <div>
-                <span class="product-id" *ngIf="product.id">
-                  ID: {{ product.id }}
-                </span>
                 <span class="product-category" *ngIf="product.categoria">
                   {{ product.categoria }}
                 </span>
@@ -80,18 +71,13 @@
                 <span>{{ product.marca }}</span>
               </div>
 
-              <!-- Footer con precio y botón -->
+              <!-- Footer con botón -->
               <div class="product-footer">
-                <div class="price-container">
-                  <span class="price-label">Precio</span>
-                  <span class="price">${{ product.precio | number:'1.2-2' }}</span>
-                </div>
-
-                <button class="add-to-cart-btn" (click)="addToCart(product)">
+                <button class="view-product-btn" (click)="viewProduct(product)">
                   <span class="btn-icon">
-                    <ion-icon name="cart-outline"></ion-icon>
+                    <ion-icon name="eye-outline"></ion-icon>
                   </span>
-                  <span class="btn-text">Agregar</span>
+                  <span class="btn-text">Ver detalles</span>
                 </button>
               </div>
 
@@ -105,43 +91,60 @@
 
   </section>
 
-  <!-- MODAL DE DETALLES DEL PRODUCTO -->
-  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Detalles del Producto</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeModal()">
-              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
+<!-- MODAL DE DETALLES DEL PRODUCTO -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-container product-detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
       
-      <ion-content class="modal-content">
+      <!-- 🎯 Header del Modal -->
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Detalles del Producto</h2>
+            <p>Información completa y opciones de compra</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="closeModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- 📋 Contenido del Modal -->
+      <div class="modal-body-custom">
         <div class="product-detail-container" *ngIf="selectedProduct">
           
           <!-- Imagen grande del producto -->
           <div class="detail-image-section">
-            <img 
-              [src]="selectedProduct.imagen || 'assets/img/placeholder.png'" 
-              [alt]="selectedProduct.nombre"
-              (error)="$event.target.src='assets/img/placeholder.png'"
-            >
+            <div class="preview-image">
+              <img 
+                [src]="selectedProduct.imagen || 'assets/img/placeholder.png'" 
+                [alt]="selectedProduct.nombre"
+                (error)="$event.target.src='assets/img/placeholder.png'">
+            </div>
           </div>
 
           <!-- Información detallada -->
           <div class="detail-info-section">
             
-            <!-- ID y Categoría -->
-            <div class="detail-badges">
-              <span class="detail-id" *ngIf="selectedProduct.id">
-                <ion-icon name="cube-outline"></ion-icon>
-                ID: {{ selectedProduct.id }}
-              </span>
-              <span class="detail-category" *ngIf="selectedProduct.categoria">
+            <!-- SKU -->
+            <div class="form-group-custom" *ngIf="selectedProduct.sku">
+              <label class="form-label-custom">
+                <ion-icon name="barcode-outline"></ion-icon>
+                <span>SKU</span>
+              </label>
+              <div class="detail-value">{{ selectedProduct.sku }}</div>
+            </div>
+
+            <!-- Categoría -->
+            <div class="detail-badges" *ngIf="selectedProduct.categoria">
+              <span class="detail-category">
                 {{ selectedProduct.categoria }}
+              </span>
+              <span class="detail-subcategory" *ngIf="selectedProduct.subcategoria">
+                {{ selectedProduct.subcategoria }}
               </span>
             </div>
 
@@ -155,59 +158,86 @@
             </div>
 
             <!-- Descripción completa -->
-            <div class="detail-description">
+            <div class="detail-description" *ngIf="selectedProduct.descripcion">
               <h3>Descripción</h3>
               <p>{{ selectedProduct.descripcion }}</p>
             </div>
 
-            <!-- URL si existe -->
-            <div class="detail-url" *ngIf="selectedProduct.url">
-              <ion-icon name="link-outline"></ion-icon>
-              <a [href]="selectedProduct.url" target="_blank">Ver más información</a>
+            <!-- Colores disponibles -->
+            <div class="form-group-custom" *ngIf="selectedProduct.colores && selectedProduct.colores.length > 0">
+              <label class="form-label-custom">
+                <ion-icon name="color-palette-outline"></ion-icon>
+                <span>Colores Disponibles</span>
+              </label>
+              <div class="colores-display">
+                <span class="color-badge" *ngFor="let color of selectedProduct.colores">
+                  {{ color }}
+                </span>
+              </div>
+            </div>
+
+            <!-- SELECT: Modalidades (Mayoreo/Menudeo) -->
+            <div class="form-group-custom" *ngIf="selectedProduct.modalidades && selectedProduct.modalidades.length > 0">
+              <label class="form-label-custom required">
+                <ion-icon name="cart-outline"></ion-icon>
+                <span>Selecciona una Opción</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select class="custom-select-native" [(ngModel)]="selectedModalidad" (ngModelChange)="onModalidadChange()">
+                  <option value="">Elige una opción de compra</option>
+                  <option *ngFor="let modalidad of selectedProduct.modalidades" [value]="modalidad.id">
+                    {{ modalidad.modalidad }} - {{ modalidad.tamano }} - {{ modalidad.contenido }} - ${{ modalidad.precio }}
+                  </option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Información de la modalidad seleccionada -->
+            <div class="modalidad-selected-info" *ngIf="selectedModalidadObj">
+              <div class="info-card">
+                <div class="info-badge" [class.mayoreo]="selectedModalidadObj.modalidad === 'Mayoreo'" [class.menudeo]="selectedModalidadObj.modalidad === 'Menudeo'">
+                  {{ selectedModalidadObj.modalidad }}
+                </div>
+                <div class="info-details">
+                  <div class="info-row">
+                    <ion-icon name="resize-outline"></ion-icon>
+                    <span>Tamaño: <strong>{{ selectedModalidadObj.tamano }}</strong></span>
+                  </div>
+                  <div class="info-row">
+                    <ion-icon name="layers-outline"></ion-icon>
+                    <span>Contenido: <strong>{{ selectedModalidadObj.contenido }}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SELECT: Sucursales disponibles -->
+            <div class="form-group-custom" *ngIf="selectedProduct.tiendas && selectedProduct.tiendas.length > 0">
+              <label class="form-label-custom">
+                <ion-icon name="storefront-outline"></ion-icon>
+                <span>Selecciona una Sucursal</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select class="custom-select-native" [(ngModel)]="selectedTienda">
+                  <option value="">Elige una sucursal</option>
+                  <option *ngFor="let tienda of selectedProduct.tiendas" [value]="tienda">
+                    {{ tienda }}
+                  </option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
             </div>
 
             <!-- Precio y controles -->
             <div class="detail-purchase-section">
               
-              <!-- Selector de tipo de venta -->
-              <div class="sale-type-selector">
-                <h3>Selecciona tipo de venta</h3>
-                <div class="sale-type-buttons">
-                  <button 
-                    class="sale-type-btn" 
-                    [class.active]="saleType === 'menudeo'"
-                    (click)="selectSaleType('menudeo')">
-                    <ion-icon name="cart-outline"></ion-icon>
-                    <div class="sale-type-info">
-                      <span class="sale-type-title">Menudeo</span>
-                      <span class="sale-type-desc">Venta al detalle</span>
-                    </div>
-                  </button>
-                  
-                  <button 
-                    class="sale-type-btn" 
-                    [class.active]="saleType === 'mayoreo'"
-                    (click)="selectSaleType('mayoreo')">
-                    <ion-icon name="business-outline"></ion-icon>
-                    <div class="sale-type-info">
-                      <span class="sale-type-title">Mayoreo</span>
-                      <span class="sale-type-desc">15% descuento</span>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
               <div class="detail-price-container">
                 <span class="detail-price-label">
-                  Precio {{ saleType === 'mayoreo' ? 'de Mayoreo' : 'de Menudeo' }}
+                  Precio por unidad
                 </span>
                 <div class="price-display">
                   <span class="detail-price">${{ getCurrentPrice() | number:'1.2-2' }}</span>
-                  <span class="price-unit">por unidad</span>
-                </div>
-                <div class="price-savings" *ngIf="saleType === 'mayoreo'">
-                  <ion-icon name="pricetag-outline"></ion-icon>
-                  Ahorras: ${{ (selectedProduct!.precio - getCurrentPrice()) | number:'1.2-2' }} por unidad
                 </div>
               </div>
 
@@ -227,20 +257,36 @@
                 <span class="total-label">Total a pagar</span>
                 <span class="total-price">${{ getTotal() | number:'1.2-2' }}</span>
               </div>
-
-              <!-- Botón agregar al carrito -->
-              <button class="modal-add-to-cart-btn" (click)="addToCartFromModal()">
-                <ion-icon name="cart-outline"></ion-icon>
-                Agregar al carrito
-              </button>
             </div>
 
           </div>
 
         </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
+      </div>
+
+      <!-- 📘 Footer del Modal -->
+      <div class="modal-footer-custom">
+        <button 
+          type="button"
+          class="btn-submit"
+          [disabled]="!selectedModalidad"
+          (click)="addToCartFromModal()">
+          <ion-icon name="cart-outline"></ion-icon>
+          <span>Agregar al carrito</span>
+        </button>
+        
+        <button 
+          type="button"
+          class="btn-cancel"
+          (click)="closeModal()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
   <app-footer></app-footer>
 

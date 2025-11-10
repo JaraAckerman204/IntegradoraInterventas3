@@ -30,7 +30,9 @@ import {
   addOutline,
   removeOutline,
   businessOutline,
-  pricetagOutline
+  pricetagOutline,
+  storefrontOutline,
+  linkOutline
 } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
@@ -70,6 +72,15 @@ export class TodosPage implements OnInit, AfterViewInit {
   selectedProduct: Producto | null = null;
   quantity = 1;
   saleType: 'mayoreo' | 'menudeo' = 'menudeo'; // Tipo de venta seleccionado
+  
+  // Selectores para tamaño, cantidad y tienda
+  selectedTamano: string = '';
+  selectedCantidad: number | string = '';
+  selectedTienda: string = '';
+
+  // ✅ Variables para modalidades
+  selectedModalidad: string = ''; // ID o valor seleccionado en el <select>
+  selectedModalidadObj: any = null; // Objeto completo de la modalidad elegida
 
   constructor(
     private productosService: ProductosService,
@@ -89,7 +100,9 @@ export class TodosPage implements OnInit, AfterViewInit {
       addOutline,
       removeOutline,
       businessOutline,
-      pricetagOutline
+      pricetagOutline,
+      storefrontOutline,
+      linkOutline
     });
   }
 
@@ -104,7 +117,7 @@ export class TodosPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // El setupScrollReveal se llama después de cargar los productos
+    // setupScrollReveal se llama después de cargar los productos
   }
 
   loadProducts() {
@@ -118,7 +131,7 @@ export class TodosPage implements OnInit, AfterViewInit {
         this.loading = false;
         console.log('📦 Total de productos:', productos.length);
         
-        // Configurar animaciones después de un pequeño delay para asegurar que el DOM esté listo
+        // Configurar animaciones después de un pequeño delay
         setTimeout(() => {
           console.log('🎬 Configurando animaciones de reveal...');
           this.setupScrollReveal();
@@ -150,7 +163,6 @@ export class TodosPage implements OnInit, AfterViewInit {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
-          // Agregar delay escalonado para efecto cascada
           setTimeout(() => {
             entry.target.classList.add('in-view');
             console.log('✨ Card animada:', index);
@@ -169,7 +181,12 @@ export class TodosPage implements OnInit, AfterViewInit {
     console.log('👁️ Ver detalles del producto:', product.nombre, 'ID:', product.id);
     this.selectedProduct = product;
     this.quantity = 1;
-    this.saleType = 'menudeo'; // Resetear a menudeo por defecto
+    this.saleType = 'menudeo';
+    this.selectedTamano = '';
+    this.selectedCantidad = '';
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
     this.isModalOpen = true;
   }
 
@@ -179,6 +196,26 @@ export class TodosPage implements OnInit, AfterViewInit {
     this.selectedProduct = null;
     this.quantity = 1;
     this.saleType = 'menudeo';
+    this.selectedTamano = '';
+    this.selectedCantidad = '';
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
+  }
+
+  // ✅ Manejar cambio en la modalidad seleccionada
+  onModalidadChange() {
+    if (!this.selectedProduct || !this.selectedModalidad) {
+      this.selectedModalidadObj = null;
+      return;
+    }
+
+    // Buscar modalidad seleccionada en el producto actual
+    this.selectedModalidadObj = this.selectedProduct.modalidades?.find(
+      (m: any) => m.id === this.selectedModalidad
+    ) || null;
+
+    console.log('🛍️ Modalidad seleccionada:', this.selectedModalidadObj);
   }
 
   // Cambiar tipo de venta
@@ -187,13 +224,16 @@ export class TodosPage implements OnInit, AfterViewInit {
     console.log('🏪 Tipo de venta seleccionado:', type);
   }
 
-  // Obtener el precio según el tipo de venta
+  // Obtener el precio según la modalidad o tipo de venta
   getCurrentPrice(): number {
+    if (this.selectedModalidadObj) {
+      return this.selectedModalidadObj.precio;
+    }
+
     if (!this.selectedProduct) return 0;
     
-    // Si es mayoreo, aplicar un descuento del 15% (puedes ajustar este porcentaje)
     if (this.saleType === 'mayoreo') {
-      return this.selectedProduct.precio * 0.85; // 15% de descuento
+      return this.selectedProduct.precio * 0.85;
     }
     
     return this.selectedProduct.precio;
@@ -216,22 +256,55 @@ export class TodosPage implements OnInit, AfterViewInit {
     }
   }
 
-  // Agregar al carrito desde el modal
-  addToCartFromModal() {
-    if (this.selectedProduct) {
-      for (let i = 0; i < this.quantity; i++) {
-        this.cartService.addToCart(this.selectedProduct);
-      }
-      this.showToast(`✅ ${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
-      this.closeModal();
-    }
+addToCartFromModal() {
+  if (!this.selectedProduct) return;
+
+  // ✅ Validar que haya una modalidad seleccionada
+  if (!this.selectedModalidadObj) {
+    this.showToast('Por favor selecciona una modalidad.', 'warning');
+    return;
   }
+
+  // ✅ Crear un objeto con la modalidad seleccionada
+  const modalidadSeleccionada = {
+    tipo: this.selectedModalidadObj.modalidad, // "Mayoreo" o "Menudeo"
+    tamano: this.selectedModalidadObj.tamano,
+    contenido: this.selectedModalidadObj.contenido,
+    precio: this.selectedModalidadObj.precio
+  };
+
+  // ✅ Crear el objeto con las opciones
+  const options = {
+    modalidad: this.selectedModalidadObj.modalidad,
+    tamano: this.selectedModalidadObj.tamano,
+    contenido: this.selectedModalidadObj.contenido,
+    sucursal: this.selectedTienda || ''
+  };
+
+  // ✅ Crear copia del producto con el precio correcto
+  const productWithModalidad = {
+    ...this.selectedProduct,
+    precio: this.selectedModalidadObj.precio,
+    modalidadSeleccionada
+  };
+
+  // ✅ Agregar el producto al carrito (solo una vez con la cantidad especificada)
+  for (let i = 0; i < this.quantity; i++) {
+    this.cartService.addToCart(productWithModalidad, options);
+  }
+
+  // Mensaje de confirmación
+  this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+
+  // Cerrar modal
+  this.closeModal();
+}
+
+
 
   addToCart(product: Producto) {
     console.log('🛒 Agregando al carrito:', product.nombre);
     this.cartService.addToCart(product);
-    
-    // Mostrar feedback al usuario
     this.showToast(`✅ ${product.nombre} agregado al carrito`, 'success');
   }
 

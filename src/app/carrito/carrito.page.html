@@ -27,22 +27,63 @@
   <!-- Lista de productos en el carrito -->
   <div *ngIf="cartItems.length > 0" class="cart-container">
     <ion-list>
-      <ion-item *ngFor="let item of cartItems" class="cart-item">
+      <ion-item *ngFor="let item of cartItems; let i = index" class="cart-item">
         <ion-thumbnail slot="start">
           <img [src]="item.imagen || 'assets/img/placeholder.png'" [alt]="item.nombre">
         </ion-thumbnail>
         
         <ion-label>
           <h2>{{ item.nombre }}</h2>
-          <p>{{ item.descripcion }}</p>
-          <p class="price">${{ item.precio }} c/u</p>
+          <p *ngIf="item.descripcion">{{ item.descripcion }}</p>
+          
+          <!-- Mostrar información de la modalidad seleccionada -->
+          <div class="modalidad-info" *ngIf="item.modalidadSeleccionada">
+            <div class="modalidad-badge" [class.mayoreo]="item.modalidadSeleccionada.tipo === 'Mayoreo'" [class.menudeo]="item.modalidadSeleccionada.tipo === 'Menudeo'">
+              {{ item.modalidadSeleccionada.tipo }}
+            </div>
+            <div class="modalidad-details">
+              <span class="detail-item">
+                <ion-icon name="resize-outline"></ion-icon>
+                {{ item.modalidadSeleccionada.tamano }}
+              </span>
+              <span class="detail-separator">•</span>
+              <span class="detail-item">
+                <ion-icon name="layers-outline"></ion-icon>
+                {{ item.modalidadSeleccionada.contenido }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Mostrar opciones adicionales (formato antiguo para compatibilidad) -->
+          <div class="options-display" *ngIf="(item.tamano || item.contenido || item.sucursal) && !item.modalidadSeleccionada">
+            <div class="option-item" *ngIf="item.tamano">
+              <ion-icon name="resize-outline"></ion-icon>
+              <strong>Tamaño:</strong> {{ item.tamano }}
+            </div>
+            <div class="option-item" *ngIf="item.contenido">
+              <ion-icon name="layers-outline"></ion-icon>
+              <strong>Contenido:</strong> {{ item.contenido }}
+            </div>
+            <div class="option-item" *ngIf="item.sucursal">
+              <ion-icon name="storefront-outline"></ion-icon>
+              <strong>Sucursal:</strong> {{ item.sucursal }}
+            </div>
+          </div>
+
+          <!-- Sucursal (si aplica) -->
+          <div class="sucursal-info" *ngIf="item.sucursal && item.modalidadSeleccionada">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>{{ item.sucursal }}</span>
+          </div>
+          
+          <p class="price">${{ item.precio | number:'1.2-2' }} c/u</p>
         </ion-label>
 
         <div slot="end" class="quantity-controls">
           <ion-button 
             fill="clear" 
             size="small" 
-            (click)="decrementQuantity(item.id!)">
+            (click)="decrementQuantity(item.cartItemId || '')">
             <ion-icon name="remove-outline"></ion-icon>
           </ion-button>
           
@@ -51,7 +92,7 @@
           <ion-button 
             fill="clear" 
             size="small" 
-            (click)="incrementQuantity(item.id!)">
+            (click)="incrementQuantity(item.cartItemId || '')">
             <ion-icon name="add-outline"></ion-icon>
           </ion-button>
           
@@ -59,7 +100,7 @@
             fill="clear" 
             color="danger" 
             size="small" 
-            (click)="removeItem(item.id!)">
+            (click)="removeItem(item.cartItemId || '')">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
         </div>
@@ -118,7 +159,7 @@
       <ion-card-content>
         <div class="summary-row">
           <span>Subtotal:</span>
-          <span>${{ total.toFixed(2) }}</span>
+          <span>${{ total | number:'1.2-2' }}</span>
         </div>
         <div class="summary-row">
           <span>Envío:</span>
@@ -126,7 +167,7 @@
         </div>
         <div class="summary-row total">
           <strong>Total:</strong>
-          <strong>${{ total.toFixed(2) }}</strong>
+          <strong>${{ total | number:'1.2-2' }}</strong>
         </div>
 
         <ion-button 

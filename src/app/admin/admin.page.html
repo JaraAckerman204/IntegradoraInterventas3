@@ -1,7 +1,7 @@
 <app-header></app-header>
 
 <ion-content>
-  <!-- 🟣 HERO -->
+
   <div class="admin-hero">
     <div class="hero-content">
       <div class="hero-icon">
@@ -12,11 +12,9 @@
     </div>
   </div>
 
-  <!-- 🎯 NAVEGACIÓN CON TABS -->
   <section class="admin-section">
     <div class="admin-container">
-      
-      <!-- 📑 Tabs de navegación -->
+
       <div class="tabs-navigation">
         <button 
           class="tab-btn" 
@@ -50,14 +48,13 @@
           <span>Newsletter</span>
         </button>
       </div>
-
-      <!-- 📑 Contenido de cada tab -->
+      
       <div class="tab-content">
         
-<!-- ====================== -->
-<!-- TAB: PRODUCTOS -->
-<!-- ====================== -->
-<div *ngIf="tabActiva === 'productos'" class="content-wrapper">
+        <!-- ====================== -->
+        <!-- TAB: PRODUCTOS -->
+        <!-- ====================== -->
+        <div *ngIf="tabActiva === 'productos'" class="content-wrapper" data-tab="productos">
   <div class="content-header">
     <div>
       <h2>Gestión de Productos</h2>
@@ -76,75 +73,115 @@
   </div>
 
   <!-- 🔍 FILTROS ACTIVOS -->
-  <div class="active-filters" *ngIf="filtroNombre || filtroMarca">
-    <div class="filter-header">
-      <ion-icon name="filter-outline"></ion-icon>
-      <span>Filtros activos:</span>
-    </div>
-    <div class="filter-tags">
-      <div class="filter-tag" *ngIf="filtroNombre">
-        <span>Nombre: {{ filtroNombre }}</span>
-        <button (click)="limpiarFiltroNombre()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-      <div class="filter-tag" *ngIf="filtroMarca">
-        <span>Marca: {{ filtroMarca }}</span>
-        <button (click)="limpiarFiltroMarca()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-      <button class="clear-all-btn" (click)="limpiarTodosFiltros()">
-        Limpiar todos
+<div class="active-filters" *ngIf="filtroNombre || filtroSku || filtroMarca || filtroCategoria || filtroSubcategoria">
+  <div class="filter-header">
+    <ion-icon name="filter-outline"></ion-icon>
+    <span>Filtros activos:</span>
+  </div>
+  <div class="filter-tags">
+    <div class="filter-tag" *ngIf="filtroNombre">
+      <span>Nombre: {{ filtroNombre }}</span>
+      <button (click)="limpiarFiltroNombre()">
+        <ion-icon name="close-outline"></ion-icon>
       </button>
     </div>
-    <div class="results-count">
-      <span>{{ productosFiltrados.length }} de {{ productos.length }} productos</span>
+    <div class="filter-tag" *ngIf="filtroSku">
+      <span>SKU: {{ filtroSku }}</span>
+      <button (click)="limpiarFiltroSku()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
     </div>
+    <div class="filter-tag" *ngIf="filtroMarca">
+      <span>Marca: {{ filtroMarca }}</span>
+      <button (click)="limpiarFiltroMarca()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="filter-tag" *ngIf="filtroCategoria">
+      <span>Categoría: {{ filtroCategoria }}</span>
+      <button (click)="limpiarFiltroCategoria()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="filter-tag" *ngIf="filtroSubcategoria">
+      <span>Subcategoría: {{ filtroSubcategoria }}</span>
+      <button (click)="limpiarFiltroSubcategoria()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <button class="clear-all-btn" (click)="limpiarTodosFiltros()">
+      Limpiar todos
+    </button>
   </div>
+</div>
 
+  <!-- 🧾 TARJETAS DE PRODUCTOS -->
   <div class="products-grid" *ngIf="productosFiltrados.length > 0">
     <div class="product-card" *ngFor="let producto of productosFiltrados">
+      
+      <!-- IMAGEN DEL PRODUCTO -->
       <div class="product-image">
-        <img [src]="producto.imagen || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'" />
+        <img [src]="producto.imagen || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'" 
+             alt="{{ producto.nombre }}" />
       </div>
 
-      <div class="product-info">
-        <div class="product-id-label">
-          <ion-icon name="key-outline"></ion-icon>
-          <span>ID: {{ producto.id }}</span>
+      <!-- CONTENIDO COMPRIMIDO -->
+      <div class="product-content">
+        
+        <!-- NOMBRE Y SKU EN UNA LÍNEA -->
+        <div class="product-header">
+          <h4 class="product-name">{{ producto.nombre }}</h4>
+          <span class="product-sku" *ngIf="producto.sku">SKU: {{ producto.sku }}</span>
         </div>
-        <h4>{{ producto.nombre }}</h4>
-        <p class="product-description">{{ producto.descripcion }}</p>
-        <div class="product-price">
-          <ion-icon name="cash-outline"></ion-icon>
-          <span>${{ producto.precio }}</span>
+
+        <!-- CATEGORÍA Y MARCA COMPRIMIDA -->
+        <div class="product-details">
+          <span class="detail-item" *ngIf="producto.categoria">
+            <ion-icon name="folder-outline"></ion-icon>
+            {{ producto.categoria }}
+          </span>
+          <span class="detail-item" *ngIf="producto.marca">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            Marca: {{ producto.marca }}
+          </span>
         </div>
+        <!-- MODALIDADES DISPONIBLES -->
+    <div class="product-modalidades" *ngIf="getModalidadesDisponibles(producto).length > 0">
+      <span class="modalidad-badge" *ngIf="tieneModalidad(producto, 'Mayoreo')">
+        <ion-icon name="cart-outline"></ion-icon>
+        Mayoreo
+      </span>
+      <span class="modalidad-badge" *ngIf="tieneModalidad(producto, 'Menudeo')">
+        <ion-icon name="cart-outline"></ion-icon>
+        Menudeo
+      </span>
+    </div>
       </div>
 
-      <div class="product-actions">
-        <button class="btn-warning" (click)="editarProducto(producto)">
+      <!-- BOTONES DE ACCIÓN (FOOTER) -->
+      <div class="product-footer">
+        <button class="btn-edit" (click)="editarProducto(producto)" title="Editar">
           <ion-icon name="create-outline"></ion-icon>
+          <span>Editar</span>
         </button>
-        <button class="btn-danger" (click)="eliminarProducto(producto.id)">
+        <button class="btn-delete" (click)="eliminarProducto(producto.id)" title="Eliminar">
           <ion-icon name="trash-outline"></ion-icon>
+          <span>Eliminar</span>
         </button>
       </div>
     </div>
   </div>
 
+  <!-- ESTADO VACÍO - SIN RESULTADOS DE BÚSQUEDA -->
   <div class="empty-state" *ngIf="productosFiltrados.length === 0 && (filtroNombre || filtroMarca)">
     <div class="empty-icon">
       <ion-icon name="search-outline"></ion-icon>
     </div>
     <h4>No se encontraron productos</h4>
     <p>Intenta con otros términos de búsqueda</p>
-    <button class="btn-clear-filter" (click)="limpiarTodosFiltros()">
-      <ion-icon name="refresh-outline"></ion-icon>
-      <span>Limpiar filtros</span>
-    </button>
   </div>
 
+  <!-- ESTADO VACÍO - SIN PRODUCTOS -->
   <div class="empty-state" *ngIf="productos.length === 0">
     <div class="empty-icon">
       <ion-icon name="cube-outline"></ion-icon>
@@ -152,64 +189,180 @@
     <h4>No hay productos</h4>
     <p>Agrega tu primer producto para comenzar</p>
   </div>
-</div>
+        </div>
         
         <!-- ====================== -->
         <!-- TAB: USUARIOS -->
         <!-- ====================== -->
-        <div *ngIf="tabActiva === 'usuarios'" class="content-wrapper">
-  <div class="content-header">
-    <div>
-      <h2>Usuarios Registrados</h2>
-      <p>Gestiona los usuarios activos del sistema</p>
+        <div *ngIf="tabActiva === 'usuarios'" class="content-wrapper" data-tab="usuarios">
+<div class="content-header">
+  <div>
+    <h2>Usuarios Registrados</h2>
+    <p>Gestiona los usuarios activos del sistema</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-search" (click)="abrirModalBusquedaUsuarios()">
+      <ion-icon name="search-outline"></ion-icon>
+      <span>Buscar</span>
+    </button>
+    <button class="btn-add-product" (click)="abrirModalAgregarUsuario()">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      <span>Agregar Usuario</span>
+    </button>
+  </div>
+</div>
+
+  <!-- 📊 ESTADÍSTICAS -->
+  <div class="users-stats">
+    <div class="stat-card-user">
+      <ion-icon name="people-outline"></ion-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ totalUsuarios }}</span>
+        <span class="stat-label">Total Usuarios</span>
+      </div>
+    </div>
+    <div class="stat-card-user admin">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ totalAdmins }}</span>
+        <span class="stat-label">Administradores</span>
+      </div>
+    </div>
+    <div class="stat-card-user regular">
+      <ion-icon name="person-outline"></ion-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ totalUsuariosRegulares }}</span>
+        <span class="stat-label">Usuarios Regulares</span>
+      </div>
     </div>
   </div>
 
-  <div class="users-list" *ngIf="usuarios.length > 0">
-    <div class="user-card" *ngFor="let user of usuarios">
-      
-      <div class="user-avatar">
-        <ion-icon name="person-outline"></ion-icon>
-      </div>
+  <!-- 🔍 FILTROS ACTIVOS -->
+<div class="active-filters" *ngIf="filtroNombreUsuario || filtroEmailUsuario || filtroRolUsuario">
+  <div class="filter-header">
+    <ion-icon name="filter-outline"></ion-icon>
+    <span>Filtros activos:</span>
+  </div>
+  <div class="filter-tags">
+    <div class="filter-tag" *ngIf="filtroNombreUsuario">
+      <span>Nombre: {{ filtroNombreUsuario }}</span>
+      <button (click)="filtroNombreUsuario = ''; aplicarFiltrosUsuarios()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="filter-tag" *ngIf="filtroEmailUsuario">
+      <span>Email: {{ filtroEmailUsuario }}</span>
+      <button (click)="filtroEmailUsuario = ''; aplicarFiltrosUsuarios()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="filter-tag" *ngIf="filtroRolUsuario">
+      <span>Rol: {{ filtroRolUsuario === 'admin' ? 'Administrador' : 'Usuario' }}</span>
+      <button (click)="filtroRolUsuario = ''; aplicarFiltrosUsuarios()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <button class="clear-all-btn" (click)="limpiarFiltrosUsuarios()">
+      Limpiar todos
+    </button>
+  </div>
+</div>
 
-      <div class="user-info">
-        <div class="user-id-label">
-          <ion-icon name="key-outline"></ion-icon>
-          <span>ID: {{ user.id }}</span>
-        </div>
-        <h4>{{ user.nombre || 'Sin nombre' }}</h4>
-        <p class="user-email">{{ user.email }}</p>
-        <div class="user-role-badge">
-          <ion-icon name="shield-checkmark-outline"></ion-icon>
-          <span>{{ user.rol || 'usuario' }}</span>
-        </div>
-      </div>
-
-      <div class="user-actions">
-        <button class="btn-warning" (click)="editarUsuario(user)">
-          <ion-icon name="create-outline"></ion-icon>
-        </button>
-        <button class="btn-danger" (click)="eliminarUsuario(user.id)">
-          <ion-icon name="trash-outline"></ion-icon>
-        </button>
-      </div>
-
+  <!-- 📋 TABLA DE USUARIOS -->
+  <div class="users-table-container" *ngIf="usuariosFiltrados.length > 0">
+    <div class="users-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th width="150">Rol</th>
+            <th width="150">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of usuariosFiltrados">
+            <td>
+              <div class="user-name-cell">
+                <ion-icon name="person-outline"></ion-icon>
+                <strong>{{ user.nombre || 'Sin nombre' }}</strong>
+                <small class="user-id">ID: {{ user.id }}</small>
+              </div>
+            </td>
+            <td>
+              <div class="user-email-cell">
+                <ion-icon name="mail-outline"></ion-icon>
+                <span>{{ user.email }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="rol-selector">
+                <select 
+                  [value]="user.rol || 'usuario'"
+                  (change)="cambiarRolUsuario(user.id, $any($event.target).value)"
+                  class="rol-select"
+                  [class.admin]="user.rol === 'admin'">
+                  <option value="usuario">Usuario</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button 
+                  class="btn-icon-table edit" 
+                  (click)="editarUsuario(user)"
+                  title="Editar usuario">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button 
+                  class="btn-icon-table danger" 
+                  (click)="eliminarUsuario(user.id)"
+                  title="Eliminar usuario">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
+  <!-- ESTADO VACÍO - SIN USUARIOS -->
   <div class="empty-state" *ngIf="usuarios.length === 0">
     <div class="empty-icon">
       <ion-icon name="people-outline"></ion-icon>
     </div>
     <h4>No hay usuarios</h4>
     <p>No se encontraron usuarios registrados</p>
+    <button class="btn-add-product" (click)="abrirModalAgregarUsuario()">
+      <ion-icon name="person-add-outline"></ion-icon>
+      <span>Agregar Primer Usuario</span>
+    </button>
   </div>
-</div>
+
+  <!-- ESTADO VACÍO - SIN RESULTADOS DE BÚSQUEDA -->
+  <div class="empty-state" *ngIf="usuarios.length > 0 && usuariosFiltrados.length === 0">
+    <div class="empty-icon">
+      <ion-icon name="search-outline"></ion-icon>
+    </div>
+    <h4>No se encontraron resultados</h4>
+    <p>Intenta con otros términos de búsqueda</p>
+  </div>
+
+      <button class="btn-export" (click)="exportarUsuariosCSV()">
+      <ion-icon name="download-outline"></ion-icon>
+      <span>Exportar CSV</span>
+    </button>
+
+        </div>
+        
 
         <!-- ====================== -->
         <!-- TAB: MENSAJES -->
         <!-- ====================== -->
-        <div *ngIf="tabActiva === 'mensajes'" class="content-wrapper">
+        <div *ngIf="tabActiva === 'mensajes'" class="content-wrapper" data-tab="mensajes">
           <div class="content-header">
             <div>
               <h2>Mensajes Recibidos</h2>
@@ -248,285 +401,287 @@
         <!-- ====================== -->
         <!-- TAB: NEWSLETTER -->
         <!-- ====================== -->
-<div *ngIf="tabActiva === 'newsletter'" class="content-wrapper">
-  <div class="content-header">
-    <div>
-      <h2>Newsletter</h2>
-      <p>Gestiona suscriptores y envía boletines promocionales</p>
-    </div>
-    <div class="header-actions">
-      <button class="btn-search" (click)="filtroEmailNewsletter ? limpiarFiltroNewsletter() : null">
-        <ion-icon [name]="filtroEmailNewsletter ? 'close-outline' : 'search-outline'"></ion-icon>
-        <input 
-          type="text" 
-          [(ngModel)]="filtroEmailNewsletter"
-          (ngModelChange)="aplicarFiltroNewsletter()"
-          placeholder="Buscar por email o nombre..."
-          class="search-input-inline">
-      </button>
-      <button 
-        class="btn-send-newsletter" 
-        (click)="abrirModalEnviarNewsletter()"
-        [disabled]="suscriptores.length === 0">
-        <ion-icon name="send-outline"></ion-icon>
-        <span>Enviar Newsletter</span>
-      </button>
-    </div>
-  </div>
+        <div *ngIf="tabActiva === 'newsletter'" class="content-wrapper" data-tab="newsletter">
+          <div class="content-header">
+            <div>
+              <h2>Newsletter</h2>
+              <p>Gestiona suscriptores y envía boletines promocionales</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn-search" (click)="filtroEmailNewsletter ? limpiarFiltroNewsletter() : null">
+                <ion-icon [name]="filtroEmailNewsletter ? 'close-outline' : 'search-outline'"></ion-icon>
+                <input 
+                  type="text" 
+                  [(ngModel)]="filtroEmailNewsletter"
+                  (ngModelChange)="aplicarFiltroNewsletter()"
+                  placeholder="Buscar por email o nombre..."
+                  class="search-input-inline">
+              </button>
+              <button 
+                class="btn-send-newsletter" 
+                (click)="abrirModalEnviarNewsletter()"
+                [disabled]="suscriptores.length === 0">
+                <ion-icon name="send-outline"></ion-icon>
+                <span>Enviar Newsletter</span>
+              </button>
+            </div>
+          </div>
 
-  <!-- 📊 Estadísticas -->
-  <div class="newsletter-stats">
-    <div class="stat-card-mini">
-      <ion-icon name="people-outline"></ion-icon>
-      <div class="stat-content">
-        <span class="stat-number">{{ suscriptores.length }}</span>
-        <span class="stat-label">Suscriptores</span>
-      </div>
-    </div>
-    <div class="stat-card-mini">
-      <ion-icon name="checkmark-circle-outline"></ion-icon>
-      <div class="stat-content">
-        <span class="stat-number">{{ suscriptoresFiltrados.length }}</span>
-        <span class="stat-label">Mostrados</span>
-      </div>
-    </div>
-    <div class="stat-card-mini" *ngIf="suscriptoresSeleccionados.size > 0">
-      <ion-icon name="mail-outline"></ion-icon>
-      <div class="stat-content">
-        <span class="stat-number">{{ suscriptoresSeleccionados.size }}</span>
-        <span class="stat-label">Seleccionados</span>
-      </div>
-    </div>
-  </div>
+          <!-- 📊 Estadísticas -->
+          <div class="newsletter-stats">
+            <div class="stat-card-mini">
+              <ion-icon name="people-outline"></ion-icon>
+              <div class="stat-content">
+                <span class="stat-number">{{ suscriptores.length }}</span>
+                <span class="stat-label">Suscriptores</span>
+              </div>
+            </div>
+            <div class="stat-card-mini">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <div class="stat-content">
+                <span class="stat-number">{{ suscriptoresFiltrados.length }}</span>
+                <span class="stat-label">Mostrados</span>
+              </div>
+            </div>
+            <div class="stat-card-mini" *ngIf="suscriptoresSeleccionados.size > 0">
+              <ion-icon name="mail-outline"></ion-icon>
+              <div class="stat-content">
+                <span class="stat-number">{{ suscriptoresSeleccionados.size }}</span>
+                <span class="stat-label">Seleccionados</span>
+              </div>
+            </div>
+          </div>
 
-  <!-- 📋 Tabla de Suscriptores -->
-  <div class="subscribers-table-container" *ngIf="suscriptoresFiltrados.length > 0">
-    
-    <!-- Controles de selección -->
-    <div class="table-controls">
-      <label class="checkbox-control">
-        <input 
-          type="checkbox" 
-          [(ngModel)]="seleccionarTodos"
-          (change)="toggleSeleccionarTodos()">
-        <span>Seleccionar todos ({{ suscriptoresFiltrados.length }})</span>
-      </label>
-    </div>
-
-    <!-- Tabla -->
-    <div class="subscribers-table">
-      <table>
-        <thead>
-          <tr>
-            <th width="50">
-              <ion-icon name="checkmark-outline"></ion-icon>
-            </th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Fecha de Suscripción</th>
-            <th width="100">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let suscriptor of suscriptoresFiltrados">
-            <td>
-              <label class="checkbox-control-cell">
+          <!-- 📋 Tabla de Suscriptores -->
+          <div class="subscribers-table-container" *ngIf="suscriptoresFiltrados.length > 0">
+            
+            <!-- Controles de selección -->
+            <div class="table-controls">
+              <label class="checkbox-control">
                 <input 
                   type="checkbox" 
-                  [checked]="suscriptoresSeleccionados.has(suscriptor.id)"
-                  (change)="toggleSuscriptorSeleccion(suscriptor.id)">
+                  [(ngModel)]="seleccionarTodos"
+                  (change)="toggleSeleccionarTodos()">
+                <span>Seleccionar todos ({{ suscriptoresFiltrados.length }})</span>
               </label>
-            </td>
-            <td>
-              <div class="subscriber-name">
-                <ion-icon name="person-outline"></ion-icon>
-                <span>{{ suscriptor.nombre }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="subscriber-email">
-                <ion-icon name="mail-outline"></ion-icon>
-                <span>{{ suscriptor.email }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="subscriber-date">
-                <ion-icon name="calendar-outline"></ion-icon>
-                <span>{{ suscriptor.fechaSuscripcion | date:'short' }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="table-actions">
- <button 
-  class="btn-icon-table danger" 
-  (click)="eliminarSuscriptor(suscriptor.id)"
-  title="Eliminar suscriptor">
-  <ion-icon name="trash-outline"></ion-icon>
-</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+            </div>
 
-  <!-- Estado vacío -->
-  <div class="empty-state" *ngIf="suscriptores.length === 0">
-    <div class="empty-icon">
-      <ion-icon name="newspaper-outline"></ion-icon>
-    </div>
-    <h4>No hay suscriptores</h4>
-    <p>Los usuarios que se suscriban al newsletter aparecerán aquí</p>
-  </div>
+            <!-- Tabla -->
+            <div class="subscribers-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="50">
+                      <ion-icon name="checkmark-outline"></ion-icon>
+                    </th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Fecha de Suscripción</th>
+                    <th width="100">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let suscriptor of suscriptoresFiltrados">
+                    <td>
+                      <label class="checkbox-control-cell">
+                        <input 
+                          type="checkbox" 
+                          [checked]="suscriptoresSeleccionados.has(suscriptor.id)"
+                          (change)="toggleSuscriptorSeleccion(suscriptor.id)">
+                      </label>
+                    </td>
+                    <td>
+                      <div class="subscriber-name">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <span>{{ suscriptor.nombre }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="subscriber-email">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <span>{{ suscriptor.email }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="subscriber-date">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                        <span>{{ suscriptor.fechaSuscripcion | date:'short' }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <button 
+                          class="btn-icon-table danger" 
+                          (click)="eliminarSuscriptor(suscriptor.id)"
+                          title="Eliminar suscriptor">
+                          <ion-icon name="trash-outline"></ion-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-  <!-- Sin resultados de búsqueda -->
-  <div class="empty-state" *ngIf="suscriptores.length > 0 && suscriptoresFiltrados.length === 0">
-    <div class="empty-icon">
-      <ion-icon name="search-outline"></ion-icon>
-    </div>
-    <h4>No se encontraron resultados</h4>
-    <p>Intenta con otros términos de búsqueda</p>
-    <button class="btn-clear-filter" (click)="limpiarFiltroNewsletter()">
-      <ion-icon name="refresh-outline"></ion-icon>
-      <span>Limpiar búsqueda</span>
-    </button>
-  </div>
-</div>
+          <!-- Estado vacío -->
+          <div class="empty-state" *ngIf="suscriptores.length === 0">
+            <div class="empty-icon">
+              <ion-icon name="newspaper-outline"></ion-icon>
+            </div>
+            <h4>No hay suscriptores</h4>
+            <p>Los usuarios que se suscriban al newsletter aparecerán aquí</p>
+          </div>
 
+          <!-- Sin resultados de búsqueda -->
+          <div class="empty-state" *ngIf="suscriptores.length > 0 && suscriptoresFiltrados.length === 0">
+            <div class="empty-icon">
+              <ion-icon name="search-outline"></ion-icon>
+            </div>
+            <h4>No se encontraron resultados</h4>
+            <p>Intenta con otros términos de búsqueda</p>
+            <button class="btn-clear-filter" (click)="limpiarFiltroNewsletter()">
+              <ion-icon name="refresh-outline"></ion-icon>
+              <span>Limpiar búsqueda</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
+
 
 <!-- 🎨 MODAL CONFIRMAR ELIMINACIÓN SUSCRIPTOR -->
 <div class="modal-overlay" *ngIf="mostrarModalEliminarSuscriptor" (click)="cerrarModalEliminarSuscriptor()">
-  <div class="modal-container delete-modal" (click)="$event.stopPropagation()">
-    <div class="modal-wrapper">
-      
-      <!-- 🎯 Header del Modal -->
-      <div class="modal-header-custom">
-        <div class="header-left">
-          <div class="header-icon delete-icon">
-            <ion-icon name="trash-outline"></ion-icon>
-          </div>
-          <div class="header-text">
-            <h2>¿Eliminar suscriptor?</h2>
-            <p>Esta acción no se puede deshacer</p>
-          </div>
-        </div>
-        <button class="close-btn" (click)="cerrarModalEliminarSuscriptor()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-
-      <!-- 📋 Contenido del Modal -->
-      <div class="modal-body-custom">
-        <div class="delete-warning">
-          <ion-icon name="warning-outline"></ion-icon>
-          <p>El suscriptor será eliminado permanentemente del sistema. Esta acción es irreversible.</p>
-        </div>
-      </div>
-
-      <!-- 🔘 Botones -->
-      <div class="modal-footer-custom">
-        <button 
-          type="button"
-          (click)="cerrarModalEliminarSuscriptor()"
-          class="btn-cancel">
-          <ion-icon name="close-outline"></ion-icon>
-          <span>Cancelar</span>
-        </button>
+    <div class="modal-container delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-wrapper">
         
-        <button 
-          type="button"
-          (click)="confirmarEliminacionSuscriptor()"
-          class="btn-delete">
-          <ion-icon name="trash-outline"></ion-icon>
-          <span>Eliminar</span>
-        </button>
-      </div>
+        <!-- 🎯 Header del Modal -->
+        <div class="modal-header-custom">
+          <div class="header-left">
+            <div class="header-icon delete-icon">
+              <ion-icon name="trash-outline"></ion-icon>
+            </div>
+            <div class="header-text">
+              <h2>¿Eliminar suscriptor?</h2>
+              <p>Esta acción no se puede deshacer</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="cerrarModalEliminarSuscriptor()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
 
+        <!-- 📋 Contenido del Modal -->
+        <div class="modal-body-custom">
+          <div class="delete-warning">
+            <ion-icon name="warning-outline"></ion-icon>
+            <p>El suscriptor será eliminado permanentemente del sistema. Esta acción es irreversible.</p>
+          </div>
+        </div>
+
+        <!-- 📘 Botones -->
+        <div class="modal-footer-custom">
+          <button 
+            type="button"
+            (click)="cerrarModalEliminarSuscriptor()"
+            class="btn-cancel">
+            <ion-icon name="close-outline"></ion-icon>
+            <span>Cancelar</span>
+          </button>
+          
+          <button 
+            type="button"
+            (click)="confirmarEliminacionSuscriptor()"
+            class="btn-delete">
+            <ion-icon name="trash-outline"></ion-icon>
+            <span>Eliminar</span>
+          </button>
+        </div>
+
+      </div>
     </div>
-  </div>
 </div>
 
 <!-- 🎨 MODAL ENVIAR NEWSLETTER -->
- <div class="modal-overlay" *ngIf="mostrarModalEnviarNewsletter" (click)="cerrarModalEnviarNewsletter()">
-  <div class="modal-container newsletter-modal" (click)="$event.stopPropagation()">
-    <div class="modal-wrapper">
-      
-      <!-- 🎯 Header del Modal -->
-      <div class="modal-header-custom">
-        <div class="header-left">
-          <div class="header-icon">
-            <ion-icon name="send-outline"></ion-icon>
-          </div>
-          <div class="header-text">
-            <h2>Enviar Newsletter</h2>
-            <p>Crea y envía tu boletín promocional a los Suscriptores</p>
-          </div>
-        </div>
-        <button class="close-btn" (click)="cerrarModalEnviarNewsletter()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-
-      <!-- 📋 Contenido del Modal -->
-      <div class="modal-body-custom newsletter-body">
+<div class="modal-overlay" *ngIf="mostrarModalEnviarNewsletter" (click)="cerrarModalEnviarNewsletter()">
+    <div class="modal-container newsletter-modal" (click)="$event.stopPropagation()">
+      <div class="modal-wrapper">
         
-        <!-- Alerta de destinatarios -->
-        <div class="alert-box info" *ngIf="suscriptoresSeleccionados.size === 0">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          <div>
-            <strong>Selecciona destinatarios</strong>
-            <p>Debes seleccionar al menos un suscriptor antes de enviar</p>
+        <!-- 🎯 Header del Modal -->
+        <div class="modal-header-custom">
+          <div class="header-left">
+            <div class="header-icon">
+              <ion-icon name="send-outline"></ion-icon>
+            </div>
+            <div class="header-text">
+              <h2>Enviar Newsletter</h2>
+              <p>Crea y envía tu boletín promocional a los Suscriptores</p>
+            </div>
           </div>
+          <button class="close-btn" (click)="cerrarModalEnviarNewsletter()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
         </div>
 
-        <div class="alert-box success" *ngIf="suscriptoresSeleccionados.size > 0">
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
-          <div>
-            <strong>Se han seleccionado <b>{{ suscriptoresSeleccionados.size }}</b> suscriptores.</strong>
-            <p>El newsletter se enviará a estos suscriptores</p>
-          </div>
-        </div>
-
-        <!-- 📝 Formulario -->
-        <form (ngSubmit)="enviarNewsletter()" #newsletterForm="ngForm">
+        <!-- 📋 Contenido del Modal -->
+        <div class="modal-body-custom newsletter-body">
           
-          <!-- Asunto -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="text-outline"></ion-icon>
-              <span>Asunto del correo</span>
-            </label>
-            <div class="input-wrapper">
-              <input 
-                type="text" 
-                [(ngModel)]="asuntoNewsletter" 
-                name="asunto" 
-                placeholder="Ej: ¡Nuevas Ofertas Exclusivas! 🎉" 
-                required
-                maxlength="150"
-                class="custom-input">
-            </div>
-            <div class="input-hint">
-              <ion-icon name="bulb-outline"></ion-icon>
-              <span>Un asunto atractivo aumenta la tasa de apertura</span>
+          <!-- Alerta de destinatarios -->
+          <div class="alert-box info" *ngIf="suscriptoresSeleccionados.size === 0">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <div>
+              <strong>Selecciona destinatarios</strong>
+              <p>Debes seleccionar al menos un suscriptor antes de enviar</p>
             </div>
           </div>
 
-          <!-- Mensaje -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="document-text-outline"></ion-icon>
-              <span>Contenido del Newsletter</span>
-            </label>
-            <div class="input-wrapper textarea-wrapper">
-              <textarea 
-                [(ngModel)]="mensajeNewsletter" 
-                name="mensaje" 
-                placeholder="Escribe aquí tu mensaje promocional...
+          <div class="alert-box success" *ngIf="suscriptoresSeleccionados.size > 0">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <div>
+              <strong>Se han seleccionado <b>{{ suscriptoresSeleccionados.size }}</b> suscriptores.</strong>
+              <p>El newsletter se enviará a estos suscriptores</p>
+            </div>
+          </div>
+
+          <!-- 📝 Formulario -->
+          <form (ngSubmit)="enviarNewsletter()" #newsletterForm="ngForm">
+            
+            <!-- Asunto -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="text-outline"></ion-icon>
+                <span>Asunto del correo</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  [(ngModel)]="asuntoNewsletter" 
+                  name="asunto" 
+                  placeholder="Ej: ¡Nuevas Ofertas Exclusivas! 🎉" 
+                  required
+                  maxlength="150"
+                  class="custom-input">
+              </div>
+              <div class="input-hint">
+                <ion-icon name="bulb-outline"></ion-icon>
+                <span>Un asunto atractivo aumenta la tasa de apertura</span>
+              </div>
+            </div>
+
+            <!-- Mensaje -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span>Contenido del Newsletter</span>
+              </label>
+              <div class="input-wrapper textarea-wrapper">
+                <textarea 
+                  [(ngModel)]="mensajeNewsletter" 
+                  name="mensaje" 
+                  placeholder="Escribe aquí tu mensaje promocional...
 
 Ejemplo:
 ¡Hola! 👋
@@ -541,43 +696,44 @@ Te tenemos excelentes noticias. Esta semana tenemos ofertas especiales en toda n
 
 Saludos,
 Equipo Interventas"
-                rows="12"
-                required
-                class="custom-textarea"></textarea>
+                  rows="12"
+                  required
+                  class="custom-textarea"></textarea>
+              </div>
             </div>
-          </div>
 
-          <!-- Botones de acción -->
-          <div class="modal-footer-custom">
-            <button 
-              type="submit"
-              class="btn-submit"
-              [disabled]="!newsletterForm.valid || suscriptoresSeleccionados.size === 0 || enviandoNewsletter">
-              <span class="spinner" *ngIf="enviandoNewsletter"></span>
-              <ion-icon *ngIf="!enviandoNewsletter" name="send-outline"></ion-icon>
-              <span>{{ enviandoNewsletter ? 'Enviando...' : 'Enviar Newsletter' }}</span>
-            </button>
-            
-            <button 
-              type="button"
-              (click)="cerrarModalEnviarNewsletter()"
-              class="btn-cancel"
-              [disabled]="enviandoNewsletter">
-              <ion-icon name="close-outline"></ion-icon>
-              <span>Cancelar</span>
-            </button>
-          </div>
+            <!-- Botones de acción -->
+            <div class="modal-footer-custom">
+              <button 
+                type="submit"
+                class="btn-submit"
+                [disabled]="!newsletterForm.valid || suscriptoresSeleccionados.size === 0 || enviandoNewsletter">
+                <span class="spinner" *ngIf="enviandoNewsletter"></span>
+                <ion-icon *ngIf="!enviandoNewsletter" name="send-outline"></ion-icon>
+                <span>{{ enviandoNewsletter ? 'Enviando...' : 'Enviar Newsletter' }}</span>
+              </button>
+              
+              <button 
+                type="button"
+                (click)="cerrarModalEnviarNewsletter()"
+                class="btn-cancel"
+                [disabled]="enviandoNewsletter">
+                <ion-icon name="close-outline"></ion-icon>
+                <span>Cancelar</span>
+              </button>
+            </div>
 
-        </form>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
- </div>
+</div>
 
 <!-- 🎨 MODAL AGREGAR/EDITAR PRODUCTO -->
 <div class="modal-overlay" *ngIf="mostrarModalProducto" (click)="cerrarModalProducto()">
   <div class="modal-container product-modal" (click)="$event.stopPropagation()">
     <div class="modal-wrapper">
+      
       <!-- 🎯 Header del Modal -->
       <div class="modal-header-custom">
         <div class="header-left">
@@ -596,69 +752,94 @@ Equipo Interventas"
 
       <!-- 📋 Contenido del Modal -->
       <div class="modal-body-custom">
-        
-        <!-- 📝 Formulario -->
         <form (ngSubmit)="guardarProducto()" #productForm="ngForm">
           
-          <!-- ID del Producto -->
-          <div class="form-group-custom">
-            <label class="form-label-custom">
-              <ion-icon name="key-outline"></ion-icon>
-              <span>ID del Producto {{ modoEdicion ? '(no editable)' : '(opcional)' }}</span>
-            </label>
-            <div class="input-wrapper" [class.disabled]="modoEdicion">
-              <input 
-                type="text" 
-                [(ngModel)]="producto.id" 
-                name="id" 
-                placeholder="Dejar vacío para generar automáticamente"
-                [disabled]="modoEdicion"
-                class="custom-input">
-              <ion-icon *ngIf="modoEdicion" name="lock-closed-outline" class="input-icon-right"></ion-icon>
+          <!-- ========== SECCIÓN 1: INFORMACIÓN BÁSICA ========== -->
+          <div class="form-section-title">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <span>Información Básica</span>
+          </div>
+
+          <!-- SKU Y NOMBRE -->
+          <div class="form-row-2col">
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <ion-icon name="barcode-outline"></ion-icon>
+                <span>SKU (Opcional)</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  [(ngModel)]="producto.sku" 
+                  name="sku" 
+                  placeholder="Ej: VSO-TERM-16OZ"
+                  class="custom-input">
+              </div>
+            </div>
+
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="pricetag-outline"></ion-icon>
+                <span>Nombre del Producto</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  [(ngModel)]="producto.nombre" 
+                  name="nombre" 
+                  placeholder="Ej: Vaso Térmico 16oz" 
+                  class="custom-input">
+              </div>
             </div>
           </div>
 
-          <!-- Nombre -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="pricetag-outline"></ion-icon>
-              <span>Nombre del Producto</span>
-            </label>
-            <div class="input-wrapper">
-              <input 
-                type="text" 
-                [(ngModel)]="producto.nombre" 
-                name="nombre" 
-                placeholder="Ej: Vaso Térmico 16oz" 
-                required
-                class="custom-input">
+          <!-- CATEGORÍA Y SUBCATEGORÍA -->
+          <div class="form-row-2col">
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <ion-icon name="folder-outline"></ion-icon>
+                <span>Categoría</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select 
+                  [(ngModel)]="producto.categoria" 
+                  (ngModelChange)="onCategoriaChange()"
+                  name="categoria" 
+                  class="custom-select-native">
+                  <option value="" disabled selected>Seleccionar categoría</option>
+                  <option value="Desechables">Desechables</option>
+                  <option value="Biodegradables">Biodegradables</option>
+                  <option value="Bolsas">Bolsas</option>
+                  <option value="Cocina y Repostería">Cocina y Repostería</option>
+                  <option value="Alimentos">Alimentos</option>
+                  <option value="Higiénicos y Servilletas">Higiénicos y Servilletas</option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
             </div>
-          </div>
-          
-          <!-- Categoría -->
-          <div class="form-group-custom">
-            <label class="form-label-custom">
-              <ion-icon name="folder-outline"></ion-icon>
-              <span>Categoría</span>
-            </label>
-            <div class="input-wrapper select-custom-wrapper">
-              <select 
-                [(ngModel)]="producto.categoria" 
-                name="categoria" 
-                class="custom-select-native">
-                <option value="" disabled selected>Seleccionar categoría</option>
-                <option value="Desechables">Desechables</option>
-                <option value="Biodegradables">Biodegradables</option>
-                <option value="Bolsas">Bolsas</option>
-                <option value="Cocina y Repostería">Cocina y Repostería</option>
-                <option value="Alimentos">Alimentos</option>
-                <option value="Higiénicos y Servilletas">Higiénicos y Servilletas</option>
-              </select>
-              <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <ion-icon name="layers-outline"></ion-icon>
+                <span>Tipo de {{ producto.categoria || 'Categoría' }}</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper" [class.disabled]="!producto.categoria">
+                <select 
+                  [(ngModel)]="producto.subcategoria" 
+                  name="subcategoria" 
+                  class="custom-select-native"
+                  [disabled]="!producto.categoria">
+                  <option value="" disabled selected>
+                    {{ producto.categoria ? 'Seleccionar tipo' : 'Selecciona una categoría primero' }}
+                  </option>
+                  <option *ngFor="let sub of subcategorias" [value]="sub">{{ sub }}</option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
             </div>
           </div>
 
-          <!-- Marca -->
+          <!-- MARCA -->
           <div class="form-group-custom">
             <label class="form-label-custom">
               <ion-icon name="ribbon-outline"></ion-icon>
@@ -674,28 +855,234 @@ Equipo Interventas"
             </div>
           </div>
 
-          <!-- Precio -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="cash-outline"></ion-icon>
-              <span>Precio</span>
-            </label>
-            <div class="input-wrapper price-wrapper">
-              <span class="currency-symbol">$</span>
-              <input 
-                type="number" 
-                [(ngModel)]="producto.precio" 
-                name="precio" 
-                placeholder="0.00" 
-                required
-                min="0"
-                step="0.01"
-                class="custom-input price-input">
+          <!-- COLORES AGREGADOS -->
+          <div class="colores-agregados" *ngIf="producto.colores && producto.colores.length > 0">
+            <div class="color-badge" *ngFor="let color of producto.colores; let i = index">
+              <span class="color-dot" [style.backgroundColor]="getColorValue(color)"></span>
+              <span class="color-name">{{ color }}</span>
+              <button type="button" class="btn-remove-color" (click)="eliminarColor(i)">
+                <ion-icon name="close"></ion-icon>
+              </button>
             </div>
           </div>
 
-          <!-- Descripción -->
+          <!-- ========== SECCIÓN 2: MODALIDADES Y OPCIONES ========== -->
+          <div class="form-section-title">
+            <ion-icon name="cart-outline"></ion-icon>
+            <span>Opciones de Venta (Mayoreo / Menudeo)</span>
+          </div>
+
+          <!-- SELECCIONAR MODALIDAD -->
           <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="cart-outline"></ion-icon>
+              <span>Tipo de Modalidad</span>
+            </label>
+            <div class="modalidad-select-wrapper">
+              <div class="input-wrapper select-custom-wrapper">
+                <select 
+                  [(ngModel)]="modalidadSeleccionada" 
+                  name="modalidadSeleccionada" 
+                  class="custom-select-native">
+                  <option value="" disabled selected>Seleccionar modalidad</option>
+                  <option value="Mayoreo">Mayoreo</option>
+                  <option value="Menudeo">Menudeo</option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+              <button 
+                *ngIf="modalidadSeleccionada"
+                type="button" 
+                class="btn-clear-modalidad"
+                (click)="limpiarModalidadSeleccionada()"
+                title="Cerrar">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- FORMULARIO PARA AGREGAR OPCIONES -->
+          <div class="opcion-modalidad-form" *ngIf="!!modalidadSeleccionada">
+            <div class="opcion-form-header">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              <span>Agregar nueva opción de {{ modalidadSeleccionada }}</span>
+            </div>
+
+            <!-- PRECIO -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="cash-outline"></ion-icon>
+                <span>Precio</span>
+              </label>
+              <div class="input-wrapper price-wrapper">
+                <span class="currency-symbol">$</span>
+                <input 
+                  type="number" 
+                  [(ngModel)]="precioActual" 
+                  name="precioActual" 
+                  placeholder="0.00" 
+                  min="0"
+                  step="0.01"
+                  class="custom-input price-input">
+              </div>
+            </div>
+
+            <!-- TAMAÑO -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="resize-outline"></ion-icon>
+                <span>Tamaño</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  [(ngModel)]="tamanoActual" 
+                  name="tamanoActual" 
+                  placeholder="Ej: 16oz, Grande, 500ml"
+                  class="custom-input">
+              </div>
+            </div>
+
+            <!-- CONTENIDO -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="layers-outline"></ion-icon>
+                <span>Contenido (piezas, ml, litros, etc)</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  [(ngModel)]="contenidoActual" 
+                  name="contenidoActual" 
+                  placeholder="Ej: Caja de 100, Bolsa de 50, Empaque individual"
+                  class="custom-input">
+              </div>
+            </div>
+
+            <!-- BOTÓN AGREGAR OPCIÓN -->
+            <button 
+              type="button" 
+              class="btn-agregar-opcion"
+              (click)="agregarOpcionModalidad()">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              <span>Agregar Opción</span>
+            </button>
+          </div>
+
+          <!-- OPCIONES AGREGADAS - MAYOREO -->
+          <div class="opciones-lista" *ngIf="obtenerOpcionesModalidad('Mayoreo').length > 0">
+            <div class="opciones-header">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <span>Opciones de Mayoreo</span>
+            </div>
+            <div class="opcion-card" *ngFor="let opcion of obtenerOpcionesModalidad('Mayoreo')">
+              <div class="opcion-content">
+                <div class="opcion-row">
+                  <div class="opcion-item">
+                    <span class="label">Precio:</span>
+                    <strong>${{ opcion.precio }}</strong>
+                  </div>
+                  <div class="opcion-item">
+                    <span class="label">Tamaño:</span>
+                    <strong>{{ opcion.tamano }}</strong>
+                  </div>
+                </div>
+                <div class="opcion-row">
+                  <div class="opcion-item full-width">
+                    <span class="label">Contenido:</span>
+                    <strong>{{ opcion.contenido }}</strong>
+                  </div>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                class="btn-remove-opcion"
+                (click)="eliminarOpcionModalidad(opcion.id)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- OPCIONES AGREGADAS - MENUDEO -->
+          <div class="opciones-lista" *ngIf="obtenerOpcionesModalidad('Menudeo').length > 0">
+            <div class="opciones-header">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <span>Opciones de Menudeo</span>
+            </div>
+            <div class="opcion-card" *ngFor="let opcion of obtenerOpcionesModalidad('Menudeo')">
+              <div class="opcion-content">
+                <div class="opcion-row">
+                  <div class="opcion-item">
+                    <span class="label">Precio:</span>
+                    <strong>${{ opcion.precio }}</strong>
+                  </div>
+                  <div class="opcion-item">
+                    <span class="label">Tamaño:</span>
+                    <strong>{{ opcion.tamano }}</strong>
+                  </div>
+                </div>
+                <div class="opcion-row">
+                  <div class="opcion-item full-width">
+                    <span class="label">Contenido:</span>
+                    <strong>{{ opcion.contenido }}</strong>
+                  </div>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                class="btn-remove-opcion"
+                (click)="eliminarOpcionModalidad(opcion.id)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUCURSALES -->
+          <div class="form-section-title" *ngIf="tieneOpcionesValidas()">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>Sucursales</span>
+          </div>
+
+          <div class="form-group-custom" *ngIf="tieneOpcionesValidas()">
+            <label class="form-label-custom">
+              <ion-icon name="storefront-outline"></ion-icon>
+              <span>Agregar Sucursal</span>
+            </label>
+
+            <div class="multiple-values-container">
+              <div class="value-list" *ngIf="producto.tiendas && producto.tiendas.length > 0">
+                <div class="value-item" *ngFor="let tienda of producto.tiendas; let i = index">
+                  <span class="value-text">{{ tienda }}</span>
+                  <button type="button" class="btn-remove-value" (click)="eliminarTienda(i)">
+                    <ion-icon name="close-circle"></ion-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="add-value-wrapper">
+                <div class="input-wrapper">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="nuevaTienda" 
+                    name="nuevaTienda" 
+                    placeholder="Ej: Tienda Centro, Sucursal Norte"
+                    (keyup.enter)="agregarTienda()"
+                    class="custom-input">
+                </div>
+                <button type="button" class="btn-add-value" (click)="agregarTienda()">
+                  <ion-icon name="add-circle-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- DESCRIPCIÓN -->
+          <div class="form-section-title" *ngIf="tieneOpcionesValidas()">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <span>Contenido del Producto</span>
+          </div>
+
+          <div class="form-group-custom" *ngIf="tieneOpcionesValidas()">
             <label class="form-label-custom">
               <ion-icon name="document-text-outline"></ion-icon>
               <span>Descripción</span>
@@ -710,8 +1097,8 @@ Equipo Interventas"
             </div>
           </div>
 
-          <!-- URL imagen -->
-          <div class="form-group-custom">
+          <!-- URL DE IMAGEN -->
+          <div class="form-group-custom" *ngIf="tieneOpcionesValidas()">
             <label class="form-label-custom">
               <ion-icon name="image-outline"></ion-icon>
               <span>URL de la Imagen</span>
@@ -722,38 +1109,32 @@ Equipo Interventas"
                 [(ngModel)]="producto.imagen" 
                 name="imagen" 
                 placeholder="https://ejemplo.com/imagen.jpg"
-                (ngModelChange)="actualizarPreview()"
                 class="custom-input">
               <ion-icon name="cloud-upload-outline" class="input-icon-right"></ion-icon>
             </div>
-            <div class="input-hint">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              <span>Pega la URL de una imagen desde la web</span>
+          </div>
+
+          <!-- VISTA PREVIA DE IMAGEN -->
+          <div class="image-preview-container" *ngIf="producto.imagen && producto.imagen.trim() !== ''">
+            <div class="preview-header">
+              <ion-icon name="eye-outline"></ion-icon>
+              <span>Vista previa</span>
             </div>
-            
-            <!-- 👁️ Preview de la imagen -->
-            <div class="image-preview-container" *ngIf="producto.imagen && producto.imagen.trim() !== ''">
-              <div class="preview-header">
-                <ion-icon name="eye-outline"></ion-icon>
-                <span>Vista previa</span>
-              </div>
-              <div class="preview-image">
-                <img 
-                  [src]="producto.imagen" 
-                  (error)="onImageError()"
-                  alt="Preview del producto" />
-              </div>
+            <div class="preview-image">
+              <img 
+                [src]="producto.imagen" 
+                alt="Preview del producto" />
             </div>
           </div>
 
-          <!-- Botones de acción -->
+          <!-- ========== BOTONES DE ACCIÓN ========== -->
           <div class="modal-footer-custom">
             <button 
               type="submit"
               class="btn-submit"
-              [disabled]="!productForm.valid">
+              [disabled]="!producto.nombre || !producto.nombre.trim() || !tieneOpcionesValidas()">
               <ion-icon [name]="modoEdicion ? 'checkmark-outline' : 'add-circle-outline'"></ion-icon>
-              <span>{{ modoEdicion ? 'Actualizar Producto' : 'Agregar Producto' }}</span>
+              <span>{{ modoEdicion ? 'Actualizar' : 'Agregar Producto' }}</span>
             </button>
             
             <button 
@@ -771,30 +1152,29 @@ Equipo Interventas"
   </div>
 </div>
 
-<!-- 🎨 MODAL EDITAR USUARIO -->
-<div class="modal-overlay" *ngIf="mostrarModalUsuario" (click)="cerrarModalUsuario()">
+<!-- 🎨 MODAL AGREGAR USUARIO -->
+<div class="modal-overlay" *ngIf="mostrarModalAgregarUsuario" (click)="cerrarModalAgregarUsuario()">
   <div class="modal-container user-modal" (click)="$event.stopPropagation()">
     <div class="modal-wrapper">
       <!-- 🎯 Header del Modal -->
       <div class="modal-header-custom">
         <div class="header-left">
           <div class="header-icon">
-            <ion-icon name="create-outline"></ion-icon>
+            <ion-icon name="person-add-outline"></ion-icon>
           </div>
           <div class="header-text">
-            <h2>Editar Usuario</h2>
-            <p>Actualiza la información del usuario</p>
+            <h2>Agregar Nuevo Usuario</h2>
+            <p>Completa los datos para crear un nuevo usuario</p>
           </div>
         </div>
-        <button class="close-btn" (click)="cerrarModalUsuario()">
+        <button class="close-btn" (click)="cerrarModalAgregarUsuario()">
           <ion-icon name="close-outline"></ion-icon>
         </button>
       </div>
 
       <!-- 📋 Contenido del Modal -->
       <div class="modal-body-custom">
-        <!-- 📝 Formulario -->
-        <form (ngSubmit)="guardarUsuarioEditado(usuarioEditandoId)" #userForm="ngForm">
+        <form (ngSubmit)="agregarUsuario()" #addUserForm="ngForm">
           
           <!-- Nombre -->
           <div class="form-group-custom">
@@ -809,12 +1189,9 @@ Equipo Interventas"
                 name="nombre" 
                 placeholder="Ingresa el nombre completo" 
                 required
-                class="custom-input"
-                [value]="usuarioEditando.nombre">
+                class="custom-input">
             </div>
-            <small>Valor actual: {{ usuarioEditando.nombre }}</small>
           </div>
-
 
           <!-- Email -->
           <div class="form-group-custom">
@@ -829,14 +1206,34 @@ Equipo Interventas"
                 name="email" 
                 placeholder="ejemplo@correo.com" 
                 required
-                class="custom-input"
-                [value]="usuarioEditando.email">
+                class="custom-input">
             </div>
             <div class="input-hint">
               <ion-icon name="information-circle-outline"></ion-icon>
               <span>El correo debe ser válido y único</span>
             </div>
-            <small>Valor actual: {{ usuarioEditando.email }}</small>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-group-custom">
+            <label class="form-label-custom required">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+              <span>Contraseña</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="password" 
+                [(ngModel)]="usuarioEditando.password" 
+                name="password" 
+                placeholder="Mínimo 6 caracteres" 
+                required
+                minlength="6"
+                class="custom-input">
+            </div>
+            <div class="input-hint">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>Debe tener al menos 6 caracteres</span>
+            </div>
           </div>
 
           <!-- Rol -->
@@ -849,8 +1246,7 @@ Equipo Interventas"
               <select 
                 [(ngModel)]="usuarioEditando.rol" 
                 name="rol" 
-                class="custom-select-native"
-                [value]="usuarioEditando.rol">
+                class="custom-select-native">
                 <option value="usuario">Usuario</option>
                 <option value="admin">Administrador</option>
               </select>
@@ -860,7 +1256,6 @@ Equipo Interventas"
               <ion-icon name="information-circle-outline"></ion-icon>
               <span>Los administradores tienen acceso completo al sistema</span>
             </div>
-            <small>Valor actual: {{ usuarioEditando.rol }}</small>
           </div>
 
           <!-- Botones de acción -->
@@ -868,14 +1263,14 @@ Equipo Interventas"
             <button 
               type="submit"
               class="btn-submit"
-              [disabled]="!userForm.valid">
+              [disabled]="!addUserForm.valid">
               <ion-icon name="checkmark-outline"></ion-icon>
-              <span>Guardar Cambios</span>
+              <span>Crear Usuario</span>
             </button>
             
             <button 
               type="button"
-              (click)="cerrarModalUsuario()"
+              (click)="cerrarModalAgregarUsuario()"
               class="btn-cancel">
               <ion-icon name="close-outline"></ion-icon>
               <span>Cancelar</span>
@@ -888,8 +1283,124 @@ Equipo Interventas"
   </div>
 </div>
 
-<!-- 🔍 MODAL DE BÚSQUEDA -->
-<div class="modal-overlay" *ngIf="mostrarModalBusqueda" (click)="cerrarModalBusqueda()">
+<!-- 🎨 MODAL EDITAR USUARIO -->
+<div class="modal-overlay" *ngIf="mostrarModalUsuario" (click)="cerrarModalUsuario()">
+    <div class="modal-container user-modal" (click)="$event.stopPropagation()">
+      <div class="modal-wrapper">
+        <!-- 🎯 Header del Modal -->
+        <div class="modal-header-custom">
+          <div class="header-left">
+            <div class="header-icon">
+              <ion-icon name="create-outline"></ion-icon>
+            </div>
+            <div class="header-text">
+              <h2>Editar Usuario</h2>
+              <p>Actualiza la información del usuario</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="cerrarModalUsuario()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- 📋 Contenido del Modal -->
+        <div class="modal-body-custom">
+          <!-- 📝 Formulario -->
+          <form (ngSubmit)="guardarUsuarioEditado(usuarioEditandoId)" #userForm="ngForm">
+            
+            <!-- Nombre -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>Nombre Completo</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  [(ngModel)]="usuarioEditando.nombre" 
+                  name="nombre" 
+                  placeholder="Ingresa el nombre completo" 
+                  required
+                  class="custom-input"
+                  [value]="usuarioEditando.nombre">
+              </div>
+              <small>Valor actual: {{ usuarioEditando.nombre }}</small>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="mail-outline"></ion-icon>
+                <span>Correo Electrónico</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="email" 
+                  [(ngModel)]="usuarioEditando.email" 
+                  name="email" 
+                  placeholder="ejemplo@correo.com" 
+                  required
+                  class="custom-input"
+                  [value]="usuarioEditando.email">
+              </div>
+              <div class="input-hint">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>El correo debe ser válido y único</span>
+              </div>
+              <small>Valor actual: {{ usuarioEditando.email }}</small>
+            </div>
+
+            <!-- Rol -->
+            <div class="form-group-custom">
+              <label class="form-label-custom required">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                <span>Rol del Usuario</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select 
+                  [(ngModel)]="usuarioEditando.rol" 
+                  name="rol" 
+                  class="custom-select-native"
+                  [value]="usuarioEditando.rol">
+                  <option value="usuario">Usuario</option>
+                  <option value="admin">Administrador</option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+              <div class="input-hint">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>Los administradores tienen acceso completo al sistema</span>
+              </div>
+              <small>Valor actual: {{ usuarioEditando.rol }}</small>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="modal-footer-custom">
+              <button 
+                type="submit"
+                class="btn-submit"
+                [disabled]="!userForm.valid">
+                <ion-icon name="checkmark-outline"></ion-icon>
+                <span>Guardar Cambios</span>
+              </button>
+              
+              <button 
+                type="button"
+                (click)="cerrarModalUsuario()"
+                class="btn-cancel">
+                <ion-icon name="close-outline"></ion-icon>
+                <span>Cancelar</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- 🔍 MODAL DE BÚSQUEDA DE USUARIOS -->
+<div class="modal-overlay" *ngIf="mostrarModalBusquedaUsuarios" (click)="cerrarModalBusquedaUsuarios()">
   <div class="modal-container search-modal" (click)="$event.stopPropagation()">
     <div class="modal-wrapper">
       
@@ -900,11 +1411,11 @@ Equipo Interventas"
             <ion-icon name="search-outline"></ion-icon>
           </div>
           <div class="header-text">
-            <h2>Buscar Productos</h2>
-            <p>Filtra productos por nombre, marca o categoría</p>
+            <h2>Buscar Usuarios</h2>
+            <p>Filtra usuarios por nombre, email o rol</p>
           </div>
         </div>
-        <button class="close-btn" (click)="cerrarModalBusqueda()">
+        <button class="close-btn" (click)="cerrarModalBusquedaUsuarios()">
           <ion-icon name="close-outline"></ion-icon>
         </button>
       </div>
@@ -912,71 +1423,67 @@ Equipo Interventas"
       <!-- 📋 Contenido del Modal -->
       <div class="modal-body-custom">
         
-        <!-- 🔍 Formulario de Búsqueda -->
+        <!-- 🔎 Formulario de Búsqueda -->
         <div class="search-form">
           
           <!-- Nombre -->
           <div class="form-group-custom">
             <label class="form-label-custom">
-              <ion-icon name="pricetag-outline"></ion-icon>
-              <span>Nombre del Producto</span>
+              <ion-icon name="person-outline"></ion-icon>
+              <span>Nombre del Usuario</span>
             </label>
             <div class="input-wrapper">
               <input 
                 type="text" 
-                [(ngModel)]="filtroNombre" 
-                name="filtroNombre" 
-                placeholder="Ej: Vaso, Plato, etc."
+                [(ngModel)]="filtroNombreUsuario" 
+                name="filtroNombreUsuario" 
+                placeholder="Ej: Juan, María, Carlos..."
                 class="custom-input">
               <button 
-                *ngIf="filtroNombre" 
+                *ngIf="filtroNombreUsuario" 
                 class="clear-input-btn" 
-                (click)="filtroNombre = ''">
+                (click)="filtroNombreUsuario = ''">
                 <ion-icon name="close-circle"></ion-icon>
               </button>
             </div>
           </div>
 
-          <!-- Marca -->
+          <!-- Email -->
           <div class="form-group-custom">
             <label class="form-label-custom">
-              <ion-icon name="ribbon-outline"></ion-icon>
-              <span>Marca</span>
+              <ion-icon name="mail-outline"></ion-icon>
+              <span>Correo Electrónico</span>
             </label>
             <div class="input-wrapper">
               <input 
                 type="text" 
-                [(ngModel)]="filtroMarca" 
-                name="filtroMarca" 
-                placeholder="Ej: Coca Cola, Pepsi, etc."
+                [(ngModel)]="filtroEmailUsuario" 
+                name="filtroEmailUsuario" 
+                placeholder="Ej: usuario@ejemplo.com"
                 class="custom-input">
               <button 
-                *ngIf="filtroMarca" 
+                *ngIf="filtroEmailUsuario" 
                 class="clear-input-btn" 
-                (click)="filtroMarca = ''">
+                (click)="filtroEmailUsuario = ''">
                 <ion-icon name="close-circle"></ion-icon>
               </button>
             </div>
           </div>
 
-          <!-- Categoría -->
+          <!-- Rol -->
           <div class="form-group-custom">
             <label class="form-label-custom">
-              <ion-icon name="folder-outline"></ion-icon>
-              <span>Categoría</span>
+              <ion-icon name="shield-outline"></ion-icon>
+              <span>Rol</span>
             </label>
             <div class="input-wrapper select-custom-wrapper">
               <select 
-                [(ngModel)]="filtroCategoria" 
-                name="filtroCategoria" 
+                [(ngModel)]="filtroRolUsuario" 
+                name="filtroRolUsuario" 
                 class="custom-select-native">
-                <option value="">Todas las categorías</option>
-                <option value="Desechables">Desechables</option>
-                <option value="Biodegradables">Biodegradables</option>
-                <option value="Bolsas">Bolsas</option>
-                <option value="Cocina y Repostería">Cocina y Repostería</option>
-                <option value="Alimentos">Alimentos</option>
-                <option value="Higiénicos y Servilletas">Higiénicos y Servilletas</option>
+                <option value="">Todos los roles</option>
+                <option value="usuario">Usuario</option>
+                <option value="admin">Administrador</option>
               </select>
               <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
             </div>
@@ -986,7 +1493,7 @@ Equipo Interventas"
           <div class="modal-footer-custom">
             <button 
               type="button"
-              (click)="aplicarFiltros()"
+              (click)="aplicarFiltrosUsuariosDesdeModal()"
               class="btn-submit">
               <ion-icon name="search-outline"></ion-icon>
               <span>Buscar</span>
@@ -994,7 +1501,7 @@ Equipo Interventas"
             
             <button 
               type="button"
-              (click)="limpiarTodosFiltros()"
+              (click)="limpiarFiltrosUsuarios()"
               class="btn-clear">
               <ion-icon name="refresh-outline"></ion-icon>
               <span>Limpiar Filtros</span>
@@ -1007,5 +1514,173 @@ Equipo Interventas"
   </div>
 </div>
 
+<!-- 📍 MODAL DE BÚSQUEDA -->
+<div class="modal-overlay" *ngIf="mostrarModalBusqueda" (click)="cerrarModalBusqueda()">
+    <div class="modal-container search-modal" (click)="$event.stopPropagation()">
+      <div class="modal-wrapper">
+        
+        <!-- 🎯 Header del Modal -->
+        <div class="modal-header-custom">
+          <div class="header-left">
+            <div class="header-icon">
+              <ion-icon name="search-outline"></ion-icon>
+            </div>
+            <div class="header-text">
+              <h2>Buscar Productos</h2>
+              <p>Filtra productos por nombre, SKU, marca, categoría o subcategoría</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="cerrarModalBusqueda()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
 
-</ion-content>  
+        <!-- 📋 Contenido del Modal -->
+        <div class="modal-body-custom">
+          
+          <!-- 🔎 Formulario de Búsqueda -->
+          <div class="search-form">
+            
+            <!-- Nombre y SKU en una fila -->
+            <div class="form-row-2col">
+              <!-- Nombre -->
+              <div class="form-group-custom">
+                <label class="form-label-custom">
+                  <ion-icon name="pricetag-outline"></ion-icon>
+                  <span>Nombre del Producto</span>
+                </label>
+                <div class="input-wrapper">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="filtroNombre" 
+                    name="filtroNombre" 
+                    placeholder="Ej: Vaso, Plato, etc."
+                    class="custom-input">
+                  <button 
+                    *ngIf="filtroNombre" 
+                    class="clear-input-btn" 
+                    (click)="filtroNombre = ''">
+                    <ion-icon name="close-circle"></ion-icon>
+                  </button>
+                </div>
+              </div>
+
+              <!-- SKU -->
+              <div class="form-group-custom">
+                <label class="form-label-custom">
+                  <ion-icon name="barcode-outline"></ion-icon>
+                  <span>SKU</span>
+                </label>
+                <div class="input-wrapper">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="filtroSku" 
+                    name="filtroSku" 
+                    placeholder="Ej: VSO-TERM-16OZ"
+                    class="custom-input">
+                  <button 
+                    *ngIf="filtroSku" 
+                    class="clear-input-btn" 
+                    (click)="filtroSku = ''">
+                    <ion-icon name="close-circle"></ion-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Marca -->
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <ion-icon name="ribbon-outline"></ion-icon>
+                <span>Marca</span>
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  [(ngModel)]="filtroMarca" 
+                  name="filtroMarca" 
+                  placeholder="Ej: Dart, Karat, Solo, etc."
+                  class="custom-input">
+                <button 
+                  *ngIf="filtroMarca" 
+                  class="clear-input-btn" 
+                  (click)="filtroMarca = ''">
+                  <ion-icon name="close-circle"></ion-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Categoría y Subcategoría en una fila -->
+            <div class="form-row-2col">
+              <!-- Categoría -->
+              <div class="form-group-custom">
+                <label class="form-label-custom">
+                  <ion-icon name="folder-outline"></ion-icon>
+                  <span>Categoría</span>
+                </label>
+                <div class="input-wrapper select-custom-wrapper">
+                  <select 
+                    [(ngModel)]="filtroCategoria" 
+                    (ngModelChange)="onFiltroCategoriaChange()"
+                    name="filtroCategoria" 
+                    class="custom-select-native">
+                    <option value="">Todas las categorías</option>
+                    <option value="Desechables">Desechables</option>
+                    <option value="Biodegradables">Biodegradables</option>
+                    <option value="Bolsas">Bolsas</option>
+                    <option value="Cocina y Repostería">Cocina y Repostería</option>
+                    <option value="Alimentos">Alimentos</option>
+                    <option value="Higiénicos y Servilletas">Higiénicos y Servilletas</option>
+                  </select>
+                  <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+                </div>
+              </div>
+
+              <!-- Subcategoría -->
+              <div class="form-group-custom">
+                <label class="form-label-custom">
+                  <ion-icon name="layers-outline"></ion-icon>
+                  <span>Subcategoría</span>
+                </label>
+                <div class="input-wrapper select-custom-wrapper" [class.disabled]="!filtroCategoria">
+                  <select 
+                    [(ngModel)]="filtroSubcategoria" 
+                    name="filtroSubcategoria" 
+                    class="custom-select-native"
+                    [disabled]="!filtroCategoria">
+                    <option value="">
+                      {{ filtroCategoria ? 'Todas las subcategorías' : 'Selecciona una categoría primero' }}
+                    </option>
+                    <option *ngFor="let sub of subcategoriasFiltro" [value]="sub">{{ sub }}</option>
+                  </select>
+                  <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="modal-footer-custom">
+              <button 
+                type="button"
+                (click)="aplicarFiltros()"
+                class="btn-submit">
+                <ion-icon name="search-outline"></ion-icon>
+                <span>Buscar</span>
+              </button>
+              
+              <button 
+                type="button"
+                (click)="limpiarTodosFiltros()"
+                class="btn-clear">
+                <ion-icon name="refresh-outline"></ion-icon>
+                <span>Limpiar Filtros</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+  
+</ion-content>
