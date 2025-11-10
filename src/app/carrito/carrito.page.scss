@@ -1,316 +1,706 @@
+// ============================================
+// VARIABLES DE DISEÑO INTERVENTAS
+// ============================================
+$primary-purple: #3d2a7a;
+$primary-blue: #2e3e80;
+$accent-pink: #e91e8c;
+$text-dark: #2c3e50;
+$text-gray: #6c757d;
+$text-light: #adb5bd;
+$border-color: #dee2e6;
+$bg-page: #f8f9fa;
+$bg-white: #ffffff;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+// small helpers
+$ease-smooth: cubic-bezier(0.2, 0.9, 0.2, 1);
+$fast: 0.18s;
+$medium: 0.32s;
+$slow: 0.6s;
+
+// ============================================
+// ANIMACIONES
+// ============================================
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.03); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position: 800px 0; }
+}
+
+@keyframes softFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes subtleGlow {
+  0% { box-shadow: 0 0 0 rgba(233,30,140,0.12); }
+  50% { box-shadow: 0 0 18px rgba(233,30,140,0.22); }
+  100% { box-shadow: 0 0 0 rgba(233,30,140,0.12); }
+}
+
+// ============================================
+// OCULTAR HEADER DE IONIC
+// ============================================
+ion-header { display: none !important; }
+
+// ============================================
+// CONTENIDO PRINCIPAL
+// ============================================
+ion-content {
+  --background: #{$bg-page} !important;
+  /* ligero efecto radial para profundizar */
+  background-image: radial-gradient(circle at 10% 5%, rgba(61,42,122,0.03), transparent 15%);
+  animation: fadeInUp 0.7s $ease-smooth;
+}
+
+// ============================================
+// CARRITO VACÍO
+// ============================================
 .empty-cart {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 70vh;
-  padding: 20px;
+  min-height: 60vh;
+  padding: 60px 24px;
   text-align: center;
+  animation: fadeInUp 0.6s $ease-smooth;
 
   .empty-icon {
     font-size: 120px;
-    color: #ccc;
-    margin-bottom: 20px;
+    color: #d0d0d0;
+    margin-bottom: 24px;
+    animation: pulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 6px 18px rgba(61,42,122,0.06));
   }
 
   h2 {
-    color: #333;
-    margin-bottom: 10px;
+    color: $text-dark;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, $primary-purple 0%, $accent-pink 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 6px 18px rgba(61,42,122,0.04);
   }
 
   p {
-    color: #666;
-    margin-bottom: 30px;
+    color: $text-gray;
+    margin-bottom: 32px;
+    font-size: 1.05rem;
+    opacity: 0.95;
   }
 
   ion-button {
     max-width: 300px;
+    height: 52px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    --background: linear-gradient(135deg, #{$primary-purple} 0%, #{$accent-pink} 100%);
+    --border-radius: 12px;
+    box-shadow: 0 6px 22px rgba(233, 30, 140, 0.18);
+    transition: transform $fast, box-shadow $fast;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -110%;
+      width: 120%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: left $slow $ease-smooth;
+      pointer-events: none;
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 36px rgba(61,42,122,0.12);
+      &::before { left: 100%; }
+    }
   }
 }
 
+// ============================================
+// LAYOUT PRINCIPAL
+// ============================================
 .cart-container {
-  padding: 16px;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 32px 16px 120px;
+  background: transparent;
+  will-change: transform;
+
+  @media (min-width: 992px) {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 32px;
+    padding: 40px 24px 120px;
+  }
+
+  @media (min-width: 1200px) {
+    padding: 48px 32px 120px;
+  }
 }
 
+// ============================================
+// TARJETA CONTENEDORA DE PRODUCTOS
+// ============================================
+.cart-items-card {
+  background: $bg-white !important;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  transition: all 0.3s $ease-smooth;
+  animation: fadeInUp 0.6s $ease-smooth;
+
+  &:hover { box-shadow: $shadow-lg; }
+
+  .cart-items-header {
+    background: linear-gradient(135deg, #{$primary-purple} 0%, #{$accent-pink} 100%) !important;
+    padding: 20px 24px;
+    position: relative;
+
+    h2 {
+      color: white !important;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      letter-spacing: 0.2px;
+    }
+  }
+
+  .cart-items-content {
+    padding: 24px;
+    background: $bg-white !important;
+  }
+}
+
+// ============================================
+// LISTA DE PRODUCTOS
+// ============================================
+ion-list {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block;
+}
+
+// ============================================
+// ITEMS DEL CARRITO - FONDO BLANCO FORZADO
+// ============================================
 .cart-item {
-  margin-bottom: 10px;
-  --padding-start: 10px;
-  --inner-padding-end: 10px;
+  background: $bg-white !important;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  border: 1px solid $border-color;
+  --padding-start: 0 !important;
+  --inner-padding-end: 0 !important;
+  --background: #{$bg-white} !important;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  transition: transform 0.28s $ease-smooth, box-shadow 0.28s $ease-smooth, border-color 0.28s $ease-smooth;
+  animation: fadeInUp 0.45s $ease-smooth backwards;
+
+  // Forzar fondo blanco en el contenedor interno
+  > * { background: $bg-white !important; }
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: $shadow-lg;
+    border-color: rgba(233, 30, 140, 0.16);
+  }
 
   ion-thumbnail {
-    width: 80px;
-    height: 80px;
-    margin-right: 10px;
+    width: 130px;
+    height: 130px;
+    margin: 16px;
+    border-radius: 12px;
+    background: #f8f9fa !important;
+    border: 2px solid rgba(233, 30, 140, 0.08);
+    overflow: hidden;
+    position: relative;
+    transition: transform $medium $ease-smooth;
+    will-change: transform;
 
     img {
       object-fit: cover;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.45s $ease-smooth, filter 0.3s $ease-smooth;
+      display: block;
     }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.36), transparent);
+      transition: left 0.6s $ease-smooth;
+    }
+  }
+
+  &:hover ion-thumbnail {
+    &::after { left: 100%; }
+    img { transform: scale(1.08); filter: contrast(1.02) saturate(1.03); }
   }
 
   ion-label {
+    padding: 20px 16px 20px 0;
+    background: transparent !important;
+
     h2 {
-      margin-bottom: 5px;
+      color: $text-dark !important;
       font-weight: 700;
-      color: #27318d;
+      font-size: 1.15rem;
+      margin: 0 0 8px 0;
+      line-height: 1.4;
+      transition: color $fast;
     }
 
     p {
-      margin: 3px 0;
-      font-size: 0.9em;
-      color: #666;
+      color: $text-gray !important;
+      font-size: 0.95rem;
+      margin: 0 0 12px 0;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      opacity: 0.95;
+    }
+
+    .price {
+      color: $accent-pink !important;
+      font-weight: 800;
+      font-size: 1.4rem;
+      margin: 8px 0 0 0;
+      transition: transform $fast, text-shadow $fast;
     }
   }
 
-  .price {
-    color: var(--ion-color-primary);
-    font-weight: bold;
-    margin-top: 8px !important;
-    font-size: 1.1em;
-  }
-
-  // ===== INFORMACIÓN DE MODALIDAD =====
-  .modalidad-info {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    padding: 10px;
-    border-radius: 8px;
-    margin: 8px 0;
-    border-left: 3px solid var(--ion-color-primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .modalidad-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.75em;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-    
-    &.mayoreo {
-      background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
-      color: white;
-      box-shadow: 0 2px 8px rgba(39, 49, 141, 0.3);
-    }
-    
-    &.menudeo {
-      background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
-      color: white;
-      box-shadow: 0 2px 8px rgba(237, 19, 112, 0.3);
-    }
-  }
-
-  .modalidad-details {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    font-size: 0.85em;
-    color: #495057;
-    
-    .detail-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: 600;
-      
-      ion-icon {
-        font-size: 14px;
-        color: #27318d;
-      }
-    }
-    
-    .detail-separator {
-      color: #adb5bd;
-      font-weight: 600;
-    }
-  }
-
-  // ===== SUCURSAL INFO =====
-  .sucursal-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    background: #e3f2fd;
-    border-radius: 6px;
-    margin: 6px 0;
-    font-size: 0.85em;
-    color: #1976d2;
-    font-weight: 600;
-    
-    ion-icon {
-      font-size: 16px;
-    }
-  }
-
-  // ===== OPCIONES SELECCIONADAS (FORMATO ANTIGUO) =====
-  .options-display {
-    background: #f5f5f5;
-    padding: 8px 10px;
-    border-radius: 8px;
-    margin: 8px 0;
-    border-left: 3px solid var(--ion-color-primary);
-
-    .option-item {
-      font-size: 0.85em;
-      color: #555;
-      margin: 4px 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-
-      ion-icon {
-        font-size: 14px;
-        color: var(--ion-color-primary);
-        flex-shrink: 0;
-      }
-
-      strong {
-        color: var(--ion-color-primary);
-        font-weight: 600;
-        min-width: 80px;
-      }
-    }
-  }
+  &:hover ion-label h2 { color: $primary-purple !important; }
+  &:hover ion-label .price { transform: translateY(-2px); text-shadow: 0 6px 18px rgba(233,30,140,0.06); }
 
   .quantity-controls {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%) !important;
+    border-left: 1px solid $border-color;
+    transition: background $fast;
+
+    ion-button {
+      --padding-start: 0;
+      --padding-end: 0;
+      --border-radius: 10px;
+      height: 40px;
+      width: 40px;
+      margin: 0;
+      transition: transform $fast, box-shadow $fast, border-color $fast;
+      background: white;
+      border: 1px solid rgba(0,0,0,0.04);
+
+      &:not([color="danger"]) {
+        --color: #{$primary-purple};
+        --background: white;
+        --background-hover: #{$primary-purple};
+        --color-hover: white;
+        border: 2px solid $border-color;
+
+        &:hover {
+          border-color: $primary-purple;
+          transform: scale(1.08);
+          box-shadow: 0 6px 18px rgba(61, 42, 122, 0.12);
+        }
+      }
+
+      &[color="danger"] {
+        --color: #dc3545;
+        --background: white;
+        --background-hover: #dc3545;
+        --color-hover: white;
+        border: 2px solid $border-color;
+
+        &:hover {
+          border-color: #dc3545;
+          transform: scale(1.08);
+          box-shadow: 0 6px 18px rgba(220, 53, 69, 0.12);
+        }
+      }
+
+      ion-icon { font-size: 22px; display:block; }
+    }
 
     ion-badge {
-      min-width: 30px;
-      text-align: center;
-      font-size: 16px;
+      background: linear-gradient(135deg, $primary-purple 0%, $accent-pink 100%);
+      color: white;
+      min-width: 50px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: 10px;
+      padding: 0 14px;
+      box-shadow: 0 6px 18px rgba(233, 30, 140, 0.16);
+      transform-origin: center;
+      transition: transform $fast;
+    }
+
+    // badge pulso sutil al hover del item
+    &:hover ion-badge { transform: scale(1.04); animation: subtleGlow 2.6s infinite ease-in-out; }
+  }
+}
+
+// ============================================
+// COLUMNA DERECHA
+// ============================================
+.customer-info-card,
+.summary-card {
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 20px;
+  }
+  animation: slideInRight 0.6s $ease-smooth;
+  transition: transform 0.28s $ease-smooth, box-shadow 0.28s $ease-smooth;
+}
+
+// ============================================
+// FORMULARIO DE INFORMACIÓN - HEADER CON GRADIENTE
+// ============================================
+.customer-info-card {
+  background: $bg-white !important;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  transition: all 0.3s $ease-smooth;
+
+  &:hover { box-shadow: $shadow-lg; }
+
+  ion-card-header {
+    background: linear-gradient(135deg, #{$primary-purple} 0%, #{$accent-pink} 100%) !important;
+    padding: 20px 24px;
+    position: relative;
+
+    ion-card-title {
+      color: white !important;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      letter-spacing: 0.2px;
+    }
+  }
+
+  ion-card-content {
+    padding: 28px 24px;
+    background: $bg-white !important;
+  }
+
+  ion-item {
+    --padding-start: 0 !important;
+    --inner-padding-end: 0 !important;
+    --border-width: 0 !important;
+    --background: transparent !important;
+    margin-bottom: 20px;
+    display: block !important;
+    background: transparent !important;
+
+    &:last-child { margin-bottom: 0; }
+
+    // LABELS ARRIBA DE LOS INPUTS
+    ion-label {
+      color: $text-dark !important;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 8px !important;
+      display: block !important;
+      position: relative !important;
+      transform: none !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      float: none !important;
+      width: 100% !important;
+    }
+
+    // INPUTS CON TEXTO VISIBLE
+    ion-input {
+      --background: #f8f9fa !important;
+      --color: #{$text-dark} !important;
+      --placeholder-color: #{$text-light} !important;
+      --padding-start: 16px !important;
+      --padding-end: 16px !important;
+      --padding-top: 12px !important;
+      --padding-bottom: 12px !important;
+      border: 2px solid $border-color !important;
+      border-radius: 10px !important;
+      font-size: 1rem !important;
+      margin-top: 8px !important;
+      min-height: 50px !important;
+      width: 100% !important;
+      display: block !important;
+      transition: box-shadow $fast, transform $fast, border-color $fast !important;
+      clear: both !important;
+
+      // Forzar que el texto se vea
+      input {
+        color: $text-dark !important;
+        background: transparent !important;
+      }
+
+      &:focus,
+      &:focus-within {
+        --background: white !important;
+        border-color: $primary-purple !important;
+        box-shadow: 0 8px 22px rgba(61, 42, 122, 0.06) !important;
+        transform: translateY(-2px);
+      }
     }
   }
 }
 
-.customer-info-card {
-  margin-top: 20px;
-  
-  ion-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    margin-bottom: 10px;
-  }
-}
-
+// ============================================
+// RESUMEN DEL PEDIDO - HEADER CON GRADIENTE
+// ============================================
 .summary-card {
-  margin-top: 20px;
+  background: $bg-white !important;
+  border-radius: 16px;
   margin-bottom: 20px;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  transition: all 0.3s $ease-smooth;
+
+  &:hover { box-shadow: $shadow-lg; }
+
+  ion-card-header {
+    background: linear-gradient(135deg, #{$primary-purple} 0%, #{$accent-pink} 100%) !important;
+    padding: 20px 24px;
+    position: relative;
+
+    ion-card-title {
+      color: white !important;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      letter-spacing: 0.2px;
+    }
+  }
+
+  ion-card-content {
+    padding: 24px;
+    background: $bg-white !important;
+  }
 
   .summary-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    padding: 14px 0;
+    font-size: 1.05rem;
+    transition: all 0.25s $ease-smooth;
+
+    &:not(:last-child) { border-bottom: 1px solid #f0f0f0; }
+
+    &:hover {
+      padding-left: 8px;
+      background: linear-gradient(90deg, rgba(233, 30, 140, 0.03) 0%, transparent 100%);
+    }
+
+    span:first-child { font-weight: 600; color: $text-gray !important; }
+    span:last-child { font-weight: 700; color: $text-dark !important; }
 
     &.total {
-      border-bottom: none;
-      font-size: 1.2em;
-      padding-top: 15px;
-      margin-top: 10px;
-      border-top: 2px solid #333;
+      border-top: 3px solid;
+      border-image: linear-gradient(90deg, $primary-purple 0%, $accent-pink 100%) 1;
+      padding: 20px 12px 12px;
+      margin-top: 12px;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, rgba(61, 42, 122, 0.05) 0%, rgba(233, 30, 140, 0.05) 100%);
+      border-radius: 12px;
+
+      strong { font-weight: 900; }
+      strong:first-child { color: $text-dark !important; margin-right: 6px; }
+      strong:last-child { color: $accent-pink !important; }
     }
   }
 
   ion-button {
-    margin-top: 15px;
-  }
+    margin-top: 20px;
+    height: 56px;
+    font-weight: 800;
+    font-size: 1.05rem;
+    --border-radius: 12px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    transition: transform $fast, box-shadow $fast;
 
-  .whatsapp-button {
-    --background: #25D366;
-    --background-hover: #128C7E;
-    --background-activated: #075E54;
-    font-weight: bold;
-  }
-}
-
-// ===== RESPONSIVE =====
-@media (max-width: 768px) {
-  .cart-item {
-    .modalidad-info {
-      padding: 8px;
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s $ease-smooth;
     }
 
-    .modalidad-badge {
-      font-size: 0.7em;
-      padding: 3px 8px;
+    &:hover::before { left: 100%; }
+  }
+
+  // BOTÓN DE WHATSAPP ANIMADO
+  .whatsapp-button-animated {
+    background-color: #fff;
+    border: 2px solid #25D366;
+    padding: 5px;
+    position: relative;
+    width: 100%;
+    height: 3.2em;
+    transition: 0.5s;
+    font-size: 17px;
+    border-radius: 12px;
+    margin-top: 20px;
+    cursor: pointer;
+    box-shadow: 0 6px 26px rgba(37, 211, 102, 0.14);
+
+    p {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      padding: 0;
+      transition: 0.5s;
+      color: #25D366;
+      font-weight: 700;
+      font-size: 1.05rem;
     }
 
-    .modalidad-details {
-      font-size: 0.8em;
-      
-      .detail-item {
-        ion-icon {
-          font-size: 12px;
-        }
+    svg {
+      position: absolute;
+      top: 50%;
+      right: 1.5em;
+      transform: translateY(-50%);
+      margin: 0;
+      padding: 0;
+      opacity: 0;
+      transition: 0.5s;
+      height: 1.5em;
+      width: 1.5em;
+      fill: #fff;
+    }
+
+    &:hover {
+      background-color: #25D366;
+      box-shadow: 0 12px 36px rgba(37, 211, 102, 0.28);
+      transform: translateY(-2px);
+
+      p {
+        left: 2em;
+        transform: translate(0, -50%);
+        color: #fff;
+      }
+
+      svg {
+        opacity: 1;
       }
     }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.18);
+    }
+  }
+
+  ion-button[fill="outline"] {
+    --border-width: 2.5px;
+    --border-color: #{$primary-purple};
+    --color: #{$primary-purple};
+    --background-hover: rgba(61, 42, 122, 0.08);
+    margin-top: 12px;
+    box-shadow: none;
+
+    &:hover {
+      --border-color: #{$accent-pink};
+      --color: #{$accent-pink};
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(233, 30, 140, 0.12);
+    }
   }
 }
 
-@media (max-width: 480px) {
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 575px) {
   .cart-item {
     ion-thumbnail {
-      width: 60px;
-      height: 60px;
+      width: 100%;
+      height: 220px;
+      margin: 0;
+      border-radius: 16px 16px 0 0;
+      border: none;
     }
 
-    .modalidad-info {
-      padding: 6px 8px;
-    }
-
-    .modalidad-badge {
-      font-size: 0.65em;
-      padding: 2px 6px;
-      margin-bottom: 4px;
-    }
-
-    .modalidad-details {
-      font-size: 0.75em;
-      gap: 4px;
-      
-      .detail-item {
-        gap: 3px;
-        
-        ion-icon {
-          font-size: 11px;
-        }
-      }
-      
-      .detail-separator {
-        display: none;
-      }
-    }
-
-    .sucursal-info {
-      font-size: 0.8em;
-      padding: 4px 8px;
-      
-      ion-icon {
-        font-size: 14px;
-      }
-    }
-
-    .options-display {
-      padding: 6px 8px;
-
-      .option-item {
-        font-size: 0.75em;
-        flex-wrap: wrap;
-
-        ion-icon {
-          font-size: 12px;
-        }
-
-        strong {
-          min-width: auto;
-        }
-      }
+    .quantity-controls {
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-around;
+      border-top: 1px solid $border-color;
+      border-left: none;
+      padding: 16px;
     }
   }
+
+  .customer-info-card, .summary-card {
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 991px) {
+  .customer-info-card { margin-top: 28px; }
+  .cart-container { padding: 24px 12px 100px; grid-template-columns: 1fr; }
 }
