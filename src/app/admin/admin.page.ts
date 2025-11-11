@@ -14,6 +14,14 @@ import {
   updateDoc,
   setDoc
 } from '@angular/fire/firestore';
+import {
+  Storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from '@angular/fire/storage';
+
 import { IonicModule, ToastController, AlertController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { HeaderComponent } from '../components/header/header.component';
@@ -69,6 +77,10 @@ import {
   documentOutline,
   shieldOutline,
   personCircleOutline,
+  albumsOutline,
+  leafOutline,
+  radioOutline,
+  snowOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -79,6 +91,16 @@ import {
   styleUrls: ['./admin.page.scss'],
 })
 export class AdminPage {
+
+  // ⭐ NUEVAS PROPIEDADES PARA UPLOAD
+  storage = inject(Storage);
+  archivoSeleccionado: File | null = null;
+  subiendoImagen: boolean = false;
+  progresoSubida: number = 0;
+  tipoSeleccionImagen: 'url' | 'upload' = 'url'; // url o upload
+  previsualizacionImagen: string | null = null;
+  imagenAnterior: string = ''; // Para eliminar imagen anterior al actualizar
+
   // =============================
   // 🎯 TABS
   // =============================
@@ -98,18 +120,28 @@ export class AdminPage {
   };
 
   // ========== PRODUCTOS ==========
-  producto: any = {
-    id: '',
-    sku: '',
-    nombre: '',
-    categoria: '',
-    subcategoria: '',
-    marca: '',
-    descripcion: '',
-    imagen: '',
-    tiendas: [],
-    modalidades: []
-  };
+ producto: any = {
+  id: '',
+  sku: '',
+  nombre: '',
+  categoria: '',
+  subcategoria: '',
+  marca: '',
+  descripcion: '',
+  imagen: '',
+  tiendas: [],
+  modalidades: [],
+  
+  // ⭐ NUEVAS PROPIEDADES
+  material: '',              // Material del producto
+  color: '',                 // Color del producto
+  medida: '',                // Medida/Capacidad (ej: 16oz, 500ml)
+  cantidadPaquete: '',       // Cantidad por paquete (ej: Caja de 1000)
+  biodegradable: false,      // Checkbox: Es biodegradable
+  aptoMicroondas: false,     // Checkbox: Apto para microondas
+  aptoCongelador: false,     // Checkbox: Apto para congelador
+  usosRecomendados: ''       // Usos recomendados del producto
+};
 
   productos: any[] = [];
   productosFiltrados: any[] = [];
@@ -206,6 +238,10 @@ get totalUsuariosRegulares(): number {
 
   constructor() {
     addIcons({
+      albumsOutline,
+      leafOutline,
+      radioOutline,
+      snowOutline,
       shieldCheckmarkOutline,
       cubeOutline,
       cashOutline,
@@ -268,6 +304,143 @@ get totalUsuariosRegulares(): number {
     this.obtenerSuscriptores();
   }
 
+    // =============================
+  // 📸 MÉTODOS PARA MANEJO DE IMÁGENES
+  // =============================
+
+  /**
+   * Cambiar entre URL y Upload
+   */
+  cambiarTipoImagen(tipo: 'url' | 'upload') {
+    this.tipoSeleccionImagen = tipo;
+    
+    // Limpiar al cambiar de tipo
+    if (tipo === 'upload') {
+      this.producto.imagen = '';
+    } else {
+      this.archivoSeleccionado = null;
+      this.previsualizacionImagen = null;
+    }
+    
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Manejar la selección de archivo
+   */
+  onArchivoSeleccionado(event: any) {
+    const archivo = event.target.files[0];
+    
+    if (!archivo) {
+      return;
+    }
+
+    // Validar tipo de archivo
+    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!tiposPermitidos.includes(archivo.type)) {
+      this.mostrarToast('⚠️ Solo se permiten imágenes (JPG, PNG, WEBP, GIF)', 'warning');
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (archivo.size > maxSize) {
+      this.mostrarToast('⚠️ La imagen no debe superar 5MB', 'warning');
+      return;
+    }
+
+    this.archivoSeleccionado = archivo;
+
+    // Crear previsualización
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.previsualizacionImagen = e.target.result;
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(archivo);
+  }
+
+  /**
+   * Subir imagen a Firebase Storage
+   */
+  async subirImagenFirebase(): Promise<string> {
+    if (!this.archivoSeleccionado) {
+      throw new Error('No hay archivo seleccionado');
+    }
+
+    this.subiendoImagen = true;
+    this.progresoSubida = 0;
+
+    try {
+      // Generar nombre único para la imagen
+      const timestamp = Date.now();
+      const nombreArchivo = `productos/${timestamp}_${this.archivoSeleccionado.name}`;
+      
+      // Crear referencia en Firebase Storage
+      const storageRef = ref(this.storage, nombreArchivo);
+      
+      // Subir archivo
+      const snapshot = await uploadBytes(storageRef, this.archivoSeleccionado);
+      
+      // Obtener URL de descarga
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      this.subiendoImagen = false;
+      this.progresoSubida = 100;
+      
+      return downloadURL;
+
+    } catch (error) {
+      console.error('Error subiendo imagen:', error);
+      this.subiendoImagen = false;
+      throw error;
+    }
+  }
+
+  /**
+   * Eliminar imagen anterior de Firebase Storage
+   */
+  async eliminarImagenAnterior(imageUrl: string) {
+    if (!imageUrl || !imageUrl.includes('firebase')) {
+      return; // Solo eliminar si es de Firebase
+    }
+
+    try {
+      // Extraer el path de la URL de Firebase
+      const decodedUrl = decodeURIComponent(imageUrl);
+      const startIndex = decodedUrl.indexOf('/o/') + 3;
+      const endIndex = decodedUrl.indexOf('?');
+      const filePath = decodedUrl.substring(startIndex, endIndex);
+      
+      // Crear referencia y eliminar
+      const storageRef = ref(this.storage, filePath);
+      await deleteObject(storageRef);
+      
+      console.log('Imagen anterior eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar imagen anterior:', error);
+      // No lanzar error, solo registrar
+    }
+  }
+
+  /**
+   * Limpiar archivo seleccionado
+   */
+  limpiarArchivoSeleccionado() {
+    this.archivoSeleccionado = null;
+    this.previsualizacionImagen = null;
+    this.progresoSubida = 0;
+    
+    // Limpiar el input file
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+    
+    this.cdr.detectChanges();
+  }
+
+
   // =============================
   // 🎯 NAVEGACIÓN TABS
   // =============================
@@ -329,115 +502,136 @@ get totalUsuariosRegulares(): number {
   }
 
 // =============================
-// 💾 GUARDAR PRODUCTO
-// =============================
-async guardarProducto() {
-  try {
-    // Validar SKU (obligatorio)
-    if (!this.producto.sku || !this.producto.sku.trim()) {
-      await this.mostrarToast('⚠️ El SKU es requerido', 'warning');
-      return;
-    }
+  // 💾 ACTUALIZAR MÉTODO guardarProducto()
+  // =============================
 
-    // Validar nombre (obligatorio)
-    if (!this.producto.nombre || !this.producto.nombre.trim()) {
-      await this.mostrarToast('⚠️ El nombre del producto es requerido', 'warning');
-      return;
-    }
+  async guardarProducto() {
+    try {
+      // Validaciones básicas existentes...
+      if (!this.producto.sku || !this.producto.sku.trim()) {
+        await this.mostrarToast('⚠️ El SKU es requerido', 'warning');
+        return;
+      }
 
-    // Validar categoría (obligatorio)
-    if (!this.producto.categoria || !this.producto.categoria.trim()) {
-      await this.mostrarToast('⚠️ La categoría es requerida', 'warning');
-      return;
-    }
+      if (!this.producto.nombre || !this.producto.nombre.trim()) {
+        await this.mostrarToast('⚠️ El nombre del producto es requerido', 'warning');
+        return;
+      }
 
-    // Validar subcategoría (obligatorio)
-    if (!this.producto.subcategoria || !this.producto.subcategoria.trim()) {
-      await this.mostrarToast('⚠️ La subcategoría es requerida', 'warning');
-      return;
-    }
+      if (!this.producto.categoria || !this.producto.categoria.trim()) {
+        await this.mostrarToast('⚠️ La categoría es requerida', 'warning');
+        return;
+      }
 
-    // Validar marca (obligatorio)
-    if (!this.producto.marca || !this.producto.marca.trim()) {
-      await this.mostrarToast('⚠️ La marca es requerida', 'warning');
-      return;
-    }
+      if (!this.producto.subcategoria || !this.producto.subcategoria.trim()) {
+        await this.mostrarToast('⚠️ La subcategoría es requerida', 'warning');
+        return;
+      }
 
-    // Validar descripción (obligatorio)
-    if (!this.producto.descripcion || !this.producto.descripcion.trim()) {
-      await this.mostrarToast('⚠️ La descripción es requerida', 'warning');
-      return;
-    }
+      if (!this.producto.marca || !this.producto.marca.trim()) {
+        await this.mostrarToast('⚠️ La marca es requerida', 'warning');
+        return;
+      }
 
-    // Validar imagen (obligatorio)
-    if (!this.producto.imagen || !this.producto.imagen.trim()) {
-      await this.mostrarToast('⚠️ La URL de la imagen es requerida', 'warning');
-      return;
-    }
+      if (!this.producto.descripcion || !this.producto.descripcion.trim()) {
+        await this.mostrarToast('⚠️ La descripción es requerida', 'warning');
+        return;
+      }
 
-    // Validar opciones de modalidad (obligatorio)
-    if (!this.tieneOpcionesValidas()) {
-      await this.mostrarToast('⚠️ Debes agregar al menos una opción de Mayoreo o Menudeo', 'warning');
-      return;
-    }
+      if (!this.tieneOpcionesValidas()) {
+        await this.mostrarToast('⚠️ Debes agregar al menos una opción de Mayoreo o Menudeo', 'warning');
+        return;
+      }
 
-    // =============================
-    // 🟣 MODO EDICIÓN
-    // =============================
-    if (this.modoEdicion && this.idEditando) {
-      const docRef = doc(this.firestore, `productos/${this.idEditando}`);
-      const productoActualizar = {
+      // ⭐ VALIDAR IMAGEN
+      if (this.tipoSeleccionImagen === 'url') {
+        // Validar URL
+        if (!this.producto.imagen || !this.producto.imagen.trim()) {
+          await this.mostrarToast('⚠️ La URL de la imagen es requerida', 'warning');
+          return;
+        }
+      } else {
+        // Validar archivo seleccionado
+        if (!this.archivoSeleccionado && !this.producto.imagen) {
+          await this.mostrarToast('⚠️ Debes seleccionar una imagen', 'warning');
+          return;
+        }
+      }
+
+      // ⭐ SUBIR IMAGEN SI ES NECESARIO
+      let urlImagenFinal = this.producto.imagen;
+
+      if (this.tipoSeleccionImagen === 'upload' && this.archivoSeleccionado) {
+        try {
+          // Si estamos editando y hay una imagen anterior, eliminarla
+          if (this.modoEdicion && this.imagenAnterior) {
+            await this.eliminarImagenAnterior(this.imagenAnterior);
+          }
+
+          // Subir nueva imagen
+          urlImagenFinal = await this.subirImagenFirebase();
+          await this.mostrarToast('📸 Imagen subida correctamente', 'success');
+          
+        } catch (error) {
+          console.error('Error subiendo imagen:', error);
+          await this.mostrarToast('❌ Error al subir la imagen', 'danger');
+          return;
+        }
+      }
+
+      // Preparar objeto completo
+      const productoGuardar = {
         sku: this.producto.sku,
         nombre: this.producto.nombre,
         categoria: this.producto.categoria,
         subcategoria: this.producto.subcategoria,
         marca: this.producto.marca,
         descripcion: this.producto.descripcion,
-        imagen: this.producto.imagen,
+        imagen: urlImagenFinal, // ⭐ Usar la URL final (subida o ingresada)
         tiendas: Array.isArray(this.producto.tiendas) ? this.producto.tiendas : [],
-        modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : []
+        modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : [],
+        material: this.producto.material || '',
+        color: this.producto.color || '',
+        medida: this.producto.medida || '',
+        cantidadPaquete: this.producto.cantidadPaquete || '',
+        biodegradable: this.producto.biodegradable || false,
+        aptoMicroondas: this.producto.aptoMicroondas || false,
+        aptoCongelador: this.producto.aptoCongelador || false,
+        usosRecomendados: this.producto.usosRecomendados || ''
       };
-      await updateDoc(docRef, productoActualizar);
-      await this.mostrarToast('✅ Producto actualizado correctamente');
 
-    // =============================
-    // 🟢 MODO NUEVO (CREAR)
-    // =============================
-    } else {
-      const ref = collection(this.firestore, 'productos');
-      const docRef = await addDoc(ref, {
-        sku: this.producto.sku,
-        nombre: this.producto.nombre,
-        categoria: this.producto.categoria,
-        subcategoria: this.producto.subcategoria,
-        marca: this.producto.marca,
-        descripcion: this.producto.descripcion,
-        imagen: this.producto.imagen,
-        tiendas: Array.isArray(this.producto.tiendas) ? this.producto.tiendas : [],
-        modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : []
-      });
+      // MODO EDICIÓN
+      if (this.modoEdicion && this.idEditando) {
+        const docRef = doc(this.firestore, `productos/${this.idEditando}`);
+        await updateDoc(docRef, productoGuardar);
+        await this.mostrarToast('✅ Producto actualizado correctamente');
 
-      // 🔹 Guardar el ID generado por Firebase dentro del documento
-      await updateDoc(docRef, { id: docRef.id });
+      // MODO NUEVO (CREAR)
+      } else {
+        const ref = collection(this.firestore, 'productos');
+        const docRef = await addDoc(ref, productoGuardar);
+        await updateDoc(docRef, { id: docRef.id });
+        await this.mostrarToast('✅ Producto agregado correctamente');
+      }
 
-      // 🔹 Asignar también el ID al objeto local
-      this.producto.id = docRef.id;
+      this.cerrarModalProducto();
 
-      await this.mostrarToast('✅ Producto agregado correctamente');
+    } catch (error) {
+      console.error('Error al guardar producto:', error);
+      await this.mostrarToast('❌ Error al guardar el producto', 'danger');
     }
-
-    // 🔹 Cerrar el modal al finalizar
-    this.cerrarModalProducto();
-
-  } catch (error) {
-    console.error('Error al guardar producto:', error);
-    await this.mostrarToast('❌ Error al guardar el producto', 'danger');
   }
-}
 
+  // =============================
+  // 📝 ACTUALIZAR editarProducto()
+  // =============================
 
   editarProducto(producto: any) {
     this.mostrarModalProducto = false;
+    
+    // Guardar URL de imagen anterior para poder eliminarla si se cambia
+    this.imagenAnterior = producto.imagen || '';
+    
     this.producto = {
       id: '',
       sku: '',
@@ -448,8 +642,23 @@ async guardarProducto() {
       descripcion: '',
       imagen: '',
       tiendas: [],
-      modalidades: []
+      modalidades: [],
+      material: '',
+      color: '',
+      medida: '',
+      cantidadPaquete: '',
+      biodegradable: false,
+      aptoMicroondas: false,
+      aptoCongelador: false,
+      usosRecomendados: ''
     };
+    
+    // Resetear estado de imagen
+    this.tipoSeleccionImagen = 'url';
+    this.archivoSeleccionado = null;
+    this.previsualizacionImagen = null;
+    this.subiendoImagen = false;
+    this.progresoSubida = 0;
     
     this.cdr.detectChanges();
     
@@ -467,7 +676,15 @@ async guardarProducto() {
         descripcion: producto.descripcion || '',
         imagen: producto.imagen || '',
         tiendas: Array.isArray(producto.tiendas) ? [...producto.tiendas] : [],
-        modalidades: Array.isArray(producto.modalidades) ? JSON.parse(JSON.stringify(producto.modalidades)) : []
+        modalidades: Array.isArray(producto.modalidades) ? JSON.parse(JSON.stringify(producto.modalidades)) : [],
+        material: producto.material || '',
+        color: producto.color || '',
+        medida: producto.medida || '',
+        cantidadPaquete: producto.cantidadPaquete || '',
+        biodegradable: producto.biodegradable || false,
+        aptoMicroondas: producto.aptoMicroondas || false,
+        aptoCongelador: producto.aptoCongelador || false,
+        usosRecomendados: producto.usosRecomendados || ''
       };
 
       if (this.producto.categoria && this.subcategoriasMap[this.producto.categoria]) {
@@ -479,11 +696,17 @@ async guardarProducto() {
     }, 150);
   }
 
+  // =============================
+  // 🆕 ACTUALIZAR abrirModalProducto()
+  // =============================
+
   abrirModalProducto() {
     this.mostrarModalProducto = false;
     
     this.modoEdicion = false;
     this.idEditando = '';
+    this.imagenAnterior = '';
+    
     this.producto = {
       id: '',
       sku: '',
@@ -494,8 +717,23 @@ async guardarProducto() {
       descripcion: '',
       imagen: '',
       tiendas: [],
-      modalidades: []
+      modalidades: [],
+      material: '',
+      color: '',
+      medida: '',
+      cantidadPaquete: '',
+      biodegradable: false,
+      aptoMicroondas: false,
+      aptoCongelador: false,
+      usosRecomendados: ''
     };
+
+    // Resetear estado de imagen
+    this.tipoSeleccionImagen = 'url';
+    this.archivoSeleccionado = null;
+    this.previsualizacionImagen = null;
+    this.subiendoImagen = false;
+    this.progresoSubida = 0;
 
     this.subcategorias = [];
     this.nuevaTienda = '';
@@ -512,11 +750,17 @@ async guardarProducto() {
     }, 150);
   }
 
+  // =============================
+  // 🧹 ACTUALIZAR cerrarModalProducto()
+  // =============================
+
   cerrarModalProducto() {
     this.mostrarModalProducto = false;
     
     this.modoEdicion = false;
     this.idEditando = '';
+    this.imagenAnterior = '';
+    
     this.producto = {
       id: '',
       sku: '',
@@ -527,8 +771,23 @@ async guardarProducto() {
       descripcion: '',
       imagen: '',
       tiendas: [],
-      modalidades: []
+      modalidades: [],
+      material: '',
+      color: '',
+      medida: '',
+      cantidadPaquete: '',
+      biodegradable: false,
+      aptoMicroondas: false,
+      aptoCongelador: false,
+      usosRecomendados: ''
     };
+
+    // Limpiar estado de imagen
+    this.tipoSeleccionImagen = 'url';
+    this.archivoSeleccionado = null;
+    this.previsualizacionImagen = null;
+    this.subiendoImagen = false;
+    this.progresoSubida = 0;
 
     this.subcategorias = [];
     this.nuevaTienda = '';
