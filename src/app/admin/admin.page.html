@@ -336,10 +336,6 @@
     </div>
     <h4>No hay usuarios</h4>
     <p>No se encontraron usuarios registrados</p>
-    <button class="btn-add-product" (click)="abrirModalAgregarUsuario()">
-      <ion-icon name="person-add-outline"></ion-icon>
-      <span>Agregar Primer Usuario</span>
-    </button>
   </div>
 
   <!-- ESTADO VACÍO - SIN RESULTADOS DE BÚSQUEDA -->
@@ -763,24 +759,25 @@ Equipo Interventas"
           <!-- SKU Y NOMBRE -->
           <div class="form-row-2col">
             <div class="form-group-custom">
-              <label class="form-label-custom">
+              <label class="form-label-custom required">
                 <ion-icon name="barcode-outline"></ion-icon>
-                <span>SKU (Opcional)</span>
+                <span>SKU</span>
               </label>
               <div class="input-wrapper">
                 <input 
                   type="text" 
                   [(ngModel)]="producto.sku" 
                   name="sku" 
-                  placeholder="Ej: VSO-TERM-16OZ"
-                  class="custom-input">
+                  placeholder="Ej: 123456"
+                  class="custom-input"
+                  required>
               </div>
             </div>
 
             <div class="form-group-custom">
               <label class="form-label-custom required">
                 <ion-icon name="pricetag-outline"></ion-icon>
-                <span>Nombre del Producto</span>
+                <span>Nombre</span>
               </label>
               <div class="input-wrapper">
                 <input 
@@ -788,7 +785,8 @@ Equipo Interventas"
                   [(ngModel)]="producto.nombre" 
                   name="nombre" 
                   placeholder="Ej: Vaso Térmico 16oz" 
-                  class="custom-input">
+                  class="custom-input"
+                  required>
               </div>
             </div>
           </div>
@@ -796,7 +794,7 @@ Equipo Interventas"
           <!-- CATEGORÍA Y SUBCATEGORÍA -->
           <div class="form-row-2col">
             <div class="form-group-custom">
-              <label class="form-label-custom">
+              <label class="form-label-custom required">
                 <ion-icon name="folder-outline"></ion-icon>
                 <span>Categoría</span>
               </label>
@@ -805,7 +803,8 @@ Equipo Interventas"
                   [(ngModel)]="producto.categoria" 
                   (ngModelChange)="onCategoriaChange()"
                   name="categoria" 
-                  class="custom-select-native">
+                  class="custom-select-native"
+                  required>
                   <option value="" disabled selected>Seleccionar categoría</option>
                   <option value="Desechables">Desechables</option>
                   <option value="Biodegradables">Biodegradables</option>
@@ -819,7 +818,7 @@ Equipo Interventas"
             </div>
 
             <div class="form-group-custom">
-              <label class="form-label-custom">
+              <label class="form-label-custom required">
                 <ion-icon name="layers-outline"></ion-icon>
                 <span>Tipo de {{ producto.categoria || 'Categoría' }}</span>
               </label>
@@ -828,7 +827,8 @@ Equipo Interventas"
                   [(ngModel)]="producto.subcategoria" 
                   name="subcategoria" 
                   class="custom-select-native"
-                  [disabled]="!producto.categoria">
+                  [disabled]="!producto.categoria"
+                  required>
                   <option value="" disabled selected>
                     {{ producto.categoria ? 'Seleccionar tipo' : 'Selecciona una categoría primero' }}
                   </option>
@@ -841,7 +841,7 @@ Equipo Interventas"
 
           <!-- MARCA -->
           <div class="form-group-custom">
-            <label class="form-label-custom">
+            <label class="form-label-custom required">
               <ion-icon name="ribbon-outline"></ion-icon>
               <span>Marca</span>
             </label>
@@ -851,18 +851,8 @@ Equipo Interventas"
                 [(ngModel)]="producto.marca" 
                 name="marca" 
                 placeholder="Ej: Dart, Karat, Solo, etc."
-                class="custom-input">
-            </div>
-          </div>
-
-          <!-- COLORES AGREGADOS -->
-          <div class="colores-agregados" *ngIf="producto.colores && producto.colores.length > 0">
-            <div class="color-badge" *ngFor="let color of producto.colores; let i = index">
-              <span class="color-dot" [style.backgroundColor]="getColorValue(color)"></span>
-              <span class="color-name">{{ color }}</span>
-              <button type="button" class="btn-remove-color" (click)="eliminarColor(i)">
-                <ion-icon name="close"></ion-icon>
-              </button>
+                class="custom-input"
+                required>
             </div>
           </div>
 
@@ -876,17 +866,19 @@ Equipo Interventas"
           <div class="form-group-custom">
             <label class="form-label-custom required">
               <ion-icon name="cart-outline"></ion-icon>
-              <span>Tipo de Modalidad</span>
+              <span>Agregar Modalidad</span>
             </label>
             <div class="modalidad-select-wrapper">
               <div class="input-wrapper select-custom-wrapper">
                 <select 
                   [(ngModel)]="modalidadSeleccionada" 
                   name="modalidadSeleccionada" 
-                  class="custom-select-native">
-                  <option value="" disabled selected>Seleccionar modalidad</option>
-                  <option value="Mayoreo">Mayoreo</option>
+                  class="custom-select-native"
+                  placeholder="Seleccionar Modalidad">
+                  <option value="" disabled selected>Seleccionar Modalidad</option>
                   <option value="Menudeo">Menudeo</option>
+                  <option value="Mayoreo">Mayoreo</option>
+
                 </select>
                 <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
               </div>
@@ -927,11 +919,11 @@ Equipo Interventas"
               </div>
             </div>
 
-            <!-- TAMAÑO -->
-            <div class="form-group-custom">
-              <label class="form-label-custom required">
+            <!-- TAMAÑO (OPCIONAL) -->
+            <div class="form-group-custom" style="margin-top: 5px;">
+              <label class="form-label-custom">
                 <ion-icon name="resize-outline"></ion-icon>
-                <span>Tamaño</span>
+                <span>Tamaño (Opcional)</span>
               </label>
               <div class="input-wrapper">
                 <input 
@@ -943,11 +935,11 @@ Equipo Interventas"
               </div>
             </div>
 
-            <!-- CONTENIDO -->
-            <div class="form-group-custom">
-              <label class="form-label-custom required">
+            <!-- CONTENIDO (OPCIONAL) -->
+            <div class="form-group-custom" style="margin-top: 5px;">
+              <label class="form-label-custom">
                 <ion-icon name="layers-outline"></ion-icon>
-                <span>Contenido (piezas, ml, litros, etc)</span>
+                <span>Contenido (Opcional)</span>
               </label>
               <div class="input-wrapper">
                 <input 
@@ -970,80 +962,76 @@ Equipo Interventas"
           </div>
 
           <!-- OPCIONES AGREGADAS - MAYOREO -->
-          <div class="opciones-lista" *ngIf="obtenerOpcionesModalidad('Mayoreo').length > 0">
-            <div class="opciones-header">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
+           <div class="form-section-title">
+            <ion-icon name="cart-outline"></ion-icon>
+            <span>Opciones Agregadas</span>
+           </div>
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="cart-outline"></ion-icon>
               <span>Opciones de Mayoreo</span>
-            </div>
-            <div class="opcion-card" *ngFor="let opcion of obtenerOpcionesModalidad('Mayoreo')">
-              <div class="opcion-content">
-                <div class="opcion-row">
-                  <div class="opcion-item">
-                    <span class="label">Precio:</span>
-                    <strong>${{ opcion.precio }}</strong>
-                  </div>
-                  <div class="opcion-item">
-                    <span class="label">Tamaño:</span>
-                    <strong>{{ opcion.tamano }}</strong>
-                  </div>
-                </div>
-                <div class="opcion-row">
-                  <div class="opcion-item full-width">
-                    <span class="label">Contenido:</span>
-                    <strong>{{ opcion.contenido }}</strong>
-                  </div>
-                </div>
+            </label>
+            
+            <!-- Lista de opciones -->
+            <div class="opciones-list-wrapper" *ngIf="obtenerOpcionesModalidad('Mayoreo').length > 0">
+              <div class="opcion-item-horizontal" *ngFor="let opcion of obtenerOpcionesModalidad('Mayoreo')">
+                <span class="opcion-data">Precio: ${{ opcion.precio }}</span>
+                <span class="opcion-data">Tamaño: {{ opcion.tamano }}</span>
+                <span class="opcion-data">Contenido: {{ opcion.contenido }}</span>
+                <button 
+                  type="button" 
+                  class="btn-remove-inline"
+                  (click)="eliminarOpcionModalidad(opcion.id)"
+                  title="Eliminar">
+                  <ion-icon name="close-outline"></ion-icon>
+                </button>
               </div>
-              <button 
-                type="button" 
-                class="btn-remove-opcion"
-                (click)="eliminarOpcionModalidad(opcion.id)">
-                <ion-icon name="trash-outline"></ion-icon>
-              </button>
+            </div>
+            
+            <!-- Estado vacío -->
+            <div class="empty-hint" *ngIf="obtenerOpcionesModalidad('Mayoreo').length === 0">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>No hay opciones de Mayoreo agregadas</span>
             </div>
           </div>
 
           <!-- OPCIONES AGREGADAS - MENUDEO -->
-          <div class="opciones-lista" *ngIf="obtenerOpcionesModalidad('Menudeo').length > 0">
-            <div class="opciones-header">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              <ion-icon name="cart-outline"></ion-icon>
               <span>Opciones de Menudeo</span>
-            </div>
-            <div class="opcion-card" *ngFor="let opcion of obtenerOpcionesModalidad('Menudeo')">
-              <div class="opcion-content">
-                <div class="opcion-row">
-                  <div class="opcion-item">
-                    <span class="label">Precio:</span>
-                    <strong>${{ opcion.precio }}</strong>
-                  </div>
-                  <div class="opcion-item">
-                    <span class="label">Tamaño:</span>
-                    <strong>{{ opcion.tamano }}</strong>
-                  </div>
-                </div>
-                <div class="opcion-row">
-                  <div class="opcion-item full-width">
-                    <span class="label">Contenido:</span>
-                    <strong>{{ opcion.contenido }}</strong>
-                  </div>
-                </div>
+            </label>
+            
+            <!-- Lista de opciones -->
+            <div class="opciones-list-wrapper" *ngIf="obtenerOpcionesModalidad('Menudeo').length > 0">
+              <div class="opcion-item-horizontal" *ngFor="let opcion of obtenerOpcionesModalidad('Menudeo')">
+                <span class="opcion-data">Precio: ${{ opcion.precio }}</span>
+                <span class="opcion-data">Tamaño: {{ opcion.tamano }}</span>
+                <span class="opcion-data">Contenido: {{ opcion.contenido }}</span>
+                <button 
+                  type="button" 
+                  class="btn-remove-inline"
+                  (click)="eliminarOpcionModalidad(opcion.id)"
+                  title="Eliminar">
+                  <ion-icon name="close-outline"></ion-icon>
+                </button>
               </div>
-              <button 
-                type="button" 
-                class="btn-remove-opcion"
-                (click)="eliminarOpcionModalidad(opcion.id)">
-                <ion-icon name="trash-outline"></ion-icon>
-              </button>
+            </div>
+            
+            <!-- Estado vacío -->
+            <div class="empty-hint" *ngIf="obtenerOpcionesModalidad('Menudeo').length === 0">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>No hay opciones de Menudeo agregadas</span>
             </div>
           </div>
 
-          <!-- SUCURSALES -->
-          <div class="form-section-title" *ngIf="tieneOpcionesValidas()">
+          <!-- ========== SECCIÓN 3: SUCURSALES ========== -->
+          <div class="form-section-title">
             <ion-icon name="storefront-outline"></ion-icon>
             <span>Sucursales</span>
           </div>
 
-          <div class="form-group-custom" *ngIf="tieneOpcionesValidas()">
+          <div class="form-group-custom">
             <label class="form-label-custom">
               <ion-icon name="storefront-outline"></ion-icon>
               <span>Agregar Sucursal</span>
@@ -1053,64 +1041,89 @@ Equipo Interventas"
               <div class="value-list" *ngIf="producto.tiendas && producto.tiendas.length > 0">
                 <div class="value-item" *ngFor="let tienda of producto.tiendas; let i = index">
                   <span class="value-text">{{ tienda }}</span>
-                  <button type="button" class="btn-remove-value" (click)="eliminarTienda(i)">
+                  <button 
+                    type="button" 
+                    class="btn-remove-value" 
+                    (click)="eliminarTienda(i)"
+                    [disabled]="!tieneOpcionesValidas()">
                     <ion-icon name="close-circle"></ion-icon>
                   </button>
                 </div>
               </div>
 
               <div class="add-value-wrapper">
-                <div class="input-wrapper">
+                <div class="input-wrapper" [class.disabled]="!tieneOpcionesValidas()">
                   <input 
                     type="text" 
                     [(ngModel)]="nuevaTienda" 
                     name="nuevaTienda" 
                     placeholder="Ej: Tienda Centro, Sucursal Norte"
                     (keyup.enter)="agregarTienda()"
+                    [disabled]="!tieneOpcionesValidas()"
                     class="custom-input">
                 </div>
-                <button type="button" class="btn-add-value" (click)="agregarTienda()">
+                <button 
+                  type="button" 
+                  class="btn-add-value" 
+                  (click)="agregarTienda()"
+                  [disabled]="!tieneOpcionesValidas()">
                   <ion-icon name="add-circle-outline"></ion-icon>
                 </button>
               </div>
             </div>
+
+            <div class="input-hint" *ngIf="!tieneOpcionesValidas()">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>Agrega al menos una opción de Mayoreo o Menudeo para habilitar este campo</span>
+            </div>
           </div>
 
-          <!-- DESCRIPCIÓN -->
-          <div class="form-section-title" *ngIf="tieneOpcionesValidas()">
+          <!-- ========== SECCIÓN 4: CONTENIDO ========== -->
+          <div class="form-section-title">
             <ion-icon name="document-text-outline"></ion-icon>
             <span>Contenido del Producto</span>
           </div>
 
-          <div class="form-group-custom" *ngIf="tieneOpcionesValidas()">
+          <!-- DESCRIPCIÓN -->
+          <div class="form-group-custom">
             <label class="form-label-custom">
               <ion-icon name="document-text-outline"></ion-icon>
               <span>Descripción</span>
             </label>
-            <div class="input-wrapper textarea-wrapper">
+            <div class="input-wrapper textarea-wrapper" [class.disabled]="!tieneOpcionesValidas()">
               <textarea 
                 [(ngModel)]="producto.descripcion" 
                 name="descripcion" 
                 placeholder="Describe las características principales del producto..."
                 rows="4"
+                [disabled]="!tieneOpcionesValidas()"
                 class="custom-textarea"></textarea>
+            </div>
+            <div class="input-hint" *ngIf="!tieneOpcionesValidas()">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>Agrega al menos una opción de Mayoreo o Menudeo para habilitar este campo</span>
             </div>
           </div>
 
           <!-- URL DE IMAGEN -->
-          <div class="form-group-custom" *ngIf="tieneOpcionesValidas()">
+          <div class="form-group-custom">
             <label class="form-label-custom">
               <ion-icon name="image-outline"></ion-icon>
               <span>URL de la Imagen</span>
             </label>
-            <div class="input-wrapper">
+            <div class="input-wrapper" [class.disabled]="!tieneOpcionesValidas()">
               <input 
                 type="text" 
                 [(ngModel)]="producto.imagen" 
                 name="imagen" 
                 placeholder="https://ejemplo.com/imagen.jpg"
+                [disabled]="!tieneOpcionesValidas()"
                 class="custom-input">
               <ion-icon name="cloud-upload-outline" class="input-icon-right"></ion-icon>
+            </div>
+            <div class="input-hint" *ngIf="!tieneOpcionesValidas()">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>Agrega al menos una opción de Mayoreo o Menudeo para habilitar este campo</span>
             </div>
           </div>
 
@@ -1132,7 +1145,14 @@ Equipo Interventas"
             <button 
               type="submit"
               class="btn-submit"
-              [disabled]="!producto.nombre || !producto.nombre.trim() || !tieneOpcionesValidas()">
+              [disabled]="!producto.sku || !producto.sku.trim() ||
+                          !producto.nombre || !producto.nombre.trim() || 
+                          !producto.categoria || !producto.categoria.trim() ||
+                          !producto.subcategoria || !producto.subcategoria.trim() ||
+                          !producto.marca || !producto.marca.trim() ||
+                          !producto.descripcion || !producto.descripcion.trim() ||
+                          !producto.imagen || !producto.imagen.trim() ||
+                          !tieneOpcionesValidas()">
               <ion-icon [name]="modoEdicion ? 'checkmark-outline' : 'add-circle-outline'"></ion-icon>
               <span>{{ modoEdicion ? 'Actualizar' : 'Agregar Producto' }}</span>
             </button>
@@ -1202,7 +1222,7 @@ Equipo Interventas"
             <div class="input-wrapper">
               <input 
                 type="email" 
-                [(ngModel)]="usuarioEditando.email" 
+                [(ngModel)]="usuarioCreando.email" 
                 name="email" 
                 placeholder="ejemplo@correo.com" 
                 required
@@ -1449,7 +1469,7 @@ Equipo Interventas"
           </div>
 
           <!-- Email -->
-          <div class="form-group-custom">
+          <div class="form-group-custom" style="margin-top: 10px;">
             <label class="form-label-custom">
               <ion-icon name="mail-outline"></ion-icon>
               <span>Correo Electrónico</span>
@@ -1463,7 +1483,6 @@ Equipo Interventas"
                 class="custom-input">
               <button 
                 *ngIf="filtroEmailUsuario" 
-                class="clear-input-btn" 
                 (click)="filtroEmailUsuario = ''">
                 <ion-icon name="close-circle"></ion-icon>
               </button>
@@ -1471,7 +1490,7 @@ Equipo Interventas"
           </div>
 
           <!-- Rol -->
-          <div class="form-group-custom">
+          <div class="form-group-custom" style="margin-top: 10px;">
             <label class="form-label-custom">
               <ion-icon name="shield-outline"></ion-icon>
               <span>Rol</span>
@@ -1502,7 +1521,7 @@ Equipo Interventas"
             <button 
               type="button"
               (click)="limpiarFiltrosUsuarios()"
-              class="btn-clear">
+              class="btn-cancel">
               <ion-icon name="refresh-outline"></ion-icon>
               <span>Limpiar Filtros</span>
             </button>
@@ -1514,7 +1533,7 @@ Equipo Interventas"
   </div>
 </div>
 
-<!-- 📍 MODAL DE BÚSQUEDA -->
+<!-- 📍 MODAL DE BÚSQUEDA DE PRODUCTOS-->
 <div class="modal-overlay" *ngIf="mostrarModalBusqueda" (click)="cerrarModalBusqueda()">
     <div class="modal-container search-modal" (click)="$event.stopPropagation()">
       <div class="modal-wrapper">
@@ -1611,7 +1630,7 @@ Equipo Interventas"
             </div>
 
             <!-- Categoría y Subcategoría en una fila -->
-            <div class="form-row-2col">
+            <div class="form-row-2col" style="margin-top: 10px;">
               <!-- Categoría -->
               <div class="form-group-custom">
                 <label class="form-label-custom">
@@ -1671,7 +1690,7 @@ Equipo Interventas"
               <button 
                 type="button"
                 (click)="limpiarTodosFiltros()"
-                class="btn-clear">
+                class="btn-cancel">
                 <ion-icon name="refresh-outline"></ion-icon>
                 <span>Limpiar Filtros</span>
               </button>

@@ -90,11 +90,11 @@ export class AdminPage {
   // =============================
   private subcategoriasMap: { [key: string]: string[] } = {
     'Desechables': ['Vasos', 'Platos', 'Charolas', 'Envases', 'Cubiertos', 'Tapas', 'Cono de Papel', 'Moldes', 'Popotes', 'Contenedores'],
-    'Biodegradables': ['Vasos', 'Platos', 'Contenedores', 'Bandejas', 'Palillos', 'Servilletas'],
-    'Bolsas': ['Bolsas Pequeñas', 'Bolsas Medianas', 'Bolsas Grandes', 'Bolsas con Asas', 'Bolsas Herméticas'],
-    'Cocina y Repostería': ['Moldes', 'Cortadores', 'Papel Pergamino', 'Papel Aluminio', 'Decoraciones'],
-    'Alimentos': ['Bebidas', 'Snacks', 'Postres', 'Salsas', 'Condimentos'],
-    'Higiénicos y Servilletas': ['Servilletas', 'Pañuelos', 'Toallas de Papel', 'Papel Higiénico', 'Toallitas Desinfectantes']
+    'Biodegradables': ['Vasos', 'Platos', 'Contenedores', 'Bolsa de Camiseta', 'Charolas', 'Popotes', 'Cubiertos', 'Bolsa', 'Servilletas'],
+    'Bolsas': ['Bolsas de Camiseta', 'Biodegradables', 'Bolsas Tipo Celofán', 'Bolsas con Zipper', 'Bolsas de Papel','Bolsas para Basura', 'Bolsas Planas'],
+    'Cocina y Repostería': ['Charolas', 'Capacillos', 'Empaques', 'Moldes', 'Palos de Madera','Emplayes','Envases', 'Aluminios', 'Tapas', 'Tripas para Embutidos', 'Contenedores'],
+    'Alimentos': ['Colorantes', 'Conos de Nieve', 'Figuras para Freir', 'Saborizantes', 'Concentrados', 'Chile en Polvo', 'Salsas'],
+    'Higiénicos y Servilletas': ['Cofia', 'Toallas Desechables', 'Papel Higiénico', 'Servilletas', 'Pañuelos']
   };
 
   // ========== PRODUCTOS ==========
@@ -107,7 +107,6 @@ export class AdminPage {
     marca: '',
     descripcion: '',
     imagen: '',
-    colores: [],
     tiendas: [],
     modalidades: []
   };
@@ -122,8 +121,6 @@ export class AdminPage {
   subcategorias: string[] = [];
   subcategoriasFiltro: string[] = [];
   
-  // Variables temporales para productos
-  nuevoColor: string = '';
   nuevaTienda: string = '';
   
   // Variables para agregar modalidades
@@ -142,6 +139,12 @@ export class AdminPage {
 // =============================
 usuarios: any[] = [];
 usuariosFiltrados: any[] = [];
+usuarioCreando: any = {
+  nombre: '',
+  email: '',
+  rol: 'usuario',
+  password: ''
+};
 usuarioEditando: any = {
   nombre: '',
   email: '',
@@ -325,118 +328,113 @@ get totalUsuariosRegulares(): number {
     this.cdr.detectChanges();
   }
 
-  // =============================
-  // 🎯 MÉTODOS PARA MODALIDADES
-  // =============================
-
-limpiarModalidadSeleccionada() {
-  this.modalidadSeleccionada = '';
-  this.precioActual = 0;
-  this.tamanoActual = '';
-  this.contenidoActual = '';
-  this.cdr.detectChanges();
-}
-
-  agregarOpcionModalidad() {
-    const precio = this.precioActual;
-    const tamano = this.tamanoActual.trim();
-    const contenido = this.contenidoActual.trim();
-
-    if (!this.modalidadSeleccionada) {
-      this.mostrarToast('⚠️ Selecciona una modalidad (Mayoreo o Menudeo)', 'warning');
+// =============================
+// 💾 GUARDAR PRODUCTO
+// =============================
+async guardarProducto() {
+  try {
+    // Validar SKU (obligatorio)
+    if (!this.producto.sku || !this.producto.sku.trim()) {
+      await this.mostrarToast('⚠️ El SKU es requerido', 'warning');
       return;
     }
 
-    if (precio <= 0) {
-      this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
+    // Validar nombre (obligatorio)
+    if (!this.producto.nombre || !this.producto.nombre.trim()) {
+      await this.mostrarToast('⚠️ El nombre del producto es requerido', 'warning');
       return;
     }
 
-    if (!tamano) {
-      this.mostrarToast('⚠️ Ingresa un tamaño válido', 'warning');
+    // Validar categoría (obligatorio)
+    if (!this.producto.categoria || !this.producto.categoria.trim()) {
+      await this.mostrarToast('⚠️ La categoría es requerida', 'warning');
       return;
     }
 
-    if (!contenido) {
-      this.mostrarToast('⚠️ Ingresa un contenido válido', 'warning');
+    // Validar subcategoría (obligatorio)
+    if (!this.producto.subcategoria || !this.producto.subcategoria.trim()) {
+      await this.mostrarToast('⚠️ La subcategoría es requerida', 'warning');
       return;
     }
 
-    const opcion = {
-      id: Date.now().toString(),
-      modalidad: this.modalidadSeleccionada,
-      precio: precio,
-      tamano: tamano,
-      contenido: contenido
-    };
-
-    if (!Array.isArray(this.producto.modalidades)) {
-      this.producto.modalidades = [];
+    // Validar marca (obligatorio)
+    if (!this.producto.marca || !this.producto.marca.trim()) {
+      await this.mostrarToast('⚠️ La marca es requerida', 'warning');
+      return;
     }
 
-    this.producto.modalidades.push(opcion);
-
-    this.precioActual = 0;
-    this.tamanoActual = '';
-    this.contenidoActual = '';
-
-    this.mostrarToast('✅ Opción de ' + this.modalidadSeleccionada + ' agregada', 'success');
-    this.cdr.detectChanges();
-  }
-
-  eliminarOpcionModalidad(id: string) {
-    this.producto.modalidades = this.producto.modalidades.filter((m: any) => m.id !== id);
-    this.mostrarToast('🗑️ Opción eliminada', 'danger');
-    this.cdr.detectChanges();
-  }
-
-  obtenerOpcionesModalidad(modalidad: string): any[] {
-    if (!Array.isArray(this.producto.modalidades)) {
-      return [];
+    // Validar descripción (obligatorio)
+    if (!this.producto.descripcion || !this.producto.descripcion.trim()) {
+      await this.mostrarToast('⚠️ La descripción es requerida', 'warning');
+      return;
     }
-    return this.producto.modalidades.filter((m: any) => m.modalidad === modalidad);
-  }
 
-  tieneOpcionesValidas(): boolean {
-    return Array.isArray(this.producto.modalidades) && this.producto.modalidades.length > 0;
-  }
+    // Validar imagen (obligatorio)
+    if (!this.producto.imagen || !this.producto.imagen.trim()) {
+      await this.mostrarToast('⚠️ La URL de la imagen es requerida', 'warning');
+      return;
+    }
 
-  async guardarProducto() {
-    try {
-      if (!this.producto.nombre || !this.producto.nombre.trim()) {
-        await this.mostrarToast('⚠️ El nombre del producto es requerido', 'warning');
-        return;
-      }
+    // Validar opciones de modalidad (obligatorio)
+    if (!this.tieneOpcionesValidas()) {
+      await this.mostrarToast('⚠️ Debes agregar al menos una opción de Mayoreo o Menudeo', 'warning');
+      return;
+    }
 
-      if (!this.tieneOpcionesValidas()) {
-        await this.mostrarToast('⚠️ Debes agregar al menos una opción de Mayoreo o Menudeo', 'warning');
-        return;
-      }
-
-      const productoAGuardar = {
-        ...this.producto,
-        colores: Array.isArray(this.producto.colores) ? this.producto.colores : [],
+    // =============================
+    // 🟣 MODO EDICIÓN
+    // =============================
+    if (this.modoEdicion && this.idEditando) {
+      const docRef = doc(this.firestore, `productos/${this.idEditando}`);
+      const productoActualizar = {
+        sku: this.producto.sku,
+        nombre: this.producto.nombre,
+        categoria: this.producto.categoria,
+        subcategoria: this.producto.subcategoria,
+        marca: this.producto.marca,
+        descripcion: this.producto.descripcion,
+        imagen: this.producto.imagen,
         tiendas: Array.isArray(this.producto.tiendas) ? this.producto.tiendas : [],
         modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : []
       };
+      await updateDoc(docRef, productoActualizar);
+      await this.mostrarToast('✅ Producto actualizado correctamente');
 
-      if (this.modoEdicion && this.idEditando) {
-        const docRef = doc(this.firestore, `productos/${this.idEditando}`);
-        const { id, ...productoSinId } = productoAGuardar;
-        await updateDoc(docRef, productoSinId);
-        await this.mostrarToast('✅ Producto actualizado correctamente');
-      } else {
-        const ref = collection(this.firestore, 'productos');
-        await addDoc(ref, productoAGuardar);
-        await this.mostrarToast('✅ Producto agregado correctamente');
-      }
-      
-      this.cerrarModalProducto();
-    } catch (error) {
-      console.error('Error al guardar producto:', error);
-      await this.mostrarToast('❌ Error al guardar el producto', 'danger');
+    // =============================
+    // 🟢 MODO NUEVO (CREAR)
+    // =============================
+    } else {
+      const ref = collection(this.firestore, 'productos');
+      const docRef = await addDoc(ref, {
+        sku: this.producto.sku,
+        nombre: this.producto.nombre,
+        categoria: this.producto.categoria,
+        subcategoria: this.producto.subcategoria,
+        marca: this.producto.marca,
+        descripcion: this.producto.descripcion,
+        imagen: this.producto.imagen,
+        tiendas: Array.isArray(this.producto.tiendas) ? this.producto.tiendas : [],
+        modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : []
+      });
+
+      // 🔹 Guardar el ID generado por Firebase dentro del documento
+      await updateDoc(docRef, { id: docRef.id });
+
+      // 🔹 Asignar también el ID al objeto local
+      this.producto.id = docRef.id;
+
+      await this.mostrarToast('✅ Producto agregado correctamente');
     }
+
+    // 🔹 Cerrar el modal al finalizar
+    this.cerrarModalProducto();
+
+  } catch (error) {
+    console.error('Error al guardar producto:', error);
+    await this.mostrarToast('❌ Error al guardar el producto', 'danger');
   }
+}
+
 
   editarProducto(producto: any) {
     this.mostrarModalProducto = false;
@@ -449,7 +447,6 @@ limpiarModalidadSeleccionada() {
       marca: '',
       descripcion: '',
       imagen: '',
-      colores: [],
       tiendas: [],
       modalidades: []
     };
@@ -469,7 +466,6 @@ limpiarModalidadSeleccionada() {
         marca: producto.marca || '',
         descripcion: producto.descripcion || '',
         imagen: producto.imagen || '',
-        colores: Array.isArray(producto.colores) ? [...producto.colores] : [],
         tiendas: Array.isArray(producto.tiendas) ? [...producto.tiendas] : [],
         modalidades: Array.isArray(producto.modalidades) ? JSON.parse(JSON.stringify(producto.modalidades)) : []
       };
@@ -497,13 +493,11 @@ limpiarModalidadSeleccionada() {
       marca: '',
       descripcion: '',
       imagen: '',
-      colores: [],
       tiendas: [],
       modalidades: []
     };
 
     this.subcategorias = [];
-    this.nuevoColor = '';
     this.nuevaTienda = '';
     this.modalidadSeleccionada = '';
     this.precioActual = 0;
@@ -532,13 +526,11 @@ limpiarModalidadSeleccionada() {
       marca: '',
       descripcion: '',
       imagen: '',
-      colores: [],
       tiendas: [],
       modalidades: []
     };
 
     this.subcategorias = [];
-    this.nuevoColor = '';
     this.nuevaTienda = '';
     this.modalidadSeleccionada = '';
     this.precioActual = 0;
@@ -565,77 +557,117 @@ limpiarModalidadSeleccionada() {
     console.error('Error cargando imagen');
   }
 
-  // =============================
-  // 🎨 MÉTODOS PARA COLORES
-  // =============================
+// =============================
+// 🎯 MÉTODOS PARA MODALIDADES (CORREGIDO - SIN DUPLICADOS)
+// =============================
+
+limpiarModalidadSeleccionada() {
+  this.modalidadSeleccionada = '';
+  this.precioActual = 0;
+  this.tamanoActual = '';
+  this.contenidoActual = '';
+  this.cdr.detectChanges();
+}
+
+agregarOpcionModalidad() {
+  const precio = this.precioActual;
+  const tamano = this.tamanoActual.trim();
+  const contenido = this.contenidoActual.trim();
+
+  // ✅ Validar modalidad seleccionada
+  if (!this.modalidadSeleccionada) {
+    this.mostrarToast('⚠️ Selecciona una modalidad (Mayoreo o Menudeo)', 'warning');
+    return;
+  }
+
+  // ✅ Validar precio (obligatorio)
+  if (precio <= 0) {
+    this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
+    return;
+  }
+
+  // ✅ Tamaño y contenido son OPCIONALES
+  // Si están vacíos, se guardan como "N/A"
+
+  const opcion = {
+    id: Date.now().toString(),
+    modalidad: this.modalidadSeleccionada,
+    precio: precio,
+    tamano: tamano || 'N/A',  // Si está vacío, muestra "N/A"
+    contenido: contenido || 'N/A'  // Si está vacío, muestra "N/A"
+  };
+
+  if (!Array.isArray(this.producto.modalidades)) {
+    this.producto.modalidades = [];
+  }
+
+  this.producto.modalidades.push(opcion);
+
+  // Limpiar campos
+  this.precioActual = 0;
+  this.tamanoActual = '';
+  this.contenidoActual = '';
+
+  this.mostrarToast('✅ Opción de ' + this.modalidadSeleccionada + ' agregada', 'success');
+  this.limpiarModalidadSeleccionada();
+  this.cdr.detectChanges();
+}
+
+eliminarOpcionModalidad(id: string) {
+  this.producto.modalidades = this.producto.modalidades.filter((m: any) => m.id !== id);
+  this.mostrarToast('🗑️ Opción eliminada', 'danger');
+  this.cdr.detectChanges();
+}
+
+obtenerOpcionesModalidad(modalidad: string): any[] {
+  if (!Array.isArray(this.producto.modalidades)) {
+    return [];
+  }
+  return this.producto.modalidades.filter((m: any) => m.modalidad === modalidad);
+}
+
+tieneOpcionesValidas(): boolean {
+  return Array.isArray(this.producto.modalidades) && this.producto.modalidades.length > 0;
+}
+
+// =============================
+// 🏪 MÉTODOS DE TIENDAS/SUCURSALES
+// =============================
+
+agregarTienda() {
+  // ✅ Validar si hay opciones de modalidad antes de permitir agregar
+  if (!this.tieneOpcionesValidas()) {
+    this.mostrarToast('⚠️ Agrega al menos una opción de Mayoreo o Menudeo primero', 'warning');
+    return;
+  }
+
+  const tienda = this.nuevaTienda.trim();
   
-  getColorValue(colorName: string): string {
-    const colorMap: { [key: string]: string } = {
-      'Rojo': '#dc3545',
-      'Azul': '#0d6efd',
-      'Verde': '#198754',
-      'Amarillo': '#ffc107',
-      'Negro': '#212529',
-      'Blanco': '#ffffff',
-      'Gris': '#6c757d',
-      'Rosa': '#ed1370',
-      'Naranja': '#fd7e14',
-      'Morado': '#6f42c1',
-      'Marrón': '#8b5a3c',
-      'Turquesa': '#20c997',
-      'Cian': '#0dcaf0',
-      'Indigo': '#4610f2',
-      'Plateado': '#c0c0c0',
-      'Dorado': '#ffd700'
-    };
-    return colorMap[colorName] || '#cccccc';
+  if (!tienda) {
+    this.mostrarToast('⚠️ Ingresa un nombre de tienda válido', 'warning');
+    return;
   }
+  
+  if (this.producto.tiendas.includes(tienda)) {
+    this.mostrarToast('⚠️ Esta tienda ya existe', 'warning');
+    return;
+  }
+  
+  if (!Array.isArray(this.producto.tiendas)) {
+    this.producto.tiendas = [];
+  }
+  
+  this.producto.tiendas.push(tienda);
+  this.nuevaTienda = '';
+  this.mostrarToast('✅ Sucursal agregada correctamente', 'success');
+}
 
-  agregarColor() {
-    const color = this.nuevoColor.trim();
-    if (!color) {
-      this.mostrarToast('⚠️ Ingresa un color válido', 'warning');
-      return;
-    }
-    if (this.producto.colores.includes(color)) {
-      this.mostrarToast('⚠️ Este color ya existe', 'warning');
-      return;
-    }
-    if (!Array.isArray(this.producto.colores)) {
-      this.producto.colores = [];
-    }
-    this.producto.colores.push(color);
-    this.nuevoColor = '';
+eliminarTienda(index: number) {
+  if (Array.isArray(this.producto.tiendas) && index >= 0 && index < this.producto.tiendas.length) {
+    this.producto.tiendas.splice(index, 1);
+    this.mostrarToast('🗑️ Sucursal eliminada', 'danger');
   }
-
-  eliminarColor(index: number) {
-    if (Array.isArray(this.producto.colores) && index >= 0 && index < this.producto.colores.length) {
-      this.producto.colores.splice(index, 1);
-    }
-  }
-
-  agregarTienda() {
-    const tienda = this.nuevaTienda.trim();
-    if (!tienda) {
-      this.mostrarToast('⚠️ Ingresa un nombre de tienda válido', 'warning');
-      return;
-    }
-    if (this.producto.tiendas.includes(tienda)) {
-      this.mostrarToast('⚠️ Esta tienda ya existe', 'warning');
-      return;
-    }
-    if (!Array.isArray(this.producto.tiendas)) {
-      this.producto.tiendas = [];
-    }
-    this.producto.tiendas.push(tienda);
-    this.nuevaTienda = '';
-  }
-
-  eliminarTienda(index: number) {
-    if (Array.isArray(this.producto.tiendas) && index >= 0 && index < this.producto.tiendas.length) {
-      this.producto.tiendas.splice(index, 1);
-    }
-  }
+}
 
   // =============================
 // 🔍 BÚSQUEDA Y FILTROS
