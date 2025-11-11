@@ -169,10 +169,7 @@ export class CarritoPage implements OnInit {
       return;
     }
 
-    if (!this.customerAddress.trim()) {
-      alert('Por favor ingresa tu dirección de entrega');
-      return;
-    }
+    
 
     // Generar mensaje para WhatsApp
     const message = this.generateWhatsAppMessage();
@@ -187,11 +184,9 @@ export class CarritoPage implements OnInit {
     // Información del cliente
     message += `👤 *Cliente:* ${this.customerName}\n`;
     message += `📱 *Teléfono:* ${this.customerPhone}\n`;
-    message += `📍 *Dirección:* ${this.customerAddress}\n`;
+
     
-    if (this.customerNotes.trim()) {
-      message += `📝 *Notas:* ${this.customerNotes}\n`;
-    }
+    
     
     message += `\n━━━━━━━━━━━━━━━━━━━━\n\n`;
     
