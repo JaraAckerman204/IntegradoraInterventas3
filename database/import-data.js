@@ -18,27 +18,64 @@ console.log('Buscando archivo en:', csvPath);
 fs.createReadStream(csvPath)
   .pipe(csv())
   .on('data', (row) => {
-    // Mapear de CSV a formato Angular
+    // Parsear colores desde CSV (separados por punto y coma)
+    const colores = row['Colores'] ? row['Colores'].split(';').map(c => c.trim()).filter(c => c) : [];
+    
+    // Parsear tiendas desde CSV (separadas por punto y coma)
+    const tiendas = row['Tiendas'] ? row['Tiendas'].split(';').map(t => t.trim()).filter(t => t) : [];
+    
+    // Parsear modalidades desde CSV (formato: "Modalidad|Precio|Tamaño|Contenido;...")
+    const modalidades = [];
+    if (row['Modalidades']) {
+      const modalidadesArray = row['Modalidades'].split(';');
+      modalidadesArray.forEach(mod => {
+        const [modalidad, precio, tamano, contenido] = mod.split('|');
+        if (modalidad && precio) {
+          modalidades.push({
+            id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            modalidad: modalidad.trim(),
+            precio: parseFloat(precio) || 0,
+            tamano: tamano?.trim() || '',
+            contenido: contenido?.trim() || ''
+          });
+        }
+      });
+    }
+
     const producto = {
-      id: parseInt(row['ID del Producto']) || 0,
+      sku: row['SKU'] || '',
       nombre: row['Nombre del Producto'] || '',
       categoria: row['Categoría'] || '',
-      marca: row['Marca'] || '',
-      precio: parseFloat(row['Precio']) || 0,
+      subcategoria: row['Subcategoría'] || '',
+      marca: row['Marca'] || 'Sin Marca',
+      precio: parseFloat(row['Precio Base']) || 0,
       descripcion: row['Descripción'] || '',
-      imagen: row['URL de la Imagen'] || '' // Angular espera "imagen"
+      imagen: row['URL de la Imagen'] || '',
+      colores: colores,
+      tiendas: tiendas,
+      modalidades: modalidades,
+      url: row['URL'] || '',
+      fechaCreacion: admin.firestore.FieldValue.serverTimestamp(),
+      activo: row['Activo'] === 'true' || row['Activo'] === '1' || row['Activo'] === 'Sí'
     };
+    
     productos.push(producto);
   })
   .on('end', async () => {
     console.log('Importando ' + productos.length + ' productos...');
     
+    let contador = 0;
     for (const producto of productos) {
-      await db.collection('productos').add(producto);
-      console.log('✓ Producto agregado:', producto.nombre);
+      try {
+        await db.collection('productos').add(producto);
+        contador++;
+        console.log(`✓ [${contador}/${productos.length}] Producto agregado: ${producto.nombre}`);
+      } catch (error) {
+        console.error(`✗ Error al agregar ${producto.nombre}:`, error.message);
+      }
     }
     
-    console.log('✅ ¡Importación completa! ' + productos.length + ' productos agregados');
+    console.log(`\n✅ ¡Importación completa! ${contador}/${productos.length} productos agregados exitosamente`);
     process.exit(0);
   })
   .on('error', (error) => {
