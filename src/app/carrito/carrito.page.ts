@@ -32,7 +32,11 @@ import {
   logoWhatsapp,
   resizeOutline,
   layersOutline,
-  storefrontOutline
+  storefrontOutline,
+  pricetagOutline,
+  ribbonOutline,
+  barcodeOutline,
+  colorPaletteOutline
 } from 'ionicons/icons';
 import { CartService, CartItem } from '../services/cart.service';
 import { Router } from '@angular/router';
@@ -76,8 +80,8 @@ export class CarritoPage implements OnInit {
   customerAddress = '';
   customerNotes = '';
   
-  // Número de WhatsApp del negocio (CAMBIA ESTE NÚMERO)
-  businessWhatsApp = '5218711027262'; // Formato: 52 + código de área + número
+  // Número de WhatsApp del negocio
+  businessWhatsApp = '5218711027262';
 
   constructor(
     private cartService: CartService,
@@ -85,14 +89,18 @@ export class CarritoPage implements OnInit {
   ) {
     addIcons({
       trashOutline,
-      addOutline,
-      removeOutline,
       cartOutline,
-      arrowBackOutline,
-      logoWhatsapp,
+      ribbonOutline,
+      barcodeOutline,
+      pricetagOutline,
       resizeOutline,
       layersOutline,
-      storefrontOutline
+      storefrontOutline,
+      colorPaletteOutline,
+      removeOutline,
+      addOutline,
+      arrowBackOutline,
+      logoWhatsapp
     });
   }
 
@@ -104,7 +112,30 @@ export class CarritoPage implements OnInit {
     this.cartService.getCart().subscribe(items => {
       this.cartItems = items;
       this.total = this.cartService.getTotal();
-      console.log('🛒 Carrito cargado:', items);
+      
+      // 🔍 DEBUG: Ver información completa de cada producto
+      console.log('═══════════════════════════════════════');
+      console.log('🛒 CARRITO CARGADO - Total items:', items.length);
+      console.log('═══════════════════════════════════════');
+      
+      items.forEach((item, index) => {
+        console.log(`\n📦 PRODUCTO ${index + 1}:`);
+        console.log('  ├─ Nombre:', item.nombre);
+        console.log('  ├─ Marca:', item.marca || '❌ SIN MARCA');
+        console.log('  ├─ SKU:', item.sku || '❌ SIN SKU');
+        console.log('  ├─ Categoría:', item.categoria || '❌ SIN CATEGORÍA');
+        console.log('  ├─ Subcategoría:', item.subcategoria || '❌ SIN SUBCATEGORÍA');
+        console.log('  ├─ Colores:', item.colores || '❌ SIN COLORES');
+        console.log('  ├─ Descripción:', item.descripcion || '❌ SIN DESCRIPCIÓN');
+        console.log('  ├─ Precio:', `$${item.precio}`);
+        console.log('  ├─ Cantidad:', item.quantity);
+        console.log('  ├─ Sucursal:', item.sucursal || 'No especificada');
+        console.log('  └─ Modalidad:', item.modalidadSeleccionada || 'Sin modalidad');
+      });
+      
+      console.log('\n═══════════════════════════════════════');
+      console.log('💰 TOTAL:', `$${this.total.toFixed(2)}`);
+      console.log('═══════════════════════════════════════\n');
     });
   }
 
@@ -169,6 +200,27 @@ export class CarritoPage implements OnInit {
     
     this.cartItems.forEach((item, index) => {
       message += `${index + 1}. *${item.nombre}*\n`;
+      
+      // ✅ MARCA
+      if (item.marca) {
+        message += `   🏷️ Marca: ${item.marca}\n`;
+      }
+      
+      // ✅ SKU
+      if (item.sku) {
+        message += `   📦 SKU: ${item.sku}\n`;
+      }
+      
+      // ✅ CATEGORÍA
+      if (item.categoria) {
+        message += `   📂 Categoría: ${item.categoria}`;
+        if (item.subcategoria) {
+          message += ` / ${item.subcategoria}`;
+        }
+        message += `\n`;
+      }
+      
+      // Cantidad y precio
       message += `   • Cantidad: ${item.quantity}\n`;
       message += `   • Precio unitario: $${item.precio.toFixed(2)}\n`;
       
@@ -191,12 +243,18 @@ export class CarritoPage implements OnInit {
         }
       }
       
-      // Sucursal (aplica para ambos formatos)
+      // ✅ SUCURSAL
       if (item.sucursal) {
-        message += `   • Sucursal: ${item.sucursal}\n`;
+        message += `   🏪 Sucursal: ${item.sucursal}\n`;
       }
       
-      message += `   • Subtotal: $${(item.precio * item.quantity).toFixed(2)}\n`;
+      // ✅ COLORES
+      if (item.colores && item.colores.length > 0) {
+        message += `   🎨 Colores: ${item.colores.join(', ')}\n`;
+      }
+      
+      // Subtotal
+      message += `   💰 Subtotal: $${(item.precio * item.quantity).toFixed(2)}\n`;
       message += `\n`;
     });
     
@@ -205,7 +263,7 @@ export class CarritoPage implements OnInit {
     // Total
     const totalItems = this.cartService.getTotalItems();
     message += `📦 *Total de productos:* ${totalItems}\n`;
-    message += `💰 *TOTAL A PAGAR:* $${this.total.toFixed(2)}\n\n`;
+    message += `💵 *TOTAL A PAGAR:* $${this.total.toFixed(2)}\n\n`;
     
     message += `✅ ¡Gracias por tu preferencia!`;
     
