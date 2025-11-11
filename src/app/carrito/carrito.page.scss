@@ -303,6 +303,14 @@ ion-list {
       opacity: 0.95;
     }
 
+    .description {
+      color: $text-gray !important;
+      font-size: 0.9rem;
+      margin: 6px 0 10px 0;
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+
     .price {
       color: $accent-pink !important;
       font-weight: 800;
@@ -314,6 +322,267 @@ ion-list {
 
   &:hover ion-label h2 { color: $primary-purple !important; }
   &:hover ion-label .price { transform: translateY(-2px); text-shadow: 0 6px 18px rgba(233,30,140,0.06); }
+
+  // ============================================
+  // ✅ NUEVA METADATA (MARCA Y SKU)
+  // ============================================
+  .product-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+    font-size: 0.85rem;
+
+    .marca,
+    .sku {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      color: #666;
+      font-weight: 600;
+      transition: all $fast $ease-smooth;
+
+      ion-icon {
+        font-size: 1rem;
+        color: $primary-purple;
+      }
+    }
+
+    .marca {
+      background: linear-gradient(135deg, rgba(61, 42, 122, 0.08) 0%, rgba(233, 30, 140, 0.08) 100%);
+      color: $primary-purple;
+      border: 1px solid rgba(61, 42, 122, 0.12);
+
+      &:hover {
+        background: linear-gradient(135deg, rgba(61, 42, 122, 0.12) 0%, rgba(233, 30, 140, 0.12) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(61, 42, 122, 0.1);
+      }
+    }
+
+    .sku {
+      background: #f8f9fa;
+      color: #666;
+      border: 1px solid #e0e0e0;
+
+      &:hover {
+        background: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      }
+    }
+  }
+
+  // ============================================
+  // ✅ CATEGORÍA Y SUBCATEGORÍA
+  // ============================================
+  .category-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0;
+    font-size: 0.88rem;
+    color: #666;
+    padding: 6px 12px;
+    background: rgba(118, 75, 162, 0.05);
+    border-radius: 8px;
+    display: inline-flex;
+    max-width: fit-content;
+    border: 1px solid rgba(118, 75, 162, 0.1);
+    transition: all $fast $ease-smooth;
+
+    ion-icon {
+      font-size: 1rem;
+      color: #764ba2;
+    }
+
+    span {
+      font-weight: 600;
+      color: #764ba2;
+    }
+
+    .subcategoria {
+      color: #999;
+      font-weight: 500;
+    }
+
+    &:hover {
+      background: rgba(118, 75, 162, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(118, 75, 162, 0.1);
+    }
+  }
+
+  // ============================================
+  // ✅ COLORES DISPONIBLES
+  // ============================================
+  .colores-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0;
+    font-size: 0.88rem;
+    color: #666;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.08) 0%, rgba(255, 159, 64, 0.08) 100%);
+    border-radius: 8px;
+    display: inline-flex;
+    max-width: fit-content;
+    border: 1px solid rgba(255, 107, 107, 0.15);
+    transition: all $fast $ease-smooth;
+
+    ion-icon {
+      font-size: 1rem;
+      color: #ff6b6b;
+    }
+
+    span {
+      font-weight: 600;
+      color: #ff6b6b;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.12) 0%, rgba(255, 159, 64, 0.12) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+    }
+  }
+
+  // ============================================
+  // INFORMACIÓN DE MODALIDAD
+  // ============================================
+  .modalidad-info {
+    margin: 12px 0;
+
+    .modalidad-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      transition: all $fast $ease-smooth;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+      &.mayoreo {
+        background: linear-gradient(135deg, $primary-purple 0%, #764ba2 100%);
+        color: white;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(61, 42, 122, 0.2);
+        }
+      }
+
+      &.menudeo {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(240, 147, 251, 0.2);
+        }
+      }
+    }
+
+    .modalidad-details {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: #555;
+      flex-wrap: wrap;
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        transition: all $fast $ease-smooth;
+
+        ion-icon {
+          font-size: 1rem;
+          color: $primary-purple;
+        }
+
+        &:hover {
+          background: #fff;
+          transform: translateY(-2px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+      }
+
+      .detail-separator {
+        color: #ccc;
+        font-weight: bold;
+      }
+    }
+  }
+
+  // ============================================
+  // OPCIONES ANTIGUAS (COMPATIBILIDAD)
+  // ============================================
+  .options-display {
+    margin: 12px 0;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 6px 0;
+      font-size: 0.9rem;
+      color: #555;
+
+      ion-icon {
+        font-size: 1rem;
+        color: $primary-purple;
+      }
+
+      strong {
+        font-weight: 700;
+        color: #333;
+      }
+    }
+  }
+
+  // ============================================
+  // SUCURSAL
+  // ============================================
+  .sucursal-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(33, 150, 243, 0.08) 100%);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #1976d2;
+    font-weight: 600;
+    display: inline-flex;
+    max-width: fit-content;
+    border: 1px solid rgba(25, 118, 210, 0.15);
+    transition: all $fast $ease-smooth;
+
+    ion-icon {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(25, 118, 210, 0.12) 0%, rgba(33, 150, 243, 0.12) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+    }
+  }
 
   .quantity-controls {
     display: flex;
@@ -692,6 +961,41 @@ ion-list {
       border-top: 1px solid $border-color;
       border-left: none;
       padding: 16px;
+    }
+
+    // Ajustar badges y metadata en móvil
+    .product-meta {
+      gap: 6px;
+      
+      .marca,
+      .sku {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+      }
+    }
+
+    .category-info,
+    .colores-info,
+    .sucursal-info {
+      font-size: 0.82rem;
+      padding: 5px 10px;
+    }
+
+    .modalidad-info {
+      .modalidad-badge {
+        font-size: 0.8rem;
+        padding: 5px 12px;
+      }
+
+      .modalidad-details {
+        font-size: 0.85rem;
+        gap: 8px;
+
+        .detail-item {
+          padding: 3px 8px;
+          font-size: 0.82rem;
+        }
+      }
     }
   }
 

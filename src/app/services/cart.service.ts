@@ -16,6 +16,15 @@ export interface CartItem {
   imagen?: string;
   quantity: number;
   
+  // ✅ CAMPOS COMPLETOS DEL PRODUCTO
+  sku?: string;
+  categoria?: string;
+  subcategoria?: string;
+  marca?: string;
+  colores?: string[];
+  tiendas?: string[];
+  url?: string;
+  
   // Propiedades para modalidad seleccionada
   modalidadSeleccionada?: ModalidadSeleccionada;
   
@@ -56,7 +65,7 @@ export class CartService {
   }
 
   /**
-   * Agregar producto al carrito con opciones
+   * Agregar producto al carrito con opciones - ✅ VERSIÓN COMPLETA
    */
   addToCart(product: any, options?: { 
     modalidad?: string; 
@@ -75,7 +84,7 @@ export class CartService {
       // Si el producto con las mismas opciones ya existe, incrementar cantidad
       existingItem.quantity += 1;
     } else {
-      // Agregar nuevo item
+      // ✅ Agregar nuevo item con TODA la información
       const newItem: CartItem = {
         id: product.id,
         cartItemId: cartItemId,
@@ -84,6 +93,17 @@ export class CartService {
         descripcion: product.descripcion,
         imagen: product.imagen,
         quantity: 1,
+        
+        // ✅ CAMPOS COMPLETOS
+        sku: product.sku,
+        categoria: product.categoria,
+        subcategoria: product.subcategoria,
+        marca: product.marca,
+        colores: product.colores ? [...product.colores] : undefined,
+        tiendas: product.tiendas ? [...product.tiendas] : undefined,
+        url: product.url,
+        
+        // Modalidades y opciones
         modalidadSeleccionada: product.modalidadSeleccionada || undefined,
         modalidad: options?.modalidad || '',
         tamano: options?.tamano || '',

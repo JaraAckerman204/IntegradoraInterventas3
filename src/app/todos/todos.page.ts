@@ -281,12 +281,36 @@ addToCartFromModal() {
     sucursal: this.selectedTienda || ''
   };
 
-  // ✅ Crear copia del producto con el precio correcto
+  // ✅ Crear copia del producto con TODA LA INFORMACIÓN
   const productWithModalidad = {
-    ...this.selectedProduct,
+    id: this.selectedProduct.id,
+    nombre: this.selectedProduct.nombre,
     precio: this.selectedModalidadObj.precio,
+    descripcion: this.selectedProduct.descripcion,
+    imagen: this.selectedProduct.imagen,
+    
+    // ✅ CAMPOS COMPLETOS
+    sku: this.selectedProduct.sku,
+    categoria: this.selectedProduct.categoria,
+    subcategoria: this.selectedProduct.subcategoria,
+    marca: this.selectedProduct.marca,
+    colores: this.selectedProduct.colores,
+    tiendas: this.selectedProduct.tiendas,
+    url: this.selectedProduct.url,
+    
+    // Modalidad seleccionada
     modalidadSeleccionada
   };
+
+  console.log('🛒 Agregando al carrito:', {
+    producto: productWithModalidad.nombre,
+    marca: productWithModalidad.marca,
+    sku: productWithModalidad.sku,
+    categoria: productWithModalidad.categoria,
+    modalidad: modalidadSeleccionada,
+    opciones: options,
+    cantidad: this.quantity
+  });
 
   // ✅ Agregar el producto al carrito (solo una vez con la cantidad especificada)
   for (let i = 0; i < this.quantity; i++) {
@@ -299,7 +323,6 @@ addToCartFromModal() {
   // Cerrar modal
   this.closeModal();
 }
-
 
 
   addToCart(product: Producto) {
