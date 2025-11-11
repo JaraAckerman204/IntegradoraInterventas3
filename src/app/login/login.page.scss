@@ -569,3 +569,21 @@ ion-content {
     font-size: 0.9em;
   }
 }
+
+.forgot-password {
+  text-align: center;
+  margin-top: 15px;
+
+  ion-button {
+    --color: #27318d;
+    font-family: var(--font-secondary);
+    font-weight: 600;
+    text-transform: none;
+    font-size: 0.95em;
+
+    &:hover {
+      text-decoration: underline;
+      --color: #ed1370;
+    }
+  }
+}

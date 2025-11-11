@@ -101,6 +101,22 @@ export class LoginPage {
     }
   }
 
+  async recoverPassword() {
+  if (!this.email) {
+    this.errorMessage = 'Ingresa tu correo electrónico para recuperar la contraseña.';
+    return;
+  }
+
+  try {
+    await this.auth.sendPasswordReset(this.email);
+    alert('Se ha enviado un enlace de recuperación a tu correo.');
+  } catch (error: any) {
+    console.error('Error al recuperar contraseña:', error);
+    this.errorMessage = 'Hubo un problema enviando el correo de recuperación.';
+  }
+}
+
+
   /** 🧾 Redirigir a registro */
   goToRegister() {
     this.router.navigate(['/register']);

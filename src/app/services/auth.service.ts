@@ -11,6 +11,8 @@ import {
 } from '@angular/fire/auth';
 import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+
 
 @Injectable({
   providedIn: 'root'
@@ -90,6 +92,12 @@ export class AuthService {
       throw new Error('No hay usuario autenticado para reenviar el correo.');
     }
   }
+
+  async sendPasswordReset(email: string) {
+  const auth = getAuth();
+  return sendPasswordResetEmail(auth, email);
+}
+
 
 
 }

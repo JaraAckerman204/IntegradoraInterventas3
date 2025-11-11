@@ -122,6 +122,13 @@
           <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
         </ion-button>
 
+        <div class="forgot-password">
+          <ion-button fill="clear" (click)="recoverPassword()">
+            ¿Olvidaste tu contraseña?
+          </ion-button>
+        </div>
+
+
         <ion-text color="danger" class="error-message" *ngIf="errorMessage">
           {{ errorMessage }}
         </ion-text>
