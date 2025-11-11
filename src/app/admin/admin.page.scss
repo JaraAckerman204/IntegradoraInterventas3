@@ -1051,6 +1051,283 @@ ion-header {
 // 🎨 ESTILOS PARA LA NUEVA ESTRUCTURA DEL MODAL
 // ========================================
 
+// ========================================
+// ✨ CARACTERÍSTICAS ESPECIALES - DISEÑO MEJORADO
+// ========================================
+.caracteristicas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkbox-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 3px solid #e9ecef;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+
+  &:hover {
+    border-color: #27318d;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    box-shadow: 0 4px 16px rgba(39, 49, 141, 0.12);
+    transform: translateY(-2px);
+  }
+
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 0;
+    height: 0;
+
+    &:checked ~ .checkbox-label {
+      color: #27318d;
+      font-weight: 700;
+
+      &::before {
+        background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+        border-color: #27318d;
+        box-shadow: 0 0 0 4px rgba(39, 49, 141, 0.1);
+      }
+
+      &::after {
+        opacity: 1;
+        transform: scale(1) rotate(45deg);
+      }
+
+      ion-icon {
+        color: #ed1370;
+        transform: scale(1.15);
+      }
+    }
+
+    &:checked ~ .checkbox-label::before {
+      animation: checkBounce 0.3s ease-out;
+    }
+  }
+
+  .checkbox-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-secondary);
+    font-size: 0.95em;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding-left: 36px;
+    width: 100%;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e9ecef;
+      border-radius: 8px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      width: 6px;
+      height: 12px;
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      opacity: 0;
+      transform: scale(0) rotate(45deg);
+      transform-origin: center;
+      transition: all 0.2s ease;
+      margin-top: -2px;
+    }
+
+    ion-icon {
+      font-size: 20px;
+      color: #adb5bd;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+  }
+}
+
+@keyframes checkBounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// ========================================
+// 📱 RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .users-table {
+    table {
+      thead {
+        th {
+          padding: 0.75rem 1rem;
+          font-size: 0.75rem;
+        }
+      }
+
+      tbody {
+        td {
+          padding: 0.75rem 1rem;
+        }
+      }
+    }
+  }
+
+  .user-name-cell {
+    strong {
+      font-size: 0.875rem;
+    }
+
+    .user-id {
+      font-size: 0.7rem;
+    }
+  }
+
+  .user-email-cell {
+    span {
+      font-size: 0.8rem;
+    }
+  }
+
+  .checkbox-item {
+    padding: 14px 16px;
+
+    .checkbox-label {
+      font-size: 0.9em;
+      padding-left: 32px;
+
+      &::before {
+        width: 22px;
+        height: 22px;
+      }
+
+      &::after {
+        left: 6px;
+        width: 5px;
+        height: 11px;
+      }
+
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .users-table {
+    font-size: 0.875rem;
+
+    table {
+      thead {
+        th {
+          padding: 0.5rem;
+          font-size: 0.7rem;
+        }
+      }
+
+      tbody {
+        td {
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+
+  .user-avatar-small {
+    width: 32px;
+    height: 32px;
+
+    ion-icon {
+      font-size: 1.25rem;
+    }
+  }
+
+  .btn-icon-table {
+    padding: 0.375rem;
+
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+
+  .checkbox-item {
+    padding: 12px 14px;
+
+    .checkbox-label {
+      font-size: 0.85em;
+      padding-left: 30px;
+
+      &::before {
+        width: 20px;
+        height: 20px;
+      }
+
+      &::after {
+        left: 5px;
+        width: 4px;
+        height: 10px;
+        border-width: 0 2.5px 2.5px 0;
+      }
+
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .preview-badge {
+    font-size: 0.75em;
+    padding: 6px 12px;
+
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+}
+
 // ===== FILAS DE FORMULARIO =====
 .form-row-2col {
   display: grid;
@@ -1721,6 +1998,350 @@ form {
     height: 100%;
     object-fit: contain;
     padding: 15px;
+  }
+}
+
+// =============================
+// 📸 ESTILOS PARA SUBIDA DE IMÁGENES
+// Agregar estos estilos a admin.page.scss
+// =============================
+
+// ========== TABS PARA TIPO DE IMAGEN ==========
+.image-type-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: var(--ion-color-light);
+  border-radius: 10px;
+
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    color: var(--ion-color-medium-shade);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    ion-icon {
+      font-size: 20px;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--ion-color-light-shade);
+      color: var(--ion-color-primary);
+    }
+
+    &.active {
+      background: white;
+      color: var(--ion-color-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+}
+
+// ========== CONTENIDO DE TABS ==========
+.tab-content-image {
+  margin-top: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ========== BOTÓN SELECCIONAR ARCHIVO ==========
+.btn-select-file {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: 2px dashed var(--ion-color-primary);
+  background: var(--ion-color-primary-tint);
+  color: var(--ion-color-primary);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  ion-icon {
+    font-size: 24px;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--ion-color-primary);
+    color: white;
+    border-color: var(--ion-color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--ion-color-light);
+    border-color: var(--ion-color-medium);
+    color: var(--ion-color-medium);
+  }
+}
+
+// ========== INFORMACIÓN DEL ARCHIVO ==========
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--ion-color-success-tint);
+  border: 1px solid var(--ion-color-success);
+  border-radius: 10px;
+  animation: slideIn 0.3s ease;
+
+  .file-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+
+    ion-icon {
+      font-size: 28px;
+      color: var(--ion-color-success);
+      flex-shrink: 0;
+    }
+
+    .file-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+
+      .file-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--ion-color-success-shade);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .file-size {
+        font-size: 12px;
+        color: var(--ion-color-medium-shade);
+      }
+    }
+  }
+
+  .btn-remove-file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--ion-color-danger);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 22px;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--ion-color-danger-shade);
+      transform: scale(1.05);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ========== BARRA DE PROGRESO ==========
+.upload-progress {
+  margin-top: 16px;
+  animation: fadeIn 0.3s ease;
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--ion-color-light);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        var(--ion-color-primary),
+        var(--ion-color-secondary)
+      );
+      border-radius: 10px;
+      transition: width 0.3s ease;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  }
+
+  .progress-text {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// ========== INPUT ICON RIGHT ==========
+.input-icon-right {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--ion-color-medium);
+  pointer-events: none;
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 768px) {
+  .image-type-tabs {
+    .tab-btn {
+      padding: 10px 12px;
+      font-size: 13px;
+
+      span {
+        display: none;
+      }
+
+      ion-icon {
+        font-size: 22px;
+      }
+    }
+  }
+
+  .btn-select-file {
+    padding: 14px;
+    font-size: 14px;
+
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+
+  .file-info {
+    .file-details {
+      .file-text {
+        .file-name {
+          font-size: 13px;
+        }
+
+        .file-size {
+          font-size: 11px;
+        }
+      }
+    }
+
+    .btn-remove-file {
+      width: 32px;
+      height: 32px;
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+// ========== ESTADOS DE LOADING ==========
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 12px;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--ion-color-light);
+    border-top-color: var(--ion-color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
