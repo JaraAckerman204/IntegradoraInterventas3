@@ -1,5 +1,5 @@
 // ==========================================
-// 📄 todos.page.ts - LÓGICA RENOVADA CON MODAL
+// 📄 todos.page.ts - IMPORTS DE ICONOS ACTUALIZADOS
 // ==========================================
 
 import { Component, OnInit, AfterViewInit } from '@angular/core';
@@ -32,7 +32,19 @@ import {
   businessOutline,
   pricetagOutline,
   storefrontOutline,
-  linkOutline
+  linkOutline,
+  barcodeOutline,
+  // ⭐ NUEVOS ICONOS PARA ESPECIFICACIONES
+  informationCircleOutline,
+  albumsOutline,
+  colorPaletteOutline,
+  resizeOutline,
+  checkmarkCircleOutline,
+  leafOutline,
+  radioOutline,
+  snowOutline,
+  bulbOutline,
+  layersOutline
 } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
@@ -71,16 +83,14 @@ export class TodosPage implements OnInit, AfterViewInit {
   isModalOpen = false;
   selectedProduct: Producto | null = null;
   quantity = 1;
-  saleType: 'mayoreo' | 'menudeo' = 'menudeo'; // Tipo de venta seleccionado
+  saleType: 'mayoreo' | 'menudeo' = 'menudeo';
   
-  // Selectores para tamaño, cantidad y tienda
+  // Selectores
   selectedTamano: string = '';
   selectedCantidad: number | string = '';
   selectedTienda: string = '';
-
-  // ✅ Variables para modalidades
-  selectedModalidad: string = ''; // ID o valor seleccionado en el <select>
-  selectedModalidadObj: any = null; // Objeto completo de la modalidad elegida
+  selectedModalidad: string = '';
+  selectedModalidadObj: any = null;
 
   constructor(
     private productosService: ProductosService,
@@ -89,7 +99,7 @@ export class TodosPage implements OnInit, AfterViewInit {
     private toastController: ToastController,
     private modalController: ModalController
   ) {
-    // Registrar iconos
+    // ⭐ REGISTRAR TODOS LOS ICONOS (INCLUYENDO NUEVOS)
     addIcons({ 
       cartOutline,
       cart,
@@ -102,7 +112,19 @@ export class TodosPage implements OnInit, AfterViewInit {
       businessOutline,
       pricetagOutline,
       storefrontOutline,
-      linkOutline
+      linkOutline,
+      barcodeOutline,
+      // Nuevos iconos
+      informationCircleOutline,
+      albumsOutline,
+      colorPaletteOutline,
+      resizeOutline,
+      checkmarkCircleOutline,
+      leafOutline,
+      radioOutline,
+      snowOutline,
+      bulbOutline,
+      layersOutline
     });
   }
 
@@ -110,7 +132,6 @@ export class TodosPage implements OnInit, AfterViewInit {
     console.log('✅ Página de productos inicializada');
     this.loadProducts();
     
-    // Suscribirse al contador del carrito
     this.cartService.getCartCount().subscribe(count => {
       this.cartCount = count;
     });
@@ -131,7 +152,6 @@ export class TodosPage implements OnInit, AfterViewInit {
         this.loading = false;
         console.log('📦 Total de productos:', productos.length);
         
-        // Configurar animaciones después de un pequeño delay
         setTimeout(() => {
           console.log('🎬 Configurando animaciones de reveal...');
           this.setupScrollReveal();
@@ -176,7 +196,6 @@ export class TodosPage implements OnInit, AfterViewInit {
     });
   }
 
-  // Abrir modal con detalles del producto
   viewProduct(product: Producto) {
     console.log('👁️ Ver detalles del producto:', product.nombre, 'ID:', product.id);
     this.selectedProduct = product;
@@ -190,7 +209,6 @@ export class TodosPage implements OnInit, AfterViewInit {
     this.isModalOpen = true;
   }
 
-  // Cerrar modal
   closeModal() {
     this.isModalOpen = false;
     this.selectedProduct = null;
@@ -203,28 +221,24 @@ export class TodosPage implements OnInit, AfterViewInit {
     this.selectedModalidadObj = null;
   }
 
-  // ✅ Manejar cambio en la modalidad seleccionada
   onModalidadChange() {
     if (!this.selectedProduct || !this.selectedModalidad) {
       this.selectedModalidadObj = null;
       return;
     }
 
-    // Buscar modalidad seleccionada en el producto actual
     this.selectedModalidadObj = this.selectedProduct.modalidades?.find(
       (m: any) => m.id === this.selectedModalidad
     ) || null;
 
-    console.log('🛍️ Modalidad seleccionada:', this.selectedModalidadObj);
+    console.log('🛒 Modalidad seleccionada:', this.selectedModalidadObj);
   }
 
-  // Cambiar tipo de venta
   selectSaleType(type: 'mayoreo' | 'menudeo') {
     this.saleType = type;
     console.log('🏪 Tipo de venta seleccionado:', type);
   }
 
-  // Obtener el precio según la modalidad o tipo de venta
   getCurrentPrice(): number {
     if (this.selectedModalidadObj) {
       return this.selectedModalidadObj.precio;
@@ -239,91 +253,84 @@ export class TodosPage implements OnInit, AfterViewInit {
     return this.selectedProduct.precio;
   }
 
-  // Obtener el total
   getTotal(): number {
     return this.getCurrentPrice() * this.quantity;
   }
 
-  // Incrementar cantidad
   incrementQuantity() {
     this.quantity++;
   }
 
-  // Decrementar cantidad
   decrementQuantity() {
     if (this.quantity > 1) {
       this.quantity--;
     }
   }
 
-addToCartFromModal() {
-  if (!this.selectedProduct) return;
+  addToCartFromModal() {
+    if (!this.selectedProduct) return;
 
-  // ✅ Validar que haya una modalidad seleccionada
-  if (!this.selectedModalidadObj) {
-    this.showToast('Por favor selecciona una modalidad.', 'warning');
-    return;
+    if (!this.selectedModalidadObj) {
+      this.showToast('Por favor selecciona una modalidad.', 'warning');
+      return;
+    }
+
+    const modalidadSeleccionada = {
+      tipo: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      precio: this.selectedModalidadObj.precio
+    };
+
+    const options = {
+      modalidad: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      sucursal: this.selectedTienda || ''
+    };
+
+    const productWithModalidad = {
+      id: this.selectedProduct.id,
+      nombre: this.selectedProduct.nombre,
+      precio: this.selectedModalidadObj.precio,
+      descripcion: this.selectedProduct.descripcion,
+      imagen: this.selectedProduct.imagen,
+      sku: this.selectedProduct.sku,
+      categoria: this.selectedProduct.categoria,
+      subcategoria: this.selectedProduct.subcategoria,
+      marca: this.selectedProduct.marca,
+      colores: this.selectedProduct.colores,
+      tiendas: this.selectedProduct.tiendas,
+      url: this.selectedProduct.url,
+      // ⭐ INCLUIR NUEVOS CAMPOS
+      material: this.selectedProduct.material,
+      color: this.selectedProduct.color,
+      medida: this.selectedProduct.medida,
+      cantidadPaquete: this.selectedProduct.cantidadPaquete,
+      biodegradable: this.selectedProduct.biodegradable,
+      aptoMicroondas: this.selectedProduct.aptoMicroondas,
+      aptoCongelador: this.selectedProduct.aptoCongelador,
+      usosRecomendados: this.selectedProduct.usosRecomendados,
+      modalidadSeleccionada
+    };
+
+    console.log('🛒 Agregando al carrito:', {
+      producto: productWithModalidad.nombre,
+      marca: productWithModalidad.marca,
+      sku: productWithModalidad.sku,
+      categoria: productWithModalidad.categoria,
+      modalidad: modalidadSeleccionada,
+      opciones: options,
+      cantidad: this.quantity
+    });
+
+    for (let i = 0; i < this.quantity; i++) {
+      this.cartService.addToCart(productWithModalidad, options);
+    }
+
+    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+    this.closeModal();
   }
-
-  // ✅ Crear un objeto con la modalidad seleccionada
-  const modalidadSeleccionada = {
-    tipo: this.selectedModalidadObj.modalidad, // "Mayoreo" o "Menudeo"
-    tamano: this.selectedModalidadObj.tamano,
-    contenido: this.selectedModalidadObj.contenido,
-    precio: this.selectedModalidadObj.precio
-  };
-
-  // ✅ Crear el objeto con las opciones
-  const options = {
-    modalidad: this.selectedModalidadObj.modalidad,
-    tamano: this.selectedModalidadObj.tamano,
-    contenido: this.selectedModalidadObj.contenido,
-    sucursal: this.selectedTienda || ''
-  };
-
-  // ✅ Crear copia del producto con TODA LA INFORMACIÓN
-  const productWithModalidad = {
-    id: this.selectedProduct.id,
-    nombre: this.selectedProduct.nombre,
-    precio: this.selectedModalidadObj.precio,
-    descripcion: this.selectedProduct.descripcion,
-    imagen: this.selectedProduct.imagen,
-    
-    // ✅ CAMPOS COMPLETOS
-    sku: this.selectedProduct.sku,
-    categoria: this.selectedProduct.categoria,
-    subcategoria: this.selectedProduct.subcategoria,
-    marca: this.selectedProduct.marca,
-    colores: this.selectedProduct.colores,
-    tiendas: this.selectedProduct.tiendas,
-    url: this.selectedProduct.url,
-    
-    // Modalidad seleccionada
-    modalidadSeleccionada
-  };
-
-  console.log('🛒 Agregando al carrito:', {
-    producto: productWithModalidad.nombre,
-    marca: productWithModalidad.marca,
-    sku: productWithModalidad.sku,
-    categoria: productWithModalidad.categoria,
-    modalidad: modalidadSeleccionada,
-    opciones: options,
-    cantidad: this.quantity
-  });
-
-  // ✅ Agregar el producto al carrito (solo una vez con la cantidad especificada)
-  for (let i = 0; i < this.quantity; i++) {
-    this.cartService.addToCart(productWithModalidad, options);
-  }
-
-  // Mensaje de confirmación
-  this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
-
-  // Cerrar modal
-  this.closeModal();
-}
-
 
   addToCart(product: Producto) {
     console.log('🛒 Agregando al carrito:', product.nombre);

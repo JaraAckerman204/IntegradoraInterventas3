@@ -42,6 +42,14 @@ fs.createReadStream(csvPath)
       });
     }
 
+    // ⭐ PARSEAR NUEVOS CAMPOS
+    // Convertir valores booleanos desde CSV
+    const parseBool = (value) => {
+      if (!value) return false;
+      const val = value.toString().toLowerCase().trim();
+      return val === 'true' || val === '1' || val === 'sí' || val === 'si' || val === 'yes';
+    };
+
     const producto = {
       sku: row['SKU'] || '',
       nombre: row['Nombre del Producto'] || '',
@@ -56,7 +64,21 @@ fs.createReadStream(csvPath)
       modalidades: modalidades,
       url: row['URL'] || '',
       fechaCreacion: admin.firestore.FieldValue.serverTimestamp(),
-      activo: row['Activo'] === 'true' || row['Activo'] === '1' || row['Activo'] === 'Sí'
+      activo: parseBool(row['Activo']),
+      
+      // ⭐ NUEVOS CAMPOS - ESPECIFICACIONES
+      material: row['Material'] || '',
+      color: row['Color'] || '',
+      medida: row['Medida'] || '',
+      cantidadPaquete: row['Cantidad Paquete'] || '',
+      
+      // ⭐ NUEVOS CAMPOS - CARACTERÍSTICAS
+      biodegradable: parseBool(row['Biodegradable']),
+      aptoMicroondas: parseBool(row['Apto Microondas']),
+      aptoCongelador: parseBool(row['Apto Congelador']),
+      
+      // ⭐ NUEVOS CAMPOS - CONTENIDO
+      usosRecomendados: row['Usos Recomendados'] || ''
     };
     
     productos.push(producto);

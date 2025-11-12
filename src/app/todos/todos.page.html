@@ -33,65 +33,67 @@
       </div>
     </div>
 
-    <!-- Grid de productos -->
-    <div *ngIf="!loading && products.length > 0" class="products-container">
-      <div class="products-grid">
+<!-- GRID DE PRODUCTOS - 4 COLUMNAS -->
+<div *ngIf="!loading && products.length > 0" class="products-container">
+  <div class="products-grid">
+    
+    <div class="product-card reveal" *ngFor="let product of products">
+      <div class="card-inner">
         
-        <div class="product-card reveal" *ngFor="let product of products">
-          <div class="card-inner">
-            
-            <!-- Imagen del producto -->
-            <div class="product-image">
-              <img 
-                [src]="product.imagen || 'assets/img/placeholder.png'" 
-                [alt]="product.nombre"
-                (error)="$event.target.src='assets/img/placeholder.png'"
-              >
-            </div>
+        <!-- Imagen del producto -->
+        <div class="product-image">
+          <img 
+            [src]="product.imagen || 'assets/img/placeholder.png'" 
+            [alt]="product.nombre"
+            (error)="$event.target.src='assets/img/placeholder.png'"
+          >
+        </div>
 
-            <!-- Información del producto -->
-            <div class="product-info">
-              
-              <!-- Categoría -->
-              <div>
-                <span class="product-category" *ngIf="product.categoria">
-                  {{ product.categoria }}
-                </span>
-              </div>
-
-              <!-- Nombre -->
-              <h3 class="product-name">{{ product.nombre }}</h3>
-
-              <!-- Descripción -->
-              <p class="product-description">{{ product.descripcion }}</p>
-
-              <!-- Marca -->
-              <div class="product-brand" *ngIf="product.marca">
-                <ion-icon name="ribbon-outline"></ion-icon>
-                <span>{{ product.marca }}</span>
-              </div>
-
-              <!-- Footer con botón -->
-              <div class="product-footer">
-                <button class="view-product-btn" (click)="viewProduct(product)">
-                  <span class="btn-icon">
-                    <ion-icon name="eye-outline"></ion-icon>
-                  </span>
-                  <span class="btn-text">Ver detalles</span>
-                </button>
-              </div>
-
-            </div>
-
+        <!-- Información del producto -->
+        <div class="product-info">
+          
+          <!-- Categoría -->
+          <div>
+            <span class="product-category" *ngIf="product.categoria">
+              {{ product.categoria }}
+            </span>
           </div>
+
+          <!-- Nombre -->
+          <h3 class="product-name">{{ product.nombre }}</h3>
+
+          <!-- Descripción -->
+          <p class="product-description">{{ product.descripcion }}</p>
+
+          <!-- Marca -->
+          <div class="product-brand" *ngIf="product.marca">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            <span>{{ product.marca }}</span>
+          </div>
+
+          <!-- Footer con botón -->
+          <div class="product-footer">
+            <button class="view-product-btn" (click)="viewProduct(product)">
+              <span class="btn-icon">
+                <ion-icon name="eye-outline"></ion-icon>
+              </span>
+              <span class="btn-text">Ver detalles</span>
+            </button>
+          </div>
+
         </div>
 
       </div>
     </div>
 
+  </div>
+</div>
+
   </section>
 
-<!-- MODAL DE DETALLES DEL PRODUCTO -->
+<!-- MODAL DE DETALLES DEL PRODUCTO - VERSIÓN COMPLETA -->
+<!-- Reemplaza el modal existente en todos.page.html con este código -->
+
 <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
   <div class="modal-container product-detail-modal" (click)="$event.stopPropagation()">
     <div class="modal-wrapper">
@@ -138,7 +140,7 @@
               <div class="detail-value">{{ selectedProduct.sku }}</div>
             </div>
 
-            <!-- Categoría -->
+            <!-- Categoría y Subcategoría -->
             <div class="detail-badges" *ngIf="selectedProduct.categoria">
               <span class="detail-category">
                 {{ selectedProduct.categoria }}
@@ -157,23 +159,98 @@
               <span>Marca: <strong>{{ selectedProduct.marca }}</strong></span>
             </div>
 
+            <!-- ⭐ ESPECIFICACIONES TÉCNICAS -->
+            <div class="specifications-section" *ngIf="selectedProduct.material || selectedProduct.color || selectedProduct.medida || selectedProduct.cantidadPaquete">
+              <h3 class="section-title">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>Especificaciones</span>
+              </h3>
+              
+              <div class="specs-grid">
+                <!-- Material -->
+                <div class="spec-item" *ngIf="selectedProduct.material">
+                  <div class="spec-icon">
+                    <ion-icon name="albums-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Material</span>
+                    <span class="spec-value">{{ selectedProduct.material }}</span>
+                  </div>
+                </div>
+
+                <!-- Color -->
+                <div class="spec-item" *ngIf="selectedProduct.color">
+                  <div class="spec-icon">
+                    <ion-icon name="color-palette-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Color</span>
+                    <span class="spec-value">{{ selectedProduct.color }}</span>
+                  </div>
+                </div>
+
+                <!-- Medida/Capacidad -->
+                <div class="spec-item" *ngIf="selectedProduct.medida">
+                  <div class="spec-icon">
+                    <ion-icon name="resize-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Medida/Capacidad</span>
+                    <span class="spec-value">{{ selectedProduct.medida }}</span>
+                  </div>
+                </div>
+
+                <!-- Cantidad por Paquete -->
+                <div class="spec-item" *ngIf="selectedProduct.cantidadPaquete">
+                  <div class="spec-icon">
+                    <ion-icon name="cube-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Presentación</span>
+                    <span class="spec-value">{{ selectedProduct.cantidadPaquete }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⭐ CARACTERÍSTICAS ESPECIALES -->
+            <div class="features-section" *ngIf="selectedProduct.biodegradable || selectedProduct.aptoMicroondas || selectedProduct.aptoCongelador">
+              <h3 class="section-title">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>Características Especiales</span>
+              </h3>
+              
+              <div class="features-grid">
+                <div class="feature-badge" *ngIf="selectedProduct.biodegradable">
+                  <ion-icon name="leaf-outline"></ion-icon>
+                  <span>Biodegradable</span>
+                </div>
+                
+                <div class="feature-badge" *ngIf="selectedProduct.aptoMicroondas">
+                  <ion-icon name="radio-outline"></ion-icon>
+                  <span>Apto Microondas</span>
+                </div>
+                
+                <div class="feature-badge" *ngIf="selectedProduct.aptoCongelador">
+                  <ion-icon name="snow-outline"></ion-icon>
+                  <span>Apto Congelador</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Descripción completa -->
             <div class="detail-description" *ngIf="selectedProduct.descripcion">
               <h3>Descripción</h3>
               <p>{{ selectedProduct.descripcion }}</p>
             </div>
 
-            <!-- Colores disponibles -->
-            <div class="form-group-custom" *ngIf="selectedProduct.colores && selectedProduct.colores.length > 0">
-              <label class="form-label-custom">
-                <ion-icon name="color-palette-outline"></ion-icon>
-                <span>Colores Disponibles</span>
-              </label>
-              <div class="colores-display">
-                <span class="color-badge" *ngFor="let color of selectedProduct.colores">
-                  {{ color }}
-                </span>
-              </div>
+            <!-- ⭐ USOS RECOMENDADOS -->
+            <div class="detail-description uses-section" *ngIf="selectedProduct.usosRecomendados">
+              <h3>
+                <ion-icon name="bulb-outline"></ion-icon>
+                Usos Recomendados
+              </h3>
+              <p>{{ selectedProduct.usosRecomendados }}</p>
             </div>
 
             <!-- SELECT: Modalidades (Mayoreo/Menudeo) -->
@@ -289,5 +366,4 @@
 </div>
 
   <app-footer></app-footer>
-
 </ion-content>

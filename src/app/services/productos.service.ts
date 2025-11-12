@@ -34,6 +34,20 @@ export interface Producto {
   url?: string;
   fechaCreacion?: any;
   activo?: boolean;
+
+  // ⭐ NUEVOS CAMPOS - ESPECIFICACIONES
+  material?: string;              // Material del producto
+  color?: string;                 // Color principal
+  medida?: string;                // Medida/Capacidad
+  cantidadPaquete?: string;       // Cantidad por paquete
+  
+  // ⭐ NUEVOS CAMPOS - CARACTERÍSTICAS
+  biodegradable?: boolean;        // Es biodegradable
+  aptoMicroondas?: boolean;       // Apto para microondas
+  aptoCongelador?: boolean;       // Apto para congelador
+  
+  // ⭐ NUEVOS CAMPOS - CONTENIDO
+  usosRecomendados?: string;      // Usos recomendados del producto
 }
 
 @Injectable({
