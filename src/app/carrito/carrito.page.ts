@@ -295,6 +295,6 @@ export class CarritoPage implements OnInit {
   }
 
   continueShopping() {
-    this.router.navigate(['/todos']);
+    this.router.navigate(['/productos/todos']);
   }
 }

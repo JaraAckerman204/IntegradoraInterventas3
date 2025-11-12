@@ -107,7 +107,7 @@ export const routes: Routes = [
   {
     path: 'carrito',
     loadComponent: () => import('./carrito/carrito.page').then((m) => m.CarritoPage),
-    canActivate: [adminGuard],
+    canActivate: [authGuard],
   },
 
 

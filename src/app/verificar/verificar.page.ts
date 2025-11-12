@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -15,8 +15,11 @@ import {
   IonCardContent
 } from '@ionic/angular/standalone';
 import { AuthService } from '../services/auth.service';
-import { sendEmailVerification } from '@angular/fire/auth';
+import { sendEmailVerification, reload } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+
+// 🔥 Importar Firestore
+import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
 
 // 🧩 Importar componentes
 import { HeaderComponent } from '../components/header/header.component';
@@ -52,17 +55,82 @@ import {
     FormsModule,
   ],
 })
-export class VerificarPage {
-  reenviando = false; // 🔄 para desactivar el botón temporalmente
+export class VerificarPage implements OnInit, OnDestroy {
+  reenviando = false;
   mensaje = '';
+  
+  private verificacionInterval: any; // ⭐ Para la verificación automática
 
-  constructor(private authService: AuthService, private router: Router) {
-    // Registrar los iconos de Ionicons
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private firestore: Firestore // ⭐ Inyectar Firestore
+  ) {
     addIcons({
       'mail-outline': mailOutline,
       'refresh-outline': refreshOutline,
       'arrow-back-outline': arrowBackOutline
     });
+  }
+
+  ngOnInit() {
+    // ⭐ Iniciar verificación automática cada 5 segundos
+    this.iniciarVerificacionAutomatica();
+  }
+
+  ngOnDestroy() {
+    // ⭐ Limpiar el intervalo al salir
+    this.detenerVerificacionAutomatica();
+  }
+
+  /** 🔄 Verificar automáticamente cada 5 segundos */
+  iniciarVerificacionAutomatica() {
+    this.verificacionInterval = setInterval(async () => {
+      await this.verificarYActualizarEstado();
+    }, 5000); // Cada 5 segundos
+  }
+
+  /** 🛑 Detener verificación automática */
+  detenerVerificacionAutomatica() {
+    if (this.verificacionInterval) {
+      clearInterval(this.verificacionInterval);
+      this.verificacionInterval = null;
+    }
+  }
+
+  /** ✅ Verificar si el email fue verificado y actualizar Firestore */
+  async verificarYActualizarEstado() {
+    const user = this.authService.getCurrentUser();
+
+    if (!user) return;
+
+    try {
+      // 1️⃣ Recargar datos del usuario desde Firebase Auth
+      await reload(user);
+
+      // 2️⃣ Si el email está verificado
+      if (user.emailVerified) {
+        console.log('✅ Email verificado, actualizando Firestore...');
+        
+        // 3️⃣ Actualizar emailVerificado a true en Firestore
+        const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+        await updateDoc(userRef, {
+          emailVerificado: true
+        });
+
+        console.log('✅ Firestore actualizado: emailVerificado = true');
+        
+        // 4️⃣ Detener verificación y redirigir
+        this.detenerVerificacionAutomatica();
+        this.mensaje = '🎉 ¡Email verificado exitosamente! Redirigiendo...';
+        
+        setTimeout(() => {
+          this.router.navigateByUrl('/login', { replaceUrl: true });
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error al verificar estado:', error);
+    }
   }
 
   async reenviarVerificacion() {
@@ -89,8 +157,8 @@ export class VerificarPage {
     }
   }
 
-  // 👇 Este método permite volver al login
   goToLogin() {
+    this.detenerVerificacionAutomatica(); // ⭐ Detener verificación al salir
     this.router.navigateByUrl('/login');
   }
 }

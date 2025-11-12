@@ -22,9 +22,6 @@ import {
 
 import { AuthService } from '../services/auth.service';
 
-// 🔥 Importa esto para actualizar el perfil del usuario
-import { updateProfile } from 'firebase/auth';
-
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -47,7 +44,7 @@ import { updateProfile } from 'firebase/auth';
   styleUrls: ['./register.page.scss'],
 })
 export class RegisterPage {
-  name = ''; // 👈 nuevo campo
+  nombre = '';
   email = '';
   password = '';
   confirmPassword = '';
@@ -57,6 +54,31 @@ export class RegisterPage {
   constructor(private auth: AuthService, private router: Router) {}
 
   async register() {
+    // 🧹 Limpiar espacios
+    this.nombre = this.nombre.trim();
+    this.email = this.email.trim();
+
+    // ✅ Validaciones
+    if (!this.nombre) {
+      this.errorMessage = 'El nombre es obligatorio';
+      return;
+    }
+
+    if (this.nombre.length < 3) {
+      this.errorMessage = 'El nombre debe tener al menos 3 caracteres';
+      return;
+    }
+
+    if (!this.email) {
+      this.errorMessage = 'El email es obligatorio';
+      return;
+    }
+
+    if (this.password.length < 6) {
+      this.errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+      return;
+    }
+
     if (this.password !== this.confirmPassword) {
       this.errorMessage = 'Las contraseñas no coinciden';
       return;
@@ -66,25 +88,27 @@ export class RegisterPage {
     this.errorMessage = '';
 
     try {
-      // 🧩 Crear usuario en Firebase
-      const userCredential = await this.auth.register(this.email, this.password);
+      // ✅ Registrar usuario (el servicio maneja todo)
+      await this.auth.register(this.email, this.password, this.nombre);
 
-      // 🧠 Guardar nombre del usuario en su perfil
-      await updateProfile(userCredential, {
-        displayName: this.name,
-      });
-
-      // 🧠 Guardar nombre del usuario en su perfil
-      await updateProfile(userCredential, {
-        displayName: this.name,
-      });
-
-    
-
-      // 🚀 Redirigir a la página de verificación
+      console.log('✅ Registro exitoso. Redirigiendo a verificación...');
+      
+      // ✅ Redirigir a página de verificación
       this.router.navigateByUrl('/verificar', { replaceUrl: true });
+
     } catch (error: any) {
-      this.errorMessage = 'Error al registrar: ' + (error.message || '');
+      console.error('❌ Error en registro:', error);
+      
+      // Mensajes de error más amigables
+      if (error.code === 'auth/email-already-in-use') {
+        this.errorMessage = 'Este email ya está registrado';
+      } else if (error.code === 'auth/invalid-email') {
+        this.errorMessage = 'Email inválido';
+      } else if (error.code === 'auth/weak-password') {
+        this.errorMessage = 'Contraseña muy débil';
+      } else {
+        this.errorMessage = error.message || 'Error al registrar usuario';
+      }
     } finally {
       this.loading = false;
     }
