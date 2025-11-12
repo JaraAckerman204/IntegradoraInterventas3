@@ -1,7 +1,7 @@
-<app-header></app-header>
+
 
 <ion-content [fullscreen]="true">
-
+<app-header></app-header>
   <!-- SECCIÓN HERO -->
   <section class="products-hero">
     <div class="hero-content">
@@ -21,6 +21,9 @@
       <div class="loading-wrapper">
         <ion-spinner name="crescent" color="primary"></ion-spinner>
         <p>Cargando productos...</p>
+        <p style="font-size: 0.85em; color: #6c757d; margin-top: 8px;">
+          Si esto tarda mucho, verifica tu conexión
+        </p>
       </div>
     </div>
 
@@ -30,14 +33,21 @@
         <ion-icon name="cube-outline"></ion-icon>
         <h3>No hay productos disponibles</h3>
         <p>Pronto tendremos nuevos productos para ti</p>
+        <button 
+          class="retry-btn" 
+          (click)="loadProducts()"
+          style="margin-top: 20px; padding: 12px 24px; background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
+          <ion-icon name="refresh-outline" style="margin-right: 8px;"></ion-icon>
+          Reintentar
+        </button>
       </div>
     </div>
 
 <!-- GRID DE PRODUCTOS - 4 COLUMNAS -->
-<div *ngIf="!loading && products.length > 0" class="products-container">
+<div class="products-container" *ngIf="products && products.length > 0">
   <div class="products-grid">
     
-    <div class="product-card reveal" *ngFor="let product of products">
+    <div class="product-card" *ngFor="let product of products; let i = index; trackBy: trackByProductId" [style.animation-delay]="(i * 50) + 'ms'">
       <div class="card-inner">
         
         <!-- Imagen del producto -->
@@ -240,7 +250,10 @@
 
             <!-- Descripción completa -->
             <div class="detail-description" *ngIf="selectedProduct.descripcion">
-              <h3>Descripción</h3>
+              
+              <h3>
+                <ion-icon name="document-text-outline"></ion-icon>
+                Descripción</h3>
               <p>{{ selectedProduct.descripcion }}</p>
             </div>
 

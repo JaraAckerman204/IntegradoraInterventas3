@@ -189,6 +189,25 @@
     <h4>No hay productos</h4>
     <p>Agrega tu primer producto para comenzar</p>
   </div>
+
+      <button class="btn-export" (click)="exportarProductosCSV()">
+      <ion-icon name="download-outline"></ion-icon>
+      <span>Exportar CSV</span>
+    </button>
+<!-- Input file oculto -->
+<input 
+  type="file" 
+  #csvFileInput
+  id="csvFileInput" 
+  accept=".csv" 
+  (change)="onArchivoCSVSeleccionado($event)"
+  style="display: none;">
+
+<!-- Botón que abre el selector -->
+<button class="btn-export" (click)="csvFileInput.click()">
+  <ion-icon name="cloud-upload-outline"></ion-icon>
+  <span>Importar CSV</span>
+</button>
         </div>
         
         <!-- ====================== -->
@@ -204,10 +223,6 @@
     <button class="btn-search" (click)="abrirModalBusquedaUsuarios()">
       <ion-icon name="search-outline"></ion-icon>
       <span>Buscar</span>
-    </button>
-    <button class="btn-add-product" (click)="abrirModalAgregarUsuario()">
-      <ion-icon name="add-circle-outline"></ion-icon>
-      <span>Agregar Usuario</span>
     </button>
   </div>
 </div>
@@ -726,8 +741,6 @@ Equipo Interventas"
 </div>
 
 <!-- 🎨 MODAL AGREGAR/EDITAR PRODUCTO MEJORADO -->
-<!-- REEMPLAZA el modal duplicado existente con esta versión única -->
-
 <div class="modal-overlay" *ngIf="mostrarModalProducto" (click)="cerrarModalProducto()">
   <div class="modal-container product-modal" (click)="$event.stopPropagation()">
     <div class="modal-wrapper">

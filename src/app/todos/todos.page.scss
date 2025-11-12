@@ -291,6 +291,8 @@ ion-content {
   border: 3px solid transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
   
   // Borde decorativo superior
   &::before {
@@ -306,8 +308,7 @@ ion-content {
     transition: opacity 0.4s ease;
   }
   
-  // Efecto de brillo al hover
-  &.reveal {
+  &.reveal:not(.in-view) {
     opacity: 0;
     transform: translateY(30px);
   }
@@ -354,7 +355,7 @@ ion-content {
 // ===== PRODUCT IMAGE =====
 .product-image {
   width: 100%;
-  height: 250px;
+  height: 200px;
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -495,155 +496,6 @@ ion-content {
   }
 }
 
-// ===== ESPECIFICACIONES RÁPIDAS EN TARJETA =====
-.product-quick-specs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 18px;
-  padding: 16px;
-  background: linear-gradient(135deg, rgba(39, 49, 141, 0.03) 0%, rgba(39, 49, 141, 0.01) 100%);
-  border-radius: 12px;
-  border: 2px dashed rgba(39, 49, 141, 0.15);
-}
-
-.quick-spec-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  background: white;
-  border: 2px solid rgba(39, 49, 141, 0.2);
-  border-radius: 10px;
-  font-family: var(--font-secondary);
-  font-size: 0.75em;
-  color: #27318d;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(39, 49, 141, 0.08);
-  
-  ion-icon {
-    font-size: 16px;
-    color: #27318d;
-    flex-shrink: 0;
-  }
-  
-  span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 120px;
-  }
-  
-  &:hover {
-    background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
-    border-color: #27318d;
-    color: white;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 6px 16px rgba(39, 49, 141, 0.3);
-    
-    ion-icon {
-      color: white;
-    }
-  }
-}
-
-.quick-spec-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-family: var(--font-primary);
-  font-size: 0.7em;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
-  
-  // Efecto de brillo
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: left 0.5s ease;
-  }
-  
-  &:hover::before {
-    left: 100%;
-  }
-  
-  ion-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-  }
-  
-  span {
-    position: relative;
-    z-index: 1;
-  }
-  
-  // Badge ECO (Verde)
-  &.eco {
-    background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
-    border: 2px solid rgba(40, 167, 69, 0.3);
-    color: white;
-    
-    ion-icon {
-      color: white;
-    }
-    
-    &:hover {
-      transform: translateY(-4px) scale(1.08);
-      box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
-      border-color: #28a745;
-    }
-  }
-  
-  // Badge Microondas (Amarillo)
-  &.microwave {
-    background: linear-gradient(135deg, #ffc107 0%, #ffca28 100%);
-    border: 2px solid rgba(255, 193, 7, 0.3);
-    color: #212529;
-    
-    ion-icon {
-      color: #212529;
-    }
-    
-    &:hover {
-      transform: translateY(-4px) scale(1.08);
-      box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
-      border-color: #ffc107;
-    }
-  }
-  
-  // Badge Congelador (Azul)
-  &.freezer {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    border: 2px solid rgba(0, 123, 255, 0.3);
-    color: white;
-    
-    ion-icon {
-      color: white;
-    }
-    
-    &:hover {
-      transform: translateY(-4px) scale(1.08);
-      box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
-      border-color: #007bff;
-    }
-  }
-}
-
 // ===== PRODUCT FOOTER =====
 .product-footer {
   display: flex;
@@ -654,18 +506,6 @@ ion-content {
   margin-top: 16px;
   border-top: 3px solid #e9ecef;
   position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(to right, #27318d, #ed1370);
-    border-radius: 2px;
-  }
 }
 
 .view-product-btn {
@@ -723,7 +563,6 @@ ion-content {
   }
   
   &:hover {
-    transform: translateY(-3px);
     box-shadow: 0 10px 35px rgba(237, 19, 112, 0.4);
     background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
     
@@ -1398,7 +1237,7 @@ ion-content {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+bottom: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -1413,9 +1252,8 @@ ion-content {
 
 // ===== MODAL CONTAINER =====
 .modal-container {
-  width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
+  width: 70%;
+  height: 90%;
   background: #f8f9fa;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -1430,16 +1268,17 @@ ion-content {
 .modal-wrapper {
   background: #f8f9fa;
   width: 100%;
-  max-height: 90vh;
+  max-height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  
 }
 
 // ===== HEADER DEL MODAL =====
 .modal-header-custom {
   background: linear-gradient(135deg, #27318d 0%, #1a2365 100%);
-  padding: 24px 28px;
+  padding: 20px 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2029,11 +1868,12 @@ ion-content {
 // ===== FOOTER DEL MODAL =====
 .modal-footer-custom {
   display: flex;
-  gap: 12px;
-  padding: 24px 30px;
+  gap: 10px;
+  padding: 15px 30px;
   background: #f8f9fa;
   border-top: 3px solid #e9ecef;
   flex-shrink: 0;
+  margin-top: auto; // ⭐ Esto empuja el footer al fondo
 }
 
 .btn-submit,
@@ -2060,19 +1900,24 @@ ion-content {
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+  background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
   color: white;
-  box-shadow: 0 6px 20px rgba(237, 19, 112, 0.35);
+  box-shadow: 0 6px 20px rgba(39, 49, 141, 0.3);
   position: relative;
   overflow: hidden;
   
+  // Efecto de onda al hover
   &::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
   }
   
   span, ion-icon {
@@ -2080,24 +1925,34 @@ ion-content {
     z-index: 1;
   }
   
+  ion-icon {
+    transition: transform 0.3s ease;
+  }
+  
   &:hover:not(:disabled) {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(237, 19, 112, 0.45);
+    box-shadow: 0 10px 35px rgba(237, 19, 112, 0.4);
+    background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
     
     &::before {
-      opacity: 1;
+      width: 300px;
+      height: 300px;
+    }
+    
+    ion-icon {
+      transform: scale(1.2) rotate(15deg);
     }
   }
   
   &:active:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-1px) scale(0.98);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 0 6px 20px rgba(237, 19, 112, 0.2);
+    box-shadow: 0 6px 20px rgba(39, 49, 141, 0.2);
   }
 }
 
@@ -2191,8 +2046,8 @@ ion-content {
   
   // Modal responsive
   .modal-container {
-    max-width: 95%;
-    max-height: 95vh;
+    max-width: 100%;
+    max-height: 100%;
   }
   
   .modal-header-custom {
@@ -2280,7 +2135,7 @@ ion-content {
   }
   
   .modal-footer-custom {
-    padding: 20px 24px;
+    padding: 15px;
   }
   
   .btn-submit,
@@ -2382,8 +2237,9 @@ ion-content {
   
   // Modal responsive mobile
   .modal-container {
-    max-width: 98%;
-    border-radius: 16px;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
   }
   
   .modal-header-custom {
@@ -2499,12 +2355,12 @@ ion-content {
   
   .modal-footer-custom {
     flex-direction: column;
-    padding: 18px 20px;
     gap: 10px;
   }
   
   .btn-submit,
   .btn-cancel {
+    padding: 15px;
     height: 48px;
     font-size: 0.9em;
     

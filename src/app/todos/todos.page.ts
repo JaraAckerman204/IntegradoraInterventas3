@@ -2,7 +2,7 @@
 // 📄 todos.page.ts - IMPORTS DE ICONOS ACTUALIZADOS
 // ==========================================
 
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -44,7 +44,8 @@ import {
   radioOutline,
   snowOutline,
   bulbOutline,
-  layersOutline
+  layersOutline,
+  documentTextOutline
 } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
@@ -97,10 +98,12 @@ export class TodosPage implements OnInit, AfterViewInit {
     private cartService: CartService,
     private router: Router,
     private toastController: ToastController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef  // ⭐ Agregar esto
   ) {
     // ⭐ REGISTRAR TODOS LOS ICONOS (INCLUYENDO NUEVOS)
     addIcons({ 
+      documentTextOutline,
       cartOutline,
       cart,
       eyeOutline,
@@ -128,73 +131,65 @@ export class TodosPage implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit() {
-    console.log('✅ Página de productos inicializada');
-    this.loadProducts();
-    
-    this.cartService.getCartCount().subscribe(count => {
-      this.cartCount = count;
-    });
-  }
+ngOnInit() {
+  console.log('✅ Página de productos inicializada');
+  this.loadProducts();
+  
+  this.cartService.getCartCount().subscribe(count => {
+    this.cartCount = count;
+  });
+}
 
-  ngAfterViewInit() {
-    // setupScrollReveal se llama después de cargar los productos
-  }
+ngAfterViewInit() {
+  // Ya no es necesario
+}
 
-  loadProducts() {
-    console.log('🔄 Iniciando carga de productos...');
-    this.loading = true;
-    
-    this.productosService.getProductos().subscribe({
-      next: (productos) => {
-        console.log('✅ Productos recibidos del servicio:', productos);
-        this.products = productos;
-        this.loading = false;
-        console.log('📦 Total de productos:', productos.length);
-        
-        setTimeout(() => {
-          console.log('🎬 Configurando animaciones de reveal...');
-          this.setupScrollReveal();
-        }, 150);
-      },
-      error: (error) => {
-        console.error('❌ Error cargando productos:', error);
-        this.loading = false;
-        this.showToast('Error al cargar productos. Por favor, intenta de nuevo.', 'danger');
-      }
-    });
-  }
-
-  private setupScrollReveal() {
-    const cards = document.querySelectorAll('.product-card.reveal');
-    console.log('🎯 Cards encontradas para animación:', cards.length);
-    
-    if (cards.length === 0) {
-      console.warn('⚠️ No se encontraron cards con clase .reveal');
-      return;
+loadProducts() {
+  console.log('📄 Iniciando carga de productos...');
+  this.loading = true;
+  this.products = [];
+  
+  const timeoutId = setTimeout(() => {
+    console.warn('⚠️ Timeout de carga alcanzado');
+    this.loading = false;
+    this.cdr.detectChanges(); // ⭐ Forzar detección
+    this.showToast('La carga está tardando más de lo esperado. Verifica tu conexión.', 'warning');
+  }, 10000);
+  
+  this.productosService.getProductos().subscribe({
+    next: (productos) => {
+      clearTimeout(timeoutId);
+      console.log('✅ Productos recibidos del servicio:', productos);
+      console.log('📦 Total de productos:', productos.length);
+      
+      this.products = [...productos];
+      this.loading = false;
+      
+      // ⭐ Forzar detección de cambios
+      this.cdr.detectChanges();
+      
+      console.log('🔍 Estado después de asignar:');
+      console.log('  - loading:', this.loading);
+      console.log('  - products.length:', this.products.length);
+    },
+    error: (error) => {
+      clearTimeout(timeoutId);
+      console.error('❌ Error cargando productos:', error);
+      this.loading = false;
+      this.products = [];
+      this.cdr.detectChanges(); // ⭐ Forzar detección
+      this.showToast('Error al cargar productos. Por favor, intenta de nuevo.', 'danger');
+    },
+    complete: () => {
+      clearTimeout(timeoutId);
+      console.log('🏁 Carga de productos completada');
     }
+  });
+}
 
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('in-view');
-            console.log('✨ Card animada:', index);
-          }, index * 100);
-        }
-      });
-    }, observerOptions);
-
-    cards.forEach((card) => {
-      observer.observe(card);
-    });
-  }
+trackByProductId(index: number, product: Producto): number {
+  return index;
+}
 
   viewProduct(product: Producto) {
     console.log('👁️ Ver detalles del producto:', product.nombre, 'ID:', product.id);
