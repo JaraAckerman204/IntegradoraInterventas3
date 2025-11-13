@@ -209,14 +209,13 @@ ion-content {
     grid-template-columns: 1fr 440px;
     gap: 32px;
     padding: 60px 32px 140px;
-    align-items: start; // Alineación superior para ambas columnas
-    /* Asegurar que las tarjetas de ambas columnas queden alineadas al tope
-       (evita que la columna derecha aparezca más abajo que la izquierda) */
+    align-items: start;
+    
     .cart-items-card,
     .customer-info-card,
     .summary-card {
       align-self: start;
-      margin-top: 0; /* anular márgenes superiores inesperados */
+      margin-top: 0;
     }
   }
 
@@ -228,12 +227,12 @@ ion-content {
 // ============================================
 // TARJETA CONTENEDORA DE PRODUCTOS - MEJORADA
 // ============================================
-  .cart-items-card {
-    background: $bg-white !important;
-    border-radius: 20px;
-    margin-bottom: 0; // Eliminar margen para alineación perfecta
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: $shadow-lg;
+.cart-items-card {
+  background: $bg-white !important;
+  border-radius: 0px;
+  margin-bottom: 0;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: $shadow-lg;
   overflow: hidden;
   transition: all 0.4s $ease-smooth;
   animation: slideInLeft 0.6s $ease-smooth;
@@ -335,7 +334,6 @@ ion-list {
   margin: 0 !important;
   display: block;
   
-  // Asegurar que no hay líneas en la lista
   &::before, &::after {
     display: none !important;
   }
@@ -359,12 +357,11 @@ ion-list {
   --inner-padding-end: 0 !important;
   --background: transparent !important;
   box-shadow: $shadow-md;
-  overflow: visible; // Cambiar a visible para evitar que corte contenido
+  overflow: visible;
   transition: all 0.35s $ease-smooth;
   animation: fadeInUp 0.5s $ease-smooth backwards;
   position: relative;
 
-  // Remover línea inferior que aparece
   &::after {
     display: none !important;
   }
@@ -379,12 +376,12 @@ ion-list {
     background: linear-gradient(180deg, $primary-purple 0%, $accent-pink 100%);
     transform: scaleY(0);
     transition: transform 0.4s $ease-smooth;
+    transform-origin: top;
   }
 
   > * { 
     background: transparent !important;
     
-    // Asegurar que no hay líneas en elementos internos
     &::before, &::after {
       display: none !important;
     }
@@ -418,6 +415,7 @@ ion-list {
     position: relative;
     transition: transform $medium $ease-smooth, border-color $medium;
     box-shadow: $shadow-sm;
+    flex-shrink: 0;
 
     img {
       object-fit: cover;
@@ -465,8 +463,9 @@ ion-list {
   ion-label {
     padding: 24px 20px 24px 0;
     background: transparent !important;
+    flex: 1;
+    min-width: 0;
 
-    // Remover cualquier línea de ionic
     &::before, &::after {
       display: none !important;
     }
@@ -488,6 +487,7 @@ ion-list {
       line-height: 1.6;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -510,7 +510,6 @@ ion-list {
       align-items: center;
       gap: 8px;
       
-      // Remover emoji
       &::before {
         display: none;
       }
@@ -526,7 +525,7 @@ ion-list {
   }
 
   // ============================================
-  // METADATA - MEJORADA (SIN OVERLAY)
+  // METADATA - MEJORADA
   // ============================================
   .product-meta {
     display: flex;
@@ -547,8 +546,6 @@ ion-list {
       cursor: default;
       position: relative;
       z-index: 1;
-
-      // Remover ::before que causa desaparición de texto
 
       &:hover {
         transform: translateY(-3px);
@@ -597,7 +594,7 @@ ion-list {
   }
 
   // ============================================
-  // CATEGORÍA - MEJORADA (SIN OVERLAY)
+  // CATEGORÍA - MEJORADA
   // ============================================
   .category-info {
     display: flex;
@@ -615,8 +612,6 @@ ion-list {
     position: relative;
     cursor: default;
     z-index: 1;
-
-    // Remover ::before que oculta texto
 
     ion-icon {
       font-size: 1.1rem;
@@ -651,7 +646,7 @@ ion-list {
   }
 
   // ============================================
-  // COLORES - MEJORADA (SIN OVERLAY)
+  // COLORES - MEJORADA
   // ============================================
   .colores-info {
     display: flex;
@@ -669,8 +664,6 @@ ion-list {
     position: relative;
     cursor: default;
     z-index: 1;
-
-    // Remover ::before que oculta texto
 
     ion-icon {
       font-size: 1.1rem;
@@ -700,7 +693,7 @@ ion-list {
   }
 
   // ============================================
-  // MODALIDAD - MEJORADA (SIN OVERLAY QUE BORRA TEXTO)
+  // MODALIDAD - MEJORADA
   // ============================================
   .modalidad-info {
     margin: 14px 0;
@@ -717,8 +710,6 @@ ion-list {
       position: relative;
       cursor: default;
       z-index: 1;
-
-      // Remover el ::before que causa que el texto desaparezca
 
       &.mayoreo {
         background: linear-gradient(135deg, $primary-purple 0%, #764ba2 100%);
@@ -836,7 +827,7 @@ ion-list {
   }
 
   // ============================================
-  // SUCURSAL - MEJORADA (SIN OVERLAY)
+  // SUCURSAL - MEJORADA
   // ============================================
   .sucursal-info {
     display: flex;
@@ -856,8 +847,6 @@ ion-list {
     position: relative;
     cursor: default;
     z-index: 1;
-
-    // Remover ::before que oculta texto
 
     ion-icon {
       font-size: 1.1rem;
@@ -884,7 +873,7 @@ ion-list {
   }
 
   // ============================================
-  // CONTROLES DE CANTIDAD - MEJORADOS (SIN OVERLAY)
+  // CONTROLES DE CANTIDAD - MEJORADOS
   // ============================================
   .quantity-controls {
     display: flex;
@@ -896,6 +885,7 @@ ion-list {
     background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%) !important;
     border-left: 2px solid rgba(0, 0, 0, 0.04);
     transition: background $fast;
+    flex-shrink: 0;
 
     ion-button {
       --padding-start: 0;
@@ -909,7 +899,6 @@ ion-list {
       position: relative;
       z-index: 1;
       
-      // Forzar que el ícono siempre sea visible
       &::part(native) {
         background: white !important;
       }
@@ -1004,25 +993,17 @@ ion-list {
 }
 
 // ============================================
-// COLUMNA DERECHA - YA NO NECESITA STICKY
-// (La tarjeta combinada ahora es una sola)
+// COLUMNA DERECHA
 // ============================================
 .customer-info-card {
   animation: slideInRight 0.7s $ease-smooth;
   transition: transform 0.35s $ease-smooth, box-shadow 0.35s $ease-smooth;
-}
-
-// ============================================
-// FORMULARIO DE INFORMACIÓN - REDISEÑADO
-// ============================================
-.customer-info-card {
   background: $bg-white !important;
   border-radius: 20px;
   margin-bottom: 24px;
   border: 2px solid rgba(0, 0, 0, 0.04);
   box-shadow: $shadow-lg;
   overflow: hidden;
-  transition: all 0.4s $ease-smooth;
   position: relative;
 
   &::before {
@@ -1087,7 +1068,6 @@ ion-list {
       align-items: center;
       gap: 12px;
       
-      // Remover emoji
       &::after {
         display: none;
       }
@@ -1186,9 +1166,6 @@ ion-list {
     }
   }
 
-  // ============================================
-  // DIVISOR VISUAL ENTRE SECCIONES
-  // ============================================
   .section-divider {
     height: 1px;
     background: linear-gradient(90deg, transparent 0%, #e9ecef 20%, #e9ecef 80%, transparent 100%);
@@ -1203,9 +1180,6 @@ ion-list {
     }
   }
 
-  // ============================================
-  // SECCIÓN DE RESUMEN INTEGRADA
-  // ============================================
   .summary-section {
     animation: fadeInUp 0.6s $ease-smooth;
 
@@ -1321,9 +1295,6 @@ ion-list {
       }
     }
 
-    // ============================================
-    // BOTÓN DE WHATSAPP EN SECCIÓN INTEGRADA
-    // ============================================
     .whatsapp-button-animated {
       background: linear-gradient(135deg, #25D366 0%, #20c05c 100%);
       border: none;
@@ -1464,123 +1435,602 @@ ion-list {
 }
 
 // ============================================
-// NOTA: .summary-card ha sido integrado en .customer-info-card
-// El contenido ahora está en .summary-section dentro del mismo recuadro
+// RESPONSIVE - CRÍTICO PARA MÓVILES
 // ============================================
 
-// ============================================
-// RESPONSIVE - OPTIMIZADO
-// ============================================
+// Móviles pequeños - Layout vertical forzado
 @media (max-width: 575px) {
+  .cart-container {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+    padding: 20px 12px 120px !important;
+  }
+
   .cart-items-card,
   .customer-info-card {
     border-radius: 16px;
-    
-    ion-card-header {
-      padding: 20px 20px;
-      
+    margin-bottom: 20px !important;
+
+    ion-card-header, .cart-items-header {
+      padding: 16px 18px !important;
+
       h2, ion-card-title {
-        font-size: 1.25rem;
+        font-size: 1.15rem !important;
       }
+    }
+
+    .cart-items-content, ion-card-content {
+      padding: 14px !important;
     }
   }
 
+  // CRÍTICO: Cada item se muestra en columna vertical
   .cart-item {
-    flex-direction: column;
-    border-radius: 16px;
-    
-    ion-thumbnail {
-      width: 100%;
-      height: 240px;
-      margin: 0;
-      border-radius: 16px 16px 0 0;
-      border: none;
-      border-bottom: 3px solid rgba(233, 30, 140, 0.1);
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    border-radius: 14px !important;
+    padding: 0 !important;
+    margin-bottom: 18px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    min-height: auto !important;
+    height: auto !important;
+
+    // Línea lateral que debe abarcar TODO
+    &::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 4px !important;
+      height: 100% !important;
+      background: linear-gradient(180deg, $primary-purple 0%, $accent-pink 100%) !important;
+      opacity: 0 !important;
+      transition: opacity 0.4s $ease-smooth !important;
+      z-index: 100 !important;
     }
 
-    ion-label {
-      padding: 20px 20px 16px;
-    }
-
-    .quantity-controls {
-      flex-direction: row;
-      width: 100%;
-      justify-content: space-around;
-      border-top: 2px solid rgba(0, 0, 0, 0.04);
-      border-left: none;
-      padding: 20px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%) !important;
-    }
-
-    .product-meta {
-      gap: 8px;
+    // Desactivar hover en móvil
+    &:hover {
+      transform: none !important;
       
-      .marca,
-      .sku {
-        font-size: 0.82rem;
-        padding: 5px 12px;
+      &::before {
+        opacity: 1 !important;
       }
     }
 
-    .category-info,
-    .colores-info,
+    // Forzar que el contenedor interno también sea flex column
+    &::part(native),
+    .item-native,
+    .item-inner {
+      display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      min-height: auto !important;
+      height: auto !important;
+    }
+
+    // Thumbnail con altura controlada y sin deformación
+    ion-thumbnail {
+      display: block !important;
+      width: 100% !important;
+      height: 200px !important;
+      min-height: 200px !important;
+      max-height: 200px !important;
+      margin: 0 !important;
+      padding: 12px !important;
+      border-radius: 0 !important;
+      border: none !important;
+      border-bottom: 2px solid rgba(233, 30, 140, 0.15) !important;
+      flex-shrink: 0 !important;
+      overflow: hidden !important;
+      position: relative !important;
+      background: #f8f9fa !important;
+      transform: none !important;
+
+      // Desactivar efectos hover en móvil
+      &:hover {
+        transform: none !important;
+        border-color: rgba(233, 30, 140, 0.15) !important;
+      }
+
+      // Contenedor para centrar imagen
+      &::after {
+        display: none !important;
+      }
+
+      &::before {
+        display: none !important;
+      }
+
+      img {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+        object-position: center !important;
+        transform: none !important;
+        filter: none !important;
+      }
+    }
+
+    // Contenido del label con todo visible - CONTENEDOR PRINCIPAL
+    ion-label {
+      display: block !important;
+      padding: 14px !important;
+      width: 100% !important;
+      position: relative !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      min-height: 50px !important;
+      height: auto !important;
+      background: transparent !important;
+      order: 1 !important;
+
+      // FORZAR que todos los elementos internos sean visibles
+      * {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+
+      h2 {
+        display: block !important;
+        font-size: 1.05rem !important;
+        margin: 0 0 8px 0 !important;
+        padding: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        line-height: 1.3 !important;
+        color: $text-dark !important;
+        font-weight: 800 !important;
+      }
+
+      p {
+        display: block !important;
+        font-size: 0.85rem !important;
+        margin: 0 0 10px 0 !important;
+        padding: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        line-height: 1.5 !important;
+        color: $text-gray !important;
+        max-height: none !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: visible !important;
+      }
+
+      .description {
+        display: block !important;
+        font-size: 0.85rem !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        color: $text-gray !important;
+        margin: 8px 0 !important;
+      }
+
+      .price {
+        display: block !important;
+        font-size: 1.25rem !important;
+        margin: 12px 0 0 0 !important;
+        padding: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        color: $accent-pink !important;
+        font-weight: 900 !important;
+      }
+    }
+
+    // Badges y metadata visibles
+    .product-meta {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      margin: 0 14px 10px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      
+      .marca, .sku {
+        display: inline-flex !important;
+        align-items: center !important;
+        font-size: 0.72rem !important;
+        padding: 4px 10px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        background: linear-gradient(135deg, rgba(61, 42, 122, 0.1) 0%, rgba(233, 30, 140, 0.1) 100%) !important;
+        border-radius: 10px !important;
+
+        ion-icon {
+          font-size: 0.9rem !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+        }
+      }
+    }
+
+    .category-info {
+      display: inline-flex !important;
+      align-items: center !important;
+      font-size: 0.75rem !important;
+      padding: 5px 10px !important;
+      margin: 0 14px 8px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      background: linear-gradient(135deg, rgba(118, 75, 162, 0.08) 0%, rgba(118, 75, 162, 0.04) 100%) !important;
+      border-radius: 12px !important;
+
+      ion-icon {
+        font-size: 0.9rem !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+
+      span {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
+
+    .colores-info {
+      display: inline-flex !important;
+      align-items: center !important;
+      font-size: 0.75rem !important;
+      padding: 5px 10px !important;
+      margin: 0 14px 8px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 159, 64, 0.1) 100%) !important;
+      border-radius: 12px !important;
+
+      ion-icon {
+        font-size: 0.9rem !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+
+      span {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
+
     .sucursal-info {
-      font-size: 0.85rem;
-      padding: 6px 12px;
+      display: inline-flex !important;
+      align-items: center !important;
+      font-size: 0.75rem !important;
+      padding: 5px 10px !important;
+      margin: 0 14px 8px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      background: linear-gradient(135deg, rgba(25, 118, 210, 0.1) 0%, rgba(33, 150, 243, 0.1) 100%) !important;
+      border-radius: 12px !important;
+
+      ion-icon {
+        font-size: 0.9rem !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+
+      span {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
     }
 
     .modalidad-info {
+      display: block !important;
+      margin: 0 14px 10px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+
       .modalidad-badge {
-        font-size: 0.85rem;
-        padding: 6px 14px;
+        display: inline-block !important;
+        font-size: 0.75rem !important;
+        padding: 5px 12px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        margin-bottom: 8px !important;
+        background: linear-gradient(135deg, $primary-purple 0%, #764ba2 100%) !important;
+        color: white !important;
+        border-radius: 24px !important;
+
+        &.menudeo {
+          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        }
       }
 
       .modalidad-details {
-        font-size: 0.88rem;
-        gap: 10px;
-
+        display: flex !important;
+        flex-wrap: wrap !important;
+        font-size: 0.78rem !important;
+        gap: 6px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        
         .detail-item {
-          padding: 5px 10px;
-          font-size: 0.85rem;
+          display: inline-flex !important;
+          align-items: center !important;
+          padding: 4px 8px !important;
+          font-size: 0.72rem !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+          border-radius: 10px !important;
+
+          ion-icon {
+            font-size: 0.9rem !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+
+          span {
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+        }
+      }
+    }
+
+    .options-display {
+      display: block !important;
+      margin: 0 14px 10px !important;
+      padding: 10px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%) !important;
+      border-radius: 14px !important;
+
+      .option-item {
+        display: flex !important;
+        align-items: center !important;
+        font-size: 0.82rem !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        margin: 6px 0 !important;
+
+        ion-icon {
+          font-size: 0.95rem !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+        }
+
+        span, strong {
+          opacity: 1 !important;
+          visibility: visible !important;
+        }
+      }
+    }
+
+    // Controles en fila horizontal abajo - SIEMPRE VISIBLES
+    .quantity-controls {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: center !important;
+      align-items: center !important;
+      padding: 16px 20px !important;
+      width: 100% !important;
+      border-left: none !important;
+      border-top: 2px solid rgba(0, 0, 0, 0.06) !important;
+      gap: 12px !important;
+      background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%) !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      position: relative !important;
+      z-index: 10 !important;
+      order: 2 !important;
+      margin: 0 !important;
+
+      // Botón menos
+      ion-button:first-of-type {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 42px !important;
+        width: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        --border-radius: 12px !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        --background: white !important;
+        --color: #{$primary-purple} !important;
+        border: 2px solid $border-color !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+
+        ion-icon {
+          font-size: 24px !important;
+          display: block !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          color: $primary-purple !important;
+        }
+
+        &:hover, &:active {
+          transform: none !important;
+        }
+      }
+
+      // Badge de cantidad
+      ion-badge {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 60px !important;
+        height: 42px !important;
+        font-size: 1.2rem !important;
+        flex-shrink: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        background: linear-gradient(135deg, $primary-purple 0%, $accent-pink 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        font-weight: 900 !important;
+        margin: 0 !important;
+      }
+
+      // Botón más (segundo botón que NO es danger)
+      ion-button:nth-of-type(2):not([color="danger"]) {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 42px !important;
+        width: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        --border-radius: 12px !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        --background: white !important;
+        --color: #{$primary-purple} !important;
+        border: 2px solid $border-color !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+
+        ion-icon {
+          font-size: 24px !important;
+          display: block !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          color: $primary-purple !important;
+        }
+
+        &:hover, &:active {
+          transform: none !important;
+        }
+      }
+
+      // Botón eliminar (danger)
+      ion-button[color="danger"] {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 42px !important;
+        width: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        --border-radius: 12px !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        --background: white !important;
+        --color: #dc3545 !important;
+        border: 2px solid $border-color !important;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.12) !important;
+
+        ion-icon {
+          font-size: 22px !important;
+          display: block !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          color: #dc3545 !important;
+        }
+
+        &:hover, &:active {
+          transform: none !important;
         }
       }
     }
   }
 
-  .customer-info-card, 
-  .summary-card {
-    margin-top: 20px;
+  // Columna derecha sin sticky
+  .customer-info-card {
+    position: static !important;
+    margin-top: 20px !important;
   }
 
-  .cart-container {
-    padding: 24px 16px 120px;
-  }
-}
+  .summary-section {
+    .summary-row {
+      font-size: 0.92rem !important;
+      padding: 11px 0 !important;
 
-@media (min-width: 576px) and (max-width: 991px) {
-  .cart-container {
-    padding: 32px 24px 120px;
-  }
+      span:first-child::before {
+        font-size: 1.2rem !important;
+      }
 
-  .cart-item {
-    ion-thumbnail {
-      width: 140px;
-      height: 140px;
+      &.total {
+        font-size: 1.25rem !important;
+        padding: 16px 12px 12px !important;
+      }
+    }
+
+    .summary-title {
+      font-size: 1.05rem !important;
+    }
+
+    .whatsapp-button-animated {
+      height: 52px !important;
+      font-size: 14px !important;
+
+      p {
+        font-size: 1.05rem !important;
+      }
+    }
+
+    ion-button {
+      height: 52px !important;
+      font-size: 1rem !important;
     }
   }
 }
 
-@media (max-width: 991px) {
-  .customer-info-card { 
-    margin-top: 32px; 
+// Tablets y dispositivos medianos
+@media (min-width: 576px) and (max-width: 991px) {
+  .cart-container {
+    display: block !important;
+    padding: 28px 20px 120px !important;
   }
-  
-  .cart-container { 
-    grid-template-columns: 1fr; 
+
+  .cart-item {
+    ion-thumbnail {
+      width: 140px !important;
+      height: 140px !important;
+    }
   }
-  
-  .cart-items-card {
-    margin-bottom: 24px; // Restaurar margen en móvil
+
+  .customer-info-card {
+    margin-top: 28px !important;
+    position: static !important;
+  }
+}
+
+// Desktop - Grid de 2 columnas
+@media (min-width: 992px) {
+  .cart-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+
+    ion-thumbnail {
+      flex-shrink: 0 !important;
+    }
+
+    .quantity-controls {
+      flex-direction: column !important;
+      border-left: 2px solid rgba(0, 0, 0, 0.04) !important;
+      border-top: none !important;
+    }
+  }
+}
+
+// Desktop grande - Sticky summary
+@media (min-width: 1200px) {
+  .cart-container {
+    grid-template-columns: 1fr 400px !important;
+    gap: 36px !important;
+  }
+
+  .customer-info-card {
+    position: sticky !important;
+    top: 24px !important;
+    align-self: start !important;
+    margin-top: 0 !important;
   }
 }
 
@@ -1606,7 +2056,6 @@ ion-item {
     }
   }
   
-  // Ionic específicos
   &.item-lines-none,
   &.item-lines-full,
   &.item-lines-inset {
@@ -1619,7 +2068,6 @@ ion-item {
   }
 }
 
-// Remover líneas de ionic list
 .list-md,
 .list-ios {
   .item-lines-full,
@@ -1630,7 +2078,7 @@ ion-item {
 }
 
 // ============================================
-// MEJORAS DE ACCESIBILIDAD
+// ACCESIBILIDAD
 // ============================================
 @media (prefers-reduced-motion: reduce) {
   *,
