@@ -1315,7 +1315,7 @@ exportarUsuariosCSV() {
   this.mostrarToast('✅ Usuarios exportados correctamente', 'success');
 }
 
-// ⭐ EXPORTAR PRODUCTOS A CSV
+// ⭐ EXPORTAR PRODUCTOS A CSV (VERSIÓN COMPLETA CON MODALIDADES)
 exportarProductosCSV() {
   if (this.productosFiltrados.length === 0) {
     this.mostrarToast('⚠️ No hay productos para exportar', 'warning');
@@ -1342,29 +1342,52 @@ exportarProductosCSV() {
     'Apto Congelador',
     'Usos Recomendados',
     'Tiendas',
+    'Modalidades',  // ⭐ Nueva columna para modalidades
     'Imagen'
   ];
 
   // Preparar las filas
-  const rows = this.productosFiltrados.map(product => [
-    product.id || '',
-    product.sku || '',
-    product.nombre || '',
-    product.descripcion || '',
-    product.categoria || '',
-    product.subcategoria || '',
-    product.marca || '',
-    product.material || '',
-    product.color || '',
-    product.medida || '',
-    product.cantidadPaquete || '',
-    product.biodegradable ? 'Sí' : 'No',
-    product.aptoMicroondas ? 'Sí' : 'No',
-    product.aptoCongelador ? 'Sí' : 'No',
-    product.usosRecomendados || '',
-    product.tiendas?.join('; ') || '',
-    product.imagen || ''
-  ]);
+  const rows = this.productosFiltrados.map(product => {
+    // ⭐ Formatear modalidades en texto legible
+    let modalidadesTexto = '';
+    if (product.modalidades && Array.isArray(product.modalidades) && product.modalidades.length > 0) {
+      modalidadesTexto = product.modalidades.map((m: any) => {
+        // Formato: Modalidad: Tamaño | Contenido | Precio
+        const tamano = m.tamano && m.tamano !== 'N/A' ? m.tamano : '';
+        const contenido = m.contenido && m.contenido !== 'N/A' ? m.contenido : '';
+        const precio = m.precio ? `${m.precio}` : '';
+        
+        // Construir línea de modalidad
+        let partes = [m.modalidad];
+        if (tamano) partes.push(tamano);
+        if (contenido) partes.push(contenido);
+        if (precio) partes.push(precio);
+        
+        return partes.join(' | ');
+      }).join('; ');  // Separar múltiples opciones con punto y coma
+    }
+
+    return [
+      product.id || '',
+      product.sku || '',
+      product.nombre || '',
+      product.descripcion || '',
+      product.categoria || '',
+      product.subcategoria || '',
+      product.marca || '',
+      product.material || '',
+      product.color || '',
+      product.medida || '',
+      product.cantidadPaquete || '',
+      product.biodegradable ? 'Sí' : 'No',
+      product.aptoMicroondas ? 'Sí' : 'No',
+      product.aptoCongelador ? 'Sí' : 'No',
+      product.usosRecomendados || '',
+      product.tiendas?.join('; ') || '',
+      modalidadesTexto,  // ⭐ Incluir modalidades formateadas
+      product.imagen || ''
+    ];
+  });
 
   // Construir contenido CSV
   let csvContent = headers.join(',') + '\n';
@@ -1739,7 +1762,7 @@ private async guardarProductosFirestore(productos: any[]) {
   this.mostrarToast(mensaje, fallidos > 0 ? 'warning' : 'success');
 }
 
-// ⭐ DESCARGAR PLANTILLA CSV
+// ⭐ DESCARGAR PLANTILLA CSV (ACTUALIZADA CON MODALIDADES)
 descargarPlantillaCSV() {
   const headers = [
     'ID',
@@ -1758,10 +1781,11 @@ descargarPlantillaCSV() {
     'Apto Congelador',
     'Usos Recomendados',
     'Tiendas',
+    'Modalidades',  // ⭐ Nueva columna
     'Imagen'
   ];
 
-  // Ejemplo de producto
+  // Ejemplo de producto con modalidades
   const ejemplo = [
     '',
     'VASO-001',
@@ -1779,6 +1803,7 @@ descargarPlantillaCSV() {
     'Sí',
     'Ideal para eventos, restaurantes y cafeterías',
     'Sucursal Centro; Sucursal Norte',
+    'Mayoreo | Caja | 1000 pcs | $850; Menudeo | Paquete | 100 pcs | $120',  // ⭐ Ejemplo de modalidades
     'https://ejemplo.com/imagen.jpg'
   ];
 
