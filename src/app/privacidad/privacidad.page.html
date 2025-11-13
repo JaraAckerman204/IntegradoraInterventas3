@@ -1,124 +1,219 @@
 <app-header></app-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Política de Privacidad</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
-  <!-- Hero -->
-  <div class="hero-section privacidad-hero">
-    <div class="hero-overlay"></div>
+  <!-- SECCIÓN HERO PRIVACIDAD -->
+  <section class="contact-hero">
     <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
       <h1>Política de Privacidad</h1>
       <p>Protegemos tus datos y respetamos tu privacidad. Conoce cómo recopilamos, usamos y protegemos tu información.</p>
     </div>
-  </div>
+  </section>
 
-  <!-- Policy content -->
-  <div class="policy-section">
-    <div class="policy-container">
-      <div class="policy-grid">
-        <section class="policy-card reveal" #reveal>
-          <div class="card-icon mission">
-            <ion-icon name="shield-checkmark-outline"></ion-icon>
-          </div>
-          <h3>Introducción</h3>
-          <p>
-            En Grupo Interventas ("nosotros", "nuestro"), valoramos la privacidad de nuestros clientes y usuarios. Esta
-            política describe qué información recopilamos, con qué finalidad y cómo la protegemos.
-          </p>
-        </section>
+  <!-- SECCIÓN PRINCIPAL DE POLÍTICA -->
+  <section class="contact-section ion-padding">
+    <div class="contact-container">
 
-        <section class="policy-card reveal" #reveal>
-          <div class="card-icon data">
-            <ion-icon name="person-outline"></ion-icon>
+      <!-- COLUMNA IZQUIERDA: POLÍTICAS PRINCIPALES -->
+      <div class="left-column">
+        
+        <!-- Introducción Principal -->
+        <div class="contact-form-wrapper">
+          <div class="form-header">
+            <h2>Introducción</h2>
+            <p>Nuestro compromiso con la protección de tu información personal</p>
           </div>
-          <h3>Información que recopilamos</h3>
-          <p>
-            Recopilamos información que nos proporcionas directamente (nombre, correo, teléfono, direcciones),
+          
+          <div class="intro-content">
+            <div class="intro-icon-text">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+            </div>
+            <p>
+              En Grupo Interventas ("nosotros", "nuestro"), valoramos la privacidad de nuestros clientes y usuarios. 
+              Esta política describe qué información recopilamos, con qué finalidad y cómo la protegemos.
+            </p>
+          </div>
+        </div>
+
+        <!-- Información que recopilamos -->
+        <div class="policy-card">
+          <div class="card-header">
+            <div class="card-icon data">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div>
+              <span class="card-number">01</span>
+              <h3>Información que recopilamos</h3>
+            </div>
+          </div>
+          <p class="card-description">
+            Recopilamos información que nos proporcionas directamente (nombre, correo, teléfono, direcciones), 
             datos de pedido y comportamiento anónimo para mejorar nuestros servicios.
           </p>
-        </section>
-
-        <section class="policy-card reveal" #reveal>
-          <div class="card-icon usage">
-            <ion-icon name="cog-outline"></ion-icon>
+          <div class="info-highlight">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <span>Toda la información recopilada es utilizada exclusivamente para brindarte un mejor servicio.</span>
           </div>
-          <h3>Uso de la información</h3>
-          <p>
-            Utilizamos tus datos para procesar pedidos, ofrecer soporte, personalizar la experiencia y enviar
+        </div>
+
+        <!-- Uso de la información -->
+        <div class="policy-card">
+          <div class="card-header">
+            <div class="card-icon usage">
+              <ion-icon name="cog-outline"></ion-icon>
+            </div>
+            <div>
+              <span class="card-number">02</span>
+              <h3>Uso de la información</h3>
+            </div>
+          </div>
+          <p class="card-description">
+            Utilizamos tus datos para procesar pedidos, ofrecer soporte, personalizar la experiencia y enviar 
             comunicaciones relevantes. También realizamos análisis anónimos para mejorar la plataforma.
           </p>
-        </section>
+          <ul class="policy-list">
+            <li>Procesamiento y gestión de pedidos</li>
+            <li>Soporte al cliente personalizado</li>
+            <li>Mejora continua de servicios</li>
+            <li>Comunicaciones relevantes</li>
+          </ul>
+        </div>
 
-        <section class="policy-card reveal" #reveal>
-          <div class="card-icon cookie">
-            <ion-icon name="cube-outline"></ion-icon>
+        <!-- Cookies y tecnologías -->
+        <div class="policy-card">
+          <div class="card-header">
+            <div class="card-icon cookie">
+              <ion-icon name="cube-outline"></ion-icon>
+            </div>
+            <div>
+              <span class="card-number">03</span>
+              <h3>Cookies y tecnologías</h3>
+            </div>
           </div>
-          <h3>Cookies y tecnologías</h3>
-          <p>
-            Usamos cookies para preferencias y analítica. Puedes gestionar el almacenamiento desde tu navegador, aunque
-            podría afectar la experiencia.
+          <p class="card-description">
+            Usamos cookies para preferencias y analítica. Puedes gestionar el almacenamiento desde tu navegador, 
+            aunque podría afectar la experiencia.
           </p>
-        </section>
-
-        <section class="policy-card reveal" #reveal>
-          <div class="card-icon share">
-            <ion-icon name="share-social-outline"></ion-icon>
+          <div class="info-highlight">
+            <ion-icon name="settings-outline"></ion-icon>
+            <span>Las cookies mejoran tu experiencia de navegación y nos ayudan a entender mejor tus necesidades.</span>
           </div>
-          <h3>Compartir información</h3>
-          <p>
-            No vendemos tus datos. Compartimos información con proveedores que nos ayudan a operar (pagos, envíos,
+        </div>
+
+        <!-- Compartir información -->
+        <div class="policy-card">
+          <div class="card-header">
+            <div class="card-icon share">
+              <ion-icon name="share-social-outline"></ion-icon>
+            </div>
+            <div>
+              <span class="card-number">04</span>
+              <h3>Compartir información</h3>
+            </div>
+          </div>
+          <p class="card-description">
+            No vendemos tus datos. Compartimos información con proveedores que nos ayudan a operar (pagos, envíos, 
             análisis) bajo acuerdos que protegen la confidencialidad.
           </p>
-        </section>
+          <div class="info-highlight warning">
+            <ion-icon name="shield-outline"></ion-icon>
+            <span><strong>Garantía:</strong> Nunca venderemos tu información personal a terceros.</span>
+          </div>
+        </div>
 
-        <section class="policy-card reveal" #reveal>
+      </div>
+
+      <!-- COLUMNA DERECHA: POLÍTICAS ADICIONALES E INFORMACIÓN -->
+      <div class="right-column">
+        
+        <!-- Seguridad -->
+        <div class="info-card">
           <div class="card-icon lock">
             <ion-icon name="lock-closed-outline"></ion-icon>
           </div>
-          <h3>Seguridad</h3>
-          <p>
-            Implementamos medidas técnicas y administrativas razonables para proteger tus datos. Aunque hacemos lo
-            posible, ninguna medida es infalible.
+          <span class="card-number-small">05</span>
+          <h4>Seguridad</h4>
+          <p class="card-description">
+            Implementamos medidas técnicas y administrativas razonables para proteger tus datos. 
+            Aunque hacemos lo posible, ninguna medida es infalible.
           </p>
-        </section>
+          <ul class="compact-list">
+            <li>Encriptación de datos</li>
+            <li>Acceso controlado</li>
+            <li>Monitoreo continuo</li>
+            <li>Auditorías de seguridad</li>
+          </ul>
+        </div>
 
-        <section class="policy-card reveal" #reveal>
+        <!-- Conservación -->
+        <div class="info-card">
           <div class="card-icon clock">
             <ion-icon name="time-outline"></ion-icon>
           </div>
-          <h3>Conservación</h3>
-          <p>
-            Conservamos datos mientras sean necesarios para cumplir la finalidad o por obligaciones legales. Luego se
-            eliminan o anonimiza la información.
+          <span class="card-number-small">06</span>
+          <h4>Conservación</h4>
+          <p class="card-description">
+            Conservamos datos mientras sean necesarios para cumplir la finalidad o por obligaciones legales. 
+            Luego se eliminan o anonimiza la información.
           </p>
-        </section>
+          <div class="time-info">
+            <ion-icon name="hourglass-outline"></ion-icon>
+            <span>Mantenemos tu información solo el tiempo necesario</span>
+          </div>
+        </div>
 
-        <section class="policy-card reveal" #reveal>
+        <!-- Derechos -->
+        <div class="info-card">
           <div class="card-icon rights">
             <ion-icon name="document-text-outline"></ion-icon>
           </div>
-          <h3>Derechos</h3>
-          <p>
-            Puedes solicitar acceso, rectificación o eliminación de tus datos según la legislación aplicable. Contáctanos
-            para ejercer tus derechos.
+          <span class="card-number-small">07</span>
+          <h4>Tus Derechos</h4>
+          <p class="card-description">
+            Puedes solicitar acceso, rectificación o eliminación de tus datos según la legislación aplicable. 
+            Contáctanos para ejercer tus derechos.
           </p>
-        </section>
+          <ul class="compact-list">
+            <li><strong>Acceder</strong> a tu información</li>
+            <li><strong>Rectificar</strong> datos incorrectos</li>
+            <li><strong>Eliminar</strong> tu información</li>
+            <li><strong>Portabilidad</strong> de datos</li>
+          </ul>
+        </div>
+
+        <!-- Sección de Contacto y Cambios -->
+        <div class="social-section">
+          <div class="contact-icon-section">
+            <ion-icon name="mail-outline"></ion-icon>
+          </div>
+          <h4>Contacto y Cambios</h4>
+          <p>
+            Para dudas o solicitudes sobre privacidad, nuestro equipo está disponible para atenderte.
+          </p>
+          <div class="contact-methods">
+            <a href="mailto:privacidad@grupointerventas.com" class="contact-link email">
+              <ion-icon name="mail"></ion-icon>
+              <span>privacidad@grupointerventas.com</span>
+            </a>
+            <a href="tel:+521800000000" class="contact-link phone">
+              <ion-icon name="call"></ion-icon>
+              <span>(800) 000 0000</span>
+            </a>
+          </div>
+          <p class="update-note">
+            <ion-icon name="calendar-outline"></ion-icon>
+            Última actualización: Octubre 2025
+          </p>
+        </div>
+
       </div>
 
-      <div class="policy-bottom reveal" #reveal>
-        <h2>Contacto y cambios</h2>
-        <p>
-          Para dudas o solicitudes sobre privacidad escríbenos a <a href="mailto:privacidad@grupointerventas.com">privacidad@grupointerventas.com</a>
-          o llama al <a href="tel:+521800000000">(800) 000 0000</a>.
-        </p>
-        <p class="small-note">Última actualización: Octubre 2025</p>
-      </div>
     </div>
-  </div>
+  </section>
 
   <app-footer></app-footer>
+
 </ion-content>

@@ -1,8 +1,21 @@
+// ==========================================
+// 📄 preguntas.page.ts - CON ICONOS ACTUALIZADOS
+// ==========================================
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { RouterLink } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { 
+  helpCircleOutline,
+  helpOutline,
+  chevronDownOutline,
+  checkmarkCircleOutline,
+  chatbubblesOutline,
+  arrowForwardOutline
+} from 'ionicons/icons';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { FooterComponent } from 'src/app/components/footer/footer.component';
 
@@ -78,11 +91,24 @@ export class PreguntasPage implements OnInit {
     },
   ];
 
-  constructor() {}
+  constructor() {
+    // ✅ Registrar todos los iconos necesarios
+    addIcons({
+      'help-circle-outline': helpCircleOutline,
+      'help-outline': helpOutline,
+      'chevron-down-outline': chevronDownOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'chatbubbles-outline': chatbubblesOutline,
+      'arrow-forward-outline': arrowForwardOutline
+    });
+  }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log('✅ Página de preguntas frecuentes inicializada');
+  }
 
   toggleFaq(index: number) {
     this.faqs[index].open = !this.faqs[index].open;
+    console.log(`📋 FAQ ${index + 1} ${this.faqs[index].open ? 'abierto' : 'cerrado'}`);
   }
 }

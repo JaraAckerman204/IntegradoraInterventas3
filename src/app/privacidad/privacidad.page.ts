@@ -1,19 +1,39 @@
+// ==========================================
+// 📄 privacidad.page.ts - COMPONENTE COMPLETO
+// ==========================================
+
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonIcon } from '@ionic/angular/standalone';
+import { 
+  IonContent, 
+  IonHeader, 
+  IonTitle, 
+  IonToolbar, 
+  IonIcon 
+} from '@ionic/angular/standalone';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 import { addIcons } from 'ionicons';
 import {
   shieldCheckmarkOutline,
+  shieldCheckmark,
+  lockClosed,
+  lockClosedOutline,
+  checkmarkCircle,
   personOutline,
   cogOutline,
   cubeOutline,
   shareSocialOutline,
-  lockClosedOutline,
   timeOutline,
-  documentTextOutline
+  documentTextOutline,
+  mailOutline,
+  mail,
+  callOutline,
+  call,
+  calendarOutline,
+  refreshOutline,
+  informationCircleOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -21,13 +41,24 @@ import {
   templateUrl: './privacidad.page.html',
   styleUrls: ['./privacidad.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, CommonModule, FormsModule, HeaderComponent, FooterComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonIcon,
+    HeaderComponent, 
+    FooterComponent
+  ]
 })
 export class PrivacidadPage implements OnInit, AfterViewInit {
+  
   @ViewChildren('reveal', { read: ElementRef }) reveals!: QueryList<ElementRef>;
 
   constructor() {
-    // Registrar los iconos usados en esta vista para que <ion-icon name="..."> funcione
+    // Registrar los iconos usados en esta vista
     addIcons({
       'shield-checkmark-outline': shieldCheckmarkOutline,
       'person-outline': personOutline,
@@ -41,10 +72,17 @@ export class PrivacidadPage implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    console.log('✅ Página de Privacidad inicializada');
   }
 
   ngAfterViewInit(): void {
-    const options = { root: null, rootMargin: '0px', threshold: 0.12 };
+    // Configuración del Intersection Observer para animaciones reveal
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.12
+    };
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const el = entry.target as HTMLElement;
@@ -54,9 +92,11 @@ export class PrivacidadPage implements OnInit, AfterViewInit {
       });
     }, options);
 
-    // Observe each reveal element
-    this.reveals.forEach((q) => {
-      if (q && q.nativeElement) observer.observe(q.nativeElement);
+    // Observar cada elemento con la clase reveal
+    this.reveals.forEach((elementRef) => {
+      if (elementRef && elementRef.nativeElement) {
+        observer.observe(elementRef.nativeElement);
+      }
     });
   }
 

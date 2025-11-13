@@ -1,30 +1,74 @@
 <app-header></app-header>
 
-<ion-content class="faq-content">
-  <section class="faq-container">
-    <h2 class="faq-title">Preguntas Frecuentes</h2>
+<ion-content [fullscreen]="true">
 
-    <div class="faq-list">
-      <div class="faq-item" *ngFor="let faq of faqs; let i = index">
-        <button class="faq-question" (click)="toggleFaq(i)">
-          <span>{{ faq.question }}</span>
-          <ion-icon
-            [name]="faq.open ? 'chevron-up-outline' : 'chevron-down-outline'"
-            class="faq-icon"
-          ></ion-icon>
-        </button>
-
-        <div
-          class="faq-answer"
-          [class.open]="faq.open"
-          [style.maxHeight]="faq.open ? '400px' : '0px'"
-        >
-          <p [innerHTML]="faq.answer"></p>
-        </div>
+  <!-- SECCIÓN HERO PREGUNTAS FRECUENTES -->
+  <section class="faq-hero">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="help-circle-outline"></ion-icon>
       </div>
+      <h1>Preguntas Frecuentes</h1>
+      <p>Encuentra respuestas rápidas a las dudas más comunes sobre nuestros servicios y productos</p>
     </div>
   </section>
 
-  <!-- Footer dentro del scroll -->
-  <app-footer class="faq-footer"></app-footer>
+  <!-- SECCIÓN PRINCIPAL DE FAQ -->
+  <section class="faq-section ion-padding">
+    <div class="faq-container">
+      
+      <!-- Header de la sección -->
+      <div class="section-header">
+        <h2>¿Cómo podemos ayudarte?</h2>
+        <p>Explora nuestras preguntas frecuentes o contáctanos directamente</p>
+      </div>
+
+      <!-- Lista de preguntas -->
+      <div class="faq-list">
+        <div class="faq-item" *ngFor="let faq of faqs; let i = index" [class.open]="faq.open">
+          <button class="faq-question" (click)="toggleFaq(i)">
+            <div class="question-content">
+              <div class="question-icon">
+                <ion-icon name="help-outline"></ion-icon>
+              </div>
+              <span class="question-text">{{ faq.question }}</span>
+            </div>
+            <div class="toggle-icon" [class.rotated]="faq.open">
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </div>
+          </button>
+
+          <div class="faq-answer" [class.open]="faq.open">
+            <div class="answer-content">
+              <div class="answer-icon">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+              </div>
+              <div class="answer-text" [innerHTML]="faq.answer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call to action -->
+      <div class="faq-cta">
+        <div class="cta-card">
+          <div class="cta-icon">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+          </div>
+          <div class="cta-content">
+            <h3>¿No encontraste lo que buscabas?</h3>
+            <p>Nuestro equipo está listo para ayudarte con cualquier duda adicional</p>
+          </div>
+          <a routerLink="/contacto" class="cta-button">
+            <span>Contáctanos</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+
 </ion-content>
