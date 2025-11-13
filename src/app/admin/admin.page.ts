@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import emailjs from '@emailjs/browser';
+
+import { getDocs } from '@angular/fire/firestore';
+
+
 import {
   Firestore,
   collection,
@@ -1275,7 +1279,7 @@ async eliminarUsuario(id: string) {
   }
 }
 
-// Exportar a CSV
+// Exportar a CSV (usuarios)
 exportarUsuariosCSV() {
   if (this.usuariosFiltrados.length === 0) {
     this.mostrarToast('⚠️ No hay usuarios para exportar', 'warning');
@@ -1311,8 +1315,498 @@ exportarUsuariosCSV() {
   this.mostrarToast('✅ Usuarios exportados correctamente', 'success');
 }
 
+// ⭐ EXPORTAR PRODUCTOS A CSV
+exportarProductosCSV() {
+  if (this.productosFiltrados.length === 0) {
+    this.mostrarToast('⚠️ No hay productos para exportar', 'warning');
+    return;
+  }
 
+  console.log('📊 Exportando productos a CSV...');
 
+  // Definir headers del CSV
+  const headers = [
+    'ID',
+    'SKU',
+    'Nombre',
+    'Descripción',
+    'Categoría',
+    'Subcategoría',
+    'Marca',
+    'Material',
+    'Color',
+    'Medida/Capacidad',
+    'Cantidad por Paquete',
+    'Biodegradable',
+    'Apto Microondas',
+    'Apto Congelador',
+    'Usos Recomendados',
+    'Tiendas',
+    'Imagen'
+  ];
+
+  // Preparar las filas
+  const rows = this.productosFiltrados.map(product => [
+    product.id || '',
+    product.sku || '',
+    product.nombre || '',
+    product.descripcion || '',
+    product.categoria || '',
+    product.subcategoria || '',
+    product.marca || '',
+    product.material || '',
+    product.color || '',
+    product.medida || '',
+    product.cantidadPaquete || '',
+    product.biodegradable ? 'Sí' : 'No',
+    product.aptoMicroondas ? 'Sí' : 'No',
+    product.aptoCongelador ? 'Sí' : 'No',
+    product.usosRecomendados || '',
+    product.tiendas?.join('; ') || '',
+    product.imagen || ''
+  ]);
+
+  // Construir contenido CSV
+  let csvContent = headers.join(',') + '\n';
+  
+  rows.forEach(row => {
+    // Escapar comillas y comas dentro de los campos
+    const escapedRow = row.map(cell => {
+      const cellStr = String(cell);
+      // Si contiene comas, saltos de línea o comillas, envolver en comillas
+      if (cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')) {
+        return `"${cellStr.replace(/"/g, '""')}"`;
+      }
+      return cellStr;
+    });
+    csvContent += escapedRow.join(',') + '\n';
+  });
+
+  // ⭐ AGREGAR BOM (Byte Order Mark) PARA UTF-8
+  const BOM = '\uFEFF';
+  const csvContentWithBOM = BOM + csvContent;
+
+  // Crear Blob con codificación UTF-8
+  const blob = new Blob([csvContentWithBOM], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  // Generar nombre con fecha
+  const fecha = new Date().toISOString().split('T')[0];
+  const nombreArchivo = `Productos_${fecha}.csv`;
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', nombreArchivo);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  console.log('✅ Archivo CSV generado:', nombreArchivo);
+  this.mostrarToast(`✅ ${this.productosFiltrados.length} productos exportados correctamente`, 'success');
+}
+
+// ==========================================
+// 📥 IMPORTAR PRODUCTOS DESDE CSV
+// ==========================================
+
+// ⭐ PROPIEDAD PARA EL ARCHIVO
+archivoCSV: File | null = null;
+
+// ⭐ MÉTODO PARA SELECCIONAR ARCHIVO CSV Y AUTO-IMPORTAR
+async onArchivoCSVSeleccionado(event: any) {
+  const archivo = event.target.files[0];
+  
+  if (!archivo) {
+    return;
+  }
+
+  // Validar que sea CSV
+  if (!archivo.name.endsWith('.csv')) {
+    this.mostrarToast('⚠️ Solo se permiten archivos CSV', 'warning');
+    return;
+  }
+
+  // Validar tamaño (máximo 10MB)
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (archivo.size > maxSize) {
+    this.mostrarToast('⚠️ El archivo no debe superar 10MB', 'warning');
+    return;
+  }
+
+  this.archivoCSV = archivo;
+  
+  // Auto-importar después de seleccionar
+  await this.importarProductosCSV();
+}
+
+// ⭐ LIMPIAR ARCHIVO SELECCIONADO
+limpiarArchivoCSV() {
+  this.archivoCSV = null;
+  const fileInput = document.getElementById('csvFileInput') as HTMLInputElement;
+  if (fileInput) {
+    fileInput.value = '';
+  }
+}
+
+// ⭐ MÉTODO PRINCIPAL PARA IMPORTAR CSV
+async importarProductosCSV() {
+  if (!this.archivoCSV) {
+    this.mostrarToast('⚠️ Selecciona un archivo CSV primero', 'warning');
+    return;
+  }
+
+  try {
+    // Leer el archivo
+    const texto = await this.leerArchivoCSV(this.archivoCSV);
+    
+    // Parsear CSV
+    const productos = this.parsearCSV(texto);
+    
+    if (productos.length === 0) {
+      this.mostrarToast('⚠️ No se encontraron productos válidos en el CSV', 'warning');
+      this.limpiarArchivoCSV();
+      return;
+    }
+
+    // Confirmar importación
+    const confirmacion = await this.confirmarImportacion(productos.length);
+    
+    if (!confirmacion) {
+      this.limpiarArchivoCSV();
+      return;
+    }
+
+    // Mostrar loading
+    this.mostrarToast('⏳ Importando productos...', 'primary');
+
+    // Importar productos a Firestore
+    await this.guardarProductosFirestore(productos);
+    
+    // Limpiar archivo seleccionado
+    this.limpiarArchivoCSV();
+
+  } catch (error: any) {
+    console.error('Error importando CSV:', error);
+    this.mostrarToast(error.message || '❌ Error al importar el archivo CSV', 'danger');
+    this.limpiarArchivoCSV();
+  }
+}
+
+// ⭐ LEER ARCHIVO CSV
+private leerArchivoCSV(archivo: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e: any) => {
+      resolve(e.target.result);
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Error al leer el archivo'));
+    };
+    
+    reader.readAsText(archivo, 'UTF-8');
+  });
+}
+
+// ⭐ PARSEAR CSV A OBJETOS
+private parsearCSV(texto: string): any[] {
+  const lineas = texto.split('\n').filter(linea => linea.trim() !== '');
+  
+  if (lineas.length < 2) {
+    throw new Error('El archivo CSV está vacío o solo contiene headers');
+  }
+
+  // Obtener headers (primera línea)
+  const headers = this.parsearLineaCSV(lineas[0]);
+  
+  // Validar headers requeridos (SKU ya no es obligatorio)
+  const headersRequeridos = ['Nombre', 'Categoría', 'Subcategoría', 'Marca', 'Descripción'];
+  const faltantes = headersRequeridos.filter(h => !headers.includes(h));
+  
+  if (faltantes.length > 0) {
+    throw new Error(`Faltan columnas requeridas: ${faltantes.join(', ')}`);
+  }
+
+  // Parsear productos (resto de líneas)
+  const productos: any[] = [];
+  
+  for (let i = 1; i < lineas.length; i++) {
+    const valores = this.parsearLineaCSV(lineas[i]);
+    
+    if (valores.length !== headers.length) {
+      console.warn(`Línea ${i + 1} ignorada: número incorrecto de columnas`);
+      continue;
+    }
+
+    const producto: any = {
+      modalidades: [], // Inicializar array vacío
+      tiendas: []      // Inicializar array vacío
+    };
+    
+    headers.forEach((header, index) => {
+      const valor = valores[index].trim();
+      
+      switch (header) {
+        case 'ID':
+          // Ignorar ID del CSV, se generará nuevo o se usará el existente
+          break;
+        case 'SKU':
+          producto.sku = valor;
+          break;
+        case 'Nombre':
+          producto.nombre = valor;
+          break;
+        case 'Descripción':
+          producto.descripcion = valor;
+          break;
+        case 'Categoría':
+          producto.categoria = valor;
+          break;
+        case 'Subcategoría':
+          producto.subcategoria = valor;
+          break;
+        case 'Marca':
+          producto.marca = valor;
+          break;
+        case 'Material':
+          producto.material = valor;
+          break;
+        case 'Color':
+          producto.color = valor;
+          break;
+        case 'Medida/Capacidad':
+          producto.medida = valor;
+          break;
+        case 'Cantidad por Paquete':
+          producto.cantidadPaquete = valor;
+          break;
+        case 'Biodegradable':
+          producto.biodegradable = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si';
+          break;
+        case 'Apto Microondas':
+          producto.aptoMicroondas = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si';
+          break;
+        case 'Apto Congelador':
+          producto.aptoCongelador = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si';
+          break;
+        case 'Usos Recomendados':
+          producto.usosRecomendados = valor;
+          break;
+        case 'Tiendas':
+          // Manejar múltiples separadores: | o ;
+          if (valor) {
+            const separador = valor.includes('|') ? '|' : ';';
+            producto.tiendas = valor.split(separador).map(t => t.trim()).filter(t => t);
+          } else {
+            producto.tiendas = [];
+          }
+          break;
+        case 'Imagen':
+          producto.imagen = valor;
+          break;
+      }
+    });
+
+    // Validar campos requeridos
+    if (producto.nombre && producto.categoria && producto.subcategoria && producto.marca) {
+      // Si no tiene SKU, generar uno automático
+      if (!producto.sku || producto.sku.trim() === '') {
+        producto.sku = `AUTO-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        console.warn(`Línea ${i + 1}: SKU generado automáticamente: ${producto.sku}`);
+      }
+      productos.push(producto);
+    } else {
+      console.warn(`Línea ${i + 1} ignorada: faltan campos requeridos (Nombre, Categoría, Subcategoría o Marca)`);
+    }
+  }
+
+  return productos;
+}
+
+// ⭐ PARSEAR LÍNEA CSV (MANEJA COMILLAS Y COMAS)
+private parsearLineaCSV(linea: string): string[] {
+  const resultado: string[] = [];
+  let dentroComillas = false;
+  let campoActual = '';
+
+  for (let i = 0; i < linea.length; i++) {
+    const char = linea[i];
+    const siguienteChar = linea[i + 1];
+
+    if (char === '"' && siguienteChar === '"') {
+      // Comillas dobles escapadas
+      campoActual += '"';
+      i++; // Saltar siguiente comilla
+    } else if (char === '"') {
+      // Alternar estado de comillas
+      dentroComillas = !dentroComillas;
+    } else if (char === ',' && !dentroComillas) {
+      // Fin de campo
+      resultado.push(campoActual);
+      campoActual = '';
+    } else {
+      campoActual += char;
+    }
+  }
+
+  // Agregar último campo
+  resultado.push(campoActual);
+
+  return resultado;
+}
+
+// ⭐ CONFIRMAR IMPORTACIÓN
+private async confirmarImportacion(cantidad: number): Promise<boolean> {
+  const alert = await this.alertCtrl.create({
+    header: '📥 Confirmar Importación',
+    message: `¿Deseas importar ${cantidad} producto(s) desde el CSV?<br><br><small>Los productos con SKU existente se actualizarán.</small>`,
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+        cssClass: 'secondary'
+      },
+      {
+        text: 'Importar',
+        role: 'confirm',
+        cssClass: 'primary'
+      }
+    ]
+  });
+
+  await alert.present();
+  const { role } = await alert.onDidDismiss();
+  
+  return role === 'confirm';
+}
+
+// ⭐ GUARDAR PRODUCTOS EN FIRESTORE
+private async guardarProductosFirestore(productos: any[]) {
+  let exitosos = 0;
+  let fallidos = 0;
+  let actualizados = 0;
+
+  for (const producto of productos) {
+    try {
+      const ref = collection(this.firestore, 'productos');
+      
+      // Obtener todos los productos para buscar por SKU o ID
+      const querySnapshot = await getDocs(ref);
+      let productoExistente: any = null;
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        // Buscar por SKU (preferido) o por ID si existe en el CSV
+        if (data['sku'] === producto.sku) {
+          productoExistente = { id: doc.id, ...data };
+        }
+      });
+
+      if (productoExistente) {
+        // Actualizar producto existente
+        const docRef = doc(this.firestore, `productos/${productoExistente.id}`);
+        // Mantener el ID de Firestore, actualizar el resto
+        const { id, ...productoSinId } = producto;
+        await updateDoc(docRef, productoSinId);
+        actualizados++;
+      } else {
+        // Crear nuevo producto
+        const { id, ...productoSinId } = producto; // Remover ID del CSV si existe
+        const docRef = await addDoc(ref, productoSinId);
+        await updateDoc(docRef, { id: docRef.id });
+        exitosos++;
+      }
+
+    } catch (error) {
+      console.error('Error guardando producto:', producto.nombre, error);
+      fallidos++;
+    }
+  }
+
+  // Mostrar resultado
+  let mensaje = '📊 Importación completada: ';
+  const partes = [];
+  
+  if (exitosos > 0) partes.push(`✅ ${exitosos} creados`);
+  if (actualizados > 0) partes.push(`🔄 ${actualizados} actualizados`);
+  if (fallidos > 0) partes.push(`❌ ${fallidos} fallidos`);
+
+  mensaje += partes.join(' | ');
+
+  this.mostrarToast(mensaje, fallidos > 0 ? 'warning' : 'success');
+}
+
+// ⭐ DESCARGAR PLANTILLA CSV
+descargarPlantillaCSV() {
+  const headers = [
+    'ID',
+    'SKU',
+    'Nombre',
+    'Descripción',
+    'Categoría',
+    'Subcategoría',
+    'Marca',
+    'Material',
+    'Color',
+    'Medida/Capacidad',
+    'Cantidad por Paquete',
+    'Biodegradable',
+    'Apto Microondas',
+    'Apto Congelador',
+    'Usos Recomendados',
+    'Tiendas',
+    'Imagen'
+  ];
+
+  // Ejemplo de producto
+  const ejemplo = [
+    '',
+    'VASO-001',
+    'Vaso Desechable 16oz',
+    'Vaso transparente ideal para bebidas frías',
+    'Desechables',
+    'Vasos',
+    'PlastiCup',
+    'Polipropileno',
+    'Transparente',
+    '16oz',
+    'Caja de 1000',
+    'No',
+    'No',
+    'Sí',
+    'Ideal para eventos, restaurantes y cafeterías',
+    'Sucursal Centro; Sucursal Norte',
+    'https://ejemplo.com/imagen.jpg'
+  ];
+
+  // Construir CSV
+  const BOM = '\uFEFF';
+  let csvContent = BOM + headers.join(',') + '\n';
+  csvContent += ejemplo.map(cell => {
+    if (cell.includes(',') || cell.includes(';')) {
+      return `"${cell}"`;
+    }
+    return cell;
+  }).join(',') + '\n';
+
+  // Descargar
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'plantilla_productos.csv');
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  this.mostrarToast('📄 Plantilla CSV descargada', 'success');
+}
 
   // =============================
   // 📧 MENSAJES DE CONTACTO
