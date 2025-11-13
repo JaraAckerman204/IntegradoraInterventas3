@@ -178,13 +178,13 @@ usuariosFiltrados: any[] = [];
 usuarioCreando: any = {
   nombre: '',
   email: '',
-  rol: 'usuario',
+  rol: '',
   password: ''
 };
 usuarioEditando: any = {
   nombre: '',
   email: '',
-  rol: 'usuario',
+  rol: '',
   password: ''
 };
 usuarioEditandoId: string = '';
@@ -1169,7 +1169,7 @@ async agregarUsuario() {
     const nuevoUsuario = {
       nombre: this.usuarioEditando.nombre,
       email: this.usuarioEditando.email,
-      rol: this.usuarioEditando.rol || 'usuario',
+      rol: this.usuarioEditando.rol || 'usuario', // Cambia 'usuario' por 'cliente'
       password: this.usuarioEditando.password,
       fechaCreacion: new Date().toISOString()
     };
