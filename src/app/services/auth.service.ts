@@ -72,7 +72,7 @@ export class AuthService {
       const userData = {
         nombre: nombre,
         email: email,
-        rol: 'cliente',
+        rol: 'usuario',
         fechaCreacion: new Date().toISOString(),
         emailVerificado: false
       };
