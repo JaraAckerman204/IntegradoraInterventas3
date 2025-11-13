@@ -1534,7 +1534,6 @@ private leerArchivoCSV(archivo: File): Promise<string> {
   });
 }
 
-// ⭐ PARSEAR CSV A OBJETOS
 private parsearCSV(texto: string): any[] {
   const lineas = texto.split('\n').filter(linea => linea.trim() !== '');
   
@@ -1542,9 +1541,12 @@ private parsearCSV(texto: string): any[] {
     throw new Error('El archivo CSV está vacío o solo contiene headers');
   }
 
-  // Obtener headers (primera línea)
-  const headers = this.parsearLineaCSV(lineas[0]);
+  // Obtener headers (primera línea) y LIMPIARLOS
+  const headers = this.parsearLineaCSV(lineas[0]).map(h => h.trim());  // ⭐ AGREGAR .map(h => h.trim())
   
+  console.log('📋 Headers detectados:', headers);
+  console.log('📋 Número de headers:', headers.length);
+  console.log('📋 ¿Tiene columna Imagen?', headers.includes('Imagen'));
   // Validar headers requeridos (SKU ya no es obligatorio)
   const headersRequeridos = ['Nombre', 'Categoría', 'Subcategoría', 'Marca', 'Descripción'];
   const faltantes = headersRequeridos.filter(h => !headers.includes(h));
@@ -1565,8 +1567,8 @@ private parsearCSV(texto: string): any[] {
     }
 
     const producto: any = {
-      modalidades: [], // Inicializar array vacío
-      tiendas: []      // Inicializar array vacío
+      modalidades: [],
+      tiendas: []
     };
     
     headers.forEach((header, index) => {
@@ -1574,7 +1576,6 @@ private parsearCSV(texto: string): any[] {
       
       switch (header) {
         case 'ID':
-          // Ignorar ID del CSV, se generará nuevo o se usará el existente
           break;
         case 'SKU':
           producto.sku = valor;
@@ -1619,7 +1620,6 @@ private parsearCSV(texto: string): any[] {
           producto.usosRecomendados = valor;
           break;
         case 'Tiendas':
-          // Manejar múltiples separadores: | o ;
           if (valor) {
             const separador = valor.includes('|') ? '|' : ';';
             producto.tiendas = valor.split(separador).map(t => t.trim()).filter(t => t);
@@ -1627,29 +1627,96 @@ private parsearCSV(texto: string): any[] {
             producto.tiendas = [];
           }
           break;
-        case 'Imagen':
-          producto.imagen = valor;
+        case 'Modalidades':
+          if (valor) {
+            producto.modalidades = this.parsearModalidades(valor);
+          } else {
+            producto.modalidades = [];
+          }
           break;
+        case 'Imagen':
+  const imagenLimpia = valor?.trim();
+  if (imagenLimpia && imagenLimpia.length > 0) {
+    producto.imagen = imagenLimpia;
+    console.log('✅ Imagen detectada:', imagenLimpia);
+  } else {
+    console.log('⚠️ Imagen vacía para producto:', producto.nombre);
+    producto.imagen = ''; // Asegurar que exista el campo
+  }
+  break;
       }
     });
 
     // Validar campos requeridos
     if (producto.nombre && producto.categoria && producto.subcategoria && producto.marca) {
-      // Si no tiene SKU, generar uno automático
       if (!producto.sku || producto.sku.trim() === '') {
         producto.sku = `AUTO-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         console.warn(`Línea ${i + 1}: SKU generado automáticamente: ${producto.sku}`);
       }
       productos.push(producto);
     } else {
-      console.warn(`Línea ${i + 1} ignorada: faltan campos requeridos (Nombre, Categoría, Subcategoría o Marca)`);
+      console.warn(`Línea ${i + 1} ignorada: faltan campos requeridos`);
     }
   }
 
   return productos;
 }
 
-// ⭐ PARSEAR LÍNEA CSV (MANEJA COMILLAS Y COMAS)
+// ⭐ PARSEAR MODALIDADES DESDE TEXTO CSV
+private parsearModalidades(textoModalidades: string): any[] {
+  const modalidades: any[] = [];
+  
+  if (!textoModalidades || textoModalidades.trim() === '') {
+    return modalidades;
+  }
+
+  const opciones = textoModalidades.split(';').map(o => o.trim()).filter(o => o);
+
+  for (const opcion of opciones) {
+    const partes = opcion.split('|').map(p => p.trim());
+
+    if (partes.length >= 2) {
+      const modalidad = partes[0];
+      let tamano = 'N/A';
+      let contenido = 'N/A';
+      let precio = 0;
+
+      if (partes.length === 2) {
+        precio = this.parsearPrecio(partes[1]);
+      } else if (partes.length === 3) {
+        tamano = partes[1];
+        precio = this.parsearPrecio(partes[2]);
+      } else if (partes.length >= 4) {
+        tamano = partes[1];
+        contenido = partes[2];
+        precio = this.parsearPrecio(partes[3]);
+      }
+
+      if ((modalidad === 'Mayoreo' || modalidad === 'Menudeo') && precio > 0) {
+        modalidades.push({
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          modalidad: modalidad,
+          tamano: tamano,
+          contenido: contenido,
+          precio: precio
+        });
+      } else {
+        console.warn(`Modalidad inválida ignorada: ${opcion}`);
+      }
+    }
+  }
+
+  return modalidades;
+}
+
+// ⭐ PARSEAR PRECIO
+private parsearPrecio(textoPrecio: string): number {
+  const limpio = textoPrecio.replace(/[$,\s]/g, '').trim();
+  const precio = parseFloat(limpio);
+  return isNaN(precio) ? 0 : precio;
+}
+
+// ⭐ PARSEAR LÍNEA CSV
 private parsearLineaCSV(linea: string): string[] {
   const resultado: string[] = [];
   let dentroComillas = false;
@@ -1660,14 +1727,11 @@ private parsearLineaCSV(linea: string): string[] {
     const siguienteChar = linea[i + 1];
 
     if (char === '"' && siguienteChar === '"') {
-      // Comillas dobles escapadas
       campoActual += '"';
-      i++; // Saltar siguiente comilla
+      i++;
     } else if (char === '"') {
-      // Alternar estado de comillas
       dentroComillas = !dentroComillas;
     } else if (char === ',' && !dentroComillas) {
-      // Fin de campo
       resultado.push(campoActual);
       campoActual = '';
     } else {
@@ -1675,12 +1739,9 @@ private parsearLineaCSV(linea: string): string[] {
     }
   }
 
-  // Agregar último campo
   resultado.push(campoActual);
-
   return resultado;
 }
-
 // ⭐ CONFIRMAR IMPORTACIÓN
 private async confirmarImportacion(cantidad: number): Promise<boolean> {
   const alert = await this.alertCtrl.create({
@@ -1705,15 +1766,22 @@ private async confirmarImportacion(cantidad: number): Promise<boolean> {
   
   return role === 'confirm';
 }
-
 // ⭐ GUARDAR PRODUCTOS EN FIRESTORE
 private async guardarProductosFirestore(productos: any[]) {
   let exitosos = 0;
   let fallidos = 0;
   let actualizados = 0;
 
+  console.log('📦 Iniciando guardado de', productos.length, 'productos');
+
   for (const producto of productos) {
     try {
+      // ⭐ LOG DETALLADO DEL PRODUCTO
+      console.log('-----------------------------------');
+      console.log('💾 Procesando producto:', producto.nombre);
+      console.log('📸 Imagen:', producto.imagen);
+      console.log('📋 Datos completos:', producto);
+
       const ref = collection(this.firestore, 'productos');
       
       // Obtener todos los productos para buscar por SKU o ID
@@ -1730,24 +1798,35 @@ private async guardarProductosFirestore(productos: any[]) {
 
       if (productoExistente) {
         // Actualizar producto existente
+        console.log('🔄 Producto existente encontrado, actualizando...');
         const docRef = doc(this.firestore, `productos/${productoExistente.id}`);
-        // Mantener el ID de Firestore, actualizar el resto
         const { id, ...productoSinId } = producto;
+        
+        console.log('📝 Datos a actualizar:', productoSinId);
+        
         await updateDoc(docRef, productoSinId);
+        console.log('✅ Producto actualizado correctamente');
         actualizados++;
       } else {
         // Crear nuevo producto
-        const { id, ...productoSinId } = producto; // Remover ID del CSV si existe
+        console.log('✨ Creando nuevo producto...');
+        const { id, ...productoSinId } = producto;
+        
+        console.log('📝 Datos a crear:', productoSinId);
+        
         const docRef = await addDoc(ref, productoSinId);
         await updateDoc(docRef, { id: docRef.id });
+        console.log('✅ Producto creado correctamente con ID:', docRef.id);
         exitosos++;
       }
 
     } catch (error) {
-      console.error('Error guardando producto:', producto.nombre, error);
+      console.error('❌ Error guardando producto:', producto.nombre, error);
       fallidos++;
     }
   }
+
+  console.log('📊 Resumen: Exitosos:', exitosos, 'Actualizados:', actualizados, 'Fallidos:', fallidos);
 
   // Mostrar resultado
   let mensaje = '📊 Importación completada: ';
