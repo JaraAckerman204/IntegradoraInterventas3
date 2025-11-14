@@ -149,6 +149,7 @@ export class HomePage implements OnInit, OnDestroy {
   featuredPages: number[] = [];
   maxFeaturedIndex = 0;
   productsPerPage = 4;
+  isMobile = false;
 
   // 🛒 Modal de producto
   isModalOpen = false;
@@ -219,22 +220,25 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // 🔔 Notificaciones push
-    this.push.requestPermission();
-    this.push.listenMessages();
+  // 📱 Detectar si es móvil
+  this.checkScreenSize();
+  
+  // 🔔 Notificaciones push
+  this.push.requestPermission();
+  this.push.listenMessages();
 
-    // 🎠 Iniciar carrusel automático
-    this.startCarousel();
+  // 🎠 Iniciar carrusel automático
+  this.startCarousel();
 
-    // 👤 Escuchar sesión activa
-    this.authService.currentUser$.subscribe((user) => {
-      this.user = user;
-      console.log('👤 Usuario activo:', user);
-    });
+  // 👤 Escuchar sesión activa
+  this.authService.currentUser$.subscribe((user) => {
+    this.user = user;
+    console.log('👤 Usuario activo:', user);
+  });
 
-    // ⭐ Cargar productos destacados
-    this.loadFeaturedProducts();
-  }
+  // ⭐ Cargar productos destacados
+  this.loadFeaturedProducts();
+}
 
   ngOnDestroy() {
     // 🛑 Limpiar interval del carrusel
@@ -242,6 +246,29 @@ export class HomePage implements OnInit, OnDestroy {
       clearInterval(this.carouselInterval);
     }
   }
+
+  // 📱 DETECTAR TAMAÑO DE PANTALLA
+checkScreenSize() {
+  this.isMobile = window.innerWidth <= 768;
+  this.productsPerPage = this.isMobile ? 1 : 4;
+  if (this.productosDestacados.length > 0) {
+    this.calculateFeaturedPages();
+  }
+}
+
+// 🔄 ESCUCHAR CAMBIOS DE TAMAÑO
+@HostListener('window:resize', ['$event'])
+onResize() {
+  const wasMobile = this.isMobile;
+  this.checkScreenSize();
+  
+  // Si cambió de mobile a desktop o viceversa, recalcular
+  if (wasMobile !== this.isMobile && this.productosDestacados.length > 0) {
+    this.currentFeaturedIndex = 0;
+    this.calculateFeaturedPages();
+    this.updateFeaturedTransform();
+  }
+}
 
   // ⭐ CARGAR PRODUCTOS DESTACADOS
   loadFeaturedProducts() {
@@ -263,40 +290,59 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-  // 🎠 CALCULAR PÁGINAS DEL CARRUSEL
-  calculateFeaturedPages() {
-    const totalProducts = this.productosDestacados.length;
-    const totalPages = Math.ceil(totalProducts / this.productsPerPage);
-    this.featuredPages = Array(totalPages).fill(0).map((_, i) => i);
-    this.maxFeaturedIndex = totalPages - 1;
-  }
-
-  // ⬅️ CARRUSEL: Anterior
-  prevFeatured() {
-    if (this.currentFeaturedIndex > 0) {
-      this.currentFeaturedIndex--;
-      this.updateFeaturedTransform();
-    }
-  }
-
-  // ➡️ CARRUSEL: Siguiente
-  nextFeatured() {
-    if (this.currentFeaturedIndex < this.maxFeaturedIndex) {
-      this.currentFeaturedIndex++;
-      this.updateFeaturedTransform();
-    }
-  }
-
-  // 🎯 CARRUSEL: Ir a página específica
-  goToFeaturedPage(index: number) {
-    this.currentFeaturedIndex = index;
+ // 🎠 CALCULAR PÁGINAS DEL CARRUSEL
+calculateFeaturedPages() {
+  const totalProducts = this.productosDestacados.length;
+  const totalPages = Math.ceil(totalProducts / this.productsPerPage);
+  this.featuredPages = Array(totalPages).fill(0).map((_, i) => i);
+  this.maxFeaturedIndex = totalPages - 1;
+  
+  // Ajustar índice actual si está fuera de rango
+  if (this.currentFeaturedIndex > this.maxFeaturedIndex) {
+    this.currentFeaturedIndex = this.maxFeaturedIndex;
     this.updateFeaturedTransform();
   }
+  
+  console.log(`🎠 Carrusel configurado: ${totalPages} páginas, ${this.productsPerPage} productos por página`);
+}
 
-  // 🔄 ACTUALIZAR TRANSFORM DEL CARRUSEL
-  updateFeaturedTransform() {
-    this.featuredTransform = -(this.currentFeaturedIndex * 100);
+// ⬅️ CARRUSEL: Anterior
+prevFeatured() {
+  if (this.currentFeaturedIndex > 0) {
+    this.currentFeaturedIndex--;
+    this.updateFeaturedTransform();
+    console.log(`⬅️ Anterior - Índice: ${this.currentFeaturedIndex}`);
   }
+}
+
+// ➡️ CARRUSEL: Siguiente
+nextFeatured() {
+  if (this.currentFeaturedIndex < this.maxFeaturedIndex) {
+    this.currentFeaturedIndex++;
+    this.updateFeaturedTransform();
+    console.log(`➡️ Siguiente - Índice: ${this.currentFeaturedIndex}`);
+  }
+}
+
+// 🎯 CARRUSEL: Ir a página específica
+goToFeaturedPage(index: number) {
+  this.currentFeaturedIndex = index;
+  this.updateFeaturedTransform();
+  console.log(`🎯 Ir a página: ${index}`);
+}
+
+// 🔄 ACTUALIZAR TRANSFORM DEL CARRUSEL
+updateFeaturedTransform() {
+  if (this.isMobile) {
+    // En móvil: 1 producto por página, sin gap
+    this.featuredTransform = -(this.currentFeaturedIndex * 100);
+  } else {
+    const gapPercentage = 1.5; // Ajuste fino del gap (aproximadamente 20px / ancho contenedor)
+    this.featuredTransform = -(this.currentFeaturedIndex * (100 + gapPercentage));
+  }
+  
+  console.log(`🔄 Transform: ${this.featuredTransform}%, Página: ${this.currentFeaturedIndex + 1}, Mobile: ${this.isMobile}`);
+}
 
   // 👁️ VER PRODUCTO DESTACADO
   viewFeaturedProduct(product: Producto) {
