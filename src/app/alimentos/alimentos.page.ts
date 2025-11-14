@@ -1,20 +1,58 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+// ==========================================
+// 📄 alimentos.page.ts - PÁGINA DE ALIMENTOS
+// ==========================================
+
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonButton, IonIcon } from '@ionic/angular/standalone';
+import { 
+  IonContent, 
+  IonButton, 
+  IonIcon, 
+  IonSpinner, 
+  IonBadge,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  ToastController,
+  ModalController
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cartOutline } from 'ionicons/icons';
+import { 
+  cartOutline,
+  cart,
+  eyeOutline,
+  cubeOutline,
+  ribbonOutline,
+  closeOutline,
+  addOutline,
+  removeOutline,
+  businessOutline,
+  pricetagOutline,
+  storefrontOutline,
+  linkOutline,
+  barcodeOutline,
+  refreshOutline,
+  chevronDownOutline,
+  informationCircleOutline,
+  albumsOutline,
+  colorPaletteOutline,
+  resizeOutline,
+  checkmarkCircleOutline,
+  leafOutline,
+  radioOutline,
+  snowOutline,
+  bulbOutline,
+  layersOutline,
+  documentTextOutline
+} from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
-
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-  priceType?: 'desde' | 'fijo';
-  image: string;
-  isNew?: boolean;
-}
+import { ProductosService, Producto } from '../services/productos.service';
+import { CartService } from '../services/cart.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-alimentos',
@@ -22,89 +60,330 @@ interface Product {
   styleUrls: ['./alimentos.page.scss'],
   standalone: true,
   imports: [
-    IonContent,
+    IonContent, 
     IonButton,
     IonIcon,
-    CommonModule,
+    IonSpinner,
+    IonBadge,
+    IonModal,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    CommonModule, 
     FormsModule,
     HeaderComponent,
-    FooterComponent,
+    FooterComponent
   ]
 })
 export class AlimentosPage implements OnInit, AfterViewInit {
+  products: Producto[] = [];
+  loading = true;
+  cartCount = 0;
+  
+  // Para el modal de detalles
+  isModalOpen = false;
+  selectedProduct: Producto | null = null;
+  quantity = 1;
+  saleType: 'mayoreo' | 'menudeo' = 'menudeo';
+  
+  // Selectores
+  selectedTamano: string = '';
+  selectedCantidad: number | string = '';
+  selectedTienda: string = '';
+  selectedModalidad: string = '';
+  selectedModalidadObj: any = null;
 
-  products: Product[] = [
-    {
-      name: 'Salsa Valentina 370ml',
-      description: 'Clásica salsa picante mexicana, ideal para botanas.',
-      price: 22.00,
-      image: 'assets/img/products/valentina.jpg',
-    },
-    {
-      name: 'Nube para Freír',
-      description: 'Botana para freír, perfecta para fiestas y negocios.',
-      price: 48.00,
-      priceType: 'desde',
-      image: 'assets/img/products/nube-freir.jpg',
-    },
-    {
-      name: 'Jugo de Limón Mega',
-      description: 'Jugo concentrado para cocina, bebidas o botanas.',
-      price: 39.00,
-      image: 'assets/img/products/jugo-limon.jpg'
-    },
-    {
-      name: 'Salsa Botanera',
-      description: 'Salsa picosita perfecta para botanas y snacks.',
-      price: 18.00,
-      image: 'assets/img/products/botanera.jpg'
-    },
-    {
-      name: 'Cereales Surtidos',
-      description: 'Cereales para loncherías y tiendas.',
-      price: 12.00,
-      priceType: 'desde',
-      image: 'assets/img/products/cereales.jpg'
-    },
-    {
-      name: 'Cono para Helado',
-      description: 'Conos crujientes ideales para repostería y heladerías.',
-      price: 65.00,
-      image: 'assets/img/products/cono.jpg'
-    }
-  ];
-
-  constructor() {
-    addIcons({ cartOutline });
+  constructor(
+    private productosService: ProductosService,
+    private cartService: CartService,
+    private router: Router,
+    private toastController: ToastController,
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef
+  ) {
+    addIcons({ 
+      documentTextOutline,
+      cartOutline,
+      cart,
+      eyeOutline,
+      cubeOutline,
+      ribbonOutline,
+      closeOutline,
+      addOutline,
+      removeOutline,
+      businessOutline,
+      pricetagOutline,
+      storefrontOutline,
+      linkOutline,
+      barcodeOutline,
+      refreshOutline,
+      chevronDownOutline,
+      informationCircleOutline,
+      albumsOutline,
+      colorPaletteOutline,
+      resizeOutline,
+      checkmarkCircleOutline,
+      leafOutline,
+      radioOutline,
+      snowOutline,
+      bulbOutline,
+      layersOutline
+    });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log('✅ Página de Alimentos inicializada');
+    this.loadProducts();
+    
+    this.cartService.getCartCount().subscribe(count => {
+      this.cartCount = count;
+    });
+  }
 
   ngAfterViewInit() {
     this.setupScrollReveal();
   }
 
   private setupScrollReveal() {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1,
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
+  loadProducts() {
+    console.log('📄 Iniciando carga de productos de alimentos...');
+    this.loading = true;
+    this.products = [];
+    
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ Timeout de carga alcanzado');
+      this.loading = false;
+      this.cdr.detectChanges();
+      this.showToast('La carga está tardando más de lo esperado. Verifica tu conexión.', 'warning');
+    }, 10000);
+    
+    this.productosService.getProductos().subscribe({
+      next: (productos) => {
+        clearTimeout(timeoutId);
+        console.log('✅ Total productos recibidos:', productos.length);
+        
+        // 🔍 FILTRO ESPECÍFICO - Solo categoría "Alimentos"
+        this.products = productos.filter(p => {
+          const categoria = (p.categoria || '').toLowerCase().trim();
+          const subcategoria = (p.subcategoria || '').toLowerCase().trim();
+          
+          // Solo productos con categoría exacta de "alimentos"
+          const esAlimentos = 
+            categoria === 'alimentos' ||
+            categoria === 'alimento' ||
+            subcategoria === 'alimentos' ||
+            subcategoria === 'alimento';
+          
+          if (esAlimentos) {
+            console.log('✅ Producto encontrado:', p.nombre, '| Cat:', p.categoria, '| SubCat:', p.subcategoria);
+          }
+          
+          return esAlimentos;
+        });
+        
+        console.log('🍕 Productos de alimentos filtrados:', this.products.length);
+        
+        this.loading = false;
+        this.cdr.detectChanges();
+        
+        if (this.products.length === 0) {
+          console.warn('⚠️ No se encontraron productos de alimentos');
+          this.showToast('No se encontraron productos de alimentos.', 'warning');
+        } else {
+          this.showToast(`${this.products.length} productos encontrados`, 'success');
         }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll('.reveal').forEach((element) => {
-      observer.observe(element);
+      },
+      error: (error) => {
+        clearTimeout(timeoutId);
+        console.error('❌ Error cargando productos:', error);
+        this.loading = false;
+        this.products = [];
+        this.cdr.detectChanges();
+        this.showToast('Error al cargar productos. Intenta de nuevo.', 'danger');
+      },
+      complete: () => {
+        clearTimeout(timeoutId);
+        console.log('🏁 Carga completada');
+      }
     });
   }
 
-  addToCart(product: Product) {
-    console.log('Agregado al carrito:', product);
+  trackByProductId(index: number, product: Producto): number {
+    return index;
+  }
+
+  viewProduct(product: Producto) {
+    console.log('👁️ Ver detalles:', product.nombre);
+    this.selectedProduct = product;
+    this.quantity = 1;
+    this.saleType = 'menudeo';
+    this.selectedTamano = '';
+    this.selectedCantidad = '';
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.selectedProduct = null;
+    this.quantity = 1;
+    this.saleType = 'menudeo';
+    this.selectedTamano = '';
+    this.selectedCantidad = '';
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
+  }
+
+  onModalidadChange() {
+    if (!this.selectedProduct || !this.selectedModalidad) {
+      this.selectedModalidadObj = null;
+      return;
+    }
+
+    this.selectedModalidadObj = this.selectedProduct.modalidades?.find(
+      (m: any) => m.id === this.selectedModalidad
+    ) || null;
+
+    console.log('🛒 Modalidad seleccionada:', this.selectedModalidadObj);
+  }
+
+  selectSaleType(type: 'mayoreo' | 'menudeo') {
+    this.saleType = type;
+    console.log('🏪 Tipo de venta:', type);
+  }
+
+  getCurrentPrice(): number {
+    if (this.selectedModalidadObj) {
+      return this.selectedModalidadObj.precio;
+    }
+
+    if (!this.selectedProduct) return 0;
+    
+    if (this.saleType === 'mayoreo') {
+      return this.selectedProduct.precio * 0.85;
+    }
+    
+    return this.selectedProduct.precio;
+  }
+
+  getTotal(): number {
+    return this.getCurrentPrice() * this.quantity;
+  }
+
+  incrementQuantity() {
+    this.quantity++;
+  }
+
+  decrementQuantity() {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
+
+  addToCartFromModal() {
+    if (!this.selectedProduct) return;
+
+    if (!this.selectedModalidadObj) {
+      this.showToast('Selecciona una modalidad.', 'warning');
+      return;
+    }
+
+    const modalidadSeleccionada = {
+      tipo: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      precio: this.selectedModalidadObj.precio
+    };
+
+    const options = {
+      modalidad: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      sucursal: this.selectedTienda || ''
+    };
+
+    const productWithModalidad = {
+      id: this.selectedProduct.id,
+      nombre: this.selectedProduct.nombre,
+      precio: this.selectedModalidadObj.precio,
+      descripcion: this.selectedProduct.descripcion,
+      imagen: this.selectedProduct.imagen,
+      sku: this.selectedProduct.sku,
+      categoria: this.selectedProduct.categoria,
+      subcategoria: this.selectedProduct.subcategoria,
+      marca: this.selectedProduct.marca,
+      colores: this.selectedProduct.colores,
+      tiendas: this.selectedProduct.tiendas,
+      url: this.selectedProduct.url,
+      material: this.selectedProduct.material,
+      color: this.selectedProduct.color,
+      medida: this.selectedProduct.medida,
+      cantidadPaquete: this.selectedProduct.cantidadPaquete,
+      biodegradable: this.selectedProduct.biodegradable,
+      aptoMicroondas: this.selectedProduct.aptoMicroondas,
+      aptoCongelador: this.selectedProduct.aptoCongelador,
+      usosRecomendados: this.selectedProduct.usosRecomendados,
+      modalidadSeleccionada
+    };
+
+    console.log('🛒 Agregando al carrito:', {
+      producto: productWithModalidad.nombre,
+      marca: productWithModalidad.marca,
+      modalidad: modalidadSeleccionada,
+      cantidad: this.quantity
+    });
+
+    for (let i = 0; i < this.quantity; i++) {
+      this.cartService.addToCart(productWithModalidad, options);
+    }
+
+    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+    this.closeModal();
+  }
+
+  addToCart(product: Producto) {
+    console.log('🛒 Agregando:', product.nombre);
+    this.cartService.addToCart(product);
+    this.showToast(`✅ ${product.nombre} agregado al carrito`, 'success');
+  }
+
+  goToCart() {
+    console.log('🛒 Ir al carrito');
+    this.router.navigate(['/carrito']);
+  }
+
+  async showToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2500,
+      position: 'bottom',
+      color,
+      cssClass: 'custom-toast',
+      buttons: [
+        {
+          text: 'OK',
+          role: 'cancel'
+        }
+      ]
+    });
+    await toast.present();
   }
 }

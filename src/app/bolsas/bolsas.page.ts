@@ -1,19 +1,59 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+// ==========================================
+// 📄 bolsas.page.ts - PÁGINA DE BOLSAS
+// ==========================================
+
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonButton, IonIcon } from '@ionic/angular/standalone';
+import { 
+  IonContent, 
+  IonButton, 
+  IonIcon, 
+  IonSpinner, 
+  IonBadge,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  ToastController,
+  ModalController
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cartOutline } from 'ionicons/icons';
+import { 
+  cartOutline,
+  cart,
+  eyeOutline,
+  cubeOutline,
+  ribbonOutline,
+  closeOutline,
+  addOutline,
+  removeOutline,
+  businessOutline,
+  pricetagOutline,
+  storefrontOutline,
+  linkOutline,
+  barcodeOutline,
+  refreshOutline,
+  chevronDownOutline,
+  // Iconos para especificaciones
+  informationCircleOutline,
+  albumsOutline,
+  colorPaletteOutline,
+  resizeOutline,
+  checkmarkCircleOutline,
+  leafOutline,
+  radioOutline,
+  snowOutline,
+  bulbOutline,
+  layersOutline,
+  documentTextOutline
+} from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
-
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  isNew?: boolean;
-}
+import { ProductosService, Producto } from '../services/productos.service';
+import { CartService } from '../services/cart.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-bolsas',
@@ -21,100 +61,321 @@ interface Product {
   styleUrls: ['./bolsas.page.scss'],
   standalone: true,
   imports: [
-    IonContent,
+    IonContent, 
     IonButton,
     IonIcon,
-    CommonModule,
+    IonSpinner,
+    IonBadge,
+    IonModal,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    CommonModule, 
     FormsModule,
     HeaderComponent,
     FooterComponent
   ]
 })
 export class BolsasPage implements OnInit, AfterViewInit {
-  products: Product[] = [
-    {
-      name: 'Bolsa de Plástico',
-      description: 'Resistente y práctica, ideal para empaques generales.',
-      price: 12.50,
-      image: 'assets/img/vaso1.png'
-    },
-    {
-      name: 'Bolsa Negra para Basura 70x90',
-      description: 'Extra resistente para desechos pesados.',
-      price: 18.00,
-      image: 'assets/img/products/bolsa-basura.jpg'
-    },
-    {
-      name: 'Bolsa Tipo Camiseta',
-      description: 'Perfecta para tiendas y negocios, fácil de transportar.',
-      price: 9.50,
-      image: 'assets/img/products/bolsa-camiseta.jpg'
-    },
-    {
-      name: 'Bolsa Biodegradable',
-      description: 'Fabricada con materiales ecológicos y compostables.',
-      price: 16.00,
-      image: 'assets/img/products/bolsa-biodegradable.jpg'
-    },
-    {
-      name: 'Bolsa de Papel Kraft',
-      description: 'Ideal para restaurantes y tiendas ecológicas.',
-      price: 14.00,
-      image: 'assets/img/products/bolsa-papel.jpg'
-    },
-    {
-      name: 'Bolsa Ziplock Mediana',
-      description: 'Reutilizable, con cierre hermético y alta durabilidad.',
-      price: 22.00,
-      image: 'assets/img/products/bolsa-ziplock.jpg'
-    },
-    {
-      name: 'Bolsa de Polietileno Gruesa',
-      description: 'Alta resistencia para empaques industriales.',
-      price: 25.00,
-      image: 'assets/img/products/bolsa-polietileno.jpg'
-    },
-    {
-      name: 'Bolsa con Asa Plana',
-      description: 'Diseño elegante, perfecta para boutiques y regalos.',
-      price: 15.50,
-      image: 'assets/img/products/bolsa-asa.jpg'
-    },
-    {
-      name: 'Bolsa Reutilizable de Tela',
-      description: 'Duradera, lavable y ecológica. Ideal para compras diarias.',
-      price: 30.00,
-      image: 'assets/img/products/bolsa-tela.jpg'
-    },
-    {
-      name: 'Bolsa Térmica Pequeña',
-      description: 'Mantiene la temperatura ideal para tus alimentos.',
-      price: 35.00,
-      image: 'assets/img/products/bolsa-termica.jpg'
-    }
-  ];
+  products: Producto[] = [];
+  loading = true;
+  cartCount = 0;
+  
+  // Para el modal de detalles
+  isModalOpen = false;
+  selectedProduct: Producto | null = null;
+  quantity = 1;
+  saleType: 'mayoreo' | 'menudeo' = 'menudeo';
+  
+  // Selectores
+  selectedTamano: string = '';
+  selectedCantidad: number | string = '';
+  selectedTienda: string = '';
+  selectedModalidad: string = '';
+  selectedModalidadObj: any = null;
 
-  constructor() {
-    addIcons({ cartOutline });
+  constructor(
+    private productosService: ProductosService,
+    private cartService: CartService,
+    private router: Router,
+    private toastController: ToastController,
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef
+  ) {
+    // Registrar todos los iconos
+    addIcons({ 
+      documentTextOutline,
+      cartOutline,
+      cart,
+      eyeOutline,
+      cubeOutline,
+      ribbonOutline,
+      closeOutline,
+      addOutline,
+      removeOutline,
+      businessOutline,
+      pricetagOutline,
+      storefrontOutline,
+      linkOutline,
+      barcodeOutline,
+      refreshOutline,
+      chevronDownOutline,
+      informationCircleOutline,
+      albumsOutline,
+      colorPaletteOutline,
+      resizeOutline,
+      checkmarkCircleOutline,
+      leafOutline,
+      radioOutline,
+      snowOutline,
+      bulbOutline,
+      layersOutline
+    });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log('✅ Página de Bolsas inicializada');
+    this.loadProducts();
+    
+    this.cartService.getCartCount().subscribe(count => {
+      this.cartCount = count;
+    });
+  }
 
   ngAfterViewInit() {
     this.setupScrollReveal();
   }
 
   private setupScrollReveal() {
-    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
-    const observer = new IntersectionObserver(entries => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('in-view');
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+        }
       });
     }, observerOptions);
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    document.querySelectorAll('.reveal').forEach((element) => {
+      observer.observe(element);
+    });
   }
 
-  addToCart(product: Product) {
-    console.log('Agregando al carrito:', product);
+  loadProducts() {
+    console.log('📄 Iniciando carga de bolsas...');
+    this.loading = true;
+    this.products = [];
+    
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ Timeout de carga alcanzado');
+      this.loading = false;
+      this.cdr.detectChanges();
+      this.showToast('La carga está tardando más de lo esperado. Verifica tu conexión.', 'warning');
+    }, 10000);
+    
+    this.productosService.getProductos().subscribe({
+      next: (productos) => {
+        clearTimeout(timeoutId);
+        console.log('✅ Productos recibidos del servicio:', productos.length);
+        
+        // ⭐ FILTRAR SOLO BOLSAS
+        this.products = productos.filter(p => 
+          p.categoria?.toLowerCase() === 'bolsas' || 
+          p.categoria?.toLowerCase() === 'bolsa' ||
+          p.subcategoria?.toLowerCase() === 'bolsas' ||
+          p.subcategoria?.toLowerCase() === 'bolsa'
+        );
+        
+        console.log('🛍️ Bolsas filtradas:', this.products.length);
+        this.loading = false;
+        this.cdr.detectChanges();
+        
+        if (this.products.length === 0) {
+          this.showToast('No se encontraron bolsas disponibles.', 'warning');
+        }
+      },
+      error: (error) => {
+        clearTimeout(timeoutId);
+        console.error('❌ Error cargando productos:', error);
+        this.loading = false;
+        this.products = [];
+        this.cdr.detectChanges();
+        this.showToast('Error al cargar productos. Por favor, intenta de nuevo.', 'danger');
+      },
+      complete: () => {
+        clearTimeout(timeoutId);
+        console.log('🏁 Carga de bolsas completada');
+      }
+    });
+  }
+
+  trackByProductId(index: number, product: Producto): number {
+    return index;
+  }
+
+  viewProduct(product: Producto) {
+    console.log('👁️ Ver detalles del producto:', product.nombre);
+    this.selectedProduct = product;
+    this.quantity = 1;
+    this.saleType = 'menudeo';
+    this.selectedTamano = '';
+    this.selectedCantidad = '';
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.selectedProduct = null;
+    this.quantity = 1;
+    this.saleType = 'menudeo';
+    this.selectedTamano = '';
+    this.selectedCantidad = '';
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
+  }
+
+  onModalidadChange() {
+    if (!this.selectedProduct || !this.selectedModalidad) {
+      this.selectedModalidadObj = null;
+      return;
+    }
+
+    this.selectedModalidadObj = this.selectedProduct.modalidades?.find(
+      (m: any) => m.id === this.selectedModalidad
+    ) || null;
+
+    console.log('🛒 Modalidad seleccionada:', this.selectedModalidadObj);
+  }
+
+  selectSaleType(type: 'mayoreo' | 'menudeo') {
+    this.saleType = type;
+    console.log('🏪 Tipo de venta seleccionado:', type);
+  }
+
+  getCurrentPrice(): number {
+    if (this.selectedModalidadObj) {
+      return this.selectedModalidadObj.precio;
+    }
+
+    if (!this.selectedProduct) return 0;
+    
+    if (this.saleType === 'mayoreo') {
+      return this.selectedProduct.precio * 0.85;
+    }
+    
+    return this.selectedProduct.precio;
+  }
+
+  getTotal(): number {
+    return this.getCurrentPrice() * this.quantity;
+  }
+
+  incrementQuantity() {
+    this.quantity++;
+  }
+
+  decrementQuantity() {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
+
+  addToCartFromModal() {
+    if (!this.selectedProduct) return;
+
+    if (!this.selectedModalidadObj) {
+      this.showToast('Por favor selecciona una modalidad.', 'warning');
+      return;
+    }
+
+    const modalidadSeleccionada = {
+      tipo: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      precio: this.selectedModalidadObj.precio
+    };
+
+    const options = {
+      modalidad: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      sucursal: this.selectedTienda || ''
+    };
+
+    const productWithModalidad = {
+      id: this.selectedProduct.id,
+      nombre: this.selectedProduct.nombre,
+      precio: this.selectedModalidadObj.precio,
+      descripcion: this.selectedProduct.descripcion,
+      imagen: this.selectedProduct.imagen,
+      sku: this.selectedProduct.sku,
+      categoria: this.selectedProduct.categoria,
+      subcategoria: this.selectedProduct.subcategoria,
+      marca: this.selectedProduct.marca,
+      colores: this.selectedProduct.colores,
+      tiendas: this.selectedProduct.tiendas,
+      url: this.selectedProduct.url,
+      material: this.selectedProduct.material,
+      color: this.selectedProduct.color,
+      medida: this.selectedProduct.medida,
+      cantidadPaquete: this.selectedProduct.cantidadPaquete,
+      biodegradable: this.selectedProduct.biodegradable,
+      aptoMicroondas: this.selectedProduct.aptoMicroondas,
+      aptoCongelador: this.selectedProduct.aptoCongelador,
+      usosRecomendados: this.selectedProduct.usosRecomendados,
+      modalidadSeleccionada
+    };
+
+    console.log('🛒 Agregando bolsa al carrito:', {
+      producto: productWithModalidad.nombre,
+      marca: productWithModalidad.marca,
+      modalidad: modalidadSeleccionada,
+      cantidad: this.quantity
+    });
+
+    for (let i = 0; i < this.quantity; i++) {
+      this.cartService.addToCart(productWithModalidad, options);
+    }
+
+    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+    this.closeModal();
+  }
+
+  addToCart(product: Producto) {
+    console.log('🛒 Agregando al carrito:', product.nombre);
+    this.cartService.addToCart(product);
+    this.showToast(`✅ ${product.nombre} agregado al carrito`, 'success');
+  }
+
+  goToCart() {
+    console.log('🛒 Navegando al carrito...');
+    this.router.navigate(['/carrito']);
+  }
+
+  async showToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2500,
+      position: 'bottom',
+      color,
+      cssClass: 'custom-toast',
+      buttons: [
+        {
+          text: 'OK',
+          role: 'cancel'
+        }
+      ]
+    });
+    await toast.present();
   }
 }
