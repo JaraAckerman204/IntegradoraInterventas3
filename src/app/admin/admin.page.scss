@@ -482,7 +482,7 @@ ion-header {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   height: 300px;
-  width: 220px;
+  width: 100%;
 }
 
 // ===== IMAGEN DEL PRODUCTO =====
@@ -1045,13 +1045,6 @@ ion-header {
 }
 
 // ========================================
-// 🎨 MODAL OVERLAY - CRÍTICO PARA POSICIONAMIENTO
-// ========================================
-// ========================================
-// 🎨 ESTILOS PARA LA NUEVA ESTRUCTURA DEL MODAL
-// ========================================
-
-// ========================================
 // ✨ CARACTERÍSTICAS ESPECIALES - DISEÑO MEJORADO
 // ========================================
 .caracteristicas-grid {
@@ -1181,6 +1174,35 @@ ion-header {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+// ===== CHECKBOX DESTACADO =====
+.checkbox-destacado {
+  grid-column: 1 / -1; // Ocupa todo el ancho
+  border: 3px solid #ffc107 !important;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 152, 0, 0.08) 100%) !important;
+
+  &:hover {
+    border-color: #ff9800 !important;
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.25) !important;
+  }
+
+  input[type="checkbox"]:checked ~ .checkbox-label {
+    color: #ff9800 !important;
+
+    &::before {
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
+      border-color: #ff9800 !important;
+    }
+
+    ion-icon {
+      color: #ffc107 !important;
+    }
+  }
+
+  .checkbox-label ion-icon {
+    color: #ffc107;
   }
 }
 
@@ -3004,7 +3026,157 @@ form {
     }
   }
 }
+// ========================================
+// 📥 MODAL CONFIRMAR IMPORTACIÓN
+// ========================================
 
+.import-modal {
+  max-width: 550px;
+}
+
+.import-icon {
+background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%) !important;
+  box-shadow: 0 8px 24px rgba(220, 53, 69, 0.4) !important;
+}
+
+.import-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #d1f2eb 0%, #d4edda 100%);
+  border-left: 4px solid #28a745;
+  border-radius: 12px;
+  
+  ion-icon {
+    font-size: 32px;
+    color: #28a745;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  div {
+    flex: 1;
+  }
+  
+  p {
+    font-family: var(--font-secondary);
+    font-size: 0.95em;
+    color: #155724;
+    line-height: 1.6;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .info-detail {
+    font-size: 0.85em;
+    opacity: 0.85;
+  }
+}
+
+.btn-import {
+  flex: 1;
+  height: 54px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.35);
+  position: relative;
+  overflow: hidden;
+  
+  ion-icon {
+    font-size: 22px;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #218838 0%, #1ea888 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  span, ion-icon {
+    position: relative;
+    z-index: 1;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.45);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .import-modal {
+    max-width: 90%;
+  }
+  
+  .import-info {
+    padding: 16px;
+    
+    ion-icon {
+      font-size: 28px;
+    }
+    
+    p {
+      font-size: 0.9em;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .import-modal {
+    max-width: 95%;
+  }
+  
+  .import-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 18px;
+    
+    ion-icon {
+      margin-top: 0;
+    }
+  }
+  
+  .modal-footer-custom {
+    flex-direction: column-reverse;
+    
+    .btn-import,
+    .btn-cancel {
+      width: 100%;
+      height: 48px;
+    }
+  }
+}
 // ========================================
 // 🗑️ MODAL ELIMINAR SUSCRIPTOR
 // ========================================

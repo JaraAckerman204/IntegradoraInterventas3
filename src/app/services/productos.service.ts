@@ -48,6 +48,7 @@ export interface Producto {
   
   // ⭐ NUEVOS CAMPOS - CONTENIDO
   usosRecomendados?: string;      // Usos recomendados del producto
+  destacado?: boolean;
 }
 
 @Injectable({

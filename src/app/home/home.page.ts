@@ -1,14 +1,16 @@
 // ==========================================
-// 📄 home.page.ts - CON FUNCIONALIDAD DE NEWSLETTER
+// 📄 home.page.ts - CON PRODUCTOS DESTACADOS
 // ==========================================
 
-import { Component, HostListener, ElementRef, OnInit } from '@angular/core';
+import { Component, HostListener, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { FirebaseService } from '../services/firebase.service';
 import { AuthService } from '../services/auth.service';
 import { PushService } from '../services/push.service';
+import { ProductosService, Producto } from '../services/productos.service';
+import { CartService } from '../services/cart.service';
 import { Firestore, collection, addDoc, query, where, getDocs } from '@angular/fire/firestore';
 import { inject } from '@angular/core';
 
@@ -39,20 +41,42 @@ import {
   menuOutline, 
   logOutOutline, 
   logInOutline, 
-  ribbonOutline, 
   chevronBackOutline, 
   chevronForwardOutline,
-  starOutline,
-  albumsOutline,
   mailOutline,
   personOutline,
   sendOutline,
-  checkmarkCircleOutline,
-  shieldCheckmarkOutline,
-  closeOutline,
-  cubeOutline,
   cartOutline,
-  paperPlaneOutline
+  callOutline,
+  shieldCheckmarkOutline,
+  rocketOutline,
+  headsetOutline,
+  ribbonOutline,
+  pricetagOutline,
+  cubeOutline,
+  timeOutline,
+  arrowForwardOutline,
+  calendarOutline,
+  paperPlaneOutline,
+  star,
+  starOutline,
+  eyeOutline,
+  closeOutline,
+  addOutline,
+  removeOutline,
+  storefrontOutline,
+  barcodeOutline,
+  informationCircleOutline,
+  albumsOutline,
+  colorPaletteOutline,
+  resizeOutline,
+  checkmarkCircleOutline,
+  leafOutline,
+  radioOutline,
+  snowOutline,
+  bulbOutline,
+  layersOutline,
+  documentTextOutline
 } from 'ionicons/icons';
 
 import { addIcons } from 'ionicons';
@@ -92,7 +116,7 @@ import emailjs from '@emailjs/browser';
     IonSpinner
   ]
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
   // 🧭 Navegación y menú
   showNosotrosDropdown = false;
   showSucursalesDropdown = false;
@@ -104,69 +128,35 @@ export class HomePage implements OnInit {
   chevronBackOutline = chevronBackOutline;
   chevronForwardOutline = chevronForwardOutline;
 
-  // 🎠 Carrusel
+  // 🎠 Carrusel de flyers
   currentSlide = 0;
   totalSlides = 3;
   carouselInterval: any;
   autoPlayDelay = 6000;
 
-  // 📦 Productos desde Firebase
-  productos: any[] = [];
-  cargando = true;
-
   // 👤 Control de sesión
   user: any = null;
-
-  // 🛒 Modal de Producto
-  showProductModal = false;
-  selectedProduct: any = null;
-  quantity = 1;
 
   // 📧 Newsletter
   subscriberName = '';
   subscriberEmail = '';
   isSubscribing = false;
 
-  // 🌟 Productos Destacados
-  ribbonOutline = ribbonOutline;
-  productosDestacados = [
-    {
-      id: 1,
-      nombre: 'Charola Grande C-10',
-      descripcion: 'Charola resistente ideal para pastelerías, carnicerías y servicios de catering. Fabricada con material de alta calidad que garantiza la seguridad alimentaria. Perfecta para presentar y transportar diversos productos de manera profesional.',
-      precio: 'Desde $37.00',
-      marca: 'Dart',
-      piezas: '500 piezas',
-      imagen: '../../assets/img/products/charolagrande.png'
-    },
-    {
-      id: 2,
-      nombre: 'Vaso Térmico No.10',
-      descripcion: 'Vaso térmico con excelente aislamiento que mantiene la temperatura de tus bebidas. Ideal para bebidas frías y calientes. Diseño ergonómico con doble pared que evita quemaduras. Perfecto para cafeterías, restaurantes y eventos.',
-      precio: '$26.00 (Paquete)',
-      marca: 'Monarch',
-      piezas: '1000 piezas',
-      imagen: '../../assets/img/products/vasotermico.png'
-    },
-    {
-      id: 3,
-      nombre: 'Cuchara Plástica Mediana',
-      descripcion: 'Cuchara de plástico resistente y económica, perfecta para eventos, restaurantes y negocios de comida rápida. Material de alta calidad que no se dobla ni se rompe fácilmente. Disponible en cajas con excelente precio mayorista.',
-      precio: 'Desde $14.00 (Caja)',
-      marca: 'Reyma',
-      piezas: '1000 piezas',
-      imagen: '../../assets/img/products/cucharamediana.png'
-    },
-    {
-      id: 4,
-      nombre: 'Plato Biodegradable 9"',
-      descripcion: 'Plato fabricado con materiales biodegradables y amigables con el medio ambiente. Resistente y elegante, perfecto para cualquier tipo de evento. Contribuye a reducir el impacto ambiental sin sacrificar calidad ni presentación.',
-      precio: '$52.00 (Paquete 50)',
-      marca: 'Chiligrin',
-      piezas: '50 piezas',
-      imagen: '../../assets/img/products/platobiodegradable.png'
-    }
-  ];
+  // ⭐ PRODUCTOS DESTACADOS
+  productosDestacados: Producto[] = [];
+  currentFeaturedIndex = 0;
+  featuredTransform = 0;
+  featuredPages: number[] = [];
+  maxFeaturedIndex = 0;
+  productsPerPage = 4;
+
+  // 🛒 Modal de producto
+  isModalOpen = false;
+  selectedProduct: Producto | null = null;
+  quantity = 1;
+  selectedTienda: string = '';
+  selectedModalidad: string = '';
+  selectedModalidadObj: any = null;
 
   // 🔥 Firestore
   firestore = inject(Firestore);
@@ -177,31 +167,55 @@ export class HomePage implements OnInit {
     private authService: AuthService,
     private router: Router,
     private push: PushService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private productosService: ProductosService,
+    private cartService: CartService
   ) {
     // 🎨 Registrar TODOS los iconos
     addIcons({
       'menu-outline': menuOutline,
       'log-out-outline': logOutOutline,
       'log-in-outline': logInOutline,
-      'ribbon-outline': ribbonOutline,
       'chevron-back-outline': chevronBackOutline,
       'chevron-forward-outline': chevronForwardOutline,
-      'star-outline': starOutline,
-      'albums-outline': albumsOutline,
       'mail-outline': mailOutline,
       'person-outline': personOutline,
       'send-outline': sendOutline,
-      'checkmark-circle-outline': checkmarkCircleOutline,
-      'shield-checkmark-outline': shieldCheckmarkOutline,
-      'close-outline': closeOutline,
-      'cube-outline': cubeOutline,
       'cart-outline': cartOutline,
-      'paper-plane-outline': paperPlaneOutline
+      'call-outline': callOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+      'shield-checkmark': shieldCheckmarkOutline,
+      'rocket-outline': rocketOutline,
+      'headset-outline': headsetOutline,
+      'ribbon-outline': ribbonOutline,
+      'pricetag-outline': pricetagOutline,
+      'pricetag': pricetagOutline,
+      'calendar-outline': calendarOutline,
+      'paper-plane-outline': paperPlaneOutline,
+      'star': star,
+      'star-outline': starOutline,
+      'eye-outline': eyeOutline,
+      'close-outline': closeOutline,
+      'add-outline': addOutline,
+      'remove-outline': removeOutline,
+      'storefront-outline': storefrontOutline,
+      'barcode-outline': barcodeOutline,
+      'cube-outline': cubeOutline,
+      'information-circle-outline': informationCircleOutline,
+      'albums-outline': albumsOutline,
+      'color-palette-outline': colorPaletteOutline,
+      'resize-outline': resizeOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'leaf-outline': leafOutline,
+      'radio-outline': radioOutline,
+      'snow-outline': snowOutline,
+      'bulb-outline': bulbOutline,
+      'layers-outline': layersOutline,
+      'document-text-outline': documentTextOutline
     });
 
-    // 🔑 Inicializar EmailJS con tu Public Key
-    emailjs.init('eSh72EoK4k2SontZF'); // Reemplaza con tu Public Key de EmailJS
+    // 🔧 Inicializar EmailJS
+    emailjs.init('eSh72EoK4k2SontZF');
   }
 
   ngOnInit() {
@@ -212,24 +226,14 @@ export class HomePage implements OnInit {
     // 🎠 Iniciar carrusel automático
     this.startCarousel();
 
-    // 🔥 Obtener productos
-    this.firebaseService.getProducts().subscribe({
-      next: (data) => {
-        this.productos = data;
-        this.cargando = false;
-        console.log('✅ Productos cargados en Home:', this.productos);
-      },
-      error: (err) => {
-        console.error('❌ Error al obtener productos:', err);
-        this.cargando = false;
-      }
-    });
-
     // 👤 Escuchar sesión activa
     this.authService.currentUser$.subscribe((user) => {
       this.user = user;
       console.log('👤 Usuario activo:', user);
     });
+
+    // ⭐ Cargar productos destacados
+    this.loadFeaturedProducts();
   }
 
   ngOnDestroy() {
@@ -239,17 +243,174 @@ export class HomePage implements OnInit {
     }
   }
 
-  // 📧 FUNCIÓN DE SUSCRIPCIÓN AL NEWSLETTER CON EMAILJS
+  // ⭐ CARGAR PRODUCTOS DESTACADOS
+  loadFeaturedProducts() {
+    this.productosService.getProductos().subscribe({
+      next: (productos) => {
+        // Filtrar solo productos destacados y limitar a 8
+        this.productosDestacados = productos
+          .filter(p => p.destacado === true)
+          .slice(0, 8);
+
+        console.log('⭐ Productos destacados cargados:', this.productosDestacados.length);
+
+        // Calcular páginas del carrusel
+        this.calculateFeaturedPages();
+      },
+      error: (error) => {
+        console.error('❌ Error cargando productos destacados:', error);
+      }
+    });
+  }
+
+  // 🎠 CALCULAR PÁGINAS DEL CARRUSEL
+  calculateFeaturedPages() {
+    const totalProducts = this.productosDestacados.length;
+    const totalPages = Math.ceil(totalProducts / this.productsPerPage);
+    this.featuredPages = Array(totalPages).fill(0).map((_, i) => i);
+    this.maxFeaturedIndex = totalPages - 1;
+  }
+
+  // ⬅️ CARRUSEL: Anterior
+  prevFeatured() {
+    if (this.currentFeaturedIndex > 0) {
+      this.currentFeaturedIndex--;
+      this.updateFeaturedTransform();
+    }
+  }
+
+  // ➡️ CARRUSEL: Siguiente
+  nextFeatured() {
+    if (this.currentFeaturedIndex < this.maxFeaturedIndex) {
+      this.currentFeaturedIndex++;
+      this.updateFeaturedTransform();
+    }
+  }
+
+  // 🎯 CARRUSEL: Ir a página específica
+  goToFeaturedPage(index: number) {
+    this.currentFeaturedIndex = index;
+    this.updateFeaturedTransform();
+  }
+
+  // 🔄 ACTUALIZAR TRANSFORM DEL CARRUSEL
+  updateFeaturedTransform() {
+    this.featuredTransform = -(this.currentFeaturedIndex * 100);
+  }
+
+  // 👁️ VER PRODUCTO DESTACADO
+  viewFeaturedProduct(product: Producto) {
+    console.log('👁️ Ver producto destacado:', product.nombre);
+    this.selectedProduct = product;
+    this.quantity = 1;
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
+    this.isModalOpen = true;
+  }
+
+  // ❌ CERRAR MODAL
+  closeModal() {
+    this.isModalOpen = false;
+    this.selectedProduct = null;
+    this.quantity = 1;
+    this.selectedTienda = '';
+    this.selectedModalidad = '';
+    this.selectedModalidadObj = null;
+  }
+
+  // 🔄 CAMBIO DE MODALIDAD
+  onModalidadChange() {
+    if (!this.selectedProduct || !this.selectedModalidad) {
+      this.selectedModalidadObj = null;
+      return;
+    }
+
+    this.selectedModalidadObj = this.selectedProduct.modalidades?.find(
+      (m: any) => m.id === this.selectedModalidad
+    ) || null;
+
+    console.log('🛒 Modalidad seleccionada:', this.selectedModalidadObj);
+  }
+
+  // 💰 OBTENER PRECIO ACTUAL
+  getCurrentPrice(): number {
+    if (this.selectedModalidadObj) {
+      return this.selectedModalidadObj.precio;
+    }
+    return 0;
+  }
+
+  // 💵 CALCULAR TOTAL
+  getTotal(): number {
+    return this.getCurrentPrice() * this.quantity;
+  }
+
+  // ➕ INCREMENTAR CANTIDAD
+  incrementQuantity() {
+    this.quantity++;
+  }
+
+  // ➖ DECREMENTAR CANTIDAD
+  decrementQuantity() {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
+
+  // 🛒 AGREGAR AL CARRITO DESDE MODAL
+  addToCartFromModal() {
+    if (!this.selectedProduct) return;
+
+    if (!this.selectedModalidadObj) {
+      this.showToast('Por favor selecciona una modalidad.', 'warning');
+      return;
+    }
+
+    const modalidadSeleccionada = {
+      tipo: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      precio: this.selectedModalidadObj.precio
+    };
+
+    const options = {
+      modalidad: this.selectedModalidadObj.modalidad,
+      tamano: this.selectedModalidadObj.tamano,
+      contenido: this.selectedModalidadObj.contenido,
+      sucursal: this.selectedTienda || ''
+    };
+
+    const productWithModalidad = {
+      ...this.selectedProduct,
+      precio: this.selectedModalidadObj.precio,
+      modalidadSeleccionada
+    };
+
+    console.log('🛒 Agregando al carrito:', {
+      producto: productWithModalidad.nombre,
+      modalidad: modalidadSeleccionada,
+      opciones: options,
+      cantidad: this.quantity
+    });
+
+    for (let i = 0; i < this.quantity; i++) {
+      this.cartService.addToCart(productWithModalidad, options);
+    }
+
+    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+    this.closeModal();
+  }
+
+  // 📧 SUSCRIPCIÓN AL NEWSLETTER
   async subscribeNewsletter(event: Event) {
     event.preventDefault();
     
-    // Validación básica
     if (!this.subscriberName.trim() || !this.subscriberEmail.trim()) {
       await this.showToast('Por favor completa todos los campos', 'warning');
       return;
     }
     
-    // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.subscriberEmail)) {
       await this.showToast('Por favor ingresa un correo válido', 'warning');
@@ -259,7 +420,6 @@ export class HomePage implements OnInit {
     this.isSubscribing = true;
     
     try {
-      // 🔍 Verificar si el correo ya está suscrito
       const suscriptoresRef = collection(this.firestore, 'newsletter');
       const q = query(suscriptoresRef, where('email', '==', this.subscriberEmail.trim().toLowerCase()));
       const querySnapshot = await getDocs(q);
@@ -270,7 +430,6 @@ export class HomePage implements OnInit {
         return;
       }
 
-      // 💾 Guardar suscriptor en Firebase
       const nuevoSuscriptor = {
         nombre: this.subscriberName.trim(),
         email: this.subscriberEmail.trim().toLowerCase(),
@@ -280,7 +439,6 @@ export class HomePage implements OnInit {
 
       await addDoc(collection(this.firestore, 'newsletter'), nuevoSuscriptor);
 
-      // 📧 Enviar correo de bienvenida con EmailJS
       const templateParams = {
         to_name: this.subscriberName.trim(),
         to_email: this.subscriberEmail.trim(),
@@ -289,8 +447,8 @@ export class HomePage implements OnInit {
       };
 
       await emailjs.send(
-        'service_i4xbqss',        // Reemplaza con tu Service ID
-        'template_vplptng',       // Reemplaza con tu Template ID de bienvenida
+        'service_i4xbqss',
+        'template_vplptng',
         templateParams
       );
 
@@ -298,14 +456,16 @@ export class HomePage implements OnInit {
       
       await this.showToast('¡Suscripción exitosa! Revisa tu correo de bienvenida 📧', 'success');
       
-      // Limpiar formulario
       this.subscriberName = '';
       this.subscriberEmail = '';
+      this.isSubscribing = false;
+      
+      const form = event.target as HTMLFormElement;
+      form.reset();
       
     } catch (error) {
       console.error('❌ Error en suscripción:', error);
       await this.showToast('Error al suscribirse. Intenta nuevamente', 'danger');
-    } finally {
       this.isSubscribing = false;
     }
   }
@@ -317,46 +477,9 @@ export class HomePage implements OnInit {
       duration: 3000,
       position: 'top',
       color: color,
-      cssClass: 'custom-toast'
+      cssClass: `toast-${color}`
     });
     await toast.present();
-  }
-
-  // 🛒 FUNCIONES DEL MODAL DE PRODUCTO
-  openProductModal(product: any) {
-    console.log('🔍 Abriendo modal para:', product);
-    this.selectedProduct = product;
-    this.quantity = 1;
-    this.showProductModal = true;
-    document.body.style.overflow = 'hidden';
-  }
-
-  closeProductModal() {
-    console.log('❌ Cerrando modal');
-    this.showProductModal = false;
-    this.selectedProduct = null;
-    this.quantity = 1;
-    document.body.style.overflow = '';
-  }
-
-  increaseQuantity() {
-    this.quantity++;
-  }
-
-  decreaseQuantity() {
-    if (this.quantity > 1) {
-      this.quantity--;
-    }
-  }
-
-  async addToCart() {
-    console.log('Agregando al carrito:', {
-      producto: this.selectedProduct,
-      cantidad: this.quantity
-    });
-    
-    await this.showToast(`✅ ${this.quantity} ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
-    this.closeProductModal();
   }
 
   // 🚪 Cerrar sesión
@@ -365,7 +488,7 @@ export class HomePage implements OnInit {
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
-  // 🎠 FUNCIONES DEL CARRUSEL
+  // 🎠 FUNCIONES DEL CARRUSEL DE FLYERS
   startCarousel() {
     this.carouselInterval = setInterval(() => {
       this.nextSlide();
@@ -449,13 +572,6 @@ export class HomePage implements OnInit {
     if (!inside) {
       this.closeDropdowns();
       this.showMobileMenu = false;
-    }
-  }
-
-  @HostListener('document:keydown.escape', ['$event'])
-  onEscapeKey(event: KeyboardEvent) {
-    if (this.showProductModal) {
-      this.closeProductModal();
     }
   }
 }
