@@ -4,9 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import emailjs from '@emailjs/browser';
-
 import { getDocs } from '@angular/fire/firestore';
-
 
 import {
   Firestore,
@@ -15,9 +13,9 @@ import {
   collectionData,
   deleteDoc,
   doc,
-  updateDoc,
-  setDoc
+  updateDoc
 } from '@angular/fire/firestore';
+
 import {
   Storage,
   ref,
@@ -26,10 +24,11 @@ import {
   deleteObject
 } from '@angular/fire/storage';
 
-import { IonicModule, ToastController, AlertController } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
+
 import {
   shieldCheckmarkOutline,
   cubeOutline,
@@ -85,6 +84,7 @@ import {
   leafOutline,
   radioOutline,
   snowOutline,
+  starOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -96,23 +96,115 @@ import {
 })
 export class AdminPage {
 
-  // ⭐ NUEVAS PROPIEDADES PARA UPLOAD
+  // =============================
+  // 🔧 SERVICIOS INYECTADOS
+  // =============================
+  firestore = inject(Firestore);
   storage = inject(Storage);
-  archivoSeleccionado: File | null = null;
-  subiendoImagen: boolean = false;
-  progresoSubida: number = 0;
-  tipoSeleccionImagen: 'url' | 'upload' = 'url'; // url o upload
-  previsualizacionImagen: string | null = null;
-  imagenAnterior: string = ''; // Para eliminar imagen anterior al actualizar
+  authService = inject(AuthService);
+  router = inject(Router);
+  toastCtrl = inject(ToastController);
+  cdr = inject(ChangeDetectorRef);
 
   // =============================
-  // 🎯 TABS
+  // 🎯 CONTROL DE TABS
   // =============================
-  
   tabActiva: string = 'productos';
 
   // =============================
-  // 🔦 MAPEO DE SUBCATEGORÍAS
+  // 📦 PRODUCTOS - PROPIEDADES
+  // =============================
+  productos: any[] = [];
+  productosFiltrados: any[] = [];
+  producto: any = this.inicializarProducto();
+  
+  modoEdicion: boolean = false;
+  idEditando: string = '';
+  mostrarModalProducto: boolean = false;
+  mostrarModalBusqueda: boolean = false;
+  
+  // Filtros de productos
+  filtroNombre: string = '';
+  filtroSku: string = '';
+  filtroMarca: string = '';
+  filtroCategoria: string = '';
+  filtroSubcategoria: string = '';
+  subcategorias: string[] = [];
+  subcategoriasFiltro: string[] = [];
+  
+  // Manejo de tiendas
+  nuevaTienda: string = '';
+  
+  // Manejo de modalidades
+  modalidadSeleccionada: string = '';
+  precioActual: number = 0;
+  tamanoActual: string = '';
+  contenidoActual: string = '';
+  
+  // Manejo de imágenes
+  archivoSeleccionado: File | null = null;
+  subiendoImagen: boolean = false;
+  progresoSubida: number = 0;
+  tipoSeleccionImagen: 'url' | 'upload' = 'url';
+  previsualizacionImagen: string | null = null;
+  imagenAnterior: string = '';
+
+  // =============================
+  // 👥 USUARIOS - PROPIEDADES
+  // =============================
+  usuarios: any[] = [];
+  usuariosFiltrados: any[] = [];
+  usuarioEditando: any = {
+    nombre: '',
+    email: '',
+    rol: 'usuario',
+    password: ''
+  };
+  usuarioEditandoId: string = '';
+  mostrarModalUsuario: boolean = false;
+  mostrarModalBusquedaUsuarios: boolean = false;
+  
+  // Filtros de usuarios
+  filtroNombreUsuario: string = '';
+  filtroEmailUsuario: string = '';
+  filtroRolUsuario: string = '';
+
+  // =============================
+  // 📧 MENSAJES DE CONTACTO
+  // =============================
+  mensajes: any[] = [];
+
+  // =============================
+  // 📰 NEWSLETTER - PROPIEDADES
+  // =============================
+  suscriptores: any[] = [];
+  suscriptoresFiltrados: any[] = [];
+  mostrarModalEnviarNewsletter: boolean = false;
+  asuntoNewsletter: string = '';
+  mensajeNewsletter: string = '';
+  enviandoNewsletter: boolean = false;
+  filtroEmailNewsletter: string = '';
+  suscriptoresSeleccionados: Set<string> = new Set();
+  seleccionarTodos: boolean = false;
+
+  // =============================
+  // 🗑️ MODAL DE ELIMINACIÓN UNIFICADO
+  // =============================
+  mostrarModalEliminar: boolean = false;
+  tipoEliminacion: 'producto' | 'usuario' | 'mensaje' | 'suscriptor' = 'producto';
+  idAEliminar: string = '';
+  nombreElementoEliminar: string = '';
+
+  // =============================
+  // 📥 IMPORTACIÓN CSV
+  // =============================
+  archivoCSV: File | null = null;
+  mostrarModalImportacion: boolean = false;
+  cantidadImportar: number = 0;
+  productosImportar: any[] = [];
+
+  // =============================
+  // 📂 MAPEO DE SUBCATEGORÍAS
   // =============================
   private subcategoriasMap: { [key: string]: string[] } = {
     'Desechables': ['Vasos', 'Platos', 'Charolas', 'Envases', 'Cubiertos', 'Tapas', 'Cono de Papel', 'Moldes', 'Popotes', 'Contenedores'],
@@ -123,367 +215,178 @@ export class AdminPage {
     'Higiénicos y Servilletas': ['Cofia', 'Toallas Desechables', 'Papel Higiénico', 'Servilletas', 'Pañuelos']
   };
 
-  // ========== PRODUCTOS ==========
- producto: any = {
-  id: '',
-  sku: '',
-  nombre: '',
-  categoria: '',
-  subcategoria: '',
-  marca: '',
-  descripcion: '',
-  imagen: '',
-  tiendas: [],
-  modalidades: [],
-  
-  // ⭐ NUEVAS PROPIEDADES
-  material: '',              // Material del producto
-  color: '',                 // Color del producto
-  medida: '',                // Medida/Capacidad (ej: 16oz, 500ml)
-  cantidadPaquete: '',       // Cantidad por paquete (ej: Caja de 1000)
-  biodegradable: false,      // Checkbox: Es biodegradable
-  aptoMicroondas: false,     // Checkbox: Apto para microondas
-  aptoCongelador: false,     // Checkbox: Apto para congelador
-  usosRecomendados: ''       // Usos recomendados del producto
-};
+  // =============================
+  // 📊 ESTADÍSTICAS COMPUTADAS
+  // =============================
+  get totalUsuarios(): number {
+    return this.usuarios.length;
+  }
 
-  productos: any[] = [];
-  productosFiltrados: any[] = [];
-  filtroNombre: string = '';
-  filtroSku: string = '';
-  filtroMarca: string = '';
-  filtroCategoria: string = '';
-  filtroSubcategoria: string = '';
-  subcategorias: string[] = [];
-  subcategoriasFiltro: string[] = [];
-  
-  nuevaTienda: string = '';
-  
-  // Variables para agregar modalidades
-  modalidadSeleccionada: string = ''; // 'Mayoreo', 'Menudeo' o 'Ambas'
-  precioActual: number = 0;
-  tamanoActual: string = '';
-  contenidoActual: string = '';
+  get totalAdmins(): number {
+    return this.usuarios.filter(u => u.rol === 'admin').length;
+  }
 
-  modoEdicion: boolean = false;
-  idEditando: string = '';
-  mostrarModalProducto: boolean = false;
-  mostrarModalBusqueda: boolean = false;
-
-// =============================
-// 👥 USUARIOS - NUEVAS PROPIEDADES
-// =============================
-usuarios: any[] = [];
-usuariosFiltrados: any[] = [];
-usuarioCreando: any = {
-  nombre: '',
-  email: '',
-  rol: '',
-  password: ''
-};
-usuarioEditando: any = {
-  nombre: '',
-  email: '',
-  rol: '',
-  password: ''
-};
-usuarioEditandoId: string = '';
-mostrarModalUsuario: boolean = false;
-mostrarModalAgregarUsuario: boolean = false;
-mostrarModalBusquedaUsuarios: boolean = false;
-
-// Filtros de usuarios
-filtroNombreUsuario: string = '';
-filtroEmailUsuario: string = '';
-filtroRolUsuario: string = '';
-
-// Estadísticas
-get totalUsuarios(): number {
-  return this.usuarios.length;
-}
-
-get totalAdmins(): number {
-  return this.usuarios.filter(u => u.rol === 'admin').length;
-}
-
-get totalUsuariosRegulares(): number {
-  return this.usuarios.filter(u => u.rol === 'usuario').length;
-}
+  get totalUsuariosRegulares(): number {
+    return this.usuarios.filter(u => u.rol === 'usuario').length;
+  }
 
   // =============================
-  // 📧 MENSAJES DE CONTACTO
+  // 🎬 CONSTRUCTOR
   // =============================
-  mensajes: any[] = [];
-
-  // =============================
-  // 📰 NEWSLETTER
-  // =============================
-  suscriptores: any[] = [];
-  suscriptoresFiltrados: any[] = [];
-  mostrarModalEnviarNewsletter: boolean = false;
-  mostrarModalEliminarSuscriptor: boolean = false;
-  suscriptorAEliminarId: string = '';
-  asuntoNewsletter: string = '';
-  mensajeNewsletter: string = '';
-  enviandoNewsletter: boolean = false;
-  filtroEmailNewsletter: string = '';
-  suscriptoresSeleccionados: Set<string> = new Set();
-  seleccionarTodos: boolean = false;
-
-  // =============================
-  // 🔧 SERVICIOS
-  // =============================
-  firestore = inject(Firestore);
-  authService = inject(AuthService);
-  router = inject(Router);
-  toastCtrl = inject(ToastController);
-  alertCtrl = inject(AlertController);
-  cdr = inject(ChangeDetectorRef);
-
   constructor() {
+    this.registrarIconos();
+    this.inicializarEmailJS();
+    this.cargarDatos();
+  }
+
+  // =============================
+  // 🔧 MÉTODOS DE INICIALIZACIÓN
+  // =============================
+  
+  private registrarIconos() {
     addIcons({
-      albumsOutline,
-      leafOutline,
-      radioOutline,
-      snowOutline,
-      shieldCheckmarkOutline,
-      cubeOutline,
-      cashOutline,
-      documentTextOutline,
-      imageOutline,
-      saveOutline,
-      createOutline,
-      trashOutline,
-      logOutOutline,
-      personOutline,
-      pricetagOutline,
-      constructOutline,
-      mailOutline,
-      checkmarkOutline,
-      closeOutline,
-      keyOutline,
-      lockClosedOutline,
-      peopleOutline,
-      newspaperOutline,
-      addCircleOutline,
-      mailOpenOutline,
-      informationCircleOutline,
-      cloudUploadOutline,
-      eyeOutline,
-      searchOutline,
-      filterOutline,
-      refreshOutline,
-      closeCircleOutline,
-      folderOutline,
-      ribbonOutline,
-      closeCircle,
-      sendOutline,
-      listOutline,
-      trashBinOutline,
-      calendarOutline,
-      textOutline,
-      bulbOutline,
-      checkmarkCircleOutline,
-      warningOutline,
-      resizeOutline,
-      layersOutline,
-      storefrontOutline,
-      barcodeOutline,
-      cartOutline,
-      colorPaletteOutline,
-      personAddOutline,
-      downloadOutline,
-      documentOutline,
-      shieldOutline,
-      personCircleOutline,
+      albumsOutline, leafOutline, radioOutline, snowOutline,
+      shieldCheckmarkOutline, cubeOutline, cashOutline, documentTextOutline,
+      imageOutline, saveOutline, createOutline, trashOutline,
+      logOutOutline, personOutline, pricetagOutline, constructOutline,
+      mailOutline, checkmarkOutline, closeOutline, keyOutline,
+      lockClosedOutline, peopleOutline, newspaperOutline, addCircleOutline,
+      mailOpenOutline, informationCircleOutline, cloudUploadOutline, eyeOutline,
+      searchOutline, filterOutline, refreshOutline, closeCircleOutline,
+      folderOutline, ribbonOutline, closeCircle, sendOutline,
+      listOutline, trashBinOutline, calendarOutline, textOutline,
+      bulbOutline, checkmarkCircleOutline, warningOutline, resizeOutline,
+      layersOutline, storefrontOutline, barcodeOutline, cartOutline,
+      colorPaletteOutline, personAddOutline, downloadOutline, documentOutline,
+      shieldOutline, personCircleOutline, starOutline
     });
+  }
 
-    emailjs.init({
-      publicKey: 'eSh72EoK4k2SontZF',
-    });
+  private inicializarEmailJS() {
+    emailjs.init({ publicKey: 'eSh72EoK4k2SontZF' });
+  }
 
+  private cargarDatos() {
     this.obtenerProductos();
     this.obtenerUsuarios();
     this.obtenerMensajes();
     this.obtenerSuscriptores();
   }
 
-    // =============================
-  // 📸 MÉTODOS PARA MANEJO DE IMÁGENES
-  // =============================
-
-  /**
-   * Cambiar entre URL y Upload
-   */
-  cambiarTipoImagen(tipo: 'url' | 'upload') {
-    this.tipoSeleccionImagen = tipo;
-    
-    // Limpiar al cambiar de tipo
-    if (tipo === 'upload') {
-      this.producto.imagen = '';
-    } else {
-      this.archivoSeleccionado = null;
-      this.previsualizacionImagen = null;
-    }
-    
-    this.cdr.detectChanges();
-  }
-
-  /**
-   * Manejar la selección de archivo
-   */
-  onArchivoSeleccionado(event: any) {
-    const archivo = event.target.files[0];
-    
-    if (!archivo) {
-      return;
-    }
-
-    // Validar tipo de archivo
-    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-    if (!tiposPermitidos.includes(archivo.type)) {
-      this.mostrarToast('⚠️ Solo se permiten imágenes (JPG, PNG, WEBP, GIF)', 'warning');
-      return;
-    }
-
-    // Validar tamaño (máximo 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (archivo.size > maxSize) {
-      this.mostrarToast('⚠️ La imagen no debe superar 5MB', 'warning');
-      return;
-    }
-
-    this.archivoSeleccionado = archivo;
-
-    // Crear previsualización
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.previsualizacionImagen = e.target.result;
-      this.cdr.detectChanges();
+  private inicializarProducto() {
+    return {
+      id: '', sku: '', nombre: '', categoria: '', subcategoria: '',
+      marca: '', descripcion: '', imagen: '', tiendas: [], modalidades: [],
+      material: '', color: '', medida: '', cantidadPaquete: '',
+      biodegradable: false, aptoMicroondas: false, aptoCongelador: false,
+      usosRecomendados: '',
+      destacado: false
     };
-    reader.readAsDataURL(archivo);
   }
-
-  /**
-   * Subir imagen a Firebase Storage
-   */
-  async subirImagenFirebase(): Promise<string> {
-    if (!this.archivoSeleccionado) {
-      throw new Error('No hay archivo seleccionado');
-    }
-
-    this.subiendoImagen = true;
-    this.progresoSubida = 0;
-
-    try {
-      // Generar nombre único para la imagen
-      const timestamp = Date.now();
-      const nombreArchivo = `productos/${timestamp}_${this.archivoSeleccionado.name}`;
-      
-      // Crear referencia en Firebase Storage
-      const storageRef = ref(this.storage, nombreArchivo);
-      
-      // Subir archivo
-      const snapshot = await uploadBytes(storageRef, this.archivoSeleccionado);
-      
-      // Obtener URL de descarga
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      
-      this.subiendoImagen = false;
-      this.progresoSubida = 100;
-      
-      return downloadURL;
-
-    } catch (error) {
-      console.error('Error subiendo imagen:', error);
-      this.subiendoImagen = false;
-      throw error;
-    }
-  }
-
-  /**
-   * Eliminar imagen anterior de Firebase Storage
-   */
-  async eliminarImagenAnterior(imageUrl: string) {
-    if (!imageUrl || !imageUrl.includes('firebase')) {
-      return; // Solo eliminar si es de Firebase
-    }
-
-    try {
-      // Extraer el path de la URL de Firebase
-      const decodedUrl = decodeURIComponent(imageUrl);
-      const startIndex = decodedUrl.indexOf('/o/') + 3;
-      const endIndex = decodedUrl.indexOf('?');
-      const filePath = decodedUrl.substring(startIndex, endIndex);
-      
-      // Crear referencia y eliminar
-      const storageRef = ref(this.storage, filePath);
-      await deleteObject(storageRef);
-      
-      console.log('Imagen anterior eliminada correctamente');
-    } catch (error) {
-      console.error('Error al eliminar imagen anterior:', error);
-      // No lanzar error, solo registrar
-    }
-  }
-
-  /**
-   * Limpiar archivo seleccionado
-   */
-  limpiarArchivoSeleccionado() {
-    this.archivoSeleccionado = null;
-    this.previsualizacionImagen = null;
-    this.progresoSubida = 0;
-    
-    // Limpiar el input file
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
-    
-    this.cdr.detectChanges();
-  }
-
 
   // =============================
-  // 🎯 NAVEGACIÓN TABS
+  // 🎯 NAVEGACIÓN DE TABS
   // =============================
+  
   cambiarTab(tab: string) {
     this.tabActiva = tab;
   }
 
   // =============================
-  // 💬 TOAST GENERAL
+  // 💬 UTILIDADES - TOAST
   // =============================
-  async mostrarToast(mensaje: string, color: string = 'success') {
-    const toast = await this.toastCtrl.create({
-      message: mensaje,
-      duration: 3000,
-      position: 'bottom',
-      color,
-    });
-    await toast.present();
-  }
-
-  // =============================
-  // 🧾 PRODUCTOS
-  // =============================
-
-  tieneModalidad(producto: any, modalidad: string): boolean {
-    if (!producto.modalidades || !Array.isArray(producto.modalidades)) {
-      return false;
-    }
-    return producto.modalidades.some((m: any) => m.modalidad === modalidad);
-  }
-
-  getModalidadesDisponibles(producto: any): string[] {
-    if (!producto.modalidades || !Array.isArray(producto.modalidades)) {
-      return [];
-    }
-    const modalidades: string[] = producto.modalidades.map((m: any) => m.modalidad);
-    return Array.from(new Set(modalidades)); // Eliminar duplicados
-}
   
+async mostrarToast(mensaje: string, color: string = 'success') {
+  const toast = await this.toastCtrl.create({
+    message: mensaje,
+    duration: 3000,
+    position: 'bottom',
+    color,
+    cssClass: `toast-${color}`,
+    animated: true
+  });
+  await toast.present();
+}
+
+  // =============================
+  // 🗑️ MODAL DE ELIMINACIÓN UNIFICADO
+  // =============================
+
+  obtenerTipoTexto(): string {
+    const textos = {
+      'producto': 'producto',
+      'usuario': 'usuario',
+      'mensaje': 'mensaje',
+      'suscriptor': 'suscriptor'
+    };
+    return textos[this.tipoEliminacion];
+  }
+
+  obtenerMensajeConfirmacion(): string {
+    const mensajes = {
+      'producto': 'El producto será eliminado permanentemente del sistema. Esta acción es irreversible.',
+      'usuario': 'El usuario será eliminado permanentemente del sistema. Perderá acceso a su cuenta.',
+      'mensaje': 'El mensaje será eliminado permanentemente y no podrás recuperarlo.',
+      'suscriptor': 'El suscriptor será eliminado permanentemente del sistema y no recibirá más newsletters.'
+    };
+    return mensajes[this.tipoEliminacion];
+  }
+
+  cerrarModalEliminar() {
+    this.mostrarModalEliminar = false;
+    this.idAEliminar = '';
+    this.nombreElementoEliminar = '';
+    this.cdr.detectChanges();
+  }
+
+  async confirmarEliminacion() {
+    if (!this.idAEliminar) return;
+
+    try {
+      let docRef;
+      let mensaje = '';
+
+      switch (this.tipoEliminacion) {
+        case 'producto':
+          docRef = doc(this.firestore, `productos/${this.idAEliminar}`);
+          await deleteDoc(docRef);
+          mensaje = '🗑️ Producto eliminado correctamente';
+          break;
+
+        case 'usuario':
+          docRef = doc(this.firestore, `usuarios/${this.idAEliminar}`);
+          await deleteDoc(docRef);
+          mensaje = '🗑️ Usuario eliminado correctamente';
+          break;
+
+        case 'mensaje':
+          docRef = doc(this.firestore, `contactMessages/${this.idAEliminar}`);
+          await deleteDoc(docRef);
+          mensaje = '🗑️ Mensaje eliminado correctamente';
+          break;
+
+        case 'suscriptor':
+          docRef = doc(this.firestore, `newsletter/${this.idAEliminar}`);
+          await deleteDoc(docRef);
+          this.suscriptoresSeleccionados.delete(this.idAEliminar);
+          mensaje = '🗑️ Suscriptor eliminado correctamente';
+          break;
+      }
+
+      await this.mostrarToast(mensaje, 'danger');
+      this.cerrarModalEliminar();
+
+    } catch (error) {
+      console.error(`Error eliminando ${this.tipoEliminacion}:`, error);
+      await this.mostrarToast(`❌ Error al eliminar el ${this.tipoEliminacion}`, 'danger');
+      this.cerrarModalEliminar();
+    }
+  }
+
+  // =============================
+  // 📦 PRODUCTOS - CRUD
+  // =============================
+
   obtenerProductos() {
     const ref = collection(this.firestore, 'productos');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -492,125 +395,47 @@ get totalUsuariosRegulares(): number {
     });
   }
 
+  abrirModalProducto() {
+    this.mostrarModalProducto = false;
+    this.resetearFormularioProducto();
+    
+    setTimeout(() => {
+      this.mostrarModalProducto = true;
+      this.cdr.detectChanges();
+    }, 150);
+  }
 
-  onCategoriaChange() {
-    const categoria = this.producto.categoria;
-    if (categoria && this.subcategoriasMap[categoria]) {
-      this.subcategorias = this.subcategoriasMap[categoria];
-      this.producto.subcategoria = '';
-    } else {
-      this.subcategorias = [];
-      this.producto.subcategoria = '';
-    }
+  editarProducto(producto: any) {
+    this.mostrarModalProducto = false;
+    this.imagenAnterior = producto.imagen || '';
+    this.resetearFormularioProducto();
+    
+    setTimeout(() => {
+      this.modoEdicion = true;
+      this.idEditando = producto.id;
+      this.cargarDatosProducto(producto);
+      this.mostrarModalProducto = true;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  cerrarModalProducto() {
+    this.mostrarModalProducto = false;
+    this.resetearFormularioProducto();
     this.cdr.detectChanges();
   }
 
-// =============================
-  // 💾 ACTUALIZAR MÉTODO guardarProducto()
-  // =============================
-
   async guardarProducto() {
+    if (!this.validarProducto()) return;
+
     try {
-      // Validaciones básicas existentes...
-      if (!this.producto.sku || !this.producto.sku.trim()) {
-        await this.mostrarToast('⚠️ El SKU es requerido', 'warning');
-        return;
-      }
+      let urlImagenFinal = await this.procesarImagen();
+      const productoGuardar = this.construirObjetoProducto(urlImagenFinal);
 
-      if (!this.producto.nombre || !this.producto.nombre.trim()) {
-        await this.mostrarToast('⚠️ El nombre del producto es requerido', 'warning');
-        return;
-      }
-
-      if (!this.producto.categoria || !this.producto.categoria.trim()) {
-        await this.mostrarToast('⚠️ La categoría es requerida', 'warning');
-        return;
-      }
-
-      if (!this.producto.subcategoria || !this.producto.subcategoria.trim()) {
-        await this.mostrarToast('⚠️ La subcategoría es requerida', 'warning');
-        return;
-      }
-
-      if (!this.producto.marca || !this.producto.marca.trim()) {
-        await this.mostrarToast('⚠️ La marca es requerida', 'warning');
-        return;
-      }
-
-      if (!this.producto.descripcion || !this.producto.descripcion.trim()) {
-        await this.mostrarToast('⚠️ La descripción es requerida', 'warning');
-        return;
-      }
-
-      if (!this.tieneOpcionesValidas()) {
-        await this.mostrarToast('⚠️ Debes agregar al menos una opción de Mayoreo o Menudeo', 'warning');
-        return;
-      }
-
-      // ⭐ VALIDAR IMAGEN
-      if (this.tipoSeleccionImagen === 'url') {
-        // Validar URL
-        if (!this.producto.imagen || !this.producto.imagen.trim()) {
-          await this.mostrarToast('⚠️ La URL de la imagen es requerida', 'warning');
-          return;
-        }
-      } else {
-        // Validar archivo seleccionado
-        if (!this.archivoSeleccionado && !this.producto.imagen) {
-          await this.mostrarToast('⚠️ Debes seleccionar una imagen', 'warning');
-          return;
-        }
-      }
-
-      // ⭐ SUBIR IMAGEN SI ES NECESARIO
-      let urlImagenFinal = this.producto.imagen;
-
-      if (this.tipoSeleccionImagen === 'upload' && this.archivoSeleccionado) {
-        try {
-          // Si estamos editando y hay una imagen anterior, eliminarla
-          if (this.modoEdicion && this.imagenAnterior) {
-            await this.eliminarImagenAnterior(this.imagenAnterior);
-          }
-
-          // Subir nueva imagen
-          urlImagenFinal = await this.subirImagenFirebase();
-          await this.mostrarToast('📸 Imagen subida correctamente', 'success');
-          
-        } catch (error) {
-          console.error('Error subiendo imagen:', error);
-          await this.mostrarToast('❌ Error al subir la imagen', 'danger');
-          return;
-        }
-      }
-
-      // Preparar objeto completo
-      const productoGuardar = {
-        sku: this.producto.sku,
-        nombre: this.producto.nombre,
-        categoria: this.producto.categoria,
-        subcategoria: this.producto.subcategoria,
-        marca: this.producto.marca,
-        descripcion: this.producto.descripcion,
-        imagen: urlImagenFinal, // ⭐ Usar la URL final (subida o ingresada)
-        tiendas: Array.isArray(this.producto.tiendas) ? this.producto.tiendas : [],
-        modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : [],
-        material: this.producto.material || '',
-        color: this.producto.color || '',
-        medida: this.producto.medida || '',
-        cantidadPaquete: this.producto.cantidadPaquete || '',
-        biodegradable: this.producto.biodegradable || false,
-        aptoMicroondas: this.producto.aptoMicroondas || false,
-        aptoCongelador: this.producto.aptoCongelador || false,
-        usosRecomendados: this.producto.usosRecomendados || ''
-      };
-
-      // MODO EDICIÓN
       if (this.modoEdicion && this.idEditando) {
         const docRef = doc(this.firestore, `productos/${this.idEditando}`);
         await updateDoc(docRef, productoGuardar);
         await this.mostrarToast('✅ Producto actualizado correctamente');
-
-      // MODO NUEVO (CREAR)
       } else {
         const ref = collection(this.firestore, 'productos');
         const docRef = await addDoc(ref, productoGuardar);
@@ -626,1291 +451,999 @@ get totalUsuariosRegulares(): number {
     }
   }
 
-  // =============================
-  // 📝 ACTUALIZAR editarProducto()
-  // =============================
-
-  editarProducto(producto: any) {
-    this.mostrarModalProducto = false;
-    
-    // Guardar URL de imagen anterior para poder eliminarla si se cambia
-    this.imagenAnterior = producto.imagen || '';
-    
-    this.producto = {
-      id: '',
-      sku: '',
-      nombre: '',
-      categoria: '',
-      subcategoria: '',
-      marca: '',
-      descripcion: '',
-      imagen: '',
-      tiendas: [],
-      modalidades: [],
-      material: '',
-      color: '',
-      medida: '',
-      cantidadPaquete: '',
-      biodegradable: false,
-      aptoMicroondas: false,
-      aptoCongelador: false,
-      usosRecomendados: ''
-    };
-    
-    // Resetear estado de imagen
-    this.tipoSeleccionImagen = 'url';
-    this.archivoSeleccionado = null;
-    this.previsualizacionImagen = null;
-    this.subiendoImagen = false;
-    this.progresoSubida = 0;
-    
+  eliminarProducto(id: string) {
+    const producto = this.productos.find(p => p.id === id);
+    this.idAEliminar = id;
+    this.tipoEliminacion = 'producto';
+    this.nombreElementoEliminar = producto?.nombre || 'este producto';
+    this.mostrarModalEliminar = true;
     this.cdr.detectChanges();
-    
-    setTimeout(() => {
-      this.modoEdicion = true;
-      this.idEditando = producto.id;
-      
-      this.producto = {
-        id: producto.id || '',
-        sku: producto.sku || '',
-        nombre: producto.nombre || '',
-        categoria: producto.categoria || '',
-        subcategoria: producto.subcategoria || '',
-        marca: producto.marca || '',
-        descripcion: producto.descripcion || '',
-        imagen: producto.imagen || '',
-        tiendas: Array.isArray(producto.tiendas) ? [...producto.tiendas] : [],
-        modalidades: Array.isArray(producto.modalidades) ? JSON.parse(JSON.stringify(producto.modalidades)) : [],
-        material: producto.material || '',
-        color: producto.color || '',
-        medida: producto.medida || '',
-        cantidadPaquete: producto.cantidadPaquete || '',
-        biodegradable: producto.biodegradable || false,
-        aptoMicroondas: producto.aptoMicroondas || false,
-        aptoCongelador: producto.aptoCongelador || false,
-        usosRecomendados: producto.usosRecomendados || ''
-      };
-
-      if (this.producto.categoria && this.subcategoriasMap[this.producto.categoria]) {
-        this.subcategorias = this.subcategoriasMap[this.producto.categoria];
-      }
-
-      this.mostrarModalProducto = true;
-      this.cdr.detectChanges();
-    }, 150);
   }
 
   // =============================
-  // 🆕 ACTUALIZAR abrirModalProducto()
+  // 📦 PRODUCTOS - MÉTODOS AUXILIARES
   // =============================
 
-  abrirModalProducto() {
-    this.mostrarModalProducto = false;
-    
+  private resetearFormularioProducto() {
     this.modoEdicion = false;
     this.idEditando = '';
     this.imagenAnterior = '';
-    
-    this.producto = {
-      id: '',
-      sku: '',
-      nombre: '',
-      categoria: '',
-      subcategoria: '',
-      marca: '',
-      descripcion: '',
-      imagen: '',
-      tiendas: [],
-      modalidades: [],
-      material: '',
-      color: '',
-      medida: '',
-      cantidadPaquete: '',
-      biodegradable: false,
-      aptoMicroondas: false,
-      aptoCongelador: false,
-      usosRecomendados: ''
-    };
-
-    // Resetear estado de imagen
+    this.producto = this.inicializarProducto();
     this.tipoSeleccionImagen = 'url';
     this.archivoSeleccionado = null;
     this.previsualizacionImagen = null;
     this.subiendoImagen = false;
     this.progresoSubida = 0;
-
     this.subcategorias = [];
     this.nuevaTienda = '';
     this.modalidadSeleccionada = '';
     this.precioActual = 0;
     this.tamanoActual = '';
     this.contenidoActual = '';
-    
-    this.cdr.detectChanges();
-    
-    setTimeout(() => {
-      this.mostrarModalProducto = true;
-      this.cdr.detectChanges();
-    }, 150);
   }
 
-  // =============================
-  // 🧹 ACTUALIZAR cerrarModalProducto()
-  // =============================
-
-  cerrarModalProducto() {
-    this.mostrarModalProducto = false;
-    
-    this.modoEdicion = false;
-    this.idEditando = '';
-    this.imagenAnterior = '';
-    
+  private cargarDatosProducto(producto: any) {
     this.producto = {
-      id: '',
-      sku: '',
-      nombre: '',
-      categoria: '',
-      subcategoria: '',
-      marca: '',
-      descripcion: '',
-      imagen: '',
-      tiendas: [],
-      modalidades: [],
-      material: '',
-      color: '',
-      medida: '',
-      cantidadPaquete: '',
-      biodegradable: false,
-      aptoMicroondas: false,
-      aptoCongelador: false,
-      usosRecomendados: ''
+      id: producto.id || '',
+      sku: producto.sku || '',
+      nombre: producto.nombre || '',
+      categoria: producto.categoria || '',
+      subcategoria: producto.subcategoria || '',
+      marca: producto.marca || '',
+      descripcion: producto.descripcion || '',
+      imagen: producto.imagen || '',
+      tiendas: Array.isArray(producto.tiendas) ? [...producto.tiendas] : [],
+      modalidades: Array.isArray(producto.modalidades) ? JSON.parse(JSON.stringify(producto.modalidades)) : [],
+      material: producto.material || '',
+      color: producto.color || '',
+      medida: producto.medida || '',
+      cantidadPaquete: producto.cantidadPaquete || '',
+      biodegradable: producto.biodegradable || false,
+      aptoMicroondas: producto.aptoMicroondas || false,
+      aptoCongelador: producto.aptoCongelador || false,
+      usosRecomendados: producto.usosRecomendados || '',
+      destacado: producto.destacado || false
     };
 
-    // Limpiar estado de imagen
-    this.tipoSeleccionImagen = 'url';
-    this.archivoSeleccionado = null;
-    this.previsualizacionImagen = null;
-    this.subiendoImagen = false;
-    this.progresoSubida = 0;
-
-    this.subcategorias = [];
-    this.nuevaTienda = '';
-    this.modalidadSeleccionada = '';
-    this.precioActual = 0;
-    this.tamanoActual = '';
-    this.contenidoActual = '';
-    
-    this.cdr.detectChanges();
-  }
-
-  async eliminarProducto(id: string) {
-    try {
-      const docRef = doc(this.firestore, `productos/${id}`);
-      await deleteDoc(docRef);
-      await this.mostrarToast('🗑️ Producto eliminado correctamente', 'danger');
-    } catch (error) {
-      console.error('Error eliminando producto:', error);
-      await this.mostrarToast('❌ Error al eliminar el producto', 'danger');
+    if (this.producto.categoria && this.subcategoriasMap[this.producto.categoria]) {
+      this.subcategorias = this.subcategoriasMap[this.producto.categoria];
     }
   }
 
-  actualizarPreview() {}
-
-  onImageError() {
-    console.error('Error cargando imagen');
-  }
-
-// =============================
-// 🎯 MÉTODOS PARA MODALIDADES (CORREGIDO - SIN DUPLICADOS)
-// =============================
-
-limpiarModalidadSeleccionada() {
-  this.modalidadSeleccionada = '';
-  this.precioActual = 0;
-  this.tamanoActual = '';
-  this.contenidoActual = '';
-  this.cdr.detectChanges();
-}
-
-agregarOpcionModalidad() {
-  const precio = this.precioActual;
-  const tamano = this.tamanoActual.trim();
-  const contenido = this.contenidoActual.trim();
-
-  // ✅ Validar modalidad seleccionada
-  if (!this.modalidadSeleccionada) {
-    this.mostrarToast('⚠️ Selecciona una modalidad (Mayoreo o Menudeo)', 'warning');
-    return;
-  }
-
-  // ✅ Validar precio (obligatorio)
-  if (precio <= 0) {
-    this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
-    return;
-  }
-
-  // ✅ Tamaño y contenido son OPCIONALES
-  // Si están vacíos, se guardan como "N/A"
-
-  const opcion = {
-    id: Date.now().toString(),
-    modalidad: this.modalidadSeleccionada,
-    precio: precio,
-    tamano: tamano || 'N/A',  // Si está vacío, muestra "N/A"
-    contenido: contenido || 'N/A'  // Si está vacío, muestra "N/A"
-  };
-
-  if (!Array.isArray(this.producto.modalidades)) {
-    this.producto.modalidades = [];
-  }
-
-  this.producto.modalidades.push(opcion);
-
-  // Limpiar campos
-  this.precioActual = 0;
-  this.tamanoActual = '';
-  this.contenidoActual = '';
-
-  this.mostrarToast('✅ Opción de ' + this.modalidadSeleccionada + ' agregada', 'success');
-  this.limpiarModalidadSeleccionada();
-  this.cdr.detectChanges();
-}
-
-eliminarOpcionModalidad(id: string) {
-  this.producto.modalidades = this.producto.modalidades.filter((m: any) => m.id !== id);
-  this.mostrarToast('🗑️ Opción eliminada', 'danger');
-  this.cdr.detectChanges();
-}
-
-obtenerOpcionesModalidad(modalidad: string): any[] {
-  if (!Array.isArray(this.producto.modalidades)) {
-    return [];
-  }
-  return this.producto.modalidades.filter((m: any) => m.modalidad === modalidad);
-}
-
-tieneOpcionesValidas(): boolean {
-  return Array.isArray(this.producto.modalidades) && this.producto.modalidades.length > 0;
-}
-
-// =============================
-// 🏪 MÉTODOS DE TIENDAS/SUCURSALES
-// =============================
-
-agregarTienda() {
-  // ✅ Validar si hay opciones de modalidad antes de permitir agregar
-  if (!this.tieneOpcionesValidas()) {
-    this.mostrarToast('⚠️ Agrega al menos una opción de Mayoreo o Menudeo primero', 'warning');
-    return;
-  }
-
-  const tienda = this.nuevaTienda.trim();
-  
-  if (!tienda) {
-    this.mostrarToast('⚠️ Ingresa un nombre de tienda válido', 'warning');
-    return;
-  }
-  
-  if (this.producto.tiendas.includes(tienda)) {
-    this.mostrarToast('⚠️ Esta tienda ya existe', 'warning');
-    return;
-  }
-  
-  if (!Array.isArray(this.producto.tiendas)) {
-    this.producto.tiendas = [];
-  }
-  
-  this.producto.tiendas.push(tienda);
-  this.nuevaTienda = '';
-  this.mostrarToast('✅ Sucursal agregada correctamente', 'success');
-}
-
-eliminarTienda(index: number) {
-  if (Array.isArray(this.producto.tiendas) && index >= 0 && index < this.producto.tiendas.length) {
-    this.producto.tiendas.splice(index, 1);
-    this.mostrarToast('🗑️ Sucursal eliminada', 'danger');
-  }
-}
-
-  // =============================
-// 🔍 BÚSQUEDA Y FILTROS
-// =============================
-
-onFiltroCategoriaChange() {
-  const categoria = this.filtroCategoria;
-  if (categoria && this.subcategoriasMap[categoria]) {
-    this.subcategoriasFiltro = this.subcategoriasMap[categoria];
-    this.filtroSubcategoria = '';
-  } else {
-    this.subcategoriasFiltro = [];
-    this.filtroSubcategoria = '';
-  }
-  this.cdr.detectChanges();
-}
-
-abrirModalBusqueda() {
-  setTimeout(() => {
-    this.mostrarModalBusqueda = true;
-    this.cdr.detectChanges();
-  }, 0);
-}
-
-cerrarModalBusqueda() {
-  this.mostrarModalBusqueda = false;
-  this.cdr.detectChanges();
-}
-
-aplicarFiltros() {
-  const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
-  const filtroSku = (this.filtroSku || '').trim().toLowerCase();
-  const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
-  const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
-  const filtroSubcategoria = (this.filtroSubcategoria || '').trim().toLowerCase();
-
-  this.productosFiltrados = this.productos.filter((producto) => {
-    const nombre = (producto.nombre || '').toLowerCase();
-    const sku = (producto.sku || '').toLowerCase();
-    const marca = (producto.marca || '').toLowerCase();
-    const categoria = (producto.categoria || '').toLowerCase();
-    const subcategoria = (producto.subcategoria || '').toLowerCase();
-
-    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
-    const coincideSku = filtroSku ? sku.includes(filtroSku) : true;
-    const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
-    const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
-    const coincideSubcategoria = filtroSubcategoria ? subcategoria.includes(filtroSubcategoria) : true;
-
-    return coincideNombre && coincideSku && coincideMarca && coincideCategoria && coincideSubcategoria;
-  });
-
-  this.cerrarModalBusqueda();
-}
-
-aplicarFiltrosInternos() {
-  const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
-  const filtroSku = (this.filtroSku || '').trim().toLowerCase();
-  const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
-  const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
-  const filtroSubcategoria = (this.filtroSubcategoria || '').trim().toLowerCase();
-
-  if (!filtroNombre && !filtroSku && !filtroMarca && !filtroCategoria && !filtroSubcategoria) {
-    this.productosFiltrados = [...this.productos];
-    return;
-  }
-
-  this.productosFiltrados = this.productos.filter((producto) => {
-    const nombre = (producto.nombre || '').toLowerCase();
-    const sku = (producto.sku || '').toLowerCase();
-    const marca = (producto.marca || '').toLowerCase();
-    const categoria = (producto.categoria || '').toLowerCase();
-    const subcategoria = (producto.subcategoria || '').toLowerCase();
-
-    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
-    const coincideSku = filtroSku ? sku.includes(filtroSku) : true;
-    const coincideMarca = filtroMarca ? marca.includes(filtroMarca) : true;
-    const coincideCategoria = filtroCategoria ? categoria.includes(filtroCategoria) : true;
-    const coincideSubcategoria = filtroSubcategoria ? subcategoria.includes(filtroSubcategoria) : true;
-
-    return coincideNombre && coincideSku && coincideMarca && coincideCategoria && coincideSubcategoria;
-  });
-}
-
-limpiarFiltroNombre() {
-  this.filtroNombre = '';
-  this.aplicarFiltrosInternos();
-}
-
-limpiarFiltroSku() {
-  this.filtroSku = '';
-  this.aplicarFiltrosInternos();
-}
-
-limpiarFiltroMarca() {
-  this.filtroMarca = '';
-  this.aplicarFiltrosInternos();
-}
-
-limpiarFiltroCategoria() {
-  this.filtroCategoria = '';
-  this.filtroSubcategoria = '';
-  this.subcategoriasFiltro = [];
-  this.aplicarFiltrosInternos();
-}
-
-limpiarFiltroSubcategoria() {
-  this.filtroSubcategoria = '';
-  this.aplicarFiltrosInternos();
-}
-
-limpiarTodosFiltros() {
-  this.filtroNombre = '';
-  this.filtroSku = '';
-  this.filtroMarca = '';
-  this.filtroCategoria = '';
-  this.filtroSubcategoria = '';
-  this.subcategoriasFiltro = [];
-  this.aplicarFiltrosInternos();
-}
-
-// =============================
-// 👥 MÉTODOS DE USUARIOS
-// =============================
-
-obtenerUsuarios() {
-  const ref = collection(this.firestore, 'usuarios');
-  collectionData(ref, { idField: 'id' }).subscribe((data) => {
-    this.usuarios = data;
-    this.aplicarFiltrosUsuarios();
-  });
-}
-
-aplicarFiltrosUsuarios() {
-  const filtroNombre = (this.filtroNombreUsuario || '').trim().toLowerCase();
-  const filtroEmail = (this.filtroEmailUsuario || '').trim().toLowerCase();
-  const filtroRol = (this.filtroRolUsuario || '').trim().toLowerCase();
-
-  if (!filtroNombre && !filtroEmail && !filtroRol) {
-    this.usuariosFiltrados = [...this.usuarios];
-    return;
-  }
-
-  this.usuariosFiltrados = this.usuarios.filter((usuario) => {
-    const nombre = (usuario.nombre || '').toLowerCase();
-    const email = (usuario.email || '').toLowerCase();
-    const rol = (usuario.rol || 'usuario').toLowerCase();
-
-    const coincideNombre = filtroNombre ? nombre.includes(filtroNombre) : true;
-    const coincideEmail = filtroEmail ? email.includes(filtroEmail) : true;
-    const coincideRol = filtroRol ? rol === filtroRol : true;
-
-    return coincideNombre && coincideEmail && coincideRol;
-  });
-}
-
-limpiarFiltrosUsuarios() {
-  this.filtroNombreUsuario = '';
-  this.filtroEmailUsuario = '';
-  this.filtroRolUsuario = '';
-  this.aplicarFiltrosUsuarios();
-}
-
-abrirModalBusquedaUsuarios() {
-  setTimeout(() => {
-    this.mostrarModalBusquedaUsuarios = true;
-    this.cdr.detectChanges();
-  }, 0);
-}
-
-cerrarModalBusquedaUsuarios() {
-  this.mostrarModalBusquedaUsuarios = false;
-  this.cdr.detectChanges();
-}
-
-aplicarFiltrosUsuariosDesdeModal() {
-  this.aplicarFiltrosUsuarios();
-  this.cerrarModalBusquedaUsuarios();
-}
-
-// Modal Agregar Usuario
-abrirModalAgregarUsuario() {
-  // Limpiar completamente el objeto
-  this.usuarioEditando = {
-    nombre: '',
-    email: '',
-    rol: 'usuario',
-    password: ''
-  };
-  
-  // Forzar detección de cambios antes de abrir
-  this.cdr.detectChanges();
-  
-  // Abrir modal después de un pequeño delay
-  setTimeout(() => {
-    this.mostrarModalAgregarUsuario = true;
-    this.cdr.detectChanges();
-  }, 50);
-}
-
-cerrarModalAgregarUsuario() {
-  this.mostrarModalAgregarUsuario = false;
-  this.usuarioEditando = {
-    nombre: '',
-    email: '',
-    rol: 'usuario',
-    password: ''
-  };
-  this.cdr.detectChanges();
-}
-
-async agregarUsuario() {
-  try {
-    if (!this.usuarioEditando.nombre || !this.usuarioEditando.nombre.trim()) {
-      await this.mostrarToast('⚠️ El nombre es requerido', 'warning');
-      return;
-    }
-
-    if (!this.usuarioEditando.email || !this.usuarioEditando.email.includes('@')) {
-      await this.mostrarToast('⚠️ Email inválido', 'warning');
-      return;
-    }
-
-    if (!this.usuarioEditando.password || this.usuarioEditando.password.length < 6) {
-      await this.mostrarToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'warning');
-      return;
-    }
-
-    // Verificar si el email ya existe
-    const emailExiste = this.usuarios.some(u => u.email === this.usuarioEditando.email);
-    if (emailExiste) {
-      await this.mostrarToast('⚠️ Este email ya está registrado', 'warning');
-      return;
-    }
-
-    const nuevoUsuario = {
-      nombre: this.usuarioEditando.nombre,
-      email: this.usuarioEditando.email,
-      rol: this.usuarioEditando.rol || 'usuario', // Cambia 'usuario' por 'cliente'
-      password: this.usuarioEditando.password,
-      fechaCreacion: new Date().toISOString()
-    };
-
-    const ref = collection(this.firestore, 'usuarios');
-    await addDoc(ref, nuevoUsuario);
-    
-    await this.mostrarToast('✅ Usuario agregado correctamente');
-    this.cerrarModalAgregarUsuario();
-  } catch (error) {
-    console.error('Error al agregar usuario:', error);
-    await this.mostrarToast('❌ Error al agregar el usuario', 'danger');
-  }
-}
-
-// Modal Editar Usuario
-editarUsuario(usuario: any) {
-  this.mostrarModalUsuario = false;
-  
-  this.usuarioEditandoId = '';
-  this.usuarioEditando = {
-    nombre: '',
-    email: '',
-    rol: 'usuario'
-  };
-  
-  this.cdr.detectChanges();
-  
-  setTimeout(() => {
-    this.usuarioEditandoId = usuario.id;
-    
-    this.usuarioEditando = { 
-      nombre: usuario.nombre || '',
-      email: usuario.email || '',
-      rol: usuario.rol || 'usuario'
-    };
-    
-    this.mostrarModalUsuario = true;
-    this.cdr.detectChanges();
-  }, 150);
-}
-
-cerrarModalUsuario() {
-  this.mostrarModalUsuario = false;
-  this.cdr.detectChanges();
-  
-  setTimeout(() => {
-    this.usuarioEditandoId = '';
-    this.usuarioEditando = {
-      nombre: '',
-      email: '',
-      rol: 'usuario'
-    };
-    this.cdr.detectChanges();
-  }, 100);
-}
-
-async guardarUsuarioEditado(id: string) {
-  try {
-    if (!this.usuarioEditando || !this.usuarioEditando.email) {
-      await this.mostrarToast('❌ No hay datos para guardar', 'danger');
-      return;
-    }
-
-    if (!this.usuarioEditando.email.includes('@')) {
-      await this.mostrarToast('⚠️ Por favor ingresa un email válido', 'warning');
-      return;
-    }
-
-    const docRef = doc(this.firestore, `usuarios/${id}`);
-    const datosActualizar = {
-      nombre: this.usuarioEditando.nombre || '',
-      email: this.usuarioEditando.email || '',
-      rol: this.usuarioEditando.rol || 'usuario',
-    };
-
-    await updateDoc(docRef, datosActualizar);
-    
-    await this.mostrarToast('✅ Usuario actualizado correctamente');
-    this.cerrarModalUsuario();
-  } catch (error) {
-    console.error('Error al actualizar usuario:', error);
-    await this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
-  }
-}
-
-// Cambiar rol directamente
-async cambiarRolUsuario(usuarioId: string, nuevoRol: string) {
-  try {
-    const docRef = doc(this.firestore, `usuarios/${usuarioId}`);
-    await updateDoc(docRef, { rol: nuevoRol });
-    await this.mostrarToast(`✅ Rol actualizado a ${nuevoRol}`, 'success');
-  } catch (error) {
-    console.error('Error al cambiar rol:', error);
-    await this.mostrarToast('❌ Error al cambiar el rol', 'danger');
-  }
-}
-
-async eliminarUsuario(id: string) {
-  try {
-    const docRef = doc(this.firestore, `usuarios/${id}`);
-    await deleteDoc(docRef);
-    await this.mostrarToast('🗑️ Usuario eliminado correctamente', 'danger');
-  } catch (error) {
-    console.error('Error eliminando usuario:', error);
-    await this.mostrarToast('❌ Error al eliminar el usuario', 'danger');
-  }
-}
-
-// Exportar a CSV (usuarios)
-exportarUsuariosCSV() {
-  if (this.usuariosFiltrados.length === 0) {
-    this.mostrarToast('⚠️ No hay usuarios para exportar', 'warning');
-    return;
-  }
-
-  const headers = ['ID', 'Nombre', 'Email', 'Rol', 'Fecha Creación'];
-  const rows = this.usuariosFiltrados.map(u => [
-    u.id,
-    u.nombre || 'Sin nombre',
-    u.email,
-    u.rol || 'usuario',
-    u.fechaCreacion || 'N/A'
-  ]);
-
-  let csvContent = headers.join(',') + '\n';
-  rows.forEach(row => {
-    csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
-  });
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', `usuarios_${new Date().getTime()}.csv`);
-  link.style.visibility = 'hidden';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  this.mostrarToast('✅ Usuarios exportados correctamente', 'success');
-}
-
-// ⭐ EXPORTAR PRODUCTOS A CSV (VERSIÓN COMPLETA CON MODALIDADES)
-exportarProductosCSV() {
-  if (this.productosFiltrados.length === 0) {
-    this.mostrarToast('⚠️ No hay productos para exportar', 'warning');
-    return;
-  }
-
-  console.log('📊 Exportando productos a CSV...');
-
-  // Definir headers del CSV
-  const headers = [
-    'ID',
-    'SKU',
-    'Nombre',
-    'Descripción',
-    'Categoría',
-    'Subcategoría',
-    'Marca',
-    'Material',
-    'Color',
-    'Medida/Capacidad',
-    'Cantidad por Paquete',
-    'Biodegradable',
-    'Apto Microondas',
-    'Apto Congelador',
-    'Usos Recomendados',
-    'Tiendas',
-    'Modalidades',  // ⭐ Nueva columna para modalidades
-    'Imagen'
-  ];
-
-  // Preparar las filas
-  const rows = this.productosFiltrados.map(product => {
-    // ⭐ Formatear modalidades en texto legible
-    let modalidadesTexto = '';
-    if (product.modalidades && Array.isArray(product.modalidades) && product.modalidades.length > 0) {
-      modalidadesTexto = product.modalidades.map((m: any) => {
-        // Formato: Modalidad: Tamaño | Contenido | Precio
-        const tamano = m.tamano && m.tamano !== 'N/A' ? m.tamano : '';
-        const contenido = m.contenido && m.contenido !== 'N/A' ? m.contenido : '';
-        const precio = m.precio ? `${m.precio}` : '';
-        
-        // Construir línea de modalidad
-        let partes = [m.modalidad];
-        if (tamano) partes.push(tamano);
-        if (contenido) partes.push(contenido);
-        if (precio) partes.push(precio);
-        
-        return partes.join(' | ');
-      }).join('; ');  // Separar múltiples opciones con punto y coma
-    }
-
-    return [
-      product.id || '',
-      product.sku || '',
-      product.nombre || '',
-      product.descripcion || '',
-      product.categoria || '',
-      product.subcategoria || '',
-      product.marca || '',
-      product.material || '',
-      product.color || '',
-      product.medida || '',
-      product.cantidadPaquete || '',
-      product.biodegradable ? 'Sí' : 'No',
-      product.aptoMicroondas ? 'Sí' : 'No',
-      product.aptoCongelador ? 'Sí' : 'No',
-      product.usosRecomendados || '',
-      product.tiendas?.join('; ') || '',
-      modalidadesTexto,  // ⭐ Incluir modalidades formateadas
-      product.imagen || ''
+  private validarProducto(): boolean {
+    const validaciones = [
+      { condicion: !this.producto.sku?.trim(), mensaje: '⚠️ El SKU es requerido' },
+      { condicion: !this.producto.nombre?.trim(), mensaje: '⚠️ El nombre del producto es requerido' },
+      { condicion: !this.producto.categoria?.trim(), mensaje: '⚠️ La categoría es requerida' },
+      { condicion: !this.producto.subcategoria?.trim(), mensaje: '⚠️ La subcategoría es requerida' },
+      { condicion: !this.producto.marca?.trim(), mensaje: '⚠️ La marca es requerida' },
+      { condicion: !this.producto.descripcion?.trim(), mensaje: '⚠️ La descripción es requerida' },
+      { condicion: !this.tieneOpcionesValidas(), mensaje: '⚠️ Debes agregar al menos una opción de Mayoreo o Menudeo' }
     ];
-  });
 
-  // Construir contenido CSV
-  let csvContent = headers.join(',') + '\n';
-  
-  rows.forEach(row => {
-    // Escapar comillas y comas dentro de los campos
-    const escapedRow = row.map(cell => {
-      const cellStr = String(cell);
-      // Si contiene comas, saltos de línea o comillas, envolver en comillas
-      if (cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')) {
-        return `"${cellStr.replace(/"/g, '""')}"`;
+    for (const { condicion, mensaje } of validaciones) {
+      if (condicion) {
+        this.mostrarToast(mensaje, 'warning');
+        return false;
       }
-      return cellStr;
-    });
-    csvContent += escapedRow.join(',') + '\n';
-  });
+    }
 
-  // ⭐ AGREGAR BOM (Byte Order Mark) PARA UTF-8
-  const BOM = '\uFEFF';
-  const csvContentWithBOM = BOM + csvContent;
+    if (this.tipoSeleccionImagen === 'url') {
+      if (!this.producto.imagen?.trim()) {
+        this.mostrarToast('⚠️ La URL de la imagen es requerida', 'warning');
+        return false;
+      }
+    } else {
+      if (!this.archivoSeleccionado && !this.producto.imagen) {
+        this.mostrarToast('⚠️ Debes seleccionar una imagen', 'warning');
+        return false;
+      }
+    }
 
-  // Crear Blob con codificación UTF-8
-  const blob = new Blob([csvContentWithBOM], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  
-  // Generar nombre con fecha
-  const fecha = new Date().toISOString().split('T')[0];
-  const nombreArchivo = `Productos_${fecha}.csv`;
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', nombreArchivo);
-  link.style.visibility = 'hidden';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  console.log('✅ Archivo CSV generado:', nombreArchivo);
-  this.mostrarToast(`✅ ${this.productosFiltrados.length} productos exportados correctamente`, 'success');
-}
-
-// ==========================================
-// 📥 IMPORTAR PRODUCTOS DESDE CSV
-// ==========================================
-
-// ⭐ PROPIEDAD PARA EL ARCHIVO
-archivoCSV: File | null = null;
-
-// ⭐ MÉTODO PARA SELECCIONAR ARCHIVO CSV Y AUTO-IMPORTAR
-async onArchivoCSVSeleccionado(event: any) {
-  const archivo = event.target.files[0];
-  
-  if (!archivo) {
-    return;
+    return true;
   }
 
-  // Validar que sea CSV
-  if (!archivo.name.endsWith('.csv')) {
-    this.mostrarToast('⚠️ Solo se permiten archivos CSV', 'warning');
-    return;
+  private async procesarImagen(): Promise<string> {
+    let urlImagenFinal = this.producto.imagen;
+
+    if (this.tipoSeleccionImagen === 'upload' && this.archivoSeleccionado) {
+      try {
+        if (this.modoEdicion && this.imagenAnterior) {
+          await this.eliminarImagenAnterior(this.imagenAnterior);
+        }
+        urlImagenFinal = await this.subirImagenFirebase();
+        await this.mostrarToast('📸 Imagen subida correctamente', 'success');
+      } catch (error) {
+        console.error('Error subiendo imagen:', error);
+        await this.mostrarToast('❌ Error al subir la imagen', 'danger');
+        throw error;
+      }
+    }
+
+    return urlImagenFinal;
   }
 
-  // Validar tamaño (máximo 10MB)
-  const maxSize = 10 * 1024 * 1024; // 10MB
-  if (archivo.size > maxSize) {
-    this.mostrarToast('⚠️ El archivo no debe superar 10MB', 'warning');
-    return;
+  private construirObjetoProducto(urlImagen: string) {
+    return {
+      sku: this.producto.sku,
+      nombre: this.producto.nombre,
+      categoria: this.producto.categoria,
+      subcategoria: this.producto.subcategoria,
+      marca: this.producto.marca,
+      descripcion: this.producto.descripcion,
+      imagen: urlImagen,
+      tiendas: Array.isArray(this.producto.tiendas) ? this.producto.tiendas : [],
+      modalidades: Array.isArray(this.producto.modalidades) ? this.producto.modalidades : [],
+      material: this.producto.material || '',
+      color: this.producto.color || '',
+      medida: this.producto.medida || '',
+      cantidadPaquete: this.producto.cantidadPaquete || '',
+      biodegradable: this.producto.biodegradable || false,
+      aptoMicroondas: this.producto.aptoMicroondas || false,
+      aptoCongelador: this.producto.aptoCongelador || false,
+      usosRecomendados: this.producto.usosRecomendados || '',
+      destacado: this.producto.destacado || false
+    };
   }
 
-  this.archivoCSV = archivo;
-  
-  // Auto-importar después de seleccionar
-  await this.importarProductosCSV();
-}
-
-// ⭐ LIMPIAR ARCHIVO SELECCIONADO
-limpiarArchivoCSV() {
-  this.archivoCSV = null;
-  const fileInput = document.getElementById('csvFileInput') as HTMLInputElement;
-  if (fileInput) {
-    fileInput.value = '';
-  }
-}
-
-// ⭐ MÉTODO PRINCIPAL PARA IMPORTAR CSV
-async importarProductosCSV() {
-  if (!this.archivoCSV) {
-    this.mostrarToast('⚠️ Selecciona un archivo CSV primero', 'warning');
-    return;
+  onCategoriaChange() {
+    const categoria = this.producto.categoria;
+    if (categoria && this.subcategoriasMap[categoria]) {
+      this.subcategorias = this.subcategoriasMap[categoria];
+      this.producto.subcategoria = '';
+    } else {
+      this.subcategorias = [];
+      this.producto.subcategoria = '';
+    }
+    this.cdr.detectChanges();
   }
 
-  try {
-    // Leer el archivo
-    const texto = await this.leerArchivoCSV(this.archivoCSV);
-    
-    // Parsear CSV
-    const productos = this.parsearCSV(texto);
-    
-    if (productos.length === 0) {
-      this.mostrarToast('⚠️ No se encontraron productos válidos en el CSV', 'warning');
-      this.limpiarArchivoCSV();
+  tieneModalidad(producto: any, modalidad: string): boolean {
+    if (!producto.modalidades || !Array.isArray(producto.modalidades)) return false;
+    return producto.modalidades.some((m: any) => m.modalidad === modalidad);
+  }
+
+  getModalidadesDisponibles(producto: any): string[] {
+    if (!producto.modalidades || !Array.isArray(producto.modalidades)) return [];
+    const modalidades: string[] = producto.modalidades.map((m: any) => m.modalidad);
+    return Array.from(new Set(modalidades));
+  }
+
+  // =============================
+  // 📸 MANEJO DE IMÁGENES
+  // =============================
+
+  cambiarTipoImagen(tipo: 'url' | 'upload') {
+    this.tipoSeleccionImagen = tipo;
+    if (tipo === 'upload') {
+      this.producto.imagen = '';
+    } else {
+      this.archivoSeleccionado = null;
+      this.previsualizacionImagen = null;
+    }
+    this.cdr.detectChanges();
+  }
+
+  onArchivoSeleccionado(event: any) {
+    const archivo = event.target.files[0];
+    if (!archivo) return;
+
+    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!tiposPermitidos.includes(archivo.type)) {
+      this.mostrarToast('⚠️ Solo se permiten imágenes (JPG, PNG, WEBP, GIF)', 'warning');
       return;
     }
 
-    // Confirmar importación
-    const confirmacion = await this.confirmarImportacion(productos.length);
-    
-    if (!confirmacion) {
-      this.limpiarArchivoCSV();
+    const maxSize = 5 * 1024 * 1024;
+    if (archivo.size > maxSize) {
+      this.mostrarToast('⚠️ La imagen no debe superar 5MB', 'warning');
       return;
     }
 
-    // Mostrar loading
-    this.mostrarToast('⏳ Importando productos...', 'primary');
+    this.archivoSeleccionado = archivo;
 
-    // Importar productos a Firestore
-    await this.guardarProductosFirestore(productos);
-    
-    // Limpiar archivo seleccionado
-    this.limpiarArchivoCSV();
-
-  } catch (error: any) {
-    console.error('Error importando CSV:', error);
-    this.mostrarToast(error.message || '❌ Error al importar el archivo CSV', 'danger');
-    this.limpiarArchivoCSV();
-  }
-}
-
-// ⭐ LEER ARCHIVO CSV
-private leerArchivoCSV(archivo: File): Promise<string> {
-  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
     reader.onload = (e: any) => {
-      resolve(e.target.result);
+      this.previsualizacionImagen = e.target.result;
+      this.cdr.detectChanges();
     };
-    
-    reader.onerror = () => {
-      reject(new Error('Error al leer el archivo'));
-    };
-    
-    reader.readAsText(archivo, 'UTF-8');
-  });
-}
-
-private parsearCSV(texto: string): any[] {
-  const lineas = texto.split('\n').filter(linea => linea.trim() !== '');
-  
-  if (lineas.length < 2) {
-    throw new Error('El archivo CSV está vacío o solo contiene headers');
+    reader.readAsDataURL(archivo);
   }
 
-  // Obtener headers (primera línea) y LIMPIARLOS
-  const headers = this.parsearLineaCSV(lineas[0]).map(h => h.trim());  // ⭐ AGREGAR .map(h => h.trim())
-  
-  console.log('📋 Headers detectados:', headers);
-  console.log('📋 Número de headers:', headers.length);
-  console.log('📋 ¿Tiene columna Imagen?', headers.includes('Imagen'));
-  // Validar headers requeridos (SKU ya no es obligatorio)
-  const headersRequeridos = ['Nombre', 'Categoría', 'Subcategoría', 'Marca', 'Descripción'];
-  const faltantes = headersRequeridos.filter(h => !headers.includes(h));
-  
-  if (faltantes.length > 0) {
-    throw new Error(`Faltan columnas requeridas: ${faltantes.join(', ')}`);
-  }
-
-  // Parsear productos (resto de líneas)
-  const productos: any[] = [];
-  
-  for (let i = 1; i < lineas.length; i++) {
-    const valores = this.parsearLineaCSV(lineas[i]);
-    
-    if (valores.length !== headers.length) {
-      console.warn(`Línea ${i + 1} ignorada: número incorrecto de columnas`);
-      continue;
+  async subirImagenFirebase(): Promise<string> {
+    if (!this.archivoSeleccionado) {
+      throw new Error('No hay archivo seleccionado');
     }
 
-    const producto: any = {
-      modalidades: [],
-      tiendas: []
-    };
-    
-    headers.forEach((header, index) => {
-      const valor = valores[index].trim();
+    this.subiendoImagen = true;
+    this.progresoSubida = 0;
+
+    try {
+      const timestamp = Date.now();
+      const nombreArchivo = `productos/${timestamp}_${this.archivoSeleccionado.name}`;
+      const storageRef = ref(this.storage, nombreArchivo);
+      const snapshot = await uploadBytes(storageRef, this.archivoSeleccionado);
+      const downloadURL = await getDownloadURL(snapshot.ref);
       
-      switch (header) {
-        case 'ID':
-          break;
-        case 'SKU':
-          producto.sku = valor;
-          break;
-        case 'Nombre':
-          producto.nombre = valor;
-          break;
-        case 'Descripción':
-          producto.descripcion = valor;
-          break;
-        case 'Categoría':
-          producto.categoria = valor;
-          break;
-        case 'Subcategoría':
-          producto.subcategoria = valor;
-          break;
-        case 'Marca':
-          producto.marca = valor;
-          break;
-        case 'Material':
-          producto.material = valor;
-          break;
-        case 'Color':
-          producto.color = valor;
-          break;
-        case 'Medida/Capacidad':
-          producto.medida = valor;
-          break;
-        case 'Cantidad por Paquete':
-          producto.cantidadPaquete = valor;
-          break;
-        case 'Biodegradable':
-          producto.biodegradable = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si';
-          break;
-        case 'Apto Microondas':
-          producto.aptoMicroondas = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si';
-          break;
-        case 'Apto Congelador':
-          producto.aptoCongelador = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si';
-          break;
-        case 'Usos Recomendados':
-          producto.usosRecomendados = valor;
-          break;
-        case 'Tiendas':
-          if (valor) {
-            const separador = valor.includes('|') ? '|' : ';';
-            producto.tiendas = valor.split(separador).map(t => t.trim()).filter(t => t);
-          } else {
-            producto.tiendas = [];
-          }
-          break;
-        case 'Modalidades':
-          if (valor) {
-            producto.modalidades = this.parsearModalidades(valor);
-          } else {
-            producto.modalidades = [];
-          }
-          break;
-        case 'Imagen':
-  const imagenLimpia = valor?.trim();
-  if (imagenLimpia && imagenLimpia.length > 0) {
-    producto.imagen = imagenLimpia;
-    console.log('✅ Imagen detectada:', imagenLimpia);
-  } else {
-    console.log('⚠️ Imagen vacía para producto:', producto.nombre);
-    producto.imagen = ''; // Asegurar que exista el campo
+      this.subiendoImagen = false;
+      this.progresoSubida = 100;
+      
+      return downloadURL;
+    } catch (error) {
+      console.error('Error subiendo imagen:', error);
+      this.subiendoImagen = false;
+      throw error;
+    }
   }
-  break;
+
+  async eliminarImagenAnterior(imageUrl: string) {
+    if (!imageUrl || !imageUrl.includes('firebase')) return;
+
+    try {
+      const decodedUrl = decodeURIComponent(imageUrl);
+      const startIndex = decodedUrl.indexOf('/o/') + 3;
+      const endIndex = decodedUrl.indexOf('?');
+      const filePath = decodedUrl.substring(startIndex, endIndex);
+      const storageRef = ref(this.storage, filePath);
+      await deleteObject(storageRef);
+      console.log('Imagen anterior eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar imagen anterior:', error);
+    }
+  }
+
+  limpiarArchivoSeleccionado() {
+    this.archivoSeleccionado = null;
+    this.previsualizacionImagen = null;
+    this.progresoSubida = 0;
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+    this.cdr.detectChanges();
+  }
+
+  // =============================
+  // 🎯 MODALIDADES - GESTIÓN
+  // =============================
+
+  limpiarModalidadSeleccionada() {
+    this.modalidadSeleccionada = '';
+    this.precioActual = 0;
+    this.tamanoActual = '';
+    this.contenidoActual = '';
+    this.cdr.detectChanges();
+  }
+
+  agregarOpcionModalidad() {
+    if (!this.modalidadSeleccionada) {
+      this.mostrarToast('⚠️ Selecciona una modalidad (Mayoreo o Menudeo)', 'warning');
+      return;
+    }
+
+    if (this.precioActual <= 0) {
+      this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
+      return;
+    }
+
+    const opcion = {
+      id: Date.now().toString(),
+      modalidad: this.modalidadSeleccionada,
+      precio: this.precioActual,
+      tamano: this.tamanoActual.trim() || 'N/A',
+      contenido: this.contenidoActual.trim() || 'N/A'
+    };
+
+    if (!Array.isArray(this.producto.modalidades)) {
+      this.producto.modalidades = [];
+    }
+
+    this.producto.modalidades.push(opcion);
+    this.precioActual = 0;
+    this.tamanoActual = '';
+    this.contenidoActual = '';
+    this.mostrarToast('✅ Opción de ' + this.modalidadSeleccionada + ' agregada', 'success');
+    this.limpiarModalidadSeleccionada();
+    this.cdr.detectChanges();
+  }
+
+  eliminarOpcionModalidad(id: string) {
+    this.producto.modalidades = this.producto.modalidades.filter((m: any) => m.id !== id);
+    this.mostrarToast('🗑️ Opción eliminada', 'danger');
+    this.cdr.detectChanges();
+  }
+
+  obtenerOpcionesModalidad(modalidad: string): any[] {
+    if (!Array.isArray(this.producto.modalidades)) return [];
+    return this.producto.modalidades.filter((m: any) => m.modalidad === modalidad);
+  }
+
+  tieneOpcionesValidas(): boolean {
+    return Array.isArray(this.producto.modalidades) && this.producto.modalidades.length > 0;
+  }
+
+  // =============================
+  // 🏪 TIENDAS/SUCURSALES - GESTIÓN
+  // =============================
+
+  agregarTienda() {
+    if (!this.tieneOpcionesValidas()) {
+      this.mostrarToast('⚠️ Agrega al menos una opción de Mayoreo o Menudeo primero', 'warning');
+      return;
+    }
+
+    const tienda = this.nuevaTienda.trim();
+    
+    if (!tienda) {
+      this.mostrarToast('⚠️ Ingresa un nombre de tienda válido', 'warning');
+      return;
+    }
+    
+    if (this.producto.tiendas.includes(tienda)) {
+      this.mostrarToast('⚠️ Esta tienda ya existe', 'warning');
+      return;
+    }
+    
+    if (!Array.isArray(this.producto.tiendas)) {
+      this.producto.tiendas = [];
+    }
+    
+    this.producto.tiendas.push(tienda);
+    this.nuevaTienda = '';
+    this.mostrarToast('✅ Sucursal agregada correctamente', 'success');
+  }
+
+  eliminarTienda(index: number) {
+    if (Array.isArray(this.producto.tiendas) && index >= 0 && index < this.producto.tiendas.length) {
+      this.producto.tiendas.splice(index, 1);
+      this.mostrarToast('🗑️ Sucursal eliminada', 'danger');
+    }
+  }
+
+  // =============================
+  // 🔍 PRODUCTOS - BÚSQUEDA Y FILTROS
+  // =============================
+
+  abrirModalBusqueda() {
+    setTimeout(() => {
+      this.mostrarModalBusqueda = true;
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
+  cerrarModalBusqueda() {
+    this.mostrarModalBusqueda = false;
+    this.cdr.detectChanges();
+  }
+
+  onFiltroCategoriaChange() {
+    const categoria = this.filtroCategoria;
+    if (categoria && this.subcategoriasMap[categoria]) {
+      this.subcategoriasFiltro = this.subcategoriasMap[categoria];
+      this.filtroSubcategoria = '';
+    } else {
+      this.subcategoriasFiltro = [];
+      this.filtroSubcategoria = '';
+    }
+    this.cdr.detectChanges();
+  }
+
+  aplicarFiltros() {
+    this.aplicarFiltrosInternos();
+    this.cerrarModalBusqueda();
+  }
+
+  aplicarFiltrosInternos() {
+    const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
+    const filtroSku = (this.filtroSku || '').trim().toLowerCase();
+    const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
+    const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
+    const filtroSubcategoria = (this.filtroSubcategoria || '').trim().toLowerCase();
+
+    if (!filtroNombre && !filtroSku && !filtroMarca && !filtroCategoria && !filtroSubcategoria) {
+      this.productosFiltrados = [...this.productos];
+      return;
+    }
+
+    this.productosFiltrados = this.productos.filter((producto) => {
+      const nombre = (producto.nombre || '').toLowerCase();
+      const sku = (producto.sku || '').toLowerCase();
+      const marca = (producto.marca || '').toLowerCase();
+      const categoria = (producto.categoria || '').toLowerCase();
+      const subcategoria = (producto.subcategoria || '').toLowerCase();
+
+      return (
+        (filtroNombre ? nombre.includes(filtroNombre) : true) &&
+        (filtroSku ? sku.includes(filtroSku) : true) &&
+        (filtroMarca ? marca.includes(filtroMarca) : true) &&
+        (filtroCategoria ? categoria.includes(filtroCategoria) : true) &&
+        (filtroSubcategoria ? subcategoria.includes(filtroSubcategoria) : true)
+      );
+    });
+  }
+
+  limpiarFiltroNombre() {
+    this.filtroNombre = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarFiltroSku() {
+    this.filtroSku = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarFiltroMarca() {
+    this.filtroMarca = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarFiltroCategoria() {
+    this.filtroCategoria = '';
+    this.filtroSubcategoria = '';
+    this.subcategoriasFiltro = [];
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarFiltroSubcategoria() {
+    this.filtroSubcategoria = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarTodosFiltros() {
+    this.filtroNombre = '';
+    this.filtroSku = '';
+    this.filtroMarca = '';
+    this.filtroCategoria = '';
+    this.filtroSubcategoria = '';
+    this.subcategoriasFiltro = [];
+    this.aplicarFiltrosInternos();
+  }
+
+  // =============================
+  // 📤 PRODUCTOS - EXPORTAR CSV
+  // =============================
+
+  exportarProductosCSV() {
+    if (this.productosFiltrados.length === 0) {
+      this.mostrarToast('⚠️ No hay productos para exportar', 'warning');
+      return;
+    }
+
+    const headers = [
+      'ID', 'SKU', 'Nombre', 'Descripción', 'Categoría', 'Subcategoría',
+      'Marca', 'Material', 'Color', 'Medida/Capacidad', 'Cantidad por Paquete',
+      'Biodegradable', 'Apto Microondas', 'Apto Congelador', 'Usos Recomendados',
+      'Tiendas', 'Modalidades', 'Imagen'
+    ];
+
+    const rows = this.productosFiltrados.map(product => {
+      let modalidadesTexto = '';
+      if (product.modalidades && Array.isArray(product.modalidades) && product.modalidades.length > 0) {
+        modalidadesTexto = product.modalidades.map((m: any) => {
+          const tamano = m.tamano && m.tamano !== 'N/A' ? m.tamano : '';
+          const contenido = m.contenido && m.contenido !== 'N/A' ? m.contenido : '';
+          const precio = m.precio ? `${m.precio}` : '';
+          
+          let partes = [m.modalidad];
+          if (tamano) partes.push(tamano);
+          if (contenido) partes.push(contenido);
+          if (precio) partes.push(precio);
+          
+          return partes.join(' | ');
+        }).join('; ');
       }
+
+      return [
+        product.id || '', product.sku || '', product.nombre || '',
+        product.descripcion || '', product.categoria || '', product.subcategoria || '',
+        product.marca || '', product.material || '', product.color || '',
+        product.medida || '', product.cantidadPaquete || '',
+        product.biodegradable ? 'Sí' : 'No',
+        product.aptoMicroondas ? 'Sí' : 'No',
+        product.aptoCongelador ? 'Sí' : 'No',
+        product.usosRecomendados || '',
+        product.tiendas?.join('; ') || '',
+        modalidadesTexto,
+        product.imagen || ''
+      ];
     });
 
-    // Validar campos requeridos
-    if (producto.nombre && producto.categoria && producto.subcategoria && producto.marca) {
-      if (!producto.sku || producto.sku.trim() === '') {
-        producto.sku = `AUTO-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        console.warn(`Línea ${i + 1}: SKU generado automáticamente: ${producto.sku}`);
-      }
-      productos.push(producto);
-    } else {
-      console.warn(`Línea ${i + 1} ignorada: faltan campos requeridos`);
+    let csvContent = headers.join(',') + '\n';
+    rows.forEach(row => {
+      const escapedRow = row.map(cell => {
+        const cellStr = String(cell);
+        if (cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')) {
+          return `"${cellStr.replace(/"/g, '""')}"`;
+        }
+        return cellStr;
+      });
+      csvContent += escapedRow.join(',') + '\n';
+    });
+
+    const BOM = '\uFEFF';
+    const csvContentWithBOM = BOM + csvContent;
+    const blob = new Blob([csvContentWithBOM], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    const fecha = new Date().toISOString().split('T')[0];
+    const nombreArchivo = `Productos_${fecha}.csv`;
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', nombreArchivo);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.mostrarToast(`✅ ${this.productosFiltrados.length} productos exportados correctamente`, 'success');
+  }
+
+  // =============================
+  // 📥 PRODUCTOS - IMPORTAR CSV
+  // =============================
+
+  async onArchivoCSVSeleccionado(event: any) {
+    const archivo = event.target.files[0];
+    if (!archivo) return;
+
+    if (!archivo.name.endsWith('.csv')) {
+      this.mostrarToast('⚠️ Solo se permiten archivos CSV', 'warning');
+      return;
     }
-  }
 
-  return productos;
-}
-
-// ⭐ PARSEAR MODALIDADES DESDE TEXTO CSV
-private parsearModalidades(textoModalidades: string): any[] {
-  const modalidades: any[] = [];
-  
-  if (!textoModalidades || textoModalidades.trim() === '') {
-    return modalidades;
-  }
-
-  const opciones = textoModalidades.split(';').map(o => o.trim()).filter(o => o);
-
-  for (const opcion of opciones) {
-    const partes = opcion.split('|').map(p => p.trim());
-
-    if (partes.length >= 2) {
-      const modalidad = partes[0];
-      let tamano = 'N/A';
-      let contenido = 'N/A';
-      let precio = 0;
-
-      if (partes.length === 2) {
-        precio = this.parsearPrecio(partes[1]);
-      } else if (partes.length === 3) {
-        tamano = partes[1];
-        precio = this.parsearPrecio(partes[2]);
-      } else if (partes.length >= 4) {
-        tamano = partes[1];
-        contenido = partes[2];
-        precio = this.parsearPrecio(partes[3]);
-      }
-
-      if ((modalidad === 'Mayoreo' || modalidad === 'Menudeo') && precio > 0) {
-        modalidades.push({
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          modalidad: modalidad,
-          tamano: tamano,
-          contenido: contenido,
-          precio: precio
-        });
-      } else {
-        console.warn(`Modalidad inválida ignorada: ${opcion}`);
-      }
+    const maxSize = 10 * 1024 * 1024;
+    if (archivo.size > maxSize) {
+      this.mostrarToast('⚠️ El archivo no debe superar 10MB', 'warning');
+      return;
     }
+
+    this.archivoCSV = archivo;
+    await this.importarProductosCSV();
   }
 
-  return modalidades;
-}
+  limpiarArchivoCSV() {
+    this.archivoCSV = null;
+    const fileInput = document.getElementById('csvFileInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  }
 
-// ⭐ PARSEAR PRECIO
-private parsearPrecio(textoPrecio: string): number {
-  const limpio = textoPrecio.replace(/[$,\s]/g, '').trim();
-  const precio = parseFloat(limpio);
-  return isNaN(precio) ? 0 : precio;
-}
-
-// ⭐ PARSEAR LÍNEA CSV
-private parsearLineaCSV(linea: string): string[] {
-  const resultado: string[] = [];
-  let dentroComillas = false;
-  let campoActual = '';
-
-  for (let i = 0; i < linea.length; i++) {
-    const char = linea[i];
-    const siguienteChar = linea[i + 1];
-
-    if (char === '"' && siguienteChar === '"') {
-      campoActual += '"';
-      i++;
-    } else if (char === '"') {
-      dentroComillas = !dentroComillas;
-    } else if (char === ',' && !dentroComillas) {
-      resultado.push(campoActual);
-      campoActual = '';
-    } else {
-      campoActual += char;
+  async importarProductosCSV() {
+    if (!this.archivoCSV) {
+      this.mostrarToast('⚠️ Selecciona un archivo CSV primero', 'warning');
+      return;
     }
-  }
 
-  resultado.push(campoActual);
-  return resultado;
-}
-// ⭐ CONFIRMAR IMPORTACIÓN
-private async confirmarImportacion(cantidad: number): Promise<boolean> {
-  const alert = await this.alertCtrl.create({
-    header: '📥 Confirmar Importación',
-    message: `¿Deseas importar ${cantidad} producto(s) desde el CSV?<br><br><small>Los productos con SKU existente se actualizarán.</small>`,
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel',
-        cssClass: 'secondary'
-      },
-      {
-        text: 'Importar',
-        role: 'confirm',
-        cssClass: 'primary'
-      }
-    ]
-  });
-
-  await alert.present();
-  const { role } = await alert.onDidDismiss();
-  
-  return role === 'confirm';
-}
-// ⭐ GUARDAR PRODUCTOS EN FIRESTORE
-private async guardarProductosFirestore(productos: any[]) {
-  let exitosos = 0;
-  let fallidos = 0;
-  let actualizados = 0;
-
-  console.log('📦 Iniciando guardado de', productos.length, 'productos');
-
-  for (const producto of productos) {
     try {
-      // ⭐ LOG DETALLADO DEL PRODUCTO
-      console.log('-----------------------------------');
-      console.log('💾 Procesando producto:', producto.nombre);
-      console.log('📸 Imagen:', producto.imagen);
-      console.log('📋 Datos completos:', producto);
+      const texto = await this.leerArchivoCSV(this.archivoCSV);
+      const productos = this.parsearCSV(texto);
+      
+      if (productos.length === 0) {
+        this.mostrarToast('⚠️ No se encontraron productos válidos en el CSV', 'warning');
+        this.limpiarArchivoCSV();
+        return;
+      }
 
-      const ref = collection(this.firestore, 'productos');
+      this.productosImportar = productos;
+      this.cantidadImportar = productos.length;
+      this.mostrarModalImportacion = true;
+      this.cdr.detectChanges();
+
+    } catch (error: any) {
+      console.error('Error importando CSV:', error);
+      this.mostrarToast(error.message || '❌ Error al importar el archivo CSV', 'danger');
+      this.limpiarArchivoCSV();
+    }
+  }
+
+  cancelarImportacion() {
+    this.mostrarModalImportacion = false;
+    this.cantidadImportar = 0;
+    this.productosImportar = [];
+    this.limpiarArchivoCSV();
+    this.cdr.detectChanges();
+  }
+
+  async ejecutarImportacion() {
+    if (this.productosImportar.length === 0) {
+      this.mostrarToast('⚠️ No hay productos para importar', 'warning');
+      this.cancelarImportacion();
+      return;
+    }
+
+    try {
+      this.mostrarModalImportacion = false;
+      this.cdr.detectChanges();
+      this.mostrarToast('⏳ Importando productos...', 'primary');
+      await this.guardarProductosFirestore(this.productosImportar);
+      this.cantidadImportar = 0;
+      this.productosImportar = [];
+      this.limpiarArchivoCSV();
+    } catch (error) {
+      console.error('Error en importación:', error);
+      this.mostrarToast('❌ Error al importar productos', 'danger');
+    }
+  }
+
+  private leerArchivoCSV(archivo: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => resolve(e.target.result);
+      reader.onerror = () => reject(new Error('Error al leer el archivo'));
+      reader.readAsText(archivo, 'UTF-8');
+    });
+  }
+
+  private parsearCSV(texto: string): any[] {
+    const lineas = texto.split('\n').filter(linea => linea.trim() !== '');
+    
+    if (lineas.length < 2) {
+      throw new Error('El archivo CSV está vacío o solo contiene headers');
+    }
+
+    const headers = this.parsearLineaCSV(lineas[0]).map(h => h.trim());
+    const headersRequeridos = ['Nombre', 'Categoría', 'Subcategoría', 'Marca', 'Descripción'];
+    const faltantes = headersRequeridos.filter(h => !headers.includes(h));
+    
+    if (faltantes.length > 0) {
+      throw new Error(`Faltan columnas requeridas: ${faltantes.join(', ')}`);
+    }
+
+    const productos: any[] = [];
+    
+    for (let i = 1; i < lineas.length; i++) {
+      const valores = this.parsearLineaCSV(lineas[i]);
       
-      // Obtener todos los productos para buscar por SKU o ID
-      const querySnapshot = await getDocs(ref);
-      let productoExistente: any = null;
+      if (valores.length !== headers.length) {
+        console.warn(`Línea ${i + 1} ignorada: número incorrecto de columnas`);
+        continue;
+      }
+
+      const producto: any = { modalidades: [], tiendas: [] };
       
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        // Buscar por SKU (preferido) o por ID si existe en el CSV
-        if (data['sku'] === producto.sku) {
-          productoExistente = { id: doc.id, ...data };
+      headers.forEach((header, index) => {
+        const valor = valores[index].trim();
+        
+        switch (header) {
+          case 'SKU': producto.sku = valor; break;
+          case 'Nombre': producto.nombre = valor; break;
+          case 'Descripción': producto.descripcion = valor; break;
+          case 'Categoría': producto.categoria = valor; break;
+          case 'Subcategoría': producto.subcategoria = valor; break;
+          case 'Marca': producto.marca = valor; break;
+          case 'Material': producto.material = valor; break;
+          case 'Color': producto.color = valor; break;
+          case 'Medida/Capacidad': producto.medida = valor; break;
+          case 'Cantidad por Paquete': producto.cantidadPaquete = valor; break;
+          case 'Biodegradable': 
+            producto.biodegradable = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si'; 
+            break;
+          case 'Apto Microondas': 
+            producto.aptoMicroondas = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si'; 
+            break;
+          case 'Apto Congelador': 
+            producto.aptoCongelador = valor.toLowerCase() === 'sí' || valor.toLowerCase() === 'si'; 
+            break;
+          case 'Usos Recomendados': producto.usosRecomendados = valor; break;
+          case 'Tiendas':
+            if (valor) {
+              const separador = valor.includes('|') ? '|' : ';';
+              producto.tiendas = valor.split(separador).map(t => t.trim()).filter(t => t);
+            }
+            break;
+          case 'Modalidades':
+            if (valor) producto.modalidades = this.parsearModalidades(valor);
+            break;
+          case 'Imagen':
+            producto.imagen = valor && valor.trim() ? valor.trim() : '';
+            break;
         }
       });
 
-      if (productoExistente) {
-        // Actualizar producto existente
-        console.log('🔄 Producto existente encontrado, actualizando...');
-        const docRef = doc(this.firestore, `productos/${productoExistente.id}`);
-        const { id, ...productoSinId } = producto;
-        
-        console.log('📝 Datos a actualizar:', productoSinId);
-        
-        await updateDoc(docRef, productoSinId);
-        console.log('✅ Producto actualizado correctamente');
-        actualizados++;
+      if (producto.nombre && producto.categoria && producto.subcategoria && producto.marca) {
+        if (!producto.sku || producto.sku.trim() === '') {
+          producto.sku = `AUTO-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+        productos.push(producto);
+      }
+    }
+
+    return productos;
+  }
+
+  private parsearModalidades(textoModalidades: string): any[] {
+    const modalidades: any[] = [];
+    if (!textoModalidades || textoModalidades.trim() === '') return modalidades;
+
+    const opciones = textoModalidades.split(';').map(o => o.trim()).filter(o => o);
+
+    for (const opcion of opciones) {
+      const partes = opcion.split('|').map(p => p.trim());
+
+      if (partes.length >= 2) {
+        const modalidad = partes[0];
+        let tamano = 'N/A';
+        let contenido = 'N/A';
+        let precio = 0;
+
+        if (partes.length === 2) {
+          precio = this.parsearPrecio(partes[1]);
+        } else if (partes.length === 3) {
+          tamano = partes[1];
+          precio = this.parsearPrecio(partes[2]);
+        } else if (partes.length >= 4) {
+          tamano = partes[1];
+          contenido = partes[2];
+          precio = this.parsearPrecio(partes[3]);
+        }
+
+        if ((modalidad === 'Mayoreo' || modalidad === 'Menudeo') && precio > 0) {
+          modalidades.push({
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            modalidad, tamano, contenido, precio
+          });
+        }
+      }
+    }
+
+    return modalidades;
+  }
+
+  private parsearPrecio(textoPrecio: string): number {
+    const limpio = textoPrecio.replace(/[$,\s]/g, '').trim();
+    const precio = parseFloat(limpio);
+    return isNaN(precio) ? 0 : precio;
+  }
+
+  private parsearLineaCSV(linea: string): string[] {
+    const resultado: string[] = [];
+    let dentroComillas = false;
+    let campoActual = '';
+
+    for (let i = 0; i < linea.length; i++) {
+      const char = linea[i];
+      const siguienteChar = linea[i + 1];
+
+      if (char === '"' && siguienteChar === '"') {
+        campoActual += '"';
+        i++;
+      } else if (char === '"') {
+        dentroComillas = !dentroComillas;
+      } else if (char === ',' && !dentroComillas) {
+        resultado.push(campoActual);
+        campoActual = '';
       } else {
-        // Crear nuevo producto
-        console.log('✨ Creando nuevo producto...');
-        const { id, ...productoSinId } = producto;
+        campoActual += char;
+      }
+    }
+
+    resultado.push(campoActual);
+    return resultado;
+  }
+
+  private async guardarProductosFirestore(productos: any[]) {
+    let exitosos = 0;
+    let fallidos = 0;
+    let actualizados = 0;
+
+    for (const producto of productos) {
+      try {
+        const ref = collection(this.firestore, 'productos');
+        const querySnapshot = await getDocs(ref);
+        let productoExistente: any = null;
         
-        console.log('📝 Datos a crear:', productoSinId);
-        
-        const docRef = await addDoc(ref, productoSinId);
-        await updateDoc(docRef, { id: docRef.id });
-        console.log('✅ Producto creado correctamente con ID:', docRef.id);
-        exitosos++;
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data['sku'] === producto.sku) {
+            productoExistente = { id: docSnap.id, ...data };
+          }
+        });
+
+        if (productoExistente) {
+          const docRef = doc(this.firestore, `productos/${productoExistente.id}`);
+          const { id, ...productoSinId } = producto;
+          await updateDoc(docRef, productoSinId);
+          actualizados++;
+        } else {
+          const { id, ...productoSinId } = producto;
+          const docRef = await addDoc(ref, productoSinId);
+          await updateDoc(docRef, { id: docRef.id });
+          exitosos++;
+        }
+      } catch (error) {
+        console.error('Error guardando producto:', error);
+        fallidos++;
+      }
+    }
+
+    let mensaje = '📊 Importación completada: ';
+    const partes = [];
+    
+    if (exitosos > 0) partes.push(`✅ ${exitosos} creados`);
+    if (actualizados > 0) partes.push(`🔄 ${actualizados} actualizados`);
+    if (fallidos > 0) partes.push(`❌ ${fallidos} fallidos`);
+
+    mensaje += partes.join(' | ');
+    this.mostrarToast(mensaje, fallidos > 0 ? 'warning' : 'success');
+  }
+
+  // =============================
+  // 👥 USUARIOS - CRUD
+  // =============================
+
+  obtenerUsuarios() {
+    const ref = collection(this.firestore, 'usuarios');
+    collectionData(ref, { idField: 'id' }).subscribe((data) => {
+      this.usuarios = data;
+      this.aplicarFiltrosUsuarios();
+    });
+  }
+
+  abrirModalBusquedaUsuarios() {
+    setTimeout(() => {
+      this.mostrarModalBusquedaUsuarios = true;
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
+  cerrarModalBusquedaUsuarios() {
+    this.mostrarModalBusquedaUsuarios = false;
+    this.cdr.detectChanges();
+  }
+
+  editarUsuario(usuario: any) {
+    this.mostrarModalUsuario = false;
+    this.usuarioEditandoId = '';
+    this.usuarioEditando = { nombre: '', email: '', rol: 'usuario' };
+    this.cdr.detectChanges();
+    
+    setTimeout(() => {
+      this.usuarioEditandoId = usuario.id;
+      this.usuarioEditando = { 
+        nombre: usuario.nombre || '',
+        email: usuario.email || '',
+        rol: usuario.rol || 'usuario'
+      };
+      this.mostrarModalUsuario = true;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  cerrarModalUsuario() {
+    this.mostrarModalUsuario = false;
+    this.cdr.detectChanges();
+    
+    setTimeout(() => {
+      this.usuarioEditandoId = '';
+      this.usuarioEditando = { nombre: '', email: '', rol: 'usuario' };
+      this.cdr.detectChanges();
+    }, 100);
+  }
+
+  async guardarUsuarioEditado(id: string) {
+    try {
+      if (!this.usuarioEditando || !this.usuarioEditando.email) {
+        await this.mostrarToast('❌ No hay datos para guardar', 'danger');
+        return;
       }
 
+      if (!this.usuarioEditando.email.includes('@')) {
+        await this.mostrarToast('⚠️ Por favor ingresa un email válido', 'warning');
+        return;
+      }
+
+      const docRef = doc(this.firestore, `usuarios/${id}`);
+      const datosActualizar = {
+        nombre: this.usuarioEditando.nombre || '',
+        email: this.usuarioEditando.email || '',
+        rol: this.usuarioEditando.rol || 'usuario',
+      };
+
+      await updateDoc(docRef, datosActualizar);
+      await this.mostrarToast('✅ Usuario actualizado correctamente');
+      this.cerrarModalUsuario();
     } catch (error) {
-      console.error('❌ Error guardando producto:', producto.nombre, error);
-      fallidos++;
+      console.error('Error al actualizar usuario:', error);
+      await this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
     }
   }
 
-  console.log('📊 Resumen: Exitosos:', exitosos, 'Actualizados:', actualizados, 'Fallidos:', fallidos);
-
-  // Mostrar resultado
-  let mensaje = '📊 Importación completada: ';
-  const partes = [];
-  
-  if (exitosos > 0) partes.push(`✅ ${exitosos} creados`);
-  if (actualizados > 0) partes.push(`🔄 ${actualizados} actualizados`);
-  if (fallidos > 0) partes.push(`❌ ${fallidos} fallidos`);
-
-  mensaje += partes.join(' | ');
-
-  this.mostrarToast(mensaje, fallidos > 0 ? 'warning' : 'success');
-}
-
-// ⭐ DESCARGAR PLANTILLA CSV (ACTUALIZADA CON MODALIDADES)
-descargarPlantillaCSV() {
-  const headers = [
-    'ID',
-    'SKU',
-    'Nombre',
-    'Descripción',
-    'Categoría',
-    'Subcategoría',
-    'Marca',
-    'Material',
-    'Color',
-    'Medida/Capacidad',
-    'Cantidad por Paquete',
-    'Biodegradable',
-    'Apto Microondas',
-    'Apto Congelador',
-    'Usos Recomendados',
-    'Tiendas',
-    'Modalidades',  // ⭐ Nueva columna
-    'Imagen'
-  ];
-
-  // Ejemplo de producto con modalidades
-  const ejemplo = [
-    '',
-    'VASO-001',
-    'Vaso Desechable 16oz',
-    'Vaso transparente ideal para bebidas frías',
-    'Desechables',
-    'Vasos',
-    'PlastiCup',
-    'Polipropileno',
-    'Transparente',
-    '16oz',
-    'Caja de 1000',
-    'No',
-    'No',
-    'Sí',
-    'Ideal para eventos, restaurantes y cafeterías',
-    'Sucursal Centro; Sucursal Norte',
-    'Mayoreo | Caja | 1000 pcs | $850; Menudeo | Paquete | 100 pcs | $120',  // ⭐ Ejemplo de modalidades
-    'https://ejemplo.com/imagen.jpg'
-  ];
-
-  // Construir CSV
-  const BOM = '\uFEFF';
-  let csvContent = BOM + headers.join(',') + '\n';
-  csvContent += ejemplo.map(cell => {
-    if (cell.includes(',') || cell.includes(';')) {
-      return `"${cell}"`;
+  async cambiarRolUsuario(usuarioId: string, nuevoRol: string) {
+    try {
+      const docRef = doc(this.firestore, `usuarios/${usuarioId}`);
+      await updateDoc(docRef, { rol: nuevoRol });
+      await this.mostrarToast(`✅ Rol actualizado a ${nuevoRol}`, 'success');
+    } catch (error) {
+      console.error('Error al cambiar rol:', error);
+      await this.mostrarToast('❌ Error al cambiar el rol', 'danger');
     }
-    return cell;
-  }).join(',') + '\n';
+  }
 
-  // Descargar
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'plantilla_productos.csv');
-  link.style.visibility = 'hidden';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  this.mostrarToast('📄 Plantilla CSV descargada', 'success');
-}
+  eliminarUsuario(id: string) {
+    const usuario = this.usuarios.find(u => u.id === id);
+    this.idAEliminar = id;
+    this.tipoEliminacion = 'usuario';
+    this.nombreElementoEliminar = usuario?.nombre || usuario?.email || 'este usuario';
+    this.mostrarModalEliminar = true;
+    this.cdr.detectChanges();
+  }
+
+  // =============================
+  // 👥 USUARIOS - FILTROS
+  // =============================
+
+  aplicarFiltrosUsuarios() {
+    const filtroNombre = (this.filtroNombreUsuario || '').trim().toLowerCase();
+    const filtroEmail = (this.filtroEmailUsuario || '').trim().toLowerCase();
+    const filtroRol = (this.filtroRolUsuario || '').trim().toLowerCase();
+
+    if (!filtroNombre && !filtroEmail && !filtroRol) {
+      this.usuariosFiltrados = [...this.usuarios];
+      return;
+    }
+
+    this.usuariosFiltrados = this.usuarios.filter((usuario) => {
+      const nombre = (usuario.nombre || '').toLowerCase();
+      const email = (usuario.email || '').toLowerCase();
+      const rol = (usuario.rol || 'usuario').toLowerCase();
+
+      return (
+        (filtroNombre ? nombre.includes(filtroNombre) : true) &&
+        (filtroEmail ? email.includes(filtroEmail) : true) &&
+        (filtroRol ? rol === filtroRol : true)
+      );
+    });
+  }
+
+  limpiarFiltrosUsuarios() {
+    this.filtroNombreUsuario = '';
+    this.filtroEmailUsuario = '';
+    this.filtroRolUsuario = '';
+    this.aplicarFiltrosUsuarios();
+  }
+
+  aplicarFiltrosUsuariosDesdeModal() {
+    this.aplicarFiltrosUsuarios();
+    this.cerrarModalBusquedaUsuarios();
+  }
+
+  // =============================
+  // 👥 USUARIOS - EXPORTAR CSV
+  // =============================
+
+  exportarUsuariosCSV() {
+    if (this.usuariosFiltrados.length === 0) {
+      this.mostrarToast('⚠️ No hay usuarios para exportar', 'warning');
+      return;
+    }
+
+    const headers = ['ID', 'Nombre', 'Email', 'Rol', 'Fecha Creación'];
+    const rows = this.usuariosFiltrados.map(u => [
+      u.id,
+      u.nombre || 'Sin nombre',
+      u.email,
+      u.rol || 'usuario',
+      u.fechaCreacion || 'N/A'
+    ]);
+
+    let csvContent = headers.join(',') + '\n';
+    rows.forEach(row => {
+      csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `usuarios_${new Date().getTime()}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.mostrarToast('✅ Usuarios exportados correctamente', 'success');
+  }
 
   // =============================
   // 📧 MENSAJES DE CONTACTO
@@ -1920,23 +1453,19 @@ descargarPlantillaCSV() {
     const ref = collection(this.firestore, 'contactMessages');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
       this.mensajes = data.sort((a: any, b: any) => {
-        if (b.date && a.date) {
-          return b.date.localeCompare(a.date);
-        }
+        if (b.date && a.date) return b.date.localeCompare(a.date);
         return 0;
       });
     });
   }
 
-  async eliminarMensaje(id: string) {
-    try {
-      const docRef = doc(this.firestore, `contactMessages/${id}`);
-      await deleteDoc(docRef);
-      await this.mostrarToast('🗑️ Mensaje eliminado correctamente', 'danger');
-    } catch (error) {
-      console.error('Error eliminando mensaje:', error);
-      await this.mostrarToast('❌ Error al eliminar el mensaje', 'danger');
-    }
+  eliminarMensaje(id: string) {
+    const mensaje = this.mensajes.find(m => m.id === id);
+    this.idAEliminar = id;
+    this.tipoEliminacion = 'mensaje';
+    this.nombreElementoEliminar = mensaje?.name || 'este mensaje';
+    this.mostrarModalEliminar = true;
+    this.cdr.detectChanges();
   }
 
   responderMensaje(email: string, mensajeOriginal: string) {
@@ -1957,9 +1486,9 @@ descargarPlantillaCSV() {
   }
 
   // =============================
-  // 📰 NEWSLETTER
+  // 📰 NEWSLETTER - CRUD
   // =============================
-  
+
   obtenerSuscriptores() {
     const ref = collection(this.firestore, 'newsletter');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -2013,37 +1542,17 @@ descargarPlantillaCSV() {
   }
 
   eliminarSuscriptor(id: string) {
-    this.suscriptorAEliminarId = id;
-    this.mostrarModalEliminarSuscriptor = true;
+    const suscriptor = this.suscriptores.find(s => s.id === id);
+    this.idAEliminar = id;
+    this.tipoEliminacion = 'suscriptor';
+    this.nombreElementoEliminar = suscriptor?.nombre || suscriptor?.email || 'este suscriptor';
+    this.mostrarModalEliminar = true;
     this.cdr.detectChanges();
   }
 
-  cerrarModalEliminarSuscriptor() {
-    this.mostrarModalEliminarSuscriptor = false;
-    this.suscriptorAEliminarId = '';
-    this.cdr.detectChanges();
-  }
-
-  async confirmarEliminacionSuscriptor() {
-    if (!this.suscriptorAEliminarId) {
-      return;
-    }
-
-    try {
-      const docRef = doc(this.firestore, `newsletter/${this.suscriptorAEliminarId}`);
-      await deleteDoc(docRef);
-      
-      this.suscriptoresSeleccionados.delete(this.suscriptorAEliminarId);
-      
-      await this.mostrarToast('🗑️ Suscriptor eliminado correctamente', 'danger');
-      this.cerrarModalEliminarSuscriptor();
-      
-    } catch (error) {
-      console.error('Error eliminando suscriptor:', error);
-      await this.mostrarToast('❌ Error al eliminar el suscriptor', 'danger');
-      this.cerrarModalEliminarSuscriptor();
-    }
-  }
+  // =============================
+  // 📰 NEWSLETTER - ENVÍO
+  // =============================
 
   abrirModalEnviarNewsletter() {
     if (this.suscriptores.length === 0) {
@@ -2064,10 +1573,8 @@ descargarPlantillaCSV() {
 
   cerrarModalEnviarNewsletter() {
     this.mostrarModalEnviarNewsletter = false;
-    
     this.asuntoNewsletter = '';
     this.mensajeNewsletter = '';
-    
     this.cdr.detectChanges();
   }
 
@@ -2144,7 +1651,7 @@ descargarPlantillaCSV() {
   }
 
   // =============================
-  // 🚪 SESIÓN
+  // 🚪 CERRAR SESIÓN
   // =============================
   
   cerrarSesion() {

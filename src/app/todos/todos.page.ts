@@ -344,7 +344,7 @@ trackByProductId(index: number, product: Producto): number {
       duration: 2500,
       position: 'bottom',
       color,
-      cssClass: 'custom-toast',
+      cssClass: `toast-${color}`,
       buttons: [
         {
           text: 'OK',

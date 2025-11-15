@@ -1,101 +1,494 @@
-<app-header></app-header>
 
 <ion-content [fullscreen]="true">
+<app-header></app-header>
 
-  <!-- 1. BANNER HERO - CARRUSEL -->
-  <section class="hero-section">
-    <div class="carousel-container">
-      <div class="carousel-slide" [class.active]="currentSlide === 0">
-        <img src="../../assets/img/flyers/flyer1.png" alt="Slide 1">
-      </div>
-      <div class="carousel-slide" [class.active]="currentSlide === 1">
-        <img src="../../assets/img/flyers/flyer2.png" alt="Slide 2">
-      </div>
-      <div class="carousel-slide" [class.active]="currentSlide === 2">
-        <img src="../../assets/img/flyers/flyer3.png" alt="Slide 3">
+<!-- 1. INICIO -->
+<section class="hero-section">
+  <div class="hero-container">
+    
+    <!-- COLUMNA DERECHA: Carrusel Automático - AHORA PRIMERO EN EL HTML -->
+    <div class="hero-right">
+      <div class="carousel-wrapper">
+        
+        <div class="carousel-container">
+          <div class="carousel-slide" [class.active]="currentSlide === 0">
+            <img src="../../assets/img/flyers/556569458_1180367487461025_6477125976789323313_n.jpg" alt="Promoción 1">
+          </div>
+          <div class="carousel-slide" [class.active]="currentSlide === 1">
+            <img src="../../assets/img/flyers/571230378_1205216721642768_6502942124768990811_n.jpg" alt="Promoción 2">
+          </div>
+          <div class="carousel-slide" [class.active]="currentSlide === 2">
+            <img src="../../assets/img/flyers/571342373_1205228504974923_5161134521539099631_n.jpg" alt="Promoción 3">
+          </div>
+        </div>
+        
+        <!-- Indicadores Mejorados -->
+        <div class="carousel-indicators">
+          <button 
+            class="indicator" 
+            [class.active]="currentSlide === 0"
+            (click)="goToSlide(0)"
+            aria-label="Ir a promoción 1">
+          </button>
+          <button 
+            class="indicator" 
+            [class.active]="currentSlide === 1"
+            (click)="goToSlide(1)"
+            aria-label="Ir a promoción 2">
+          </button>
+          <button 
+            class="indicator" 
+            [class.active]="currentSlide === 2"
+            (click)="goToSlide(2)"
+            aria-label="Ir a promoción 3">
+          </button>
+        </div>
       </div>
     </div>
+    
+    <!-- COLUMNA IZQUIERDA: Logo y Bienvenida - AHORA SEGUNDO EN EL HTML -->
+    <div class="hero-left">
+      <div class="hero-content">
+        
+        <h1 class="hero-title">
+          Tu Distribuidor de Confianza
+        </h1>
+        
+        <div class="hero-brand">
+          <span class="brand-name">interventas</span>
+        </div>
+        
+        <p class="hero-subtitle">
+          Más de 30 años siendo el aliado estratégico de tu negocio con productos de calidad, 
+          entregas rápidas en toda la República y un equipo dedicado a tu éxito.
+        </p>
+        
+        <div class="hero-buttons">
+          <button class="subscribe-btn" style="border-radius: 15px;" routerLink="/productos/todos">
+            <ion-icon name="cart-outline"></ion-icon>
+            <span>Explorar Catálogo</span>
+          </button>
+          <button class="btn-secondary" style="border-radius: 15px;" routerLink="/contacto">
+            <ion-icon name="call-outline"></ion-icon>
+            <span>Contáctanos</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</section>
 
-    <!-- Controles del carrusel -->
+<!-- 2. PRODUCTOS DESTACADOS -->
+<section class="featured-products-section ion-padding" *ngIf="productosDestacados.length > 0">
+  <div class="featured-container">
+    <div class="section-header">
+      <h2>Productos Destacados</h2>
+      <p class="sub-header">Los mejores productos seleccionados especialmente para ti</p>
+    </div>
+
+    <!-- ⭐ BOTONES FUERA DEL CARRUSEL -->
     <div class="carousel-controls">
-      <button class="carousel-btn prev" (click)="previousSlide()">‹</button>
-      <button class="carousel-btn next" (click)="nextSlide()">›</button>
+      <button class="carousel-nav prev" (click)="prevFeatured()" [disabled]="currentFeaturedIndex === 0">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      
+      <button class="carousel-nav next" (click)="nextFeatured()" [disabled]="currentFeaturedIndex >= maxFeaturedIndex">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
     </div>
-  </section>
 
-  <!-- 2. PRODUCTOS DESTACADOS - 4 productos -->
-  <section class="products-section ion-padding">
+    <!-- Carrusel de productos destacados -->
+    <div class="featured-carousel">
+      <div class="featured-products-wrapper">
+        <div class="featured-products-track" [style.transform]="'translateX(' + featuredTransform + '%)'">
+          
+          <!-- TARJETA DE PRODUCTO -->
+          <div class="product-card" *ngFor="let product of productosDestacados; let i = index">
+            <div class="card-inner">
+              
+              <!-- Badge de destacado -->
+              <div class="featured-badge">
+                <ion-icon name="star"></ion-icon>
+                <span>Destacado</span>
+              </div>
+
+              <!-- Imagen del producto -->
+              <div class="product-image">
+                <img 
+                  [src]="product.imagen || 'assets/img/placeholder.png'" 
+                  [alt]="product.nombre"
+                  (error)="$event.target.src='assets/img/placeholder.png'">
+              </div>
+
+              <!-- Información del producto -->
+              <div class="product-info">
+                
+                <!-- Categoría -->
+                <div>
+                  <span class="product-category" *ngIf="product.categoria">
+                    {{ product.categoria }}
+                  </span>
+                </div>
+
+                <!-- Nombre -->
+                <h3 class="product-name">{{ product.nombre }}</h3>
+
+                <!-- Descripción -->
+                <p class="product-description">{{ product.descripcion }}</p>
+
+                <!-- Marca -->
+                <div class="product-brand" *ngIf="product.marca">
+                  <ion-icon name="ribbon-outline"></ion-icon>
+                  <span>{{ product.marca }}</span>
+                </div>
+
+                <!-- Footer con botón -->
+                <div class="product-footer">
+                  <button class="view-product-btn" (click)="viewFeaturedProduct(product)">
+                    <span class="btn-icon">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </span>
+                    <span class="btn-text">Ver detalles</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="featured-indicators">
+      <button 
+        *ngFor="let _ of featuredPages; let i = index"
+        class="indicator"
+        [class.active]="i === currentFeaturedIndex"
+        (click)="goToFeaturedPage(i)">
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODAL DE PRODUCTO DESTACADO (igual al de todos.page.html) -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-container product-detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <!-- Header del Modal -->
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Detalles del Producto</h2>
+            <p>Información completa y opciones de compra</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="closeModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Contenido del Modal -->
+      <div class="modal-body-custom">
+        <div class="product-detail-container" *ngIf="selectedProduct">
+          
+          <!-- Imagen grande del producto -->
+          <div class="detail-image-section">
+            <div class="preview-image">
+              <img 
+                [src]="selectedProduct.imagen || 'assets/img/placeholder.png'" 
+                [alt]="selectedProduct.nombre"
+                (error)="$event.target.src='assets/img/placeholder.png'">
+            </div>
+          </div>
+
+          <!-- Información detallada -->
+          <div class="detail-info-section">
+            
+            <!-- SKU -->
+            <div class="form-group-custom" *ngIf="selectedProduct.sku">
+              <label class="form-label-custom">
+                <ion-icon name="barcode-outline"></ion-icon>
+                <span>SKU</span>
+              </label>
+              <div class="detail-value">{{ selectedProduct.sku }}</div>
+            </div>
+
+            <!-- Categoría y Subcategoría -->
+            <div class="detail-badges" *ngIf="selectedProduct.categoria">
+              <span class="detail-category">
+                {{ selectedProduct.categoria }}
+              </span>
+              <span class="detail-subcategory" *ngIf="selectedProduct.subcategoria">
+                {{ selectedProduct.subcategoria }}
+              </span>
+            </div>
+
+            <!-- Nombre -->
+            <h2 class="detail-name">{{ selectedProduct.nombre }}</h2>
+
+            <!-- Marca -->
+            <div class="detail-brand" *ngIf="selectedProduct.marca">
+              <ion-icon name="ribbon-outline"></ion-icon>
+              <span>Marca: <strong>{{ selectedProduct.marca }}</strong></span>
+            </div>
+
+            <!-- Especificaciones Técnicas -->
+            <div class="specifications-section" *ngIf="selectedProduct.material || selectedProduct.color || selectedProduct.medida || selectedProduct.cantidadPaquete">
+              <h3 class="section-title">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>Especificaciones</span>
+              </h3>
+              
+              <div class="specs-grid">
+                <div class="spec-item" *ngIf="selectedProduct.material">
+                  <div class="spec-icon">
+                    <ion-icon name="albums-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Material</span>
+                    <span class="spec-value">{{ selectedProduct.material }}</span>
+                  </div>
+                </div>
+
+                <div class="spec-item" *ngIf="selectedProduct.color">
+                  <div class="spec-icon">
+                    <ion-icon name="color-palette-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Color</span>
+                    <span class="spec-value">{{ selectedProduct.color }}</span>
+                  </div>
+                </div>
+
+                <div class="spec-item" *ngIf="selectedProduct.medida">
+                  <div class="spec-icon">
+                    <ion-icon name="resize-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Medida/Capacidad</span>
+                    <span class="spec-value">{{ selectedProduct.medida }}</span>
+                  </div>
+                </div>
+
+                <div class="spec-item" *ngIf="selectedProduct.cantidadPaquete">
+                  <div class="spec-icon">
+                    <ion-icon name="cube-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Presentación</span>
+                    <span class="spec-value">{{ selectedProduct.cantidadPaquete }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Características Especiales -->
+            <div class="features-section" *ngIf="selectedProduct.biodegradable || selectedProduct.aptoMicroondas || selectedProduct.aptoCongelador">
+              <h3 class="section-title">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>Características Especiales</span>
+              </h3>
+              
+              <div class="features-grid">
+                <div class="feature-badge" *ngIf="selectedProduct.biodegradable">
+                  <ion-icon name="leaf-outline"></ion-icon>
+                  <span>Biodegradable</span>
+                </div>
+                
+                <div class="feature-badge" *ngIf="selectedProduct.aptoMicroondas">
+                  <ion-icon name="radio-outline"></ion-icon>
+                  <span>Apto Microondas</span>
+                </div>
+                
+                <div class="feature-badge" *ngIf="selectedProduct.aptoCongelador">
+                  <ion-icon name="snow-outline"></ion-icon>
+                  <span>Apto Congelador</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div class="detail-description" *ngIf="selectedProduct.descripcion">
+              <h3>
+                <ion-icon name="document-text-outline"></ion-icon>
+                Descripción
+              </h3>
+              <p>{{ selectedProduct.descripcion }}</p>
+            </div>
+
+            <!-- Usos Recomendados -->
+            <div class="detail-description" *ngIf="selectedProduct.usosRecomendados">
+              <h3>
+                <ion-icon name="bulb-outline"></ion-icon>
+                Usos Recomendados
+              </h3>
+              <p>{{ selectedProduct.usosRecomendados }}</p>
+            </div>
+
+            <!-- SELECT: Modalidades -->
+            <div class="form-group-custom" *ngIf="selectedProduct.modalidades && selectedProduct.modalidades.length > 0">
+              <label class="form-label-custom required">
+                <ion-icon name="cart-outline"></ion-icon>
+                <span>Selecciona una Opción</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select class="custom-select-native" [(ngModel)]="selectedModalidad" (ngModelChange)="onModalidadChange()">
+                  <option value="">Elige una opción de compra</option>
+                  <option *ngFor="let modalidad of selectedProduct.modalidades" [value]="modalidad.id">
+                    {{ modalidad.modalidad }} - {{ modalidad.tamano }} - {{ modalidad.contenido }} - ${{ modalidad.precio }}
+                  </option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Información de modalidad seleccionada -->
+            <div class="modalidad-selected-info" *ngIf="selectedModalidadObj">
+              <div class="info-card">
+                <div class="info-badge" [class.mayoreo]="selectedModalidadObj.modalidad === 'Mayoreo'" [class.menudeo]="selectedModalidadObj.modalidad === 'Menudeo'">
+                  {{ selectedModalidadObj.modalidad }}
+                </div>
+                <div class="info-details">
+                  <div class="info-row">
+                    <ion-icon name="resize-outline"></ion-icon>
+                    <span>Tamaño: <strong>{{ selectedModalidadObj.tamano }}</strong></span>
+                  </div>
+                  <div class="info-row">
+                    <ion-icon name="layers-outline"></ion-icon>
+                    <span>Contenido: <strong>{{ selectedModalidadObj.contenido }}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SELECT: Sucursales -->
+            <div class="form-group-custom" *ngIf="selectedProduct.tiendas && selectedProduct.tiendas.length > 0">
+              <label class="form-label-custom">
+                <ion-icon name="storefront-outline"></ion-icon>
+                <span>Selecciona una Sucursal</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select class="custom-select-native" [(ngModel)]="selectedTienda">
+                  <option value="">Elige una sucursal</option>
+                  <option *ngFor="let tienda of selectedProduct.tiendas" [value]="tienda">
+                    {{ tienda }}
+                  </option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Precio y cantidad -->
+            <div class="detail-purchase-section">
+              
+              <div class="detail-price-container">
+                <span class="detail-price-label">Precio por unidad</span>
+                <div class="price-display">
+                  <span class="detail-price">${{ getCurrentPrice() | number:'1.2-2' }}</span>
+                </div>
+              </div>
+
+              <div class="quantity-selector">
+                <button class="quantity-btn" (click)="decrementQuantity()">
+                  <ion-icon name="remove-outline"></ion-icon>
+                </button>
+                <span class="quantity-value">{{ quantity }}</span>
+                <button class="quantity-btn" (click)="incrementQuantity()">
+                  <ion-icon name="add-outline"></ion-icon>
+                </button>
+              </div>
+
+              <div class="total-section">
+                <span class="total-label">Total a pagar</span>
+                <span class="total-price">${{ getTotal() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer del Modal -->
+      <div class="modal-footer-custom">
+        <button 
+          type="button"
+          class="btn-submit"
+          [disabled]="!selectedModalidad"
+          (click)="addToCartFromModal()">
+          <ion-icon name="cart-outline"></ion-icon>
+          <span>Agregar al carrito</span>
+        </button>
+        
+        <button 
+          type="button"
+          class="btn-cancel"
+          (click)="closeModal()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 3. ¿POR QUÉ ELEGIRNOS? -->
+<section class="why-us-section ion-padding">
+    <div class="why-us-container">
+      <h2 class="ion-text-center">¿Por Qué Elegirnos?</h2>
+      <p class="ion-text-center sub-header">Nos destacamos por nuestro compromiso con la calidad y la satisfacción del cliente.</p>
+      
+      <div class="why-us-grid">
+        <div class="why-us-card">
+          <div class="why-us-icon catalog-icon">
+            <ion-icon name="grid-outline"></ion-icon>
+          </div>
+          <h3>Amplio Catálogo</h3>
+          <p>Productos de calidad para todas tus necesidades</p>
+        </div>
+        
+        <div class="why-us-card">
+          <div class="why-us-icon delivery-icon">
+            <ion-icon name="rocket-outline"></ion-icon>
+          </div>
+          <h3>Distribución Rápida</h3>
+          <p>Entrega eficiente y puntual en toda la región</p>
+        </div>
+        
+        <div class="why-us-card">
+          <div class="why-us-icon service-icon">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <h3>Atención Personalizada</h3>
+          <p>Asesoría experta para tu negocio</p>
+        </div>
+        
+        <div class="why-us-card">
+          <div class="why-us-icon brands-icon">
+            <ion-icon name="ribbon-outline"></ion-icon>
+          </div>
+          <h3>Mejores Marcas</h3>
+          <p>Trabajamos con líderes del mercado</p>
+        </div>
+      </div>
+    </div>
+</section>
+
+<!-- 4. MARCAS DESTACADAS -->
+<section class="brands-section ion-padding">
     <!-- Icono Flotante -->
-    <div class="section-icon">
-      <ion-icon name="star-outline"></ion-icon>
-    </div>
-    
-    <h2 class="ion-text-center">Productos Destacados</h2>
-    <p class="ion-text-center sub-header">Nuestra selección más vendida de desechables y empaques.</p>
-
-    <div class="product-grid">
-      
-      <ion-card class="product-card" (click)="openProductModal(productosDestacados[0])">
-        <ion-img src="../../assets/img/products/charolagrande.png" alt="Charola para alimentos"></ion-img>
-        <ion-card-header>
-          <ion-card-title>Charola Grande C-10</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Ideal para pastelerías, carnicerías y catering.</p>
-          <div class="price">Desde $37.00</div>
-          <ion-button fill="clear" color="accent">Clic para más detalles</ion-button>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="product-card" (click)="openProductModal(productosDestacados[1])">
-        <ion-img src="../../assets/img/products/vasotermico.png" alt="Vaso desechable"></ion-img>
-        <ion-card-header>
-          <ion-card-title>Vaso Térmico No.10</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Excelente aislamiento, perfecto para bebidas frías y calientes.</p>
-          <div class="price">$26.00 (Paquete)</div>
-          <ion-button fill="clear" color="accent">Ver Detalle</ion-button>
-        </ion-card-content>
-      </ion-card>
-      
-      <ion-card class="product-card" (click)="openProductModal(productosDestacados[2])">
-        <ion-img src="../../assets/img/products/cucharamediana.png" alt="Cuchara de plástico"></ion-img>
-        <ion-card-header>
-          <ion-card-title>Cuchara Plástica Mediana</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>La opción económica y resistente para eventos y restaurantes.</p>
-          <div class="price">Desde $14.00 (Caja)</div>
-          <ion-button fill="clear" color="accent">Ver Detalle</ion-button>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="product-card" (click)="openProductModal(productosDestacados[3])">
-        <ion-img src="../../assets/img/products/platobiodegradable.png" alt="Plato biodegradable"></ion-img>
-        <ion-card-header>
-          <ion-card-title>Plato Biodegradable 9"</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Amigable con el ambiente, resistente y elegante para cualquier evento.</p>
-          <div class="price">$52.00 (Paquete 50)</div>
-          <ion-button fill="clear" color="accent">Ver Detalle</ion-button>
-        </ion-card-content>
-      </ion-card>
-      
-    </div>
-  </section>
-
-  <!-- 3. MARCAS DESTACADAS -->
-  <section class="brands-section ion-padding">
-    <!-- Icono Flotante -->
-    <div class="section-icon">
-      <ion-icon name="ribbon-outline"></ion-icon>
-    </div>
-    
     <h2 class="ion-text-center">Marcas Destacadas</h2>
     <p class="ion-text-center sub-header ion-margin-bottom">Trabajamos con las marcas líderes en calidad y confianza.</p>
-    
     <div class="brands-grid">
       <div class="brand-item">
         <img src="assets/img/brands/reyma.jpeg" alt="Reymaq">
@@ -113,211 +506,203 @@
         <img src="assets/img/brands/monarch.jpeg" alt="Monarch">
       </div>
     </div>
-  </section>
+</section>
 
-  <!-- 4. EXPLORA NUESTRO CATÁLOGO -->
-  <section class="stats-section ion-padding">
-    <!-- Icono Flotante -->
-    <div class="section-icon">
-      <ion-icon name="albums-outline"></ion-icon>
-    </div>
-    
+<!-- 5. EXPLORA NUESTRO CATÁLOGO -->
+<section class="stats-section ion-padding">
     <h2 class="ion-text-center ion-margin-bottom">Explora Nuestro Catálogo</h2>
     <p class="ion-text-center sub-header">Trabajamos para brindarte seguridad y calidad en todas nuestras líneas de productos.</p>
     
     <div class="stats-grid">
-      
-      <ion-card class="stat-card" routerLink="/productos/empaques">
-        <ion-card-header>
-          <ion-card-title>EMPAQUES</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          Ver la variedad de productos.
-        </ion-card-content>
-      </ion-card>
-      
       <ion-card class="stat-card" routerLink="/productos/desechables">
         <ion-card-header>
           <ion-card-title>DESECHABLES</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          Vasos, platos, cubiertos y más.
+          Vasos, platos y cubiertos.
         </ion-card-content>
       </ion-card>
-      
       <ion-card class="stat-card" routerLink="/productos/biodegradables">
         <ion-card-header>
           <ion-card-title>BIODEGRADABLES</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          Opciones amigables con el ambiente.
+          Productos eco-friendly.
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="stat-card" routerLink="/productos/bolsas">
+        <ion-card-header>
+          <ion-card-title>BOLSAS</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Para todo tipo de uso.
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="stat-card" routerLink="/productos/cocina-reposteria">
+        <ion-card-header>
+          <ion-card-title>COCINA Y REPOSTERÍA</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Utensilios y accesorios.
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="stat-card" routerLink="/productos/alimentos">
+        <ion-card-header>
+          <ion-card-title>ALIMENTOS</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Productos alimenticios.
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="stat-card" routerLink="/productos/empaques">
+        <ion-card-header>
+          <ion-card-title>HIGIÉNICOS Y SERVILLETAS</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Papel y productos de limpieza.
         </ion-card-content>
       </ion-card>
       
     </div>
-  </section>
+</section>
 
-  <!-- 5. SECCIÓN DE NEWSLETTER - ACTUALIZADA -->
-  <section class="newsletter-section ion-padding">
-    <div class="newsletter-container">
+<!-- 6. ESTADÍSTICAS -->
+<section class="statistics-section ion-padding">
+    <div class="statistics-container">
+      <h2 class="ion-text-center">Nuestra Trayectoria</h2>
+      <p class="ion-text-center sub-header">Más de tres décadas brindando excelencia y confianza.</p>
       
+      <div class="statistics-grid">
+        <div class="statistics-card">  <!-- Cambiado de stat-card -->
+          <div class="stat-icon years-stat-icon">
+            <ion-icon name="calendar-outline"></ion-icon>
+          </div>
+          <div class="stat-number">30+</div>
+          <div class="stat-label">Años de Experiencia</div>
+        </div>
+        
+        <div class="statistics-card">  <!-- Cambiado de stat-card -->
+          <div class="stat-icon quality-badge-icon">
+            <ion-icon name="ribbon-outline"></ion-icon>
+          </div>
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Calidad Garantizada</div>
+        </div>
+        
+        <div class="statistics-card">  <!-- Cambiado de stat-card -->
+          <div class="stat-icon support-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+     class="ionicon" 
+     viewBox="0 0 512 512" 
+     width="38px" 
+     height="38px">
+  <path d="M256 64C150 64 64 150 64 256s86 192 192 192 192-86 192-192S362 64 256 64z"
+        fill="none"
+        stroke="currentColor"
+        stroke-miterlimit="10"
+        stroke-width="32" />
+  <path d="M256 128v144h96"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="32" />
+</svg>
+
+          </div>
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Atención al Cliente</div>
+        </div>
+        
+        <div class="statistics-card">  <!-- Cambiado de stat-card -->
+          <div class="stat-icon products-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <div class="stat-number">1200+</div>
+          <div class="stat-label">Productos Disponibles</div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<!-- 7. SECCIÓN DE NEWSLETTER -->
+<section class="newsletter-section ion-padding">
+    <div class="newsletter-container">
       <!-- Icono Flotante Central -->
       <div class="newsletter-icon">
         <ion-icon name="mail-outline"></ion-icon>
       </div>
-      
       <!-- Título y Descripción -->
       <h2>¡Suscríbete a Nuestro Newsletter!</h2>
       <p class="newsletter-description">
         Recibe las mejores ofertas, descuentos exclusivos y novedades directamente en tu correo.
       </p>
-      
       <!-- Formulario -->
       <form class="newsletter-form" (ngSubmit)="subscribeNewsletter($event)" #newsletterForm="ngForm">
-        <div class="form-row">
-          
-          <!-- Campo Nombre -->
-          <div class="form-group">
-            <ion-icon name="person-outline" class="input-icon"></ion-icon>
-            <input 
-              type="text" 
-              placeholder="Tu nombre" 
-              [(ngModel)]="subscriberName"
-              name="subscriberName"
-              class="newsletter-input"
-              required
-              minlength="2"
-              #nameInput="ngModel"
-              [class.input-error]="nameInput.invalid && nameInput.touched"
-            >
-            <div class="error-message" *ngIf="nameInput.invalid && nameInput.touched">
-              <small>El nombre es requerido (mínimo 2 caracteres)</small>
-            </div>
-          </div>
-          
-          <!-- Campo Email -->
-          <div class="form-group">
-            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
-            <input 
-              type="email" 
-              placeholder="Tu correo electrónico" 
-              [(ngModel)]="subscriberEmail"
-              name="subscriberEmail"
-              class="newsletter-input"
-              required
-              email
-              #emailInput="ngModel"
-              [class.input-error]="emailInput.invalid && emailInput.touched"
-            >
-            <div class="error-message" *ngIf="emailInput.invalid && emailInput.touched">
-              <small *ngIf="emailInput.errors?.['required']">El correo es requerido</small>
-              <small *ngIf="emailInput.errors?.['email']">Ingresa un correo válido</small>
-            </div>
-          </div>
-          
-          <!-- Botón Submit -->
-          <button 
-            type="submit" 
-            class="subscribe-btn" 
-            [disabled]="isSubscribing || newsletterForm.invalid"
-            [class.btn-loading]="isSubscribing"
-          >
-            <span *ngIf="!isSubscribing" class="btn-content">
-              <ion-icon name="paper-plane-outline"></ion-icon>
-              <span class="btn-text">Suscribirme</span>
-            </span>
-            <span *ngIf="isSubscribing" class="btn-content">
-              <ion-spinner name="crescent" class="btn-spinner"></ion-spinner>
-              <span class="btn-text">Procesando...</span>
-            </span>
-          </button>
-          
-        </div>
-      </form>
-      
-      <!-- Beneficios -->
-      <div class="newsletter-benefits">
-        <div class="benefit-item">
-          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-          <span>Descuentos exclusivos</span>
-        </div>
-        <div class="benefit-item">
-          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-          <span>Promociones especiales</span>
-        </div>
-        <div class="benefit-item">
-          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-          <span>Novedades de productos</span>
-        </div>
+      <div class="form-row">
+      <!-- Campo Nombre -->
+      <div class="form-group">
+      <ion-icon name="person-outline" class="input-icon"></ion-icon>
+      <input 
+        type="text" 
+        placeholder="Tu nombre" 
+        [(ngModel)]="subscriberName"
+        name="subscriberName"
+        class="newsletter-input"
+        required
+        minlength="2"
+        #nameInput="ngModel"
+      >
+      <div class="error-message" *ngIf="nameInput.invalid && nameInput.touched && nameInput.dirty">
+        <small>El nombre es requerido (mínimo 2 caracteres)</small>
       </div>
-      
+      </div>
+    
+      <!-- Campo Email -->
+      <div class="form-group">
+      <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+      <input 
+        type="email" 
+        placeholder="Tu correo electrónico" 
+        [(ngModel)]="subscriberEmail"
+        name="subscriberEmail"
+        class="newsletter-input"
+        required
+        email
+        #emailInput="ngModel"
+      >
+      <div class="error-message" *ngIf="emailInput.invalid && emailInput.touched && emailInput.dirty">
+      <small *ngIf="emailInput.errors?.['required']">El correo es requerido</small>
+      <small *ngIf="emailInput.errors?.['email']">Ingresa un correo válido</small>
+      </div>
+      </div>
+    
+      <!-- Botón Submit -->
+      <button 
+      type="submit" 
+      class="subscribe-btn" 
+      [disabled]="isSubscribing || newsletterForm.invalid"
+      >
+      <span *ngIf="!isSubscribing" class="btn-content">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+        <span class="btn-text">Inscribirse</span>
+      </span>
+      <span *ngIf="isSubscribing" class="btn-content">
+        <ion-spinner name="crescent" class="btn-spinner"></ion-spinner>
+        <span class="btn-text">Procesando...</span>
+      </span>
+      </button>
+    
+    </div>
+      </form>
       <!-- Nota de Privacidad -->
       <p class="privacy-note">
-        <ion-icon name="shield-checkmark-outline"></ion-icon>
-        Tu información está 100% protegida. No compartimos tu correo con terceros.
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      Tu información está 100% protegida. No compartimos tu correo con terceros.
       </p>
       
     </div>
-  </section>
+</section>
 
-  <!-- MODAL DE PRODUCTO -->
-  <div class="product-modal-overlay" *ngIf="showProductModal" (click)="closeProductModal()">
-    <div class="product-modal" (click)="$event.stopPropagation()">
-      
-      <!-- Botón Cerrar -->
-      <button class="modal-close-btn" (click)="closeProductModal()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-
-      <div class="modal-content">
-        
-        <!-- Lado Izquierdo: Imagen -->
-        <div class="modal-image-section">
-          <div class="image-wrapper">
-            <img [src]="selectedProduct?.imagen" [alt]="selectedProduct?.nombre">
-          </div>
-        </div>
-
-        <!-- Lado Derecho: Información -->
-        <div class="modal-info-section">
-          
-          <h2 class="product-title">{{ selectedProduct?.nombre }}</h2>
-          
-          <div class="product-description">
-            <p>{{ selectedProduct?.descripcion }}</p>
-          </div>
-
-          <!-- Características del producto -->
-          <div class="product-features">
-            <div class="feature-item">
-              <ion-icon name="ribbon-outline"></ion-icon>
-              <span><strong>Marca:</strong> {{ selectedProduct?.marca }}</span>
-            </div>
-            <div class="feature-item">
-              <ion-icon name="cube-outline"></ion-icon>
-              <span><strong>Piezas:</strong> {{ selectedProduct?.piezas }}</span>
-            </div>
-          </div>
-
-          <div class="product-price-section">
-            <div class="price-label">Precio</div>
-            <div class="price-amount">{{ selectedProduct?.precio }}</div>
-          </div>
-
-          <button class="add-to-cart-btn" (click)="addToCart()">
-            <ion-icon name="cart-outline" slot="start"></ion-icon>
-            <span>Añadir al Carrito</span>
-          </button>
-
-          <div class="modal-footer-note">
-            <ion-icon name="shield-checkmark-outline"></ion-icon>
-            <span>Compra segura garantizada</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <app-footer></app-footer>
+<app-footer></app-footer>
 </ion-content>

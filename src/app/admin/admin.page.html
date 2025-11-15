@@ -562,10 +562,11 @@
     </div>
   </section>
 
-
-
-<!-- 🎨 MODAL CONFIRMAR ELIMINACIÓN SUSCRIPTOR -->
-<div class="modal-overlay" *ngIf="mostrarModalEliminarSuscriptor" (click)="cerrarModalEliminarSuscriptor()">
+<!--=========================-->
+<!--MODALS DE CONFIRMACION-->
+<!--=========================-->
+<!-- 🎨 MODAL CONFIRMAR ELIMINACIÓN UNIFICADO -->
+<div class="modal-overlay" *ngIf="mostrarModalEliminar" (click)="cerrarModalEliminar()">
     <div class="modal-container delete-modal" (click)="$event.stopPropagation()">
       <div class="modal-wrapper">
         
@@ -576,11 +577,11 @@
               <ion-icon name="trash-outline"></ion-icon>
             </div>
             <div class="header-text">
-              <h2>¿Eliminar suscriptor?</h2>
+              <h2>¿Eliminar {{ obtenerTipoTexto() }}?</h2>
               <p>Esta acción no se puede deshacer</p>
             </div>
           </div>
-          <button class="close-btn" (click)="cerrarModalEliminarSuscriptor()">
+          <button class="close-btn" (click)="cerrarModalEliminar()">
             <ion-icon name="close-outline"></ion-icon>
           </button>
         </div>
@@ -589,7 +590,10 @@
         <div class="modal-body-custom">
           <div class="delete-warning">
             <ion-icon name="warning-outline"></ion-icon>
-            <p>El suscriptor será eliminado permanentemente del sistema. Esta acción es irreversible.</p>
+            <div>
+              <p><strong>{{ nombreElementoEliminar }}</strong></p>
+              <p>{{ obtenerMensajeConfirmacion() }}</p>
+            </div>
           </div>
         </div>
 
@@ -597,7 +601,7 @@
         <div class="modal-footer-custom">
           <button 
             type="button"
-            (click)="cerrarModalEliminarSuscriptor()"
+            (click)="cerrarModalEliminar()"
             class="btn-cancel">
             <ion-icon name="close-outline"></ion-icon>
             <span>Cancelar</span>
@@ -605,7 +609,7 @@
           
           <button 
             type="button"
-            (click)="confirmarEliminacionSuscriptor()"
+            (click)="confirmarEliminacion()"
             class="btn-delete">
             <ion-icon name="trash-outline"></ion-icon>
             <span>Eliminar</span>
@@ -616,6 +620,64 @@
     </div>
 </div>
 
+<!-- 🎨 MODAL CONFIRMAR IMPORTACIÓN CSV -->
+<div class="modal-overlay" *ngIf="mostrarModalImportacion" (click)="cancelarImportacion()">
+    <div class="modal-container import-modal" (click)="$event.stopPropagation()">
+      <div class="modal-wrapper">
+        
+        <!-- 🎯 Header del Modal -->
+        <div class="modal-header-custom">
+          <div class="header-left">
+            <div class="header-icon import-icon">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+            </div>
+            <div class="header-text">
+              <h2>¿Confirmar Importación?</h2>
+              <p>Revisa los detalles antes de continuar</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="cancelarImportacion()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- 📋 Contenido del Modal -->
+        <div class="modal-body-custom">
+          <div class="import-info">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <div>
+              <p><strong>{{ cantidadImportar }} producto(s)</strong> serán importados al sistema.</p>
+              <p class="info-detail">Los productos con SKU existente se actualizarán automáticamente.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 📘 Botones -->
+        <div class="modal-footer-custom">
+          <button 
+            type="button"
+            (click)="cancelarImportacion()"
+            class="btn-cancel">
+            <ion-icon name="close-outline"></ion-icon>
+            <span>Cancelar</span>
+          </button>
+          
+          <button 
+            type="button"
+            (click)="ejecutarImportacion()"
+            class="btn-import">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <span>Importar</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+</div>
+
+<!--=========================-->
+<!--MODALS DE ACCION-->
+<!--=========================-->
 <!-- 🎨 MODAL ENVIAR NEWSLETTER -->
 <div class="modal-overlay" *ngIf="mostrarModalEnviarNewsletter" (click)="cerrarModalEnviarNewsletter()">
     <div class="modal-container newsletter-modal" (click)="$event.stopPropagation()">
@@ -973,46 +1035,58 @@ Equipo Interventas"
             </div>
           </div>
 
-          <!-- ========== SECCIÓN 3: CARACTERÍSTICAS ========== -->
-          <div class="form-section-title">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            <span>Características Especiales</span>
-          </div>
+          <!-- CARACTERÃSTICAS ESPECIALES -->
+<div class="form-section-title">
+  <ion-icon name="checkmark-circle-outline"></ion-icon>
+  <span>Características Especiales</span>
+</div>
 
-          <div class="caracteristicas-grid">
-            <label class="checkbox-item">
-              <input 
-                type="checkbox" 
-                [(ngModel)]="producto.biodegradable" 
-                name="biodegradable">
-              <span class="checkbox-label">
-                <ion-icon name="leaf-outline"></ion-icon>
-                Biodegradable
-              </span>
-            </label>
+<div class="caracteristicas-grid">
+  <label class="checkbox-item">
+    <input 
+      type="checkbox" 
+      [(ngModel)]="producto.biodegradable" 
+      name="biodegradable">
+    <span class="checkbox-label">
+      <ion-icon name="leaf-outline"></ion-icon>
+      Biodegradable
+    </span>
+  </label>
 
-            <label class="checkbox-item">
-              <input 
-                type="checkbox" 
-                [(ngModel)]="producto.aptoMicroondas" 
-                name="aptoMicroondas">
-              <span class="checkbox-label">
-                <ion-icon name="radio-outline"></ion-icon>
-                Apto Microondas
-              </span>
-            </label>
+  <label class="checkbox-item">
+    <input 
+      type="checkbox" 
+      [(ngModel)]="producto.aptoMicroondas" 
+      name="aptoMicroondas">
+    <span class="checkbox-label">
+      <ion-icon name="radio-outline"></ion-icon>
+      Apto Microondas
+    </span>
+  </label>
 
-            <label class="checkbox-item">
-              <input 
-                type="checkbox" 
-                [(ngModel)]="producto.aptoCongelador" 
-                name="aptoCongelador">
-              <span class="checkbox-label">
-                <ion-icon name="snow-outline"></ion-icon>
-                Apto Congelador
-              </span>
-            </label>
-          </div>
+  <label class="checkbox-item">
+    <input 
+      type="checkbox" 
+      [(ngModel)]="producto.aptoCongelador" 
+      name="aptoCongelador">
+    <span class="checkbox-label">
+      <ion-icon name="snow-outline"></ion-icon>
+      Apto Congelador
+    </span>
+  </label>
+
+  <!-- ⭐ NUEVO: DESTACAR PRODUCTO -->
+  <label class="checkbox-item checkbox-destacado">
+    <input 
+      type="checkbox" 
+      [(ngModel)]="producto.destacado" 
+      name="destacado">
+    <span class="checkbox-label">
+      <ion-icon name="star-outline"></ion-icon>
+      Producto Destacado
+    </span>
+  </label>
+</div>
 
           <!-- ========== SECCIÓN 4: MODALIDADES Y OPCIONES ========== -->
           <div class="form-section-title">
