@@ -15,10 +15,17 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Mensaje recibido en segundo plano:', payload);
 
-  const notificationTitle = payload.notification?.title || 'Nueva notificación';
+  const notificationTitle = payload.notification?.title || 'Notificación';
   const notificationOptions = {
-    body: payload.notification?.body || '',
-    icon: '/assets/icon/icon-192x192.png'
+    body: payload.notification?.body || 'Nueva notificación',
+    icon: '/assets/icon/icon.png',
+    badge: '/assets/icon/badge.png',
+    // Esto oculta la URL "vía localhost"
+    tag: 'app-notification',
+    data: payload.data,
+    // No mostrar URL de origen
+    silent: false,
+    requireInteraction: false
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
