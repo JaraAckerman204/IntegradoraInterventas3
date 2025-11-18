@@ -1,250 +1,402 @@
-<app-header></app-header>
+
 
 <ion-content>
-
-  <div class="admin-hero">
-    <div class="hero-content">
-      <div class="hero-icon">
-        <ion-icon name="construct-outline"></ion-icon>
-      </div>
-      <h1>Panel de Administración</h1>
-      <p>Gestiona productos, usuarios y mensajes del sistema</p>
+<app-header></app-header>
+<!-- 🎯 HERO SECTION - ESTILO HOME.PAGE -->
+<section class="admin-hero">
+  <div class="hero-content">
+    <div class="hero-icon">
+      <ion-icon name="construct-outline"></ion-icon>
     </div>
+    <h1>Panel de Administración</h1>
+    <p>Gestiona productos, usuarios y mensajes del sistema de forma eficiente</p>
   </div>
+</section>
 
-  <section class="admin-section">
-    <div class="admin-container">
+<!-- 📋 ADMIN SECTION -->
+<section class="admin-section">
+  <div class="admin-container">
 
-      <div class="tabs-navigation">
-        <button 
-          class="tab-btn" 
-          [class.active]="tabActiva === 'productos'"
-          (click)="cambiarTab('productos')">
-          <ion-icon name="cube-outline"></ion-icon>
-          <span>Productos</span>
-        </button>
-        
-        <button 
-          class="tab-btn" 
-          [class.active]="tabActiva === 'usuarios'"
-          (click)="cambiarTab('usuarios')">
-          <ion-icon name="people-outline"></ion-icon>
-          <span>Usuarios</span>
-        </button>
-        
-        <button 
-          class="tab-btn" 
-          [class.active]="tabActiva === 'mensajes'"
-          (click)="cambiarTab('mensajes')">
-          <ion-icon name="mail-outline"></ion-icon>
-          <span>Mensajes</span>
-        </button>
-        
-        <button 
-          class="tab-btn" 
-          [class.active]="tabActiva === 'newsletter'"
-          (click)="cambiarTab('newsletter')">
-          <ion-icon name="newspaper-outline"></ion-icon>
-          <span>Newsletter</span>
-        </button>
-      </div>
+    <!-- 🎯 TABS NAVIGATION -->
+    <div class="tabs-navigation">
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'productos'"
+        (click)="cambiarTab('productos')">
+        <ion-icon name="cube-outline"></ion-icon>
+        <span>Productos</span>
+      </button>
       
-      <div class="tab-content">
-        
-        <!-- ====================== -->
-        <!-- TAB: PRODUCTOS -->
-        <!-- ====================== -->
-        <div *ngIf="tabActiva === 'productos'" class="content-wrapper" data-tab="productos">
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'usuarios'"
+        (click)="cambiarTab('usuarios')">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>Usuarios</span>
+      </button>
+      
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'mensajes'"
+        (click)="cambiarTab('mensajes')">
+        <ion-icon name="mail-outline"></ion-icon>
+        <span>Mensajes</span>
+      </button>
+      
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'newsletter'"
+        (click)="cambiarTab('newsletter')">
+        <ion-icon name="newspaper-outline"></ion-icon>
+        <span>Newsletter</span>
+      </button>
+    </div>
+    
+    <!-- 📄 TAB CONTENT -->
+    <div class="tab-content">
+      
+<!-- ====================== -->
+<!-- TAB: PRODUCTOS -->
+<!-- ====================== -->
+<div *ngIf="tabActiva === 'productos'" class="content-wrapper" data-tab="productos">
+  
+  <!-- Header -->
   <div class="content-header">
     <div>
       <h2>Gestión de Productos</h2>
-      <p>Administra tu catálogo de productos</p>
+      <p>Administra tu catálogo completo de productos</p>
     </div>
     <div class="header-actions">
-      <button class="btn-search" (click)="abrirModalBusqueda()">
-        <ion-icon name="search-outline"></ion-icon>
-        <span>Buscar</span>
-      </button>
-      <button class="btn-add-product" (click)="abrirModalProducto()">
-        <ion-icon name="add-circle-outline"></ion-icon>
-        <span>Agregar Producto</span>
+  <button class="btn-add-product" (click)="abrirModalProducto()">
+    <ion-icon name="add-circle-outline"></ion-icon>
+    <span>Nuevo Producto</span>
+  </button>
+  <button class="btn-export" (click)="exportarProductosCSV()">
+    <ion-icon name="download-outline"></ion-icon>
+  </button>
+  <input 
+    type="file" 
+    #csvFileInput
+    accept=".csv" 
+    (change)="onArchivoCSVSeleccionado($event)"
+    style="display: none;">
+  <button class="btn-import-csv" (click)="csvFileInput.click()">
+    <ion-icon name="cloud-upload-outline"></ion-icon>
+  </button>
+</div>
+  </div>
+
+  <!-- Estadísticas -->
+<div class="users-stats">
+  <div class="stat-card-user">
+    <div class="stat-icon-wrapper">
+      <ion-icon name="cube-outline"></ion-icon>
+    </div>
+    <div class="stat-content">
+      <span class="stat-number">{{ productos.length }}</span>
+      <span class="stat-label">Total Productos</span>
+    </div>
+  </div>
+  <div class="stat-card-user admin">
+    <div class="stat-icon-wrapper">
+      <ion-icon name="star-outline"></ion-icon>
+    </div>
+    <div class="stat-content">
+      <span class="stat-number">{{ productosFiltrados.length }}</span>
+      <span class="stat-label">Filtrados</span>
+    </div>
+  </div>
+  <div class="stat-card-user regular">
+    <div class="stat-icon-wrapper">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+    </div>
+    <div class="stat-content">
+      <span class="stat-number">{{ productosSeleccionados.size }}</span>
+      <span class="stat-label">Seleccionados</span>
+    </div>
+  </div>
+</div>
+
+<!-- Búsqueda rápida + Botones -->
+<div class="search-container-wrapper">
+  <!-- Búsqueda Rápida -->
+  <div class="form-group-custom search-group">
+    <label class="form-label-custom">
+      <ion-icon name="search-outline"></ion-icon>
+      <span>Búsqueda Rápida</span>
+    </label>
+    <div class="input-wrapper">
+      <input 
+        type="text" 
+        [(ngModel)]="busquedaRapida"
+        (ngModelChange)="aplicarBusquedaRapida()"
+        placeholder="Buscar por nombre, SKU o marca..."
+        class="custom-input">
+      <button 
+        *ngIf="busquedaRapida" 
+        class="btn-clear-search"
+        (click)="limpiarBusquedaRapida()"
+        style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: rgba(237, 19, 112, 0.1); border-radius: 50%; cursor: pointer; transition: all 0.2s ease; margin-left: 8px;">
+        <ion-icon name="close-circle" style="font-size: 24px; color: #ed1370;"></ion-icon>
       </button>
     </div>
   </div>
 
-  <!-- 🔍 FILTROS ACTIVOS -->
-<div class="active-filters" *ngIf="filtroNombre || filtroSku || filtroMarca || filtroCategoria || filtroSubcategoria">
-  <div class="filter-header">
-    <ion-icon name="filter-outline"></ion-icon>
-    <span>Filtros activos:</span>
-  </div>
-  <div class="filter-tags">
-    <div class="filter-tag" *ngIf="filtroNombre">
-      <span>Nombre: {{ filtroNombre }}</span>
-      <button (click)="limpiarFiltroNombre()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    <div class="filter-tag" *ngIf="filtroSku">
-      <span>SKU: {{ filtroSku }}</span>
-      <button (click)="limpiarFiltroSku()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    <div class="filter-tag" *ngIf="filtroMarca">
-      <span>Marca: {{ filtroMarca }}</span>
-      <button (click)="limpiarFiltroMarca()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    <div class="filter-tag" *ngIf="filtroCategoria">
-      <span>Categoría: {{ filtroCategoria }}</span>
-      <button (click)="limpiarFiltroCategoria()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    <div class="filter-tag" *ngIf="filtroSubcategoria">
-      <span>Subcategoría: {{ filtroSubcategoria }}</span>
-      <button (click)="limpiarFiltroSubcategoria()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    <button class="clear-all-btn" (click)="limpiarTodosFiltros()">
-      Limpiar todos
+  <!-- Botones de acción -->
+  <div class="search-actions-group">
+    <!-- Botón Búsqueda Avanzada -->
+    <button 
+      class="btn-advanced-search"
+      (click)="abrirModalBusqueda()"
+      title="Búsqueda Avanzada">
+      <ion-icon name="filter-outline"></ion-icon>
+      <span>Búsqueda Avanzada</span>
+    </button>
+
+    <!-- Botón Productos Destacados -->
+    <button 
+      class="btn-featured-toggle"
+      [class.active]="filtroDestacado === 'si'"
+      (click)="toggleFiltroDestacados()"
+      title="Mostrar solo productos destacados">
+      <ion-icon name="star-outline"></ion-icon>
+      <span>Destacados</span>
     </button>
   </div>
 </div>
 
-  <!-- 🧾 TARJETAS DE PRODUCTOS -->
-  <div class="products-grid" *ngIf="productosFiltrados.length > 0">
-    <div class="product-card" *ngFor="let producto of productosFiltrados">
-      
-      <!-- IMAGEN DEL PRODUCTO -->
-      <div class="product-image">
-        <img [src]="producto.imagen || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'" 
-             alt="{{ producto.nombre }}" />
-      </div>
-
-      <!-- CONTENIDO COMPRIMIDO -->
-      <div class="product-content">
-        
-        <!-- NOMBRE Y SKU EN UNA LÍNEA -->
-        <div class="product-header">
-          <h4 class="product-name">{{ producto.nombre }}</h4>
-          <span class="product-sku" *ngIf="producto.sku">SKU: {{ producto.sku }}</span>
-        </div>
-
-        <!-- CATEGORÍA Y MARCA COMPRIMIDA -->
-        <div class="product-details">
-          <span class="detail-item" *ngIf="producto.categoria">
-            <ion-icon name="folder-outline"></ion-icon>
-            {{ producto.categoria }}
-          </span>
-          <span class="detail-item" *ngIf="producto.marca">
-            <ion-icon name="ribbon-outline"></ion-icon>
-            Marca: {{ producto.marca }}
-          </span>
-        </div>
-        <!-- MODALIDADES DISPONIBLES -->
-    <div class="product-modalidades" *ngIf="getModalidadesDisponibles(producto).length > 0">
-      <span class="modalidad-badge" *ngIf="tieneModalidad(producto, 'Mayoreo')">
-        <ion-icon name="cart-outline"></ion-icon>
-        Mayoreo
-      </span>
-      <span class="modalidad-badge" *ngIf="tieneModalidad(producto, 'Menudeo')">
-        <ion-icon name="cart-outline"></ion-icon>
-        Menudeo
-      </span>
+  <!-- Filtros activos -->
+  <div class="active-filters" *ngIf="tieneFiltrosActivos()">
+    <div class="filter-header">
+      <ion-icon name="filter-outline"></ion-icon>
+      <span>Filtros activos ({{ contarFiltrosActivos() }}):</span>
     </div>
-      </div>
-
-      <!-- BOTONES DE ACCIÓN (FOOTER) -->
-      <div class="product-footer">
-        <button class="btn-edit" (click)="editarProducto(producto)" title="Editar">
-          <ion-icon name="create-outline"></ion-icon>
-          <span>Editar</span>
+    <div class="filter-tags">
+      <div class="filter-tag" *ngIf="filtroCategoria">
+        <span>Categoría: {{ filtroCategoria }}</span>
+        <button (click)="filtroCategoria = ''; aplicarFiltrosInternos()">
+          <ion-icon name="close-outline"></ion-icon>
         </button>
-        <button class="btn-delete" (click)="eliminarProducto(producto.id)" title="Eliminar">
-          <ion-icon name="trash-outline"></ion-icon>
-          <span>Eliminar</span>
+      </div>
+      <div class="filter-tag" *ngIf="filtroSubcategoria">
+        <span>Subcategoría: {{ filtroSubcategoria }}</span>
+        <button (click)="filtroSubcategoria = ''; aplicarFiltrosInternos()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="filter-tag" *ngIf="filtroMarca">
+        <span>Marca: {{ filtroMarca }}</span>
+        <button (click)="filtroMarca = ''; aplicarFiltrosInternos()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="filter-tag" *ngIf="filtroDestacado">
+        <span>Estado: {{ filtroDestacado === 'si' ? 'Destacados' : 'No destacados' }}</span>
+        <button (click)="filtroDestacado = ''; aplicarFiltrosInternos()">
+          <ion-icon name="close-outline"></ion-icon>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ESTADO VACÍO - SIN RESULTADOS DE BÚSQUEDA -->
-  <div class="empty-state" *ngIf="productosFiltrados.length === 0 && (filtroNombre || filtroMarca)">
+  <!-- Tabla de productos -->
+<div class="users-table-container" *ngIf="productosFiltrados.length > 0">
+  <div class="table-controls">
+    <label class="checkbox-control">
+      <input 
+        type="checkbox" 
+        [(ngModel)]="seleccionarTodosProductos"
+        (change)="toggleSeleccionarTodosProductos()">
+      <span>Seleccionar todos</span>
+    </label>
+    <button 
+      *ngIf="productosSeleccionados.size > 0"
+      class="btn-icon-table danger" 
+      (click)="eliminarProductosSeleccionados()"
+      style="margin-left: auto;">
+      <ion-icon name="trash-outline"></ion-icon>
+      Eliminar seleccionados
+    </button>
+  </div>
+  
+  <div class="users-table">
+    <table>
+      <thead>
+        <tr>
+          <th width="40">✓</th>
+          <th width="80">Imagen</th>
+          <th>Producto</th>
+          <th width="140">Categoría</th>
+          <th width="120">Marca</th>
+          <th width="180">Modalidades</th> <!-- ✅ NUEVA COLUMNA -->
+          <th width="110" style="text-align: center;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let producto of productosFiltrados">
+          <td>
+            <input 
+              type="checkbox" 
+              [checked]="productosSeleccionados.has(producto.id)"
+              (change)="toggleProductoSeleccion(producto.id)"
+              style="width: 20px; height: 20px; cursor: pointer; accent-color: #ed1370;">
+          </td>
+          
+          <td>
+            <div style="width: 64px; height: 64px; border-radius: 10px; overflow: hidden; background: #f8f9fa; border: 2px solid #e9ecef;">
+              <img [src]="producto.imagen || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'" 
+                   [alt]="producto.nombre"
+                   style="width: 100%; height: 100%; object-fit: cover;" />
+            </div>
+          </td>
+          
+          <td>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <strong style="font-family: var(--font-primary); font-weight: 800; font-size: 1em; color: #27318d;">
+                {{ producto.nombre }}
+              </strong>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <span style="display: inline-flex; padding: 4px 10px; background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); border-radius: 8px; font-size: 0.75em; font-weight: 700; color: #6c757d;">
+                  {{ producto.sku }}
+                </span>
+                <span *ngIf="producto.destacado" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); border-radius: 8px; font-size: 0.7em; font-weight: 800; color: white;">
+                  <ion-icon name="star" style="font-size: 13px;"></ion-icon> Destacado
+                </span>
+              </div>
+              <span style="font-size: 0.85em; color: #6c757d;">{{ producto.subcategoria }}</span>
+            </div>
+          </td>
+          
+          <td>
+            <span style="display: inline-block; padding: 8px 14px; background: linear-gradient(135deg, rgba(39, 49, 141, 0.1) 0%, rgba(237, 19, 112, 0.1) 100%); border: 2px solid rgba(39, 49, 141, 0.4); border-radius: 10px; font-size: 0.85em; font-weight: 700; color: #27318d; font-family: var(--font-primary);">
+              {{ producto.categoria }}
+            </span>
+          </td>
+          
+          <td>
+            <span style="font-size: 0.95em; color: #212529;">{{ producto.marca }}</span>
+          </td>
+          
+          <!-- ✅ NUEVA COLUMNA DE MODALIDADES -->
+          <td>
+            <div class="modalidades-cell">
+              <!-- Menudeo -->
+              <div class="modalidad-badge menudeo" *ngIf="tieneModalidad(producto, 'Menudeo')">
+                <ion-icon name="cart-outline"></ion-icon>
+                <div class="modalidad-info">
+                  <span class="modalidad-tipo">Menudeo</span>
+                  <span class="modalidad-precio">{{ obtenerPrecioModalidad(producto, 'Menudeo') }}</span>
+                </div>
+              </div>
+              
+              <!-- Mayoreo -->
+              <div class="modalidad-badge mayoreo" *ngIf="tieneModalidad(producto, 'Mayoreo')">
+                <ion-icon name="basket-outline"></ion-icon>
+                <div class="modalidad-info">
+                  <span class="modalidad-tipo">Mayoreo</span>
+                  <span class="modalidad-precio">{{ obtenerPrecioModalidad(producto, 'Mayoreo') }}</span>
+                </div>
+              </div>
+              
+              <!-- Sin modalidades -->
+              <div class="sin-modalidades" *ngIf="!tieneModalidad(producto, 'Menudeo') && !tieneModalidad(producto, 'Mayoreo')">
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                <span>Sin modalidades</span>
+              </div>
+            </div>
+          </td>
+          
+          <td style="text-align: center;">
+            <div class="table-actions">
+              <button 
+                class="btn-icon-table edit"
+                (click)="editarProducto(producto)"
+                title="Editar">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
+              <button 
+                class="btn-icon-table danger"
+                (click)="eliminarProducto(producto.id)"
+                title="Eliminar">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="productosFiltrados.length === 0 && productos.length > 0">
     <div class="empty-icon">
       <ion-icon name="search-outline"></ion-icon>
     </div>
     <h4>No se encontraron productos</h4>
-    <p>Intenta con otros términos de búsqueda</p>
+    <p>Intenta ajustar los filtros de búsqueda</p>
   </div>
 
-  <!-- ESTADO VACÍO - SIN PRODUCTOS -->
   <div class="empty-state" *ngIf="productos.length === 0">
     <div class="empty-icon">
       <ion-icon name="cube-outline"></ion-icon>
     </div>
-    <h4>No hay productos</h4>
-    <p>Agrega tu primer producto para comenzar</p>
-  </div>
-
-      <button class="btn-export" (click)="exportarProductosCSV()">
-      <ion-icon name="download-outline"></ion-icon>
-      <span>Exportar CSV</span>
-    </button>
-<!-- Input file oculto -->
-<input 
-  type="file" 
-  #csvFileInput
-  id="csvFileInput" 
-  accept=".csv" 
-  (change)="onArchivoCSVSeleccionado($event)"
-  style="display: none;">
-
-<!-- Botón que abre el selector -->
-<button class="btn-export" (click)="csvFileInput.click()">
-  <ion-icon name="cloud-upload-outline"></ion-icon>
-  <span>Importar CSV</span>
-</button>
-        </div>
-        
-        <!-- ====================== -->
-        <!-- TAB: USUARIOS -->
-        <!-- ====================== -->
-        <div *ngIf="tabActiva === 'usuarios'" class="content-wrapper" data-tab="usuarios">
-<div class="content-header">
-  <div>
-    <h2>Usuarios Registrados</h2>
-    <p>Gestiona los usuarios activos del sistema</p>
-  </div>
-  <div class="header-actions">
-    <button class="btn-search" (click)="abrirModalBusquedaUsuarios()">
-      <ion-icon name="search-outline"></ion-icon>
-      <span>Buscar</span>
+    <h4>No hay productos registrados</h4>
+    <p>Comienza agregando tu primer producto al catálogo</p>
+    <button class="btn-add-product" (click)="abrirModalProducto()" style="margin-top: 20px;">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      <span>Agregar primer producto</span>
     </button>
   </div>
+
 </div>
 
-  <!-- 📊 ESTADÍSTICAS -->
+<!-- ====================== -->
+<!-- TAB: USUARIOS -->
+<!-- ====================== -->
+<div *ngIf="tabActiva === 'usuarios'" class="content-wrapper" data-tab="usuarios">
+  
+  <!-- Header -->
+  <div class="content-header">
+    <div>
+      <h2>Gestión de Usuarios</h2>
+      <p>Administra los usuarios activos del sistema</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-search" (click)="abrirModalBusquedaUsuarios()">
+        <ion-icon name="search-outline"></ion-icon>
+        <span>Búsqueda Avanzada</span>
+      </button>
+      <button class="btn-export" (click)="exportarUsuariosCSV()">
+        <ion-icon name="download-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Estadísticas -->
   <div class="users-stats">
     <div class="stat-card-user">
-      <ion-icon name="people-outline"></ion-icon>
+      <div class="stat-icon-wrapper">
+        <ion-icon name="people-outline"></ion-icon>
+      </div>
       <div class="stat-content">
         <span class="stat-number">{{ totalUsuarios }}</span>
         <span class="stat-label">Total Usuarios</span>
       </div>
     </div>
     <div class="stat-card-user admin">
-      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <div class="stat-icon-wrapper">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
       <div class="stat-content">
         <span class="stat-number">{{ totalAdmins }}</span>
         <span class="stat-label">Administradores</span>
       </div>
     </div>
     <div class="stat-card-user regular">
-      <ion-icon name="person-outline"></ion-icon>
+      <div class="stat-icon-wrapper">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
       <div class="stat-content">
         <span class="stat-number">{{ totalUsuariosRegulares }}</span>
         <span class="stat-label">Usuarios Regulares</span>
@@ -252,38 +404,83 @@
     </div>
   </div>
 
-  <!-- 🔍 FILTROS ACTIVOS -->
-<div class="active-filters" *ngIf="filtroNombreUsuario || filtroEmailUsuario || filtroRolUsuario">
-  <div class="filter-header">
-    <ion-icon name="filter-outline"></ion-icon>
-    <span>Filtros activos:</span>
-  </div>
-  <div class="filter-tags">
-    <div class="filter-tag" *ngIf="filtroNombreUsuario">
-      <span>Nombre: {{ filtroNombreUsuario }}</span>
-      <button (click)="filtroNombreUsuario = ''; aplicarFiltrosUsuarios()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
+  <!-- Búsqueda rápida + Botones -->
+  <div class="search-container-wrapper">
+    <!-- Búsqueda Rápida -->
+    <div class="form-group-custom search-group">
+      <label class="form-label-custom">
+        <ion-icon name="search-outline"></ion-icon>
+        <span>Búsqueda Rápida</span>
+      </label>
+      <div class="input-wrapper">
+        <input 
+          type="text" 
+          [(ngModel)]="filtroNombreUsuario"
+          (ngModelChange)="aplicarFiltrosUsuarios()"
+          placeholder="Buscar por nombre o email..."
+          class="custom-input">
+        <button 
+          *ngIf="filtroNombreUsuario" 
+          class="btn-clear-search"
+          (click)="limpiarFiltrosUsuarios()"
+          style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: rgba(237, 19, 112, 0.1); border-radius: 50%; cursor: pointer; transition: all 0.2s ease; margin-left: 8px;">
+          <ion-icon name="close-circle" style="font-size: 24px; color: #ed1370;"></ion-icon>
+        </button>
+      </div>
     </div>
-    <div class="filter-tag" *ngIf="filtroEmailUsuario">
-      <span>Email: {{ filtroEmailUsuario }}</span>
-      <button (click)="filtroEmailUsuario = ''; aplicarFiltrosUsuarios()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    <div class="filter-tag" *ngIf="filtroRolUsuario">
-      <span>Rol: {{ filtroRolUsuario === 'admin' ? 'Administrador' : 'Usuario' }}</span>
-      <button (click)="filtroRolUsuario = ''; aplicarFiltrosUsuarios()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    <button class="clear-all-btn" (click)="limpiarFiltrosUsuarios()">
-      Limpiar todos
-    </button>
-  </div>
-</div>
 
-  <!-- 📋 TABLA DE USUARIOS -->
+    <!-- Botones de acción -->
+    <div class="search-actions-group">
+      <!-- Botón Búsqueda Avanzada -->
+      <button 
+        class="btn-advanced-search"
+        (click)="abrirModalBusquedaUsuarios()"
+        title="Búsqueda Avanzada">
+        <ion-icon name="filter-outline"></ion-icon>
+        <span>Búsqueda Avanzada</span>
+      </button>
+
+      <!-- Botón Filtro por Rol -->
+      <button 
+        class="btn-featured-toggle"
+        [class.active]="filtroRolUsuario === 'admin'"
+        (click)="toggleFiltroAdmin()"
+        title="Mostrar solo administradores">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Administradores</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros activos -->
+  <div class="active-filters" *ngIf="filtroNombreUsuario || filtroEmailUsuario || filtroRolUsuario">
+    <div class="filter-header">
+      <ion-icon name="filter-outline"></ion-icon>
+      <span>Filtros activos ({{ contarFiltrosActivosUsuarios() }}):</span>
+    </div>
+    <div class="filter-tags">
+      <div class="filter-tag" *ngIf="filtroNombreUsuario">
+        <span>Nombre: {{ filtroNombreUsuario }}</span>
+        <button (click)="filtroNombreUsuario = ''; aplicarFiltrosUsuarios()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="filter-tag" *ngIf="filtroEmailUsuario">
+        <span>Email: {{ filtroEmailUsuario }}</span>
+        <button (click)="filtroEmailUsuario = ''; aplicarFiltrosUsuarios()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="filter-tag" *ngIf="filtroRolUsuario">
+        <span>Rol: {{ filtroRolUsuario === 'admin' ? 'Administrador' : 'Usuario' }}</span>
+        <button (click)="filtroRolUsuario = ''; aplicarFiltrosUsuarios()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de usuarios -->
   <div class="users-table-container" *ngIf="usuariosFiltrados.length > 0">
     <div class="users-table">
       <table>
@@ -292,24 +489,29 @@
             <th>Nombre</th>
             <th>Email</th>
             <th width="150">Rol</th>
-            <th width="150">Acciones</th>
+            <th width="110" style="text-align: center;">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let user of usuariosFiltrados">
             <td>
-              <div class="user-name-cell">
-                <ion-icon name="person-outline"></ion-icon>
-                <strong>{{ user.nombre || 'Sin nombre' }}</strong>
-                <small class="user-id">ID: {{ user.id }}</small>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <strong style="font-family: var(--font-primary); font-weight: 800; font-size: 1em; color: #27318d;">
+                  {{ user.nombre || 'Sin nombre' }}
+                </strong>
+                <span style="font-size: 0.75em; color: #6c757d; font-family: 'Courier New', monospace;">
+                  ID: {{ user.id }}
+                </span>
               </div>
             </td>
+            
             <td>
-              <div class="user-email-cell">
-                <ion-icon name="mail-outline"></ion-icon>
-                <span>{{ user.email }}</span>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <ion-icon name="mail-outline" style="font-size: 20px; color: #ed1370;"></ion-icon>
+                <span style="font-size: 0.9em; color: #212529;">{{ user.email }}</span>
               </div>
             </td>
+            
             <td>
               <div class="rol-selector">
                 <select 
@@ -322,18 +524,19 @@
                 </select>
               </div>
             </td>
-            <td>
+            
+            <td style="text-align: center;">
               <div class="table-actions">
                 <button 
-                  class="btn-icon-table edit" 
+                  class="btn-icon-table edit"
                   (click)="editarUsuario(user)"
-                  title="Editar usuario">
+                  title="Editar">
                   <ion-icon name="create-outline"></ion-icon>
                 </button>
                 <button 
-                  class="btn-icon-table danger" 
+                  class="btn-icon-table danger"
                   (click)="eliminarUsuario(user.id)"
-                  title="Eliminar usuario">
+                  title="Eliminar">
                   <ion-icon name="trash-outline"></ion-icon>
                 </button>
               </div>
@@ -344,227 +547,391 @@
     </div>
   </div>
 
-  <!-- ESTADO VACÍO - SIN USUARIOS -->
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="usuariosFiltrados.length === 0 && usuarios.length > 0">
+    <div class="empty-icon">
+      <ion-icon name="search-outline"></ion-icon>
+    </div>
+    <h4>No se encontraron usuarios</h4>
+    <p>Intenta ajustar los filtros de búsqueda</p>
+  </div>
+
   <div class="empty-state" *ngIf="usuarios.length === 0">
     <div class="empty-icon">
       <ion-icon name="people-outline"></ion-icon>
     </div>
-    <h4>No hay usuarios</h4>
-    <p>No se encontraron usuarios registrados</p>
+    <h4>No hay usuarios registrados</h4>
+    <p>Los usuarios registrados aparecerán aquí</p>
   </div>
 
-  <!-- ESTADO VACÍO - SIN RESULTADOS DE BÚSQUEDA -->
-  <div class="empty-state" *ngIf="usuarios.length > 0 && usuariosFiltrados.length === 0">
-    <div class="empty-icon">
-      <ion-icon name="search-outline"></ion-icon>
+</div>
+
+<!-- ====================== -->
+<!-- TAB: MENSAJES -->
+<!-- ====================== -->
+<div *ngIf="tabActiva === 'mensajes'" class="content-wrapper" data-tab="mensajes">
+  
+  <!-- Header -->
+  <div class="content-header">
+    <div>
+      <h2>Mensajes Recibidos</h2>
+      <p>Gestiona los mensajes de contacto del sistema</p>
     </div>
-    <h4>No se encontraron resultados</h4>
-    <p>Intenta con otros términos de búsqueda</p>
+    <div class="header-actions">
+      <button class="btn-export" (click)="exportarMensajesCSV()">
+        <ion-icon name="download-outline"></ion-icon>
+      </button>
+    </div>
   </div>
 
-      <button class="btn-export" (click)="exportarUsuariosCSV()">
-      <ion-icon name="download-outline"></ion-icon>
-      <span>Exportar CSV</span>
-    </button>
+  <!-- Estadísticas -->
+  <div class="users-stats">
+    <div class="stat-card-user">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="mail-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ mensajes.length }}</span>
+        <span class="stat-label">Total Mensajes</span>
+      </div>
+    </div>
+    <div class="stat-card-user admin">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="time-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ mensajesRecientes }}</span>
+        <span class="stat-label">Últimos 7 días</span>
+      </div>
+    </div>
+    <div class="stat-card-user regular">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ mensajesFiltrados.length }}</span>
+        <span class="stat-label">Mostrados</span>
+      </div>
+    </div>
+  </div>
 
-        </div>
+  <!-- Búsqueda rápida -->
+  <div class="search-container-wrapper">
+    <div class="form-group-custom search-group">
+      <label class="form-label-custom">
+        <ion-icon name="search-outline"></ion-icon>
+        <span>Búsqueda Rápida</span>
+      </label>
+      <div class="input-wrapper">
+        <input 
+          type="text" 
+          [(ngModel)]="filtroMensajeBusqueda"
+          (ngModelChange)="aplicarFiltrosMensajes()"
+          placeholder="Buscar por nombre, email o empresa..."
+          class="custom-input">
+        <button 
+          *ngIf="filtroMensajeBusqueda" 
+          class="btn-clear-search"
+          (click)="limpiarFiltrosMensajes()"
+          style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: rgba(237, 19, 112, 0.1); border-radius: 50%; cursor: pointer; transition: all 0.2s ease; margin-left: 8px;">
+          <ion-icon name="close-circle" style="font-size: 24px; color: #ed1370;"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros activos -->
+  <div class="active-filters" *ngIf="filtroMensajeBusqueda">
+    <div class="filter-header">
+      <ion-icon name="filter-outline"></ion-icon>
+      <span>Filtros activos (1):</span>
+    </div>
+    <div class="filter-tags">
+      <div class="filter-tag">
+        <span>Búsqueda: {{ filtroMensajeBusqueda }}</span>
+        <button (click)="limpiarFiltrosMensajes()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de mensajes -->
+  <div class="messages-grid-new">
+    <div *ngFor="let msg of mensajesFiltrados" class="message-card-new">
+      
+      <!-- Badge de fecha -->
+      <div class="message-badge">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>{{ msg.date | date:'short' }}</span>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="message-main">
         
-
-        <!-- ====================== -->
-        <!-- TAB: MENSAJES -->
-        <!-- ====================== -->
-        <div *ngIf="tabActiva === 'mensajes'" class="content-wrapper" data-tab="mensajes">
-          <div class="content-header">
-            <div>
-              <h2>Mensajes Recibidos</h2>
-              <p>Gestiona los mensajes de contacto</p>
-            </div>
-          </div>
-
-          <div class="no-messages" *ngIf="mensajes.length === 0">
-            <ion-icon name="mail-open-outline"></ion-icon>
-            <p>No hay mensajes aún.</p>
-          </div>
-
-          <div class="messages-list" *ngIf="mensajes.length > 0">
-            <div *ngFor="let msg of mensajes" class="message-card">
-              <h3>{{ msg.name }} <small>{{ msg.email }}</small></h3>
-              <p><strong>Teléfono:</strong> {{ msg.phone }}</p>
-              <p><strong>Empresa:</strong> {{ msg.company || 'N/A' }}</p>
-              <p><strong>Mensaje:</strong> {{ msg.message }}</p>
-              <p><strong>Fecha:</strong> {{ msg.date | date:'medium' }}</p>
-
-              <div class="message-actions">
-                <button class="btn-primary" (click)="responderMensaje(msg.email, msg.message)">
-                  <ion-icon name="mail-outline"></ion-icon>
-                  Responder
-                </button>
-
-                <button class="btn-search" (click)="eliminarMensaje(msg.id)">
-                  <ion-icon name="trash-outline"></ion-icon>
-                  Eliminar
-                </button>
-              </div>
-            </div>
+        <!-- Información del remitente -->
+        <div class="sender-info">
+          <div class="sender-details">
+            <h3 class="sender-name">{{ msg.name }}</h3>
+            <a [href]="'mailto:' + msg.email" class="sender-email">
+              <ion-icon name="mail"></ion-icon>
+              {{ msg.email }}
+            </a>
           </div>
         </div>
 
-        <!-- ====================== -->
-        <!-- TAB: NEWSLETTER -->
-        <!-- ====================== -->
-        <div *ngIf="tabActiva === 'newsletter'" class="content-wrapper" data-tab="newsletter">
-          <div class="content-header">
-            <div>
-              <h2>Newsletter</h2>
-              <p>Gestiona suscriptores y envía boletines promocionales</p>
-            </div>
-            <div class="header-actions">
-              <button class="btn-search" (click)="filtroEmailNewsletter ? limpiarFiltroNewsletter() : null">
-                <ion-icon [name]="filtroEmailNewsletter ? 'close-outline' : 'search-outline'"></ion-icon>
-                <input 
-                  type="text" 
-                  [(ngModel)]="filtroEmailNewsletter"
-                  (ngModelChange)="aplicarFiltroNewsletter()"
-                  placeholder="Buscar por email o nombre..."
-                  class="search-input-inline">
-              </button>
-              <button 
-                class="btn-send-newsletter" 
-                (click)="abrirModalEnviarNewsletter()"
-                [disabled]="suscriptores.length === 0">
-                <ion-icon name="send-outline"></ion-icon>
-                <span>Enviar Newsletter</span>
-              </button>
-            </div>
+        <!-- Datos adicionales -->
+        <div class="message-data">
+          <div class="data-item" *ngIf="msg.phone">
+            <ion-icon name="call"></ion-icon>
+            <span>{{ msg.phone }}</span>
           </div>
-
-          <!-- 📊 Estadísticas -->
-          <div class="newsletter-stats">
-            <div class="stat-card-mini">
-              <ion-icon name="people-outline"></ion-icon>
-              <div class="stat-content">
-                <span class="stat-number">{{ suscriptores.length }}</span>
-                <span class="stat-label">Suscriptores</span>
-              </div>
-            </div>
-            <div class="stat-card-mini">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-              <div class="stat-content">
-                <span class="stat-number">{{ suscriptoresFiltrados.length }}</span>
-                <span class="stat-label">Mostrados</span>
-              </div>
-            </div>
-            <div class="stat-card-mini" *ngIf="suscriptoresSeleccionados.size > 0">
-              <ion-icon name="mail-outline"></ion-icon>
-              <div class="stat-content">
-                <span class="stat-number">{{ suscriptoresSeleccionados.size }}</span>
-                <span class="stat-label">Seleccionados</span>
-              </div>
-            </div>
+          <div class="data-item" *ngIf="msg.company">
+            <ion-icon name="business"></ion-icon>
+            <span>{{ msg.company }}</span>
           </div>
+        </div>
 
-          <!-- 📋 Tabla de Suscriptores -->
-          <div class="subscribers-table-container" *ngIf="suscriptoresFiltrados.length > 0">
-            
-            <!-- Controles de selección -->
-            <div class="table-controls">
-              <label class="checkbox-control">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="seleccionarTodos"
-                  (change)="toggleSeleccionarTodos()">
-                <span>Seleccionar todos ({{ suscriptoresFiltrados.length }})</span>
-              </label>
-            </div>
-
-            <!-- Tabla -->
-            <div class="subscribers-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th width="50">
-                      <ion-icon name="checkmark-outline"></ion-icon>
-                    </th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Fecha de Suscripción</th>
-                    <th width="100">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let suscriptor of suscriptoresFiltrados">
-                    <td>
-                      <label class="checkbox-control-cell">
-                        <input 
-                          type="checkbox" 
-                          [checked]="suscriptoresSeleccionados.has(suscriptor.id)"
-                          (change)="toggleSuscriptorSeleccion(suscriptor.id)">
-                      </label>
-                    </td>
-                    <td>
-                      <div class="subscriber-name">
-                        <ion-icon name="person-outline"></ion-icon>
-                        <span>{{ suscriptor.nombre }}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="subscriber-email">
-                        <ion-icon name="mail-outline"></ion-icon>
-                        <span>{{ suscriptor.email }}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="subscriber-date">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                        <span>{{ suscriptor.fechaSuscripcion | date:'short' }}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="table-actions">
-                        <button 
-                          class="btn-icon-table danger" 
-                          (click)="eliminarSuscriptor(suscriptor.id)"
-                          title="Eliminar suscriptor">
-                          <ion-icon name="trash-outline"></ion-icon>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        <!-- Mensaje -->
+        <div class="data-item">
+          <div class="message-icon">
+            <ion-icon name="chatbox-ellipses"></ion-icon>
           </div>
-
-          <!-- Estado vacío -->
-          <div class="empty-state" *ngIf="suscriptores.length === 0">
-            <div class="empty-icon">
-              <ion-icon name="newspaper-outline"></ion-icon>
-            </div>
-            <h4>No hay suscriptores</h4>
-            <p>Los usuarios que se suscriban al newsletter aparecerán aquí</p>
-          </div>
-
-          <!-- Sin resultados de búsqueda -->
-          <div class="empty-state" *ngIf="suscriptores.length > 0 && suscriptoresFiltrados.length === 0">
-            <div class="empty-icon">
-              <ion-icon name="search-outline"></ion-icon>
-            </div>
-            <h4>No se encontraron resultados</h4>
-            <p>Intenta con otros términos de búsqueda</p>
-            <button class="btn-clear-filter" (click)="limpiarFiltroNewsletter()">
-              <ion-icon name="refresh-outline"></ion-icon>
-              <span>Limpiar búsqueda</span>
-            </button>
-          </div>
+          <p class="message-content-text">{{ msg.message }}</p>
         </div>
 
       </div>
-    </div>
-  </section>
 
-<!--=========================-->
-<!--MODALS DE CONFIRMACION-->
-<!--=========================-->
+      <!-- Acciones -->
+      <div class="message-actions">
+        <button class="btn-action reply" (click)="responderMensaje(msg.email, msg.message)">
+          <ion-icon name="arrow-undo"></ion-icon>
+          Responder
+        </button>
+        <button class="btn-action delete" (click)="eliminarMensaje(msg.id)">
+          <ion-icon name="trash"></ion-icon>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="mensajesFiltrados.length === 0 && mensajes.length > 0">
+    <div class="empty-icon">
+      <ion-icon name="search-outline"></ion-icon>
+    </div>
+    <h4>No se encontraron mensajes</h4>
+    <p>Intenta ajustar los filtros de búsqueda</p>
+  </div>
+
+  <div class="empty-state" *ngIf="mensajes.length === 0">
+    <div class="empty-icon">
+      <ion-icon name="mail-open-outline"></ion-icon>
+    </div>
+    <h4>No hay mensajes</h4>
+    <p>Los mensajes de contacto aparecerán aquí</p>
+  </div>
+
+</div>
+
+<!-- ====================== -->
+<!-- TAB: NEWSLETTER -->
+<!-- ====================== -->
+<div *ngIf="tabActiva === 'newsletter'" class="content-wrapper" data-tab="newsletter">
+  
+  <!-- Header -->
+  <div class="content-header">
+    <div>
+      <h2>Gestión de Newsletter</h2>
+      <p>Administra suscriptores y envía boletines promocionales</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        class="btn-send-newsletter" 
+        (click)="abrirModalEnviarNewsletter()"
+        [disabled]="suscriptores.length === 0 || suscriptoresSeleccionados.size === 0">
+        <ion-icon name="send-outline"></ion-icon>
+        <span>Enviar Newsletter</span>
+      </button>
+      <button class="btn-export" (click)="exportarSuscriptoresCSV()">
+        <ion-icon name="download-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="users-stats">
+    <div class="stat-card-user">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="people-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ suscriptores.length }}</span>
+        <span class="stat-label">Total Suscriptores</span>
+      </div>
+    </div>
+    <div class="stat-card-user admin">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ suscriptoresFiltrados.length }}</span>
+        <span class="stat-label">Mostrados</span>
+      </div>
+    </div>
+    <div class="stat-card-user regular">
+      <div class="stat-icon-wrapper">
+        <ion-icon name="mail-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ suscriptoresSeleccionados.size }}</span>
+        <span class="stat-label">Seleccionados</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Búsqueda rápida -->
+  <div class="search-container-wrapper">
+    <div class="form-group-custom search-group">
+      <label class="form-label-custom">
+        <ion-icon name="search-outline"></ion-icon>
+        <span>Búsqueda Rápida</span>
+      </label>
+      <div class="input-wrapper">
+        <input 
+          type="text" 
+          [(ngModel)]="filtroEmailNewsletter"
+          (ngModelChange)="aplicarFiltroNewsletter()"
+          placeholder="Buscar por nombre o email..."
+          class="custom-input">
+        <button 
+          *ngIf="filtroEmailNewsletter" 
+          class="btn-clear-search"
+          (click)="limpiarFiltroNewsletter()"
+          style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: rgba(237, 19, 112, 0.1); border-radius: 50%; cursor: pointer; transition: all 0.2s ease; margin-left: 8px;">
+          <ion-icon name="close-circle" style="font-size: 24px; color: #ed1370;"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros activos -->
+  <div class="active-filters" *ngIf="filtroEmailNewsletter">
+    <div class="filter-header">
+      <ion-icon name="filter-outline"></ion-icon>
+      <span>Filtros activos (1):</span>
+    </div>
+    <div class="filter-tags">
+      <div class="filter-tag">
+        <span>Búsqueda: {{ filtroEmailNewsletter }}</span>
+        <button (click)="limpiarFiltroNewsletter()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de suscriptores -->
+  <div class="users-table-container" *ngIf="suscriptoresFiltrados.length > 0">
+    
+    <div class="table-controls">
+      <label class="checkbox-control">
+        <input 
+          type="checkbox" 
+          [(ngModel)]="seleccionarTodos"
+          (change)="toggleSeleccionarTodos()">
+        <span>Seleccionar todos ({{ suscriptoresFiltrados.length }})</span>
+      </label>
+    </div>
+
+    <div class="users-table">
+      <table>
+        <thead>
+          <tr>
+            <th width="40">✓</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th width="180">Fecha de Suscripción</th>
+            <th width="110" style="text-align: center;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let suscriptor of suscriptoresFiltrados">
+            <td>
+              <input 
+                type="checkbox" 
+                [checked]="suscriptoresSeleccionados.has(suscriptor.id)"
+                (change)="toggleSuscriptorSeleccion(suscriptor.id)"
+                style="width: 20px; height: 20px; cursor: pointer; accent-color: #ed1370;">
+            </td>
+            
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <ion-icon name="person-outline" style="font-size: 20px; color: #ed1370;"></ion-icon>
+                <strong style="font-family: var(--font-primary); font-weight: 800; font-size: 0.95em; color: #27318d;">
+                  {{ suscriptor.nombre }}
+                </strong>
+              </div>
+            </td>
+            
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <ion-icon name="mail-outline" style="font-size: 20px; color: #ed1370;"></ion-icon>
+                <span style="font-size: 0.9em; color: #212529; font-family: var(--font-secondary);">
+                  {{ suscriptor.email }}
+                </span>
+              </div>
+            </td>
+            
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <ion-icon name="calendar-outline" style="font-size: 18px; color: #6c757d;"></ion-icon>
+                <span style="font-size: 0.85em; color: #6c757d; font-family: var(--font-secondary);">
+                  {{ suscriptor.fechaSuscripcion | date:'short' }}
+                </span>
+              </div>
+            </td>
+            
+            <td style="text-align: center;">
+              <div class="table-actions">
+                <button 
+                  class="btn-icon-table danger" 
+                  (click)="eliminarSuscriptor(suscriptor.id)"
+                  title="Eliminar suscriptor">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="suscriptoresFiltrados.length === 0 && suscriptores.length > 0">
+    <div class="empty-icon">
+      <ion-icon name="search-outline"></ion-icon>
+    </div>
+    <h4>No se encontraron suscriptores</h4>
+    <p>Intenta ajustar los filtros de búsqueda</p>
+  </div>
+
+  <div class="empty-state" *ngIf="suscriptores.length === 0">
+    <div class="empty-icon">
+      <ion-icon name="newspaper-outline"></ion-icon>
+    </div>
+    <h4>No hay suscriptores</h4>
+    <p>Los usuarios que se suscriban al newsletter aparecerán aquí</p>
+  </div>
+
+</div>
+
+    </div>
+  </div>
+</section>
+
 <!-- 🎨 MODAL CONFIRMAR ELIMINACIÓN UNIFICADO -->
 <div class="modal-overlay" *ngIf="mostrarModalEliminar" (click)="cerrarModalEliminar()">
     <div class="modal-container delete-modal" (click)="$event.stopPropagation()">
@@ -675,9 +1042,6 @@
     </div>
 </div>
 
-<!--=========================-->
-<!--MODALS DE ACCION-->
-<!--=========================-->
 <!-- 🎨 MODAL ENVIAR NEWSLETTER -->
 <div class="modal-overlay" *ngIf="mostrarModalEnviarNewsletter" (click)="cerrarModalEnviarNewsletter()">
     <div class="modal-container newsletter-modal" (click)="$event.stopPropagation()">
@@ -802,13 +1166,13 @@ Equipo Interventas"
     </div>
 </div>
 
-<!-- 🎨 MODAL AGREGAR/EDITAR PRODUCTO MEJORADO -->
+<!-- 🎨 MODAL AGREGAR/EDITAR PRODUCTO - OPCIÓN 2: FLUJO DE TRABAJO -->
 <div class="modal-overlay" *ngIf="mostrarModalProducto" (click)="cerrarModalProducto()">
-  <div class="modal-container product-modal" (click)="$event.stopPropagation()">
+  <div class="modal-container2 product-modal-large" (click)="$event.stopPropagation()">
     <div class="modal-wrapper">
       
       <!-- 🎯 Header del Modal -->
-      <div class="modal-header-custom">
+      <div class="modal-header-custom2">
         <div class="header-left">
           <div class="header-icon">
             <ion-icon [name]="modoEdicion ? 'create-outline' : 'add-circle-outline'"></ion-icon>
@@ -824,575 +1188,535 @@ Equipo Interventas"
       </div>
 
       <!-- 📋 Contenido del Modal -->
-      <div class="modal-body-custom">
+      <div class="modal-body-custom product-modal-body">
         <form (ngSubmit)="guardarProducto()" #productForm="ngForm">
           
-          <!-- ========== SECCIÓN 1: INFORMACIÓN BÁSICA ========== -->
-          <div class="form-section-title">
-            <ion-icon name="information-circle-outline"></ion-icon>
-            <span>Información Básica</span>
-          </div>
-
-          <!-- SKU Y NOMBRE -->
-          <div class="form-row-2col">
-            <div class="form-group-custom">
-              <label class="form-label-custom required">
-                <ion-icon name="barcode-outline"></ion-icon>
-                <span>SKU</span>
-              </label>
-              <div class="input-wrapper">
-                <input 
-                  type="text" 
-                  [(ngModel)]="producto.sku" 
-                  name="sku" 
-                  placeholder="Ej: VSO-16OZ-001"
-                  class="custom-input"
-                  required>
-              </div>
-            </div>
-
-            <div class="form-group-custom">
-              <label class="form-label-custom required">
-                <ion-icon name="pricetag-outline"></ion-icon>
-                <span>Nombre del Producto</span>
-              </label>
-              <div class="input-wrapper">
-                <input 
-                  type="text" 
-                  [(ngModel)]="producto.nombre" 
-                  name="nombre" 
-                  placeholder="Ej: Vaso Térmico 16oz" 
-                  class="custom-input"
-                  required>
-              </div>
-            </div>
-          </div>
-
-          <!-- CATEGORÍA Y SUBCATEGORÍA -->
-          <div class="form-row-2col">
-            <div class="form-group-custom">
-              <label class="form-label-custom required">
-                <ion-icon name="folder-outline"></ion-icon>
-                <span>Categoría</span>
-              </label>
-              <div class="input-wrapper select-custom-wrapper">
-                <select 
-                  [(ngModel)]="producto.categoria" 
-                  (ngModelChange)="onCategoriaChange()"
-                  name="categoria" 
-                  class="custom-select-native"
-                  required>
-                  <option value="" disabled selected>Seleccionar categoría</option>
-                  <option value="Desechables">Desechables</option>
-                  <option value="Biodegradables">Biodegradables</option>
-                  <option value="Bolsas">Bolsas</option>
-                  <option value="Cocina y Repostería">Cocina y Repostería</option>
-                  <option value="Alimentos">Alimentos</option>
-                  <option value="Higiénicos y Servilletas">Higiénicos y Servilletas</option>
-                </select>
-                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
-              </div>
-            </div>
-
-            <div class="form-group-custom">
-              <label class="form-label-custom required">
-                <ion-icon name="layers-outline"></ion-icon>
-                <span>Subcategoría</span>
-              </label>
-              <div class="input-wrapper select-custom-wrapper" [class.disabled]="!producto.categoria">
-                <select 
-                  [(ngModel)]="producto.subcategoria" 
-                  name="subcategoria" 
-                  class="custom-select-native"
-                  [disabled]="!producto.categoria"
-                  required>
-                  <option value="" disabled selected>
-                    {{ producto.categoria ? 'Seleccionar subcategoría' : 'Selecciona una categoría primero' }}
-                  </option>
-                  <option *ngFor="let sub of subcategorias" [value]="sub">{{ sub }}</option>
-                </select>
-                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
-              </div>
-            </div>
-          </div>
-
-          <!-- MARCA -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="ribbon-outline"></ion-icon>
-              <span>Marca</span>
-            </label>
-            <div class="input-wrapper">
-              <input 
-                type="text" 
-                [(ngModel)]="producto.marca" 
-                name="marca" 
-                placeholder="Ej: Dart, Karat, Solo, etc."
-                class="custom-input"
-                required>
-            </div>
-          </div>
-
-          <!-- ========== SECCIÓN 2: ESPECIFICACIONES ========== -->
-          <div class="form-section-title">
-            <ion-icon name="cube-outline"></ion-icon>
-            <span>Especificaciones del Producto</span>
-          </div>
-
-          <!-- MATERIAL Y COLOR -->
-          <div class="form-row-2col">
-            <div class="form-group-custom">
-              <label class="form-label-custom">
-                <ion-icon name="albums-outline"></ion-icon>
-                <span>Material</span>
-              </label>
-              <div class="input-wrapper select-custom-wrapper">
-                <select 
-                  [(ngModel)]="producto.material" 
-                  name="material" 
-                  class="custom-select-native">
-                  <option value="">Seleccionar material</option>
-                  <option value="Plástico">Plástico</option>
-                  <option value="Papel">Papel</option>
-                  <option value="Biodegradable">Biodegradable</option>
-                  <option value="Cartón">Cartón</option>
-                  <option value="Aluminio">Aluminio</option>
-                  <option value="Madera">Madera</option>
-                  <option value="PET">PET</option>
-                  <option value="Polietileno">Polietileno</option>
-                  <option value="Polipropileno">Polipropileno</option>
-                  <option value="Otro">Otro</option>
-                </select>
-                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
-              </div>
-            </div>
-
-            <div class="form-group-custom">
-              <label class="form-label-custom">
-                <ion-icon name="color-palette-outline"></ion-icon>
-                <span>Color</span>
-              </label>
-              <div class="input-wrapper select-custom-wrapper">
-                <select 
-                  [(ngModel)]="producto.color" 
-                  name="color" 
-                  class="custom-select-native">
-                  <option value="">Seleccionar color</option>
-                  <option value="Blanco">Blanco</option>
-                  <option value="Transparente">Transparente</option>
-                  <option value="Negro">Negro</option>
-                  <option value="Kraft">Kraft</option>
-                  <option value="Rojo">Rojo</option>
-                  <option value="Azul">Azul</option>
-                  <option value="Verde">Verde</option>
-                  <option value="Amarillo">Amarillo</option>
-                  <option value="Multicolor">Multicolor</option>
-                  <option value="Otro">Otro</option>
-                </select>
-                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
-              </div>
-            </div>
-          </div>
-
-          <!-- MEDIDA Y CANTIDAD POR PAQUETE -->
-          <div class="form-row-2col">
-            <div class="form-group-custom">
-              <label class="form-label-custom">
-                <ion-icon name="resize-outline"></ion-icon>
-                <span>Medida/Capacidad</span>
-              </label>
-              <div class="input-wrapper">
-                <input 
-                  type="text" 
-                  [(ngModel)]="producto.medida" 
-                  name="medida" 
-                  placeholder="Ej: 16oz, 500ml, 30cm"
-                  class="custom-input">
-              </div>
-              <div class="input-hint">
-                <ion-icon name="information-circle-outline"></ion-icon>
-                <span>Capacidad o tamaño del producto</span>
-              </div>
-            </div>
-
-            <div class="form-group-custom">
-              <label class="form-label-custom">
-                <ion-icon name="cube-outline"></ion-icon>
-                <span>Cantidad por Paquete</span>
-              </label>
-              <div class="input-wrapper">
-                <input 
-                  type="text" 
-                  [(ngModel)]="producto.cantidadPaquete" 
-                  name="cantidadPaquete" 
-                  placeholder="Ej: Caja de 1000 pzas"
-                  class="custom-input">
-              </div>
-              <div class="input-hint">
-                <ion-icon name="information-circle-outline"></ion-icon>
-                <span>Presentación del producto</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- CARACTERÃSTICAS ESPECIALES -->
-<div class="form-section-title">
-  <ion-icon name="checkmark-circle-outline"></ion-icon>
-  <span>Características Especiales</span>
-</div>
-
-<div class="caracteristicas-grid">
-  <label class="checkbox-item">
-    <input 
-      type="checkbox" 
-      [(ngModel)]="producto.biodegradable" 
-      name="biodegradable">
-    <span class="checkbox-label">
-      <ion-icon name="leaf-outline"></ion-icon>
-      Biodegradable
-    </span>
-  </label>
-
-  <label class="checkbox-item">
-    <input 
-      type="checkbox" 
-      [(ngModel)]="producto.aptoMicroondas" 
-      name="aptoMicroondas">
-    <span class="checkbox-label">
-      <ion-icon name="radio-outline"></ion-icon>
-      Apto Microondas
-    </span>
-  </label>
-
-  <label class="checkbox-item">
-    <input 
-      type="checkbox" 
-      [(ngModel)]="producto.aptoCongelador" 
-      name="aptoCongelador">
-    <span class="checkbox-label">
-      <ion-icon name="snow-outline"></ion-icon>
-      Apto Congelador
-    </span>
-  </label>
-
-  <!-- ⭐ NUEVO: DESTACAR PRODUCTO -->
-  <label class="checkbox-item checkbox-destacado">
-    <input 
-      type="checkbox" 
-      [(ngModel)]="producto.destacado" 
-      name="destacado">
-    <span class="checkbox-label">
-      <ion-icon name="star-outline"></ion-icon>
-      Producto Destacado
-    </span>
-  </label>
-</div>
-
-          <!-- ========== SECCIÓN 4: MODALIDADES Y OPCIONES ========== -->
-          <div class="form-section-title">
-            <ion-icon name="cart-outline"></ion-icon>
-            <span>Opciones de Venta (Mayoreo / Menudeo)</span>
-          </div>
-
-          <!-- SELECCIONAR MODALIDAD -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="cart-outline"></ion-icon>
-              <span>Agregar Modalidad</span>
-            </label>
-            <div class="modalidad-select-wrapper">
-              <div class="input-wrapper select-custom-wrapper">
-                <select 
-                  [(ngModel)]="modalidadSeleccionada" 
-                  name="modalidadSeleccionada" 
-                  class="custom-select-native">
-                  <option value="" disabled selected>Seleccionar Modalidad</option>
-                  <option value="Menudeo">Menudeo</option>
-                  <option value="Mayoreo">Mayoreo</option>
-                </select>
-                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
-              </div>
-              <button 
-                *ngIf="modalidadSeleccionada"
-                type="button" 
-                class="btn-clear-modalidad"
-                (click)="limpiarModalidadSeleccionada()"
-                title="Cerrar">
-                <ion-icon name="close-outline"></ion-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- FORMULARIO PARA AGREGAR OPCIONES -->
-          <div class="opcion-modalidad-form" *ngIf="!!modalidadSeleccionada">
-            <div class="opcion-form-header">
-              <ion-icon name="add-circle-outline"></ion-icon>
-              <span>Agregar nueva opción de {{ modalidadSeleccionada }}</span>
-            </div>
-
-            <!-- PRECIO -->
-            <div class="form-group-custom">
-              <label class="form-label-custom required">
-                <ion-icon name="cash-outline"></ion-icon>
-                <span>Precio</span>
-              </label>
-              <div class="input-wrapper price-wrapper">
-                <span class="currency-symbol">$</span>
-                <input 
-                  type="number" 
-                  [(ngModel)]="precioActual" 
-                  name="precioActual" 
-                  placeholder="0.00" 
-                  min="0"
-                  step="0.01"
-                  class="custom-input price-input">
-              </div>
-            </div>
-
-            <!-- TAMAÑO -->
-            <div class="form-group-custom" style="margin-top: 5px;">
-              <label class="form-label-custom">
-                <ion-icon name="resize-outline"></ion-icon>
-                <span>Tamaño (Opcional)</span>
-              </label>
-              <div class="input-wrapper">
-                <input 
-                  type="text" 
-                  [(ngModel)]="tamanoActual" 
-                  name="tamanoActual" 
-                  placeholder="Ej: 16oz, Grande, 500ml"
-                  class="custom-input">
-              </div>
-            </div>
-
-            <!-- CONTENIDO -->
-            <div class="form-group-custom" style="margin-top: 5px;">
-              <label class="form-label-custom">
-                <ion-icon name="layers-outline"></ion-icon>
-                <span>Contenido (Opcional)</span>
-              </label>
-              <div class="input-wrapper">
-                <input 
-                  type="text" 
-                  [(ngModel)]="contenidoActual" 
-                  name="contenidoActual" 
-                  placeholder="Ej: Caja de 100, Bolsa de 50"
-                  class="custom-input">
-              </div>
-            </div>
-
-            <!-- BOTÓN AGREGAR OPCIÓN -->
-            <button 
-              type="button" 
-              class="btn-agregar-opcion"
-              (click)="agregarOpcionModalidad()">
-              <ion-icon name="add-circle-outline"></ion-icon>
-              <span>Agregar Opción</span>
-            </button>
-          </div>
-
-          <!-- OPCIONES AGREGADAS -->
-          <div class="form-section-title">
-            <ion-icon name="list-outline"></ion-icon>
-            <span>Opciones Agregadas</span>
-          </div>
-
-          <!-- MENUDEO -->
-          <div class="form-group-custom">
-            <label class="form-label-custom">
-              <ion-icon name="cart-outline"></ion-icon>
-              <span>Opciones de Menudeo</span>
-            </label>
+          <!-- ========== GRID DE 2 COLUMNAS ========== -->
+          <div class="product-form-grid">
             
-            <div class="opciones-list-wrapper" *ngIf="obtenerOpcionesModalidad('Menudeo').length > 0">
-              <div class="opcion-item-horizontal" *ngFor="let opcion of obtenerOpcionesModalidad('Menudeo')">
-                <span class="opcion-data">💰 ${{ opcion.precio }}</span>
-                <span class="opcion-data">📏 {{ opcion.tamano }}</span>
-                <span class="opcion-data">📦 {{ opcion.contenido }}</span>
-                <button 
-                  type="button" 
-                  class="btn-remove-inline"
-                  (click)="eliminarOpcionModalidad(opcion.id)"
-                  title="Eliminar">
-                  <ion-icon name="close-outline"></ion-icon>
-                </button>
-              </div>
-            </div>
-            
-            <div class="empty-hint" *ngIf="obtenerOpcionesModalidad('Menudeo').length === 0">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              <span>No hay opciones de Menudeo agregadas</span>
-            </div>
-          </div>
-
-          <!-- MAYOREO -->
-          <div class="form-group-custom">
-            <label class="form-label-custom">
-              <ion-icon name="cart-outline"></ion-icon>
-              <span>Opciones de Mayoreo</span>
-            </label>
-            
-            <div class="opciones-list-wrapper" *ngIf="obtenerOpcionesModalidad('Mayoreo').length > 0">
-              <div class="opcion-item-horizontal" *ngFor="let opcion of obtenerOpcionesModalidad('Mayoreo')">
-                <span class="opcion-data">💰 ${{ opcion.precio }}</span>
-                <span class="opcion-data">📏 {{ opcion.tamano }}</span>
-                <span class="opcion-data">📦 {{ opcion.contenido }}</span>
-                <button 
-                  type="button" 
-                  class="btn-remove-inline"
-                  (click)="eliminarOpcionModalidad(opcion.id)"
-                  title="Eliminar">
-                  <ion-icon name="close-outline"></ion-icon>
-                </button>
-              </div>
-            </div>
-            
-            <div class="empty-hint" *ngIf="obtenerOpcionesModalidad('Mayoreo').length === 0">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              <span>No hay opciones de Mayoreo agregadas</span>
-            </div>
-          </div>
-
-          <!-- ========== SECCIÓN 5: SUCURSALES Y ENTREGA ========== -->
-          <div class="form-section-title">
-            <ion-icon name="storefront-outline"></ion-icon>
-            <span>Disponibilidad</span>
-          </div>
-
-          <!-- SUCURSALES -->
-          <div class="form-group-custom">
-            <label class="form-label-custom">
-              <ion-icon name="storefront-outline"></ion-icon>
-              <span>Sucursales Disponibles</span>
-            </label>
-
-            <div class="multiple-values-container">
-              <div class="value-list" *ngIf="producto.tiendas && producto.tiendas.length > 0">
-                <div class="value-item" *ngFor="let tienda of producto.tiendas; let i = index">
-                  <span class="value-text">{{ tienda }}</span>
-                  <button 
-                    type="button" 
-                    class="btn-remove-value" 
-                    (click)="eliminarTienda(i)"
-                    [disabled]="!tieneOpcionesValidas()">
-                    <ion-icon name="close-circle"></ion-icon>
-                  </button>
+            <!-- 📌 COLUMNA IZQUIERDA: IDENTIFICACIÓN Y PRESENTACIÓN -->
+            <div class="form-column form-column-left">
+              
+              <!-- 1️⃣ DATOS DE IDENTIDAD -->
+              <div class="form-section-card">
+                <div class="section-header">
+                  <ion-icon name="finger-print-outline"></ion-icon>
+                  <h3>Datos de Identidad</h3>
                 </div>
-              </div>
 
-              <div class="add-value-wrapper">
-                <div class="input-wrapper" [class.disabled]="!tieneOpcionesValidas()">
+                <!-- SKU -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact required">
+                    <ion-icon name="barcode-outline"></ion-icon>
+                    <span>SKU</span>
+                  </label>
                   <input 
                     type="text" 
-                    [(ngModel)]="nuevaTienda" 
-                    name="nuevaTienda" 
-                    placeholder="Ej: Sucursal Centro"
-                    (keyup.enter)="agregarTienda()"
-                    [disabled]="!tieneOpcionesValidas()"
-                    class="custom-input">
+                    [(ngModel)]="producto.sku" 
+                    name="sku" 
+                    placeholder="Ej: POP500"
+                    class="input-compact"
+                    required>
                 </div>
-                <button 
-                  type="button" 
-                  class="btn-add-value" 
-                  (click)="agregarTienda()"
-                  [disabled]="!tieneOpcionesValidas()">
-                  <ion-icon name="add-circle-outline"></ion-icon>
-                </button>
+
+                <!-- Nombre -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact required">
+                    <ion-icon name="pricetag-outline"></ion-icon>
+                    <span>Nombre del Producto</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="producto.nombre" 
+                    name="nombre" 
+                    placeholder="Ej: Popote BIO Colores Neon" 
+                    class="input-compact"
+                    required>
+                </div>
+
+                <!-- Marca -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact required">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                    <span>Marca</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="producto.marca" 
+                    name="marca" 
+                    placeholder="Ej: Reyma"
+                    class="input-compact"
+                    required>
+                </div>
+
+                <!-- IMAGEN DEL PRODUCTO -->
+                <div class="form-group-compact" style="margin-top: 20px;">
+                  <label class="form-label-compact required">
+                    <ion-icon name="image-outline"></ion-icon>
+                    <span>Imagen del Producto</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="producto.imagen" 
+                    name="imagen" 
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                    [disabled]="!tieneOpcionesValidas()"
+                    required
+                    class="input-compact">
+                </div>
+
+                <!-- Vista previa de imagen -->
+                <div class="image-preview" *ngIf="producto.imagen && producto.imagen.trim() !== ''">
+                  <div class="preview-label">
+                    <ion-icon name="eye-outline"></ion-icon>
+                    <span>Vista previa</span>
+                  </div>
+                  <div class="preview-box">
+                    <img [src]="producto.imagen" alt="Preview" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2️⃣ DESCRIPCIÓN COMPLETA -->
+              <div class="form-section-card">
+                <div class="section-header">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                  <h3>Descripción Completa</h3>
+                </div>
+
+                <!-- Descripción -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact required">
+                    <ion-icon name="create-outline"></ion-icon>
+                    <span>Descripción del Producto</span>
+                  </label>
+                  <textarea 
+                    [(ngModel)]="producto.descripcion" 
+                    name="descripcion" 
+                    placeholder="Describe las características principales del producto..."
+                    rows="5"
+                    [disabled]="!tieneOpcionesValidas()"
+                    required
+                    class="textarea-compact"></textarea>
+                </div>
+
+                <!-- Usos Recomendados -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact">
+                    <ion-icon name="bulb-outline"></ion-icon>
+                    <span>Usos Recomendados</span>
+                  </label>
+                  <textarea 
+                    [(ngModel)]="producto.usosRecomendados" 
+                    name="usosRecomendados" 
+                    placeholder="Ej: Ideal para eventos, fiestas, restaurantes..."
+                    rows="4"
+                    [disabled]="!tieneOpcionesValidas()"
+                    class="textarea-compact"></textarea>
+                </div>
+              </div>
+
+              <!-- 3️⃣ CLASIFICACIÓN -->
+              <div class="form-section-card">
+                <div class="section-header">
+                  <ion-icon name="folder-outline"></ion-icon>
+                  <h3>Clasificación</h3>
+                </div>
+
+                <!-- Categoría -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact required">
+                    <ion-icon name="apps-outline"></ion-icon>
+                    <span>Categoría</span>
+                  </label>
+                  <div class="select-wrapper-compact">
+                    <select 
+                      [(ngModel)]="producto.categoria" 
+                      (ngModelChange)="onCategoriaChange()"
+                      name="categoria" 
+                      class="select-compact"
+                      required>
+                      <option value="" disabled selected>Seleccionar categoría</option>
+                      <option value="Desechables">Desechables</option>
+                      <option value="Biodegradables">Biodegradables</option>
+                      <option value="Bolsas">Bolsas</option>
+                      <option value="Cocina y Repostería">Cocina y Repostería</option>
+                      <option value="Alimentos">Alimentos</option>
+                      <option value="Higiénicos y Servilletas">Higiénicos y Servilletas</option>
+                    </select>
+                    <ion-icon name="chevron-down-outline"></ion-icon>
+                  </div>
+                </div>
+
+                <!-- Subcategoría -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact required">
+                    <ion-icon name="layers-outline"></ion-icon>
+                    <span>Subcategoría</span>
+                  </label>
+                  <div class="select-wrapper-compact" [class.disabled]="!producto.categoria">
+                    <select 
+                      [(ngModel)]="producto.subcategoria" 
+                      name="subcategoria" 
+                      class="select-compact"
+                      [disabled]="!producto.categoria"
+                      required>
+                      <option value="" disabled selected>
+                        {{ producto.categoria ? 'Seleccionar subcategoría' : 'Selecciona categoría primero' }}
+                      </option>
+                      <option *ngFor="let sub of subcategorias" [value]="sub">{{ sub }}</option>
+                    </select>
+                    <ion-icon name="chevron-down-outline"></ion-icon>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="input-hint" *ngIf="!tieneOpcionesValidas()">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              <span>Agrega al menos una opción de Mayoreo o Menudeo primero</span>
-            </div>
-          </div>
+            <!-- 📌 COLUMNA DERECHA: COMERCIALIZACIÓN -->
+            <div class="form-column form-column-right">
+              
+              <!-- 1️⃣ ESPECIFICACIONES DEL PRODUCTO -->
+              <div class="form-section-card">
+                <div class="section-header">
+                  <ion-icon name="construct-outline"></ion-icon>
+                  <h3>Especificaciones del Producto</h3>
+                </div>
 
-          <!-- ========== SECCIÓN 6: CONTENIDO ========== -->
-          <div class="form-section-title">
-            <ion-icon name="document-text-outline"></ion-icon>
-            <span>Descripción y Multimedia</span>
-          </div>
+                <!-- Material -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact">
+                    <ion-icon name="albums-outline"></ion-icon>
+                    <span>Material</span>
+                  </label>
+                  <div class="select-wrapper-compact">
+                    <select 
+                      [(ngModel)]="producto.material" 
+                      name="material" 
+                      class="select-compact">
+                      <option value="">Seleccionar material</option>
+                      <option value="Plástico">Plástico</option>
+                      <option value="Papel">Papel</option>
+                      <option value="Biodegradable">Biodegradable</option>
+                      <option value="Cartón">Cartón</option>
+                      <option value="Aluminio">Aluminio</option>
+                      <option value="Madera">Madera</option>
+                      <option value="PET">PET</option>
+                      <option value="Polietileno">Polietileno</option>
+                      <option value="Polipropileno">Polipropileno</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                    <ion-icon name="chevron-down-outline"></ion-icon>
+                  </div>
+                </div>
 
-          <!-- DESCRIPCIÓN -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="document-text-outline"></ion-icon>
-              <span>Descripción del Producto</span>
-            </label>
-            <div class="input-wrapper textarea-wrapper" [class.disabled]="!tieneOpcionesValidas()">
-              <textarea 
-                [(ngModel)]="producto.descripcion" 
-                name="descripcion" 
-                placeholder="Describe las características principales del producto..."
-                rows="4"
-                [disabled]="!tieneOpcionesValidas()"
-                required
-                class="custom-textarea"></textarea>
-            </div>
-            <div class="input-hint" *ngIf="!tieneOpcionesValidas()">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              <span>Agrega al menos una opción primero</span>
-            </div>
-          </div>
+                <!-- Color -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact">
+                    <ion-icon name="color-palette-outline"></ion-icon>
+                    <span>Color</span>
+                  </label>
+                  <div class="select-wrapper-compact">
+                    <select 
+                      [(ngModel)]="producto.color" 
+                      name="color" 
+                      class="select-compact">
+                      <option value="">Seleccionar color</option>
+                      <option value="Blanco">Blanco</option>
+                      <option value="Transparente">Transparente</option>
+                      <option value="Negro">Negro</option>
+                      <option value="Kraft">Kraft</option>
+                      <option value="Rojo">Rojo</option>
+                      <option value="Azul">Azul</option>
+                      <option value="Verde">Verde</option>
+                      <option value="Amarillo">Amarillo</option>
+                      <option value="Multicolor">Multicolor</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                    <ion-icon name="chevron-down-outline"></ion-icon>
+                  </div>
+                </div>
 
-          <!-- USOS RECOMENDADOS -->
-          <div class="form-group-custom">
-            <label class="form-label-custom">
-              <ion-icon name="bulb-outline"></ion-icon>
-              <span>Usos Recomendados (Opcional)</span>
-            </label>
-            <div class="input-wrapper textarea-wrapper" [class.disabled]="!tieneOpcionesValidas()">
-              <textarea 
-                [(ngModel)]="producto.usosRecomendados" 
-                name="usosRecomendados" 
-                placeholder="Ej: Ideal para eventos, fiestas, restaurantes, cafeterías..."
-                rows="3"
-                [disabled]="!tieneOpcionesValidas()"
-                class="custom-textarea"></textarea>
-            </div>
-          </div>
+                <!-- Medida/Capacidad -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact">
+                    <ion-icon name="resize-outline"></ion-icon>
+                    <span>Medida/Capacidad</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="producto.medida" 
+                    name="medida" 
+                    placeholder="Ej: 16oz, 500ml, 30cm"
+                    class="input-compact">
+                </div>
 
-          <!-- URL DE IMAGEN -->
-          <div class="form-group-custom">
-            <label class="form-label-custom required">
-              <ion-icon name="image-outline"></ion-icon>
-              <span>URL de la Imagen Principal</span>
-            </label>
-            <div class="input-wrapper" [class.disabled]="!tieneOpcionesValidas()">
-              <input 
-                type="text" 
-                [(ngModel)]="producto.imagen" 
-                name="imagen" 
-                placeholder="https://ejemplo.com/imagen.jpg"
-                [disabled]="!tieneOpcionesValidas()"
-                required
-                class="custom-input">
-              <ion-icon name="cloud-upload-outline" class="input-icon-right"></ion-icon>
-            </div>
-            <div class="input-hint" *ngIf="!tieneOpcionesValidas()">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              <span>Agrega al menos una opción primero</span>
-            </div>
-          </div>
+                <!-- Cantidad por Paquete -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact">
+                    <ion-icon name="cube-outline"></ion-icon>
+                    <span>Cantidad por Paquete</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="producto.cantidadPaquete" 
+                    name="cantidadPaquete" 
+                    placeholder="Ej: Caja de 1000 pzas"
+                    class="input-compact">
+                </div>
 
-          <!-- VISTA PREVIA DE IMAGEN -->
-          <div class="image-preview-container" *ngIf="producto.imagen && producto.imagen.trim() !== ''">
-            <div class="preview-header">
-              <ion-icon name="eye-outline"></ion-icon>
-              <span>Vista previa</span>
-            </div>
-            <div class="preview-image">
-              <img 
-                [src]="producto.imagen" 
-                alt="Preview del producto" />
+                <!-- Características Especiales -->
+                <div class="form-group-compact" style="margin-top: 16px;">
+                  <label class="form-label-compact">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <span>Características Especiales</span>
+                  </label>
+                  <div class="caracteristicas-compact">
+                    <label class="checkbox-compact">
+                      <input 
+                        type="checkbox" 
+                        [(ngModel)]="producto.biodegradable" 
+                        name="biodegradable">
+                      <span>Biodegradable</span>
+                    </label>
+
+                    <label class="checkbox-compact">
+                      <input 
+                        type="checkbox" 
+                        [(ngModel)]="producto.aptoMicroondas" 
+                        name="aptoMicroondas">
+                      <span>Apto Microondas</span>
+                    </label>
+
+                    <label class="checkbox-compact">
+                      <input 
+                        type="checkbox" 
+                        [(ngModel)]="producto.aptoCongelador" 
+                        name="aptoCongelador">
+                      <span>Apto Congelador</span>
+                    </label>
+
+                    <label class="checkbox-compact checkbox-destacado">
+                      <input 
+                        type="checkbox" 
+                        [(ngModel)]="producto.destacado" 
+                        name="destacado">
+                      <span>⭐ Destacado</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2️⃣ MODALIDADES DE VENTA -->
+              <div class="form-section-card">
+                <div class="section-header">
+                  <ion-icon name="cart-outline"></ion-icon>
+                  <h3>Modalidades de Venta</h3>
+                </div>
+
+                <!-- Seleccionar Modalidad -->
+                <div class="form-group-compact">
+                  <label class="form-label-compact required">
+                    <ion-icon name="list-outline"></ion-icon>
+                    <span>Agregar Modalidad</span>
+                  </label>
+                  <div class="modalidad-select-inline">
+                    <div class="select-wrapper-compact">
+                      <select 
+                        [(ngModel)]="modalidadSeleccionada" 
+                        name="modalidadSeleccionada" 
+                        class="select-compact">
+                        <option value="" disabled selected>Seleccionar</option>
+                        <option value="Menudeo">Menudeo</option>
+                        <option value="Mayoreo">Mayoreo</option>
+                      </select>
+                      <ion-icon name="chevron-down-outline"></ion-icon>
+                    </div>
+                    <button 
+                      *ngIf="modalidadSeleccionada"
+                      type="button" 
+                      class="btn-clear-inline"
+                      (click)="limpiarModalidadSeleccionada()">
+                      <ion-icon name="close-outline"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Formulario para agregar opciones -->
+                <div class="add-option-box" *ngIf="!!modalidadSeleccionada">
+                  <div class="option-form-header">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                    <span>Nueva opción de {{ modalidadSeleccionada }}</span>
+                  </div>
+
+                  <div class="form-group-compact">
+                    <label class="form-label-compact required">
+                      <ion-icon name="cash-outline"></ion-icon>
+                      <span>Precio</span>
+                    </label>
+                    <div class="input-with-prefix">
+                      <span class="input-prefix">$</span>
+                      <input 
+                        type="number" 
+                        [(ngModel)]="precioActual" 
+                        name="precioActual" 
+                        placeholder="0.00" 
+                        min="0"
+                        step="0.01"
+                        class="input-compact input-with-prefix-field">
+                    </div>
+                  </div>
+
+                  <div class="form-group-compact">
+                    <label class="form-label-compact">
+                      <ion-icon name="resize-outline"></ion-icon>
+                      <span>Tamaño</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="tamanoActual" 
+                      name="tamanoActual" 
+                      placeholder="Ej: 16oz, Grande"
+                      class="input-compact">
+                  </div>
+
+                  <div class="form-group-compact">
+                    <label class="form-label-compact">
+                      <ion-icon name="layers-outline"></ion-icon>
+                      <span>Contenido</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="contenidoActual" 
+                      name="contenidoActual" 
+                      placeholder="Ej: Caja de 100"
+                      class="input-compact">
+                  </div>
+
+                  <button 
+                    type="button" 
+                    class="btn-add-option"
+                    (click)="agregarOpcionModalidad()">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                    <span>Agregar Opción</span>
+                  </button>
+                </div>
+
+                <!-- Opciones de Menudeo -->
+                <div class="options-display-section">
+                  <div class="options-section-title">
+                    <ion-icon name="cart-outline"></ion-icon>
+                    <span>Menudeo</span>
+                  </div>
+                  
+                  <div class="options-list" *ngIf="obtenerOpcionesModalidad('Menudeo').length > 0">
+                    <div class="option-item" *ngFor="let opcion of obtenerOpcionesModalidad('Menudeo')">
+                      <div class="option-details">
+                        <span class="option-price">${{ opcion.precio }}</span>
+                        <span class="option-info">Tamaño: {{ opcion.tamano }} | Contenido: {{ opcion.contenido }}</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        class="btn-remove-option"
+                        (click)="eliminarOpcionModalidad(opcion.id)">
+                        <ion-icon name="trash-outline"></ion-icon>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="empty-options" *ngIf="obtenerOpcionesModalidad('Menudeo').length === 0">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <span>No hay opciones de Menudeo</span>
+                  </div>
+                </div>
+
+                <!-- Opciones de Mayoreo -->
+                <div class="options-display-section">
+                  <div class="options-section-title">
+                    <ion-icon name="cart-outline"></ion-icon>
+                    <span>Mayoreo</span>
+                  </div>
+                  
+                  <div class="options-list" *ngIf="obtenerOpcionesModalidad('Mayoreo').length > 0">
+                    <div class="option-item" *ngFor="let opcion of obtenerOpcionesModalidad('Mayoreo')">
+                      <div class="option-details">
+                        <span class="option-price">${{ opcion.precio }}</span>
+                        <span class="option-info">{{ opcion.tamano }} | {{ opcion.contenido }}</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        class="btn-remove-option"
+                        (click)="eliminarOpcionModalidad(opcion.id)">
+                        <ion-icon name="trash-outline"></ion-icon>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="empty-options" *ngIf="obtenerOpcionesModalidad('Mayoreo').length === 0">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <span>No hay opciones de Mayoreo</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3️⃣ DISTRIBUCIÓN - SUCURSALES -->
+              <div class="form-section-card">
+                <div class="section-header">
+                  <ion-icon name="storefront-outline"></ion-icon>
+                  <h3>Distribución</h3>
+                </div>
+
+                <div class="form-group-compact">
+                  <label class="form-label-compact">
+                    <ion-icon name="location-outline"></ion-icon>
+                    <span>Sucursales Disponibles</span>
+                  </label>
+
+                  <div class="tiendas-list" *ngIf="producto.tiendas && producto.tiendas.length > 0">
+                    <div class="tienda-item" *ngFor="let tienda of producto.tiendas; let i = index">
+                      <ion-icon name="location-outline"></ion-icon>
+                      <span>{{ tienda }}</span>
+                      <button 
+                        type="button" 
+                        class="btn-remove-tienda"
+                        (click)="eliminarTienda(i)"
+                        [disabled]="!tieneOpcionesValidas()">
+                        <ion-icon name="close-outline"></ion-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="add-tienda-wrapper">
+                    <input 
+                      type="text" 
+                      [(ngModel)]="nuevaTienda" 
+                      name="nuevaTienda" 
+                      placeholder="Nombre de sucursal"
+                      (keyup.enter)="agregarTienda()"
+                      [disabled]="!tieneOpcionesValidas()"
+                      class="input-compact">
+                    <button 
+                      type="button" 
+                      class="btn-add-tienda" 
+                      (click)="agregarTienda()"
+                      [disabled]="!tieneOpcionesValidas()">
+                      <ion-icon name="add-outline"></ion-icon>
+                    </button>
+                  </div>
+
+                  <div class="hint-text" *ngIf="!tieneOpcionesValidas()">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <span>Agrega opciones de venta primero</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- ========== BOTONES DE ACCIÓN ========== -->
-          <div class="modal-footer-custom">
+          <div class="modal-footer-actions2">
             <button 
               type="submit"
-              class="btn-submit"
+              class="btn-submit-product"
               [disabled]="!producto.sku || !producto.sku.trim() ||
                           !producto.nombre || !producto.nombre.trim() || 
                           !producto.categoria || !producto.categoria.trim() ||
@@ -1408,7 +1732,7 @@ Equipo Interventas"
             <button 
               type="button"
               (click)="cerrarModalProducto()"
-              class="btn-cancel">
+              class="btn-cancel-product">
               <ion-icon name="close-outline"></ion-icon>
               <span>Cancelar</span>
             </button>
@@ -1650,7 +1974,7 @@ Equipo Interventas"
   </div>
 </div>
 
-<!-- 📍 MODAL DE BÚSQUEDA DE PRODUCTOS-->
+<!-- 🔍 MODAL DE BÚSQUEDA DE PRODUCTOS-->
 <div class="modal-overlay" *ngIf="mostrarModalBusqueda" (click)="cerrarModalBusqueda()">
     <div class="modal-container search-modal" (click)="$event.stopPropagation()">
       <div class="modal-wrapper">
@@ -1794,6 +2118,25 @@ Equipo Interventas"
               </div>
             </div>
 
+            <!-- ⭐ Productos Destacados -->
+            <div class="form-group-custom" style="margin-top: 16px;">
+              <label class="form-label-custom">
+                <ion-icon name="star-outline"></ion-icon>
+                <span>Mostrar Productos</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select 
+                  [(ngModel)]="filtroDestacado" 
+                  name="filtroDestacado" 
+                  class="custom-select-native">
+                  <option value="">Todos</option>
+                  <option value="si">Solo Destacados</option>
+                  <option value="no">No Destacados</option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+            </div>
+
             <!-- Botones de acción -->
             <div class="modal-footer-custom">
               <button 
@@ -1818,5 +2161,5 @@ Equipo Interventas"
       </div>
     </div>
 </div>
-  
+
 </ion-content>

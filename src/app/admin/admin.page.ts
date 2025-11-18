@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import emailjs from '@emailjs/browser';
 import { getDocs } from '@angular/fire/firestore';
+import { ToastService } from '../services/toast.service';
 
 import {
   Firestore,
@@ -24,12 +25,14 @@ import {
   deleteObject
 } from '@angular/fire/storage';
 
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 
 import {
+  chatboxEllipses,
+  arrowUndo,
   shieldCheckmarkOutline,
   cubeOutline,
   cashOutline,
@@ -54,6 +57,9 @@ import {
   informationCircleOutline,
   cloudUploadOutline,
   eyeOutline,
+  gridOutline,
+  listOutline,
+  chevronDownOutline,
   searchOutline,
   filterOutline,
   refreshOutline,
@@ -62,7 +68,6 @@ import {
   ribbonOutline,
   closeCircle,
   sendOutline,
-  listOutline,
   trashBinOutline,
   calendarOutline,
   textOutline,
@@ -85,6 +90,8 @@ import {
   radioOutline,
   snowOutline,
   starOutline,
+  business,
+  trash
 } from 'ionicons/icons';
 
 @Component({
@@ -103,8 +110,8 @@ export class AdminPage {
   storage = inject(Storage);
   authService = inject(AuthService);
   router = inject(Router);
-  toastCtrl = inject(ToastController);
   cdr = inject(ChangeDetectorRef);
+  toastService = inject(ToastService); // ⭐ TOAST SERVICE
 
   // =============================
   // 🎯 CONTROL DE TABS
@@ -129,6 +136,7 @@ export class AdminPage {
   filtroMarca: string = '';
   filtroCategoria: string = '';
   filtroSubcategoria: string = '';
+  filtroDestacado: string = '';
   subcategorias: string[] = [];
   subcategoriasFiltro: string[] = [];
   
@@ -148,6 +156,12 @@ export class AdminPage {
   tipoSeleccionImagen: 'url' | 'upload' = 'url';
   previsualizacionImagen: string | null = null;
   imagenAnterior: string = '';
+
+  // Busqueda y Vista
+  busquedaRapida: string = '';
+  ordenSeleccionado: string = 'nombre-asc';
+  seleccionarTodosProductos: boolean = false;
+  productosSeleccionados: Set<string> = new Set();
 
   // =============================
   // 👥 USUARIOS - PROPIEDADES
@@ -170,9 +184,12 @@ export class AdminPage {
   filtroRolUsuario: string = '';
 
   // =============================
-  // 📧 MENSAJES DE CONTACTO
+  // 📧 MENSAJES DE CONTACTO - PROPIEDADES
   // =============================
   mensajes: any[] = [];
+  mensajesFiltrados: any[] = [];
+  filtroMensajeBusqueda: string = '';
+  mostrarFiltroMensajes: boolean = false;
 
   // =============================
   // 📰 NEWSLETTER - PROPIEDADES
@@ -252,13 +269,14 @@ export class AdminPage {
       mailOutline, checkmarkOutline, closeOutline, keyOutline,
       lockClosedOutline, peopleOutline, newspaperOutline, addCircleOutline,
       mailOpenOutline, informationCircleOutline, cloudUploadOutline, eyeOutline,
+      gridOutline, listOutline, chevronDownOutline,
       searchOutline, filterOutline, refreshOutline, closeCircleOutline,
       folderOutline, ribbonOutline, closeCircle, sendOutline,
-      listOutline, trashBinOutline, calendarOutline, textOutline,
+      trashBinOutline, calendarOutline, textOutline,
       bulbOutline, checkmarkCircleOutline, warningOutline, resizeOutline,
       layersOutline, storefrontOutline, barcodeOutline, cartOutline,
       colorPaletteOutline, personAddOutline, downloadOutline, documentOutline,
-      shieldOutline, personCircleOutline, starOutline
+      shieldOutline, personCircleOutline, starOutline, chatboxEllipses, arrowUndo, business, trash
     });
   }
 
@@ -296,17 +314,9 @@ export class AdminPage {
   // 💬 UTILIDADES - TOAST
   // =============================
   
-async mostrarToast(mensaje: string, color: string = 'success') {
-  const toast = await this.toastCtrl.create({
-    message: mensaje,
-    duration: 3000,
-    position: 'bottom',
-    color,
-    cssClass: `toast-${color}`,
-    animated: true
-  });
-  await toast.present();
-}
+  async mostrarToast(mensaje: string) {
+    await this.toastService.show(mensaje);
+  }
 
   // =============================
   // 🗑️ MODAL DE ELIMINACIÓN UNIFICADO
@@ -324,7 +334,9 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   obtenerMensajeConfirmacion(): string {
     const mensajes = {
-      'producto': 'El producto será eliminado permanentemente del sistema. Esta acción es irreversible.',
+      'producto': this.idAEliminar === 'multiple' 
+        ? `Se eliminarán ${this.productosSeleccionados.size} productos permanentemente del sistema. Esta acción es irreversible.`
+        : 'El producto será eliminado permanentemente del sistema. Esta acción es irreversible.',
       'usuario': 'El usuario será eliminado permanentemente del sistema. Perderá acceso a su cuenta.',
       'mensaje': 'El mensaje será eliminado permanentemente y no podrás recuperarlo.',
       'suscriptor': 'El suscriptor será eliminado permanentemente del sistema y no recibirá más newsletters.'
@@ -343,49 +355,201 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     if (!this.idAEliminar) return;
 
     try {
-      let docRef;
       let mensaje = '';
 
       switch (this.tipoEliminacion) {
         case 'producto':
-          docRef = doc(this.firestore, `productos/${this.idAEliminar}`);
-          await deleteDoc(docRef);
-          mensaje = '🗑️ Producto eliminado correctamente';
+          if (this.idAEliminar === 'multiple') {
+            let eliminados = 0;
+            let errores = 0;
+
+            for (const id of Array.from(this.productosSeleccionados)) {
+              try {
+                const docRef = doc(this.firestore, `productos/${id}`);
+                await deleteDoc(docRef);
+                eliminados++;
+              } catch (error) {
+                console.error(`Error eliminando producto ${id}:`, error);
+                errores++;
+              }
+            }
+
+            this.productosSeleccionados.clear();
+            this.seleccionarTodosProductos = false;
+
+            if (errores === 0) {
+              mensaje = `🗑️ ${eliminados} producto(s) eliminado(s) correctamente`;
+            } else {
+              mensaje = `⚠️ Eliminados: ${eliminados} | Errores: ${errores}`;
+              await this.mostrarToast(mensaje);
+              this.cerrarModalEliminar();
+              return;
+            }
+          } else {
+            const docRef = doc(this.firestore, `productos/${this.idAEliminar}`);
+            await deleteDoc(docRef);
+            mensaje = '🗑️ Producto eliminado correctamente';
+          }
           break;
 
         case 'usuario':
-          docRef = doc(this.firestore, `usuarios/${this.idAEliminar}`);
-          await deleteDoc(docRef);
+          const userDocRef = doc(this.firestore, `usuarios/${this.idAEliminar}`);
+          await deleteDoc(userDocRef);
           mensaje = '🗑️ Usuario eliminado correctamente';
           break;
 
         case 'mensaje':
-          docRef = doc(this.firestore, `contactMessages/${this.idAEliminar}`);
-          await deleteDoc(docRef);
+          const msgDocRef = doc(this.firestore, `contactMessages/${this.idAEliminar}`);
+          await deleteDoc(msgDocRef);
           mensaje = '🗑️ Mensaje eliminado correctamente';
           break;
 
         case 'suscriptor':
-          docRef = doc(this.firestore, `newsletter/${this.idAEliminar}`);
-          await deleteDoc(docRef);
+          const subsDocRef = doc(this.firestore, `newsletter/${this.idAEliminar}`);
+          await deleteDoc(subsDocRef);
           this.suscriptoresSeleccionados.delete(this.idAEliminar);
           mensaje = '🗑️ Suscriptor eliminado correctamente';
           break;
       }
 
-      await this.mostrarToast(mensaje, 'danger');
+      await this.mostrarToast(mensaje);
       this.cerrarModalEliminar();
 
     } catch (error) {
       console.error(`Error eliminando ${this.tipoEliminacion}:`, error);
-      await this.mostrarToast(`❌ Error al eliminar el ${this.tipoEliminacion}`, 'danger');
+      await this.mostrarToast(`❌ Error al eliminar el ${this.tipoEliminacion}`);
       this.cerrarModalEliminar();
     }
   }
 
-  // =============================
-  // 📦 PRODUCTOS - CRUD
-  // =============================
+  aplicarBusquedaRapida() {
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarBusquedaRapida() {
+    this.busquedaRapida = '';
+    this.aplicarFiltrosInternos();
+  }
+
+  limpiarTodasBusquedas() {
+    this.busquedaRapida = '';
+    this.limpiarTodosFiltros();
+  }
+
+  aplicarOrden() {
+    const [campo, direccion] = this.ordenSeleccionado.split('-');
+    
+    this.productosFiltrados.sort((a, b) => {
+      let valorA = '';
+      let valorB = '';
+
+      switch (campo) {
+        case 'nombre':
+          valorA = (a.nombre || '').toLowerCase();
+          valorB = (b.nombre || '').toLowerCase();
+          break;
+        case 'sku':
+          valorA = (a.sku || '').toLowerCase();
+          valorB = (b.sku || '').toLowerCase();
+          break;
+        case 'marca':
+          valorA = (a.marca || '').toLowerCase();
+          valorB = (b.marca || '').toLowerCase();
+          break;
+      }
+
+      if (direccion === 'asc') {
+        return valorA.localeCompare(valorB);
+      } else {
+        return valorB.localeCompare(valorA);
+      }
+    });
+
+    this.cdr.detectChanges();
+  }
+
+  tieneFiltrosActivos(): boolean {
+    return !!(this.filtroNombre || this.filtroSku || this.filtroMarca || 
+              this.filtroCategoria || this.filtroSubcategoria || this.filtroDestacado);
+  }
+
+  contarFiltrosActivos(): number {
+    let count = 0;
+    if (this.filtroNombre) count++;
+    if (this.filtroSku) count++;
+    if (this.filtroMarca) count++;
+    if (this.filtroCategoria) count++;
+    if (this.filtroSubcategoria) count++;
+    if (this.filtroDestacado) count++;
+    return count;
+  }
+
+  toggleFiltroDestacados() {
+    if (this.filtroDestacado === 'si') {
+      this.filtroDestacado = '';
+      this.mostrarToast('✨ Mostrando todos los productos');
+    } else {
+      this.filtroDestacado = 'si';
+      this.mostrarToast('⭐ Mostrando solo productos destacados');
+    }
+    this.aplicarFiltrosInternos();
+  }
+
+  toggleProductoSeleccion(productoId: string) {
+    if (this.productosSeleccionados.has(productoId)) {
+      this.productosSeleccionados.delete(productoId);
+    } else {
+      this.productosSeleccionados.add(productoId);
+    }
+    
+    this.seleccionarTodosProductos = 
+      this.productosSeleccionados.size === this.productosFiltrados.length;
+  }
+
+  toggleSeleccionarTodosProductos() {
+    if (this.seleccionarTodosProductos) {
+      this.productosFiltrados.forEach(p => this.productosSeleccionados.add(p.id));
+    } else {
+      this.productosSeleccionados.clear();
+    }
+  }
+
+  async eliminarProductosSeleccionados() {
+    if (this.productosSeleccionados.size === 0) {
+      this.mostrarToast('⚠️ No hay productos seleccionados');
+      return;
+    }
+
+    this.idAEliminar = 'multiple';
+    this.tipoEliminacion = 'producto';
+    this.nombreElementoEliminar = `${this.productosSeleccionados.size} producto(s) seleccionado(s)`;
+    this.mostrarModalEliminar = true;
+    this.cdr.detectChanges();
+  }
+
+  verDetalleProducto(producto: any) {
+    this.editarProducto(producto);
+  }
+
+  obtenerPrecioModalidad(producto: any, modalidad: string): string {
+    if (!producto.modalidades || !Array.isArray(producto.modalidades)) return 'N/A';
+    
+    const opcionesModalidad = producto.modalidades.filter(
+      (m: any) => m.modalidad === modalidad
+    );
+    
+    if (opcionesModalidad.length === 0) return 'N/A';
+    
+    const precios = opcionesModalidad.map((m: any) => m.precio);
+    const minPrecio = Math.min(...precios);
+    const maxPrecio = Math.max(...precios);
+    
+    if (minPrecio === maxPrecio) {
+      return `$${minPrecio.toFixed(2)}`;
+    } else {
+      return `$${minPrecio.toFixed(2)} - $${maxPrecio.toFixed(2)}`;
+    }
+  }
 
   obtenerProductos() {
     const ref = collection(this.firestore, 'productos');
@@ -447,7 +611,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
     } catch (error) {
       console.error('Error al guardar producto:', error);
-      await this.mostrarToast('❌ Error al guardar el producto', 'danger');
+      await this.mostrarToast('❌ Error al guardar el producto');
     }
   }
 
@@ -523,19 +687,19 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
     for (const { condicion, mensaje } of validaciones) {
       if (condicion) {
-        this.mostrarToast(mensaje, 'warning');
+        this.mostrarToast(mensaje);
         return false;
       }
     }
 
     if (this.tipoSeleccionImagen === 'url') {
       if (!this.producto.imagen?.trim()) {
-        this.mostrarToast('⚠️ La URL de la imagen es requerida', 'warning');
+        this.mostrarToast('⚠️ La URL de la imagen es requerida');
         return false;
       }
     } else {
       if (!this.archivoSeleccionado && !this.producto.imagen) {
-        this.mostrarToast('⚠️ Debes seleccionar una imagen', 'warning');
+        this.mostrarToast('⚠️ Debes seleccionar una imagen');
         return false;
       }
     }
@@ -552,10 +716,10 @@ async mostrarToast(mensaje: string, color: string = 'success') {
           await this.eliminarImagenAnterior(this.imagenAnterior);
         }
         urlImagenFinal = await this.subirImagenFirebase();
-        await this.mostrarToast('📸 Imagen subida correctamente', 'success');
+        await this.mostrarToast('📸 Imagen subida correctamente');
       } catch (error) {
         console.error('Error subiendo imagen:', error);
-        await this.mostrarToast('❌ Error al subir la imagen', 'danger');
+        await this.mostrarToast('❌ Error al subir la imagen');
         throw error;
       }
     }
@@ -610,8 +774,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
   }
 
   // =============================
-  // 📸 MANEJO DE IMÁGENES
-  // =============================
+  // 📸 MANEJO DE IMÁGENES// =============================
 
   cambiarTipoImagen(tipo: 'url' | 'upload') {
     this.tipoSeleccionImagen = tipo;
@@ -630,13 +793,13 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
     const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     if (!tiposPermitidos.includes(archivo.type)) {
-      this.mostrarToast('⚠️ Solo se permiten imágenes (JPG, PNG, WEBP, GIF)', 'warning');
+      this.mostrarToast('⚠️ Solo se permiten imágenes (JPG, PNG, WEBP, GIF)');
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (archivo.size > maxSize) {
-      this.mostrarToast('⚠️ La imagen no debe superar 5MB', 'warning');
+      this.mostrarToast('⚠️ La imagen no debe superar 5MB');
       return;
     }
 
@@ -715,12 +878,12 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   agregarOpcionModalidad() {
     if (!this.modalidadSeleccionada) {
-      this.mostrarToast('⚠️ Selecciona una modalidad (Mayoreo o Menudeo)', 'warning');
+      this.mostrarToast('⚠️ Selecciona una modalidad (Mayoreo o Menudeo)');
       return;
     }
 
     if (this.precioActual <= 0) {
-      this.mostrarToast('⚠️ El precio debe ser mayor a 0', 'warning');
+      this.mostrarToast('⚠️ El precio debe ser mayor a 0');
       return;
     }
 
@@ -740,14 +903,14 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     this.precioActual = 0;
     this.tamanoActual = '';
     this.contenidoActual = '';
-    this.mostrarToast('✅ Opción de ' + this.modalidadSeleccionada + ' agregada', 'success');
+    this.mostrarToast('✅ Opción de ' + this.modalidadSeleccionada + ' agregada');
     this.limpiarModalidadSeleccionada();
     this.cdr.detectChanges();
   }
 
   eliminarOpcionModalidad(id: string) {
     this.producto.modalidades = this.producto.modalidades.filter((m: any) => m.id !== id);
-    this.mostrarToast('🗑️ Opción eliminada', 'danger');
+    this.mostrarToast('🗑️ Opción eliminada');
     this.cdr.detectChanges();
   }
 
@@ -766,19 +929,19 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   agregarTienda() {
     if (!this.tieneOpcionesValidas()) {
-      this.mostrarToast('⚠️ Agrega al menos una opción de Mayoreo o Menudeo primero', 'warning');
+      this.mostrarToast('⚠️ Agrega al menos una opción de Mayoreo o Menudeo primero');
       return;
     }
 
     const tienda = this.nuevaTienda.trim();
     
     if (!tienda) {
-      this.mostrarToast('⚠️ Ingresa un nombre de tienda válido', 'warning');
+      this.mostrarToast('⚠️ Ingresa un nombre de tienda válido');
       return;
     }
     
     if (this.producto.tiendas.includes(tienda)) {
-      this.mostrarToast('⚠️ Esta tienda ya existe', 'warning');
+      this.mostrarToast('⚠️ Esta tienda ya existe');
       return;
     }
     
@@ -788,13 +951,13 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     
     this.producto.tiendas.push(tienda);
     this.nuevaTienda = '';
-    this.mostrarToast('✅ Sucursal agregada correctamente', 'success');
+    this.mostrarToast('✅ Sucursal agregada correctamente');
   }
 
   eliminarTienda(index: number) {
     if (Array.isArray(this.producto.tiendas) && index >= 0 && index < this.producto.tiendas.length) {
       this.producto.tiendas.splice(index, 1);
-      this.mostrarToast('🗑️ Sucursal eliminada', 'danger');
+      this.mostrarToast('🗑️ Sucursal eliminada');
     }
   }
 
@@ -832,14 +995,17 @@ async mostrarToast(mensaje: string, color: string = 'success') {
   }
 
   aplicarFiltrosInternos() {
+    const busqueda = (this.busquedaRapida || '').trim().toLowerCase();
     const filtroNombre = (this.filtroNombre || '').trim().toLowerCase();
     const filtroSku = (this.filtroSku || '').trim().toLowerCase();
     const filtroMarca = (this.filtroMarca || '').trim().toLowerCase();
     const filtroCategoria = (this.filtroCategoria || '').trim().toLowerCase();
     const filtroSubcategoria = (this.filtroSubcategoria || '').trim().toLowerCase();
 
-    if (!filtroNombre && !filtroSku && !filtroMarca && !filtroCategoria && !filtroSubcategoria) {
+    if (!busqueda && !filtroNombre && !filtroSku && !filtroMarca && 
+        !filtroCategoria && !filtroSubcategoria && !this.filtroDestacado) {
       this.productosFiltrados = [...this.productos];
+      this.aplicarOrden();
       return;
     }
 
@@ -850,14 +1016,28 @@ async mostrarToast(mensaje: string, color: string = 'success') {
       const categoria = (producto.categoria || '').toLowerCase();
       const subcategoria = (producto.subcategoria || '').toLowerCase();
 
+      const cumpleBusquedaRapida = busqueda ? (
+        nombre.includes(busqueda) || 
+        sku.includes(busqueda) || 
+        marca.includes(busqueda)
+      ) : true;
+
+      const cumpleDestacado = this.filtroDestacado ? (
+        this.filtroDestacado === 'si' ? producto.destacado === true : producto.destacado !== true
+      ) : true;
+
       return (
+        cumpleBusquedaRapida &&
         (filtroNombre ? nombre.includes(filtroNombre) : true) &&
         (filtroSku ? sku.includes(filtroSku) : true) &&
         (filtroMarca ? marca.includes(filtroMarca) : true) &&
         (filtroCategoria ? categoria.includes(filtroCategoria) : true) &&
-        (filtroSubcategoria ? subcategoria.includes(filtroSubcategoria) : true)
+        (filtroSubcategoria ? subcategoria.includes(filtroSubcategoria) : true) &&
+        cumpleDestacado
       );
     });
+
+    this.aplicarOrden();
   }
 
   limpiarFiltroNombre() {
@@ -888,95 +1068,113 @@ async mostrarToast(mensaje: string, color: string = 'success') {
   }
 
   limpiarTodosFiltros() {
+    this.busquedaRapida = '';
     this.filtroNombre = '';
     this.filtroSku = '';
     this.filtroMarca = '';
     this.filtroCategoria = '';
     this.filtroSubcategoria = '';
+    this.filtroDestacado = '';
     this.subcategoriasFiltro = [];
     this.aplicarFiltrosInternos();
   }
 
   // =============================
-  // 📤 PRODUCTOS - EXPORTAR CSV
-  // =============================
+// 📤 PRODUCTOS - EXPORTAR CSV
+// =============================
 
-  exportarProductosCSV() {
-    if (this.productosFiltrados.length === 0) {
-      this.mostrarToast('⚠️ No hay productos para exportar', 'warning');
-      return;
+exportarProductosCSV() {
+  if (this.productosFiltrados.length === 0) {
+    this.mostrarToast('⚠️ No hay productos para exportar');
+    return;
+  }
+
+  const headers = [
+    'ID', 'SKU', 'Nombre', 'Descripción', 'Categoría', 'Subcategoría',
+    'Marca', 'Material', 'Color', 'Medida/Capacidad', 'Cantidad por Paquete',
+    'Biodegradable', 'Apto Microondas', 'Apto Congelador', 'Usos Recomendados',
+    'Destacado', 'Tiendas', 'Modalidades', 'Imagen'
+  ];
+
+  const rows = this.productosFiltrados.map(product => {
+    let modalidadesTexto = '';
+    if (product.modalidades && Array.isArray(product.modalidades) && product.modalidades.length > 0) {
+      modalidadesTexto = product.modalidades.map((m: any) => {
+        const tamano = m.tamano && m.tamano !== 'N/A' ? m.tamano : '';
+        const contenido = m.contenido && m.contenido !== 'N/A' ? m.contenido : '';
+        const precio = m.precio ? `${m.precio}` : '';
+        
+        let partes = [m.modalidad];
+        if (tamano) partes.push(tamano);
+        if (contenido) partes.push(contenido);
+        if (precio) partes.push(precio);
+        
+        return partes.join(' | ');
+      }).join('; ');
     }
 
-    const headers = [
-      'ID', 'SKU', 'Nombre', 'Descripción', 'Categoría', 'Subcategoría',
-      'Marca', 'Material', 'Color', 'Medida/Capacidad', 'Cantidad por Paquete',
-      'Biodegradable', 'Apto Microondas', 'Apto Congelador', 'Usos Recomendados',
-      'Tiendas', 'Modalidades', 'Imagen'
+    return [
+      product.id || '', 
+      product.sku || '', 
+      product.nombre || '',
+      product.descripcion || '', 
+      product.categoria || '', 
+      product.subcategoria || '',
+      product.marca || '', 
+      product.material || '', 
+      product.color || '',
+      product.medida || '', 
+      product.cantidadPaquete || '',
+      product.biodegradable ? 'Sí' : 'No',
+      product.aptoMicroondas ? 'Sí' : 'No',
+      product.aptoCongelador ? 'Sí' : 'No',
+      product.usosRecomendados || '',
+      product.destacado ? 'Sí' : 'No', // ⭐ AGREGADO
+      product.tiendas?.join('; ') || '',
+      modalidadesTexto,
+      product.imagen || ''
     ];
+  });
 
-    const rows = this.productosFiltrados.map(product => {
-      let modalidadesTexto = '';
-      if (product.modalidades && Array.isArray(product.modalidades) && product.modalidades.length > 0) {
-        modalidadesTexto = product.modalidades.map((m: any) => {
-          const tamano = m.tamano && m.tamano !== 'N/A' ? m.tamano : '';
-          const contenido = m.contenido && m.contenido !== 'N/A' ? m.contenido : '';
-          const precio = m.precio ? `${m.precio}` : '';
-          
-          let partes = [m.modalidad];
-          if (tamano) partes.push(tamano);
-          if (contenido) partes.push(contenido);
-          if (precio) partes.push(precio);
-          
-          return partes.join(' | ');
-        }).join('; ');
+  let csvContent = headers.join(',') + '\n';
+  rows.forEach(row => {
+    const escapedRow = row.map(cell => {
+      const cellStr = String(cell);
+      if (cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')) {
+        return `"${cellStr.replace(/"/g, '""')}"`;
       }
-
-      return [
-        product.id || '', product.sku || '', product.nombre || '',
-        product.descripcion || '', product.categoria || '', product.subcategoria || '',
-        product.marca || '', product.material || '', product.color || '',
-        product.medida || '', product.cantidadPaquete || '',
-        product.biodegradable ? 'Sí' : 'No',
-        product.aptoMicroondas ? 'Sí' : 'No',
-        product.aptoCongelador ? 'Sí' : 'No',
-        product.usosRecomendados || '',
-        product.tiendas?.join('; ') || '',
-        modalidadesTexto,
-        product.imagen || ''
-      ];
+      return cellStr;
     });
+    csvContent += escapedRow.join(',') + '\n';
+  });
 
-    let csvContent = headers.join(',') + '\n';
-    rows.forEach(row => {
-      const escapedRow = row.map(cell => {
-        const cellStr = String(cell);
-        if (cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')) {
-          return `"${cellStr.replace(/"/g, '""')}"`;
-        }
-        return cellStr;
-      });
-      csvContent += escapedRow.join(',') + '\n';
-    });
-
-    const BOM = '\uFEFF';
-    const csvContentWithBOM = BOM + csvContent;
-    const blob = new Blob([csvContentWithBOM], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    
-    const fecha = new Date().toISOString().split('T')[0];
-    const nombreArchivo = `Productos_${fecha}.csv`;
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', nombreArchivo);
-    link.style.visibility = 'hidden';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    this.mostrarToast(`✅ ${this.productosFiltrados.length} productos exportados correctamente`, 'success');
-  }
+  const BOM = '\uFEFF';
+  const csvContentWithBOM = BOM + csvContent;
+  const blob = new Blob([csvContentWithBOM], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  // ⭐ FORMATO DE FECHA ACTUALIZADO
+  const ahora = new Date();
+  const año = ahora.getFullYear();
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+  const dia = String(ahora.getDate()).padStart(2, '0');
+  const hora = String(ahora.getHours()).padStart(2, '0');
+  const minutos = String(ahora.getMinutes()).padStart(2, '0');
+  const segundos = String(ahora.getSeconds()).padStart(2, '0');
+  
+  const nombreArchivo = `Productos_${año}-${mes}-${dia}_${hora}${minutos}${segundos}.csv`;
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', nombreArchivo);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  this.mostrarToast(`✅ ${this.productosFiltrados.length} productos exportados correctamente`);
+}
 
   // =============================
   // 📥 PRODUCTOS - IMPORTAR CSV
@@ -987,13 +1185,13 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     if (!archivo) return;
 
     if (!archivo.name.endsWith('.csv')) {
-      this.mostrarToast('⚠️ Solo se permiten archivos CSV', 'warning');
+      this.mostrarToast('⚠️ Solo se permiten archivos CSV');
       return;
     }
 
     const maxSize = 10 * 1024 * 1024;
     if (archivo.size > maxSize) {
-      this.mostrarToast('⚠️ El archivo no debe superar 10MB', 'warning');
+      this.mostrarToast('⚠️ El archivo no debe superar 10MB');
       return;
     }
 
@@ -1009,7 +1207,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   async importarProductosCSV() {
     if (!this.archivoCSV) {
-      this.mostrarToast('⚠️ Selecciona un archivo CSV primero', 'warning');
+      this.mostrarToast('⚠️ Selecciona un archivo CSV primero');
       return;
     }
 
@@ -1018,7 +1216,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
       const productos = this.parsearCSV(texto);
       
       if (productos.length === 0) {
-        this.mostrarToast('⚠️ No se encontraron productos válidos en el CSV', 'warning');
+        this.mostrarToast('⚠️ No se encontraron productos válidos en el CSV');
         this.limpiarArchivoCSV();
         return;
       }
@@ -1030,7 +1228,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
     } catch (error: any) {
       console.error('Error importando CSV:', error);
-      this.mostrarToast(error.message || '❌ Error al importar el archivo CSV', 'danger');
+      this.mostrarToast(error.message || '❌ Error al importar el archivo CSV');
       this.limpiarArchivoCSV();
     }
   }
@@ -1045,7 +1243,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   async ejecutarImportacion() {
     if (this.productosImportar.length === 0) {
-      this.mostrarToast('⚠️ No hay productos para importar', 'warning');
+      this.mostrarToast('⚠️ No hay productos para importar');
       this.cancelarImportacion();
       return;
     }
@@ -1053,14 +1251,14 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     try {
       this.mostrarModalImportacion = false;
       this.cdr.detectChanges();
-      this.mostrarToast('⏳ Importando productos...', 'primary');
+      this.mostrarToast('⏳ Importando productos...');
       await this.guardarProductosFirestore(this.productosImportar);
       this.cantidadImportar = 0;
       this.productosImportar = [];
       this.limpiarArchivoCSV();
     } catch (error) {
       console.error('Error en importación:', error);
-      this.mostrarToast('❌ Error al importar productos', 'danger');
+      this.mostrarToast('❌ Error al importar productos');
     }
   }
 
@@ -1263,7 +1461,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     if (fallidos > 0) partes.push(`❌ ${fallidos} fallidos`);
 
     mensaje += partes.join(' | ');
-    this.mostrarToast(mensaje, fallidos > 0 ? 'warning' : 'success');
+    this.mostrarToast(mensaje);
   }
 
   // =============================
@@ -1322,12 +1520,12 @@ async mostrarToast(mensaje: string, color: string = 'success') {
   async guardarUsuarioEditado(id: string) {
     try {
       if (!this.usuarioEditando || !this.usuarioEditando.email) {
-        await this.mostrarToast('❌ No hay datos para guardar', 'danger');
+        await this.mostrarToast('❌ No hay datos para guardar');
         return;
       }
 
       if (!this.usuarioEditando.email.includes('@')) {
-        await this.mostrarToast('⚠️ Por favor ingresa un email válido', 'warning');
+        await this.mostrarToast('⚠️ Por favor ingresa un email válido');
         return;
       }
 
@@ -1343,7 +1541,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
       this.cerrarModalUsuario();
     } catch (error) {
       console.error('Error al actualizar usuario:', error);
-      await this.mostrarToast('❌ Error al actualizar el usuario', 'danger');
+      await this.mostrarToast('❌ Error al actualizar el usuario');
     }
   }
 
@@ -1351,10 +1549,10 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     try {
       const docRef = doc(this.firestore, `usuarios/${usuarioId}`);
       await updateDoc(docRef, { rol: nuevoRol });
-      await this.mostrarToast(`✅ Rol actualizado a ${nuevoRol}`, 'success');
+      await this.mostrarToast(`✅ Rol actualizado a ${nuevoRol}`);
     } catch (error) {
       console.error('Error al cambiar rol:', error);
-      await this.mostrarToast('❌ Error al cambiar el rol', 'danger');
+      await this.mostrarToast('❌ Error al cambiar el rol');
     }
   }
 
@@ -1387,7 +1585,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
       const rol = (usuario.rol || 'usuario').toLowerCase();
 
       return (
-        (filtroNombre ? nombre.includes(filtroNombre) : true) &&
+        (filtroNombre ? nombre.includes(filtroNombre) || email.includes(filtroNombre) : true) &&
         (filtroEmail ? email.includes(filtroEmail) : true) &&
         (filtroRol ? rol === filtroRol : true)
       );
@@ -1406,13 +1604,32 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     this.cerrarModalBusquedaUsuarios();
   }
 
+  contarFiltrosActivosUsuarios(): number {
+    let count = 0;
+    if (this.filtroNombreUsuario) count++;
+    if (this.filtroEmailUsuario) count++;
+    if (this.filtroRolUsuario) count++;
+    return count;
+  }
+
+  toggleFiltroAdmin() {
+    if (this.filtroRolUsuario === 'admin') {
+      this.filtroRolUsuario = '';
+      this.mostrarToast('✨ Mostrando todos los usuarios');
+    } else {
+      this.filtroRolUsuario = 'admin';
+      this.mostrarToast('🛡️ Mostrando solo administradores');
+    }
+    this.aplicarFiltrosUsuarios();
+  }
+
   // =============================
   // 👥 USUARIOS - EXPORTAR CSV
   // =============================
 
   exportarUsuariosCSV() {
     if (this.usuariosFiltrados.length === 0) {
-      this.mostrarToast('⚠️ No hay usuarios para exportar', 'warning');
+      this.mostrarToast('⚠️ No hay usuarios para exportar');
       return;
     }
 
@@ -1442,12 +1659,23 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     link.click();
     document.body.removeChild(link);
     
-    this.mostrarToast('✅ Usuarios exportados correctamente', 'success');
+    this.mostrarToast('✅ Usuarios exportados correctamente');
   }
 
   // =============================
   // 📧 MENSAJES DE CONTACTO
   // =============================
+
+  get mensajesRecientes(): number {
+    const haceUnaSemana = new Date();
+    haceUnaSemana.setDate(haceUnaSemana.getDate() - 7);
+    
+    return this.mensajes.filter(m => {
+      if (!m.date) return false;
+      const fechaMensaje = new Date(m.date);
+      return fechaMensaje >= haceUnaSemana;
+    }).length;
+  }
 
   obtenerMensajes() {
     const ref = collection(this.firestore, 'contactMessages');
@@ -1456,7 +1684,35 @@ async mostrarToast(mensaje: string, color: string = 'success') {
         if (b.date && a.date) return b.date.localeCompare(a.date);
         return 0;
       });
+      this.aplicarFiltrosMensajes();
     });
+  }
+
+  toggleFiltroMensajes() {
+    this.mostrarFiltroMensajes = !this.mostrarFiltroMensajes;
+    if (!this.mostrarFiltroMensajes) {
+      this.limpiarFiltrosMensajes();
+    }
+  }
+
+  aplicarFiltrosMensajes() {
+    const filtro = this.filtroMensajeBusqueda.toLowerCase().trim();
+    
+    if (!filtro) {
+      this.mensajesFiltrados = [...this.mensajes];
+    } else {
+      this.mensajesFiltrados = this.mensajes.filter(m => 
+        (m.name || '').toLowerCase().includes(filtro) || 
+        (m.email || '').toLowerCase().includes(filtro) ||
+        (m.company || '').toLowerCase().includes(filtro) ||
+        (m.message || '').toLowerCase().includes(filtro)
+      );
+    }
+  }
+
+  limpiarFiltrosMensajes() {
+    this.filtroMensajeBusqueda = '';
+    this.aplicarFiltrosMensajes();
   }
 
   eliminarMensaje(id: string) {
@@ -1470,7 +1726,7 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   responderMensaje(email: string, mensajeOriginal: string) {
     if (!email || !email.includes('@')) {
-      this.mostrarToast('❌ Correo inválido', 'danger');
+      this.mostrarToast('❌ Correo inválido');
       return;
     }
 
@@ -1485,9 +1741,101 @@ async mostrarToast(mensaje: string, color: string = 'success') {
     }
   }
 
+  exportarMensajesCSV() {
+    if (this.mensajesFiltrados.length === 0) {
+      this.mostrarToast('⚠️ No hay mensajes para exportar');
+      return;
+    }
+
+    const headers = ['Nombre', 'Email', 'Teléfono', 'Empresa', 'Mensaje', 'Fecha'];
+    const rows = this.mensajesFiltrados.map(m => [
+      m.name || '',
+      m.email || '',
+      m.phone || '',
+      m.company || 'N/A',
+      m.message || '',
+      m.date || ''
+    ]);
+
+    let csvContent = headers.join(',') + '\n';
+    rows.forEach(row => {
+      const escapedRow = row.map(cell => {
+        const cellStr = String(cell);
+        if (cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')) {
+          return `"${cellStr.replace(/"/g, '""')}"`;
+        }
+        return cellStr;
+      });
+      csvContent += escapedRow.join(',') + '\n';
+    });
+
+    const BOM = '\uFEFF';
+    const csvContentWithBOM = BOM + csvContent;
+    const blob = new Blob([csvContentWithBOM], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    const fecha = new Date().toISOString().split('T')[0];
+    const nombreArchivo = `Mensajes_${fecha}.csv`;
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', nombreArchivo);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.mostrarToast(`✅ ${this.mensajesFiltrados.length} mensajes exportados correctamente`);
+  }
+
   // =============================
   // 📰 NEWSLETTER - CRUD
   // =============================
+
+  // =============================
+// 📰 NEWSLETTER - EXPORTAR CSV
+// =============================
+
+exportarSuscriptoresCSV() {
+  if (this.suscriptoresFiltrados.length === 0) {
+    this.mostrarToast('⚠️ No hay suscriptores para exportar');
+    return;
+  }
+
+  const headers = ['ID', 'Nombre', 'Email', 'Fecha Suscripción', 'Estado'];
+  const rows = this.suscriptoresFiltrados.map(s => [
+    s.id,
+    s.nombre || 'Sin nombre',
+    s.email,
+    s.fechaSuscripcion || 'N/A',
+    s.activo ? 'Activo' : 'Inactivo'
+  ]);
+
+  let csvContent = headers.join(',') + '\n';
+  rows.forEach(row => {
+    csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+  });
+
+  const BOM = '\uFEFF';
+  const csvContentWithBOM = BOM + csvContent;
+  const blob = new Blob([csvContentWithBOM], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  const fecha = new Date().toISOString().split('T')[0];
+  const nombreArchivo = `Suscriptores_${fecha}.csv`;
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', nombreArchivo);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  this.mostrarToast(`✅ ${this.suscriptoresFiltrados.length} suscriptores exportados correctamente`);
+}
 
   obtenerSuscriptores() {
     const ref = collection(this.firestore, 'newsletter');
@@ -1556,12 +1904,12 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   abrirModalEnviarNewsletter() {
     if (this.suscriptores.length === 0) {
-      this.mostrarToast('⚠️ No hay suscriptores registrados', 'warning');
+      this.mostrarToast('⚠️ No hay suscriptores registrados');
       return;
     }
 
     if (this.suscriptoresSeleccionados.size === 0) {
-      this.mostrarToast('⚠️ Selecciona al menos un suscriptor antes de continuar', 'warning');
+      this.mostrarToast('⚠️ Selecciona al menos un suscriptor antes de continuar');
       return;
     }
 
@@ -1580,17 +1928,17 @@ async mostrarToast(mensaje: string, color: string = 'success') {
 
   async enviarNewsletter() {
     if (!this.asuntoNewsletter.trim()) {
-      await this.mostrarToast('⚠️ El asunto es requerido', 'warning');
+      await this.mostrarToast('⚠️ El asunto es requerido');
       return;
     }
 
     if (!this.mensajeNewsletter.trim()) {
-      await this.mostrarToast('⚠️ El mensaje es requerido', 'warning');
+      await this.mostrarToast('⚠️ El mensaje es requerido');
       return;
     }
 
     if (this.suscriptoresSeleccionados.size === 0) {
-      await this.mostrarToast('⚠️ Selecciona al menos un suscriptor', 'warning');
+      await this.mostrarToast('⚠️ Selecciona al menos un suscriptor');
       return;
     }
 
@@ -1635,16 +1983,16 @@ async mostrarToast(mensaje: string, color: string = 'success') {
       }
 
       if (fallidos === 0) {
-        await this.mostrarToast(`✅ Newsletter enviado a ${exitosos} suscriptor(es)`, 'success');
+        await this.mostrarToast(`✅ Newsletter enviado a ${exitosos} suscriptor(es)`);
       } else {
-        await this.mostrarToast(`⚠️ Enviados: ${exitosos} | Fallidos: ${fallidos}`, 'warning');
+        await this.mostrarToast(`⚠️ Enviados: ${exitosos} | Fallidos: ${fallidos}`);
       }
 
       this.cerrarModalEnviarNewsletter();
       
     } catch (error) {
       console.error('Error en envío masivo:', error);
-      await this.mostrarToast('❌ Error al enviar newsletter', 'danger');
+      await this.mostrarToast('❌ Error al enviar newsletter');
     } finally {
       this.enviandoNewsletter = false;
     }

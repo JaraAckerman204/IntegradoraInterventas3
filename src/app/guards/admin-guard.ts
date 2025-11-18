@@ -1,37 +1,46 @@
-import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { ToastController } from '@ionic/angular';
+import { ToastService } from '../services/toast.service';
+import { map, filter, take, switchMap } from 'rxjs';
 
-export const adminGuard: CanActivateFn = async () => {
-  const auth = inject(AuthService);
+export const adminGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
   const router = inject(Router);
-  const toastController = inject(ToastController);
+  const toastService = inject(ToastService);
   
-  const user = auth.getCurrentUser();
-  
-  // Si no hay usuario → mostrar mensaje y redirigir a home
-  if (!user) {
-    const toast = await toastController.create({
-      message: 'No puedes entrar a tu carrito sin antes iniciar sesión',
-      duration: 3000,
-      color: 'warning',
-      position: 'bottom'
-    });
-    await toast.present();
-    
-    router.navigate(['/home']);
-    return false;
-  }
-  
-  // Si hay usuario, verificamos su rol
-  const rol = await auth.getUserRole(user.uid);
-  
-  if (rol === 'admin') {
-    return true; // ✅ Acceso permitido
-  }
-  
-  // Si no es admin → redirigir a home
-  router.navigate(['/home']);
-  return false;
+  return authService.currentUser$.pipe(
+    filter(user => user !== undefined),
+    take(1),
+    switchMap(async (user) => {
+      if (!user) {
+        await toastService.show('Debes iniciar sesión para acceder al panel de administración');
+        router.navigate(['/login']);
+        return false;
+      }
+      
+      if (!user.emailVerified) {
+        await toastService.show('Por favor, verifica tu correo electrónico antes de continuar');
+        router.navigate(['/verificar']);
+        return false;
+      }
+      
+      try {
+        const rol = await authService.getUserRole(user.uid);
+        
+        if (rol === 'admin') {
+          return true;
+        } else {
+          await toastService.show('No tienes permisos de administrador');
+          router.navigate(['/home']);
+          return false;
+        }
+      } catch (error) {
+        await toastService.show('Error al verificar permisos');
+        router.navigate(['/home']);
+        return false;
+      }
+    }),
+    map(result => result)
+  );
 };
