@@ -4,11 +4,35 @@ $light-bg: #fafaff;
 $shadow-color: rgba(25, 34, 109, 0.1);
 
 /* =============================== */
-/* BASE STYLES */
+/* HEADER FIJO - SOLUCIÓN */
 /* =============================== */
 
 ion-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
   background: #ffffff !important;
+}
+
+/* Asegurar que el toolbar también sea sticky */
+.modern-toolbar {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --background: #ffffff;
+  --min-height: 80px;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000;
+  box-shadow: 0 2px 20px rgba(25, 34, 109, 0.08);
+  background: #ffffff !important;
+}
+
+/* Agregar una sombra más pronunciada al hacer scroll (opcional) */
+ion-header.header-shadow {
+  box-shadow: 0 4px 25px rgba(25, 34, 109, 0.15);
+  transition: box-shadow 0.3s ease;
 }
 
 /* =============================== */
@@ -594,30 +618,79 @@ ion-toolbar {
 
 
 .cart-btn {
-  .cart-count {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: linear-gradient(135deg, $pink-magenta, #ff1a8c);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 9px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 70px !important;
+  position: relative;
+
+  .cart-wrapper {
+    left: -13px;
     display: flex;
     align-items: center;
+    text-align: center;
     justify-content: center;
-    padding: 0 5px;
-    box-shadow: 0 2px 8px rgba(237, 19, 112, 0.4);
-    border: 2px solid white;
-    animation: pulse 2s ease-in-out infinite;
+    position: relative;
   }
 
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+  .cart-count-side {
+    position: absolute;
+    top: 4px;
+    right: -25px;
+    color: $pink-magenta;
+    font-size: 18px;
+    font-weight: 600;
+    text-shadow: 
+      0 0 3px white,
+      0 0 6px white,
+      0 0 10px white;
+    z-index: 2;
+    
+    @media (max-width: 1024px) {
+       top: 3px;
+      font-size: 20px;
+    }
   }
+
+  @keyframes cart-badge-pulse {
+    0%, 100% { 
+      transform: scale(1);
+    }
+    50% { 
+      transform: scale(1.15);
+    }
+  }
+
+  // Estado activo del botón del carrito
+  &.active {
+    &::part(native) {
+      background: rgba(237, 19, 112, 0.08);
+    }
+
+    .action-icon {
+      color: $pink-magenta;
+    }
+  }
+
+  // Efecto hover mejorado
+  &:hover {
+    .cart-count-side {
+      transform: scale(1.2);
+      animation: none;
+    }
+  }
+}
+
+// Badge del carrito en el sidebar móvil
+.cart-badge-mobile {
+  margin-left: auto;
+  color: $pink-magenta;
+  font-size: 13px;
+  font-weight: 800;
+  text-shadow: 
+    0 0 3px white,
+    0 0 6px white;
+  animation: cart-badge-pulse 2s ease-in-out infinite;
 }
 
 /* =============================== */

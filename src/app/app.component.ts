@@ -1,11 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { PushService } from './services/push.service';
+import { ToastComponent } from './components/toast/toast.component'; // ✅ AGREGAR
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet],
+  imports: [
+    IonApp, 
+    IonRouterOutlet,
+    ToastComponent  // ✅ AGREGAR
+  ],
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })

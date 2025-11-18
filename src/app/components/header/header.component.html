@@ -60,22 +60,13 @@
       <!-- Actions Section -->
       <div class="actions-section">
 
-        <!-- Admin Panel Button (Solo visible para admins) -->
-        <ion-button 
-          *ngIf="isAdmin" 
-          fill="clear" 
-          class="action-btn admin-btn" 
-          routerLink="/admin"
-          [class.active]="isAdminActive()">
-          <ion-icon [icon]="shieldCheckmarkOutline" class="action-icon"></ion-icon>
-          <span class="admin-label">    Administración</span>
-        </ion-button>
-
-        <!-- Cart Button -->
-        <ion-button fill="clear" class="action-btn cart-btn" routerLink="/carrito">
-          <ion-icon [icon]="cartOutline" class="action-icon"></ion-icon>
-          <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
-        </ion-button>
+<!-- Cart Button -->
+<ion-button fill="clear" class="action-btn cart-btn" routerLink="/carrito" [class.active]="isCartActive()">
+  <div class="cart-wrapper">
+    <ion-icon [icon]="cartOutline" class="action-icon"></ion-icon>
+    <span class="cart-count-side" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+  </div>
+</ion-button>
 
         <!-- User Section -->
         <div class="user-section">
@@ -150,7 +141,7 @@
       <a class="dropdown-link" routerLink="/productos/todos" (click)="closeMenu()">
         <ion-icon name="grid-outline" class="link-icon"></ion-icon>
         <div class="link-info">
-          <span class="link-title">Productos Destacados</span>
+          <span class="link-title">Todos los Productos</span>
           <span class="link-desc">Explora nuestro catálogo de productos destacados</span>
         </div>
       </a>
@@ -210,6 +201,18 @@
         <span class="profile-name">{{ user.displayName || user.email }}</span>
       </div>
     </div>
+
+            <!-- Admin Panel Button (Solo visible para admins) -->
+        <ion-button 
+          *ngIf="isAdmin" 
+          fill="clear" 
+          class="action-btn admin-btn" 
+          routerLink="/admin"
+          [class.active]="isAdminActive()">
+          <ion-icon [icon]="shieldCheckmarkOutline" class="action-icon"></ion-icon>
+          <span class="admin-label">    Administración</span>
+        </ion-button>
+        
     <div class="profile-divider"></div>
     <ion-button expand="block" class="logout-button" (click)="logout()">
       <ion-icon [icon]="logOutOutline" slot="start"></ion-icon>
@@ -226,11 +229,13 @@
     <div class="sidebar-content">
       <!-- Sidebar Header -->
       <div class="sidebar-header">
-        <ion-img class="sidebar-logo" src="../../assets/img/logo.png" alt="Logo"></ion-img>
+        <img class="sidebar-logo" style="width: 150px; height: auto;" src="../../assets/img/logo.png" alt="Logo">
         <ion-button fill="clear" class="close-btn" (click)="closeMenu()">
           <ion-icon name="close-outline"></ion-icon>
         </ion-button>
       </div>
+
+      <!-- Dentro del sidebar-nav, después del link de Sucursales -->
 
       <!-- User Info Mobile -->
       <div class="sidebar-user" *ngIf="user">
@@ -278,7 +283,7 @@
             <ion-icon name="chevron-down-outline" class="chevron" [class.rotate]="showProductosDropdown"></ion-icon>
           </button>
           <div class="sidebar-submenu" *ngIf="showProductosDropdown">
-            <a routerLink="/productos/todos" (click)="closeMenu()">Todos</a>
+            <a routerLink="/productos/todos" (click)="closeMenu()">Todos los productos</a>
             <a routerLink="/productos/desechables" (click)="closeMenu()">Desechables</a>
             <a routerLink="/productos/biodegradables" (click)="closeMenu()">Biodegradables</a>
             <a routerLink="/productos/bolsas" (click)="closeMenu()">Bolsas</a>

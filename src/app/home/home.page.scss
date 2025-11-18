@@ -970,9 +970,9 @@ ion-content {
       margin: 15px auto 0;
       width: 80px;
       height: 5px;
-      background: linear-gradient(to right, #ffc107, #ff9800);
+      background: linear-gradient(135deg, #27318d 0%, #ed1370 100%); // ✅ Difuminado azul a rosa
       border-radius: 2.5px;
-      box-shadow: 0 2px 10px rgba(255, 193, 7, 0.4);
+       box-shadow: 0 8px 25px rgba(237, 19, 112, 0.4);
     }
   }
   
@@ -986,7 +986,7 @@ ion-content {
   }
 }
 
-// ===== CONTROLES DEL CARRUSEL =====
+// ===== CONTROLES DEL CARRUSEL CON DIFUMINADO =====
 .carousel-controls {
   position: absolute;
   top: 50%;
@@ -1001,41 +1001,210 @@ ion-content {
 }
 
 .carousel-nav {
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
-  border: 3px solid #ed1370 !important;
-  background: white;
-  color: #ed1370 !important;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #27318d;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(141, 39, 138, 0.2);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    0 0 0 3px rgba(255, 255, 255, 0.8);
   pointer-events: all;
+  position: relative;
+  overflow: hidden;
+  
+  // Borde difuminado
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+  
+  // Efecto de brillo al hover
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(237, 19, 112, 0.2) 0%,
+      transparent 70%
+    );
+    transform: translate(-50%, -50%);
+    transition: all 0.5s ease;
+    z-index: -1;
+  }
   
   ion-icon {
     font-size: 28px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
   }
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #ed1370 0%, #c14aaf 100%) !important;
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
     color: white;
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(136, 39, 141, 0.3);
+    transform: scale(1.15);
+    box-shadow: 
+      0 12px 35px rgba(237, 19, 112, 0.4),
+      0 0 0 3px rgba(237, 19, 112, 0.2),
+      0 0 30px rgba(39, 49, 141, 0.3);
+    
+    &::before {
+      opacity: 1;
+    }
+    
+    &::after {
+      width: 100px;
+      height: 100px;
+    }
+    
+    ion-icon {
+      transform: scale(1.1);
+      filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.5));
+    }
   }
   
   &:active:not(:disabled) {
-    transform: scale(0.95);
+    transform: scale(1.05);
   }
   
   &:disabled {
-    opacity: 0.3;
+    opacity: 0.4;
     cursor: not-allowed;
-    border-color: #dee2e6;
+    background: rgba(255, 255, 255, 0.6);
     color: #adb5bd;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    
+    &::before {
+      opacity: 0.2;
+      background: linear-gradient(135deg, #dee2e6 0%, #adb5bd 100%);
+    }
+    
+    &:hover {
+      transform: none;
+    }
+  }
+  
+  // Animación de pulso sutil
+  &:not(:disabled) {
+    animation: subtlePulse 3s ease-in-out infinite;
+  }
+}
+
+// Animación de pulso sutil para los botones
+@keyframes subtlePulse {
+  0%, 100% {
+    box-shadow: 
+      0 8px 25px rgba(0, 0, 0, 0.15),
+      0 0 0 3px rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    box-shadow: 
+      0 8px 25px rgba(0, 0, 0, 0.15),
+      0 0 0 3px rgba(255, 255, 255, 0.8),
+      0 0 20px rgba(237, 19, 112, 0.2);
+  }
+}
+
+// Variante para el botón anterior (izquierda)
+.carousel-controls .carousel-nav.prev {
+  &:hover:not(:disabled) {
+    ion-icon {
+      transform: scale(1.1) translateX(-2px);
+    }
+  }
+}
+
+// Variante para el botón siguiente (derecha)
+.carousel-controls .carousel-nav.next {
+  &:hover:not(:disabled) {
+    ion-icon {
+      transform: scale(1.1) translateX(2px);
+    }
+  }
+}
+
+// ========================================
+// 📱 RESPONSIVE - CONTROLES
+// ========================================
+
+@media (max-width: 768px) {
+  .carousel-controls {
+    padding: 0 15px;
+    
+    .carousel-nav {
+      width: 48px;
+      height: 48px;
+      
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-controls {
+    padding: 0 10px;
+    
+    .carousel-nav {
+      width: 44px;
+      height: 44px;
+      box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.12),
+        0 0 0 2px rgba(255, 255, 255, 0.8);
+      
+      &::before {
+        inset: -2px;
+        padding: 2px;
+      }
+      
+      ion-icon {
+        font-size: 22px;
+      }
+      
+      &:hover:not(:disabled) {
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  @keyframes subtlePulse {
+    0%, 100% {
+      box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.12),
+        0 0 0 2px rgba(255, 255, 255, 0.8);
+    }
+    50% {
+      box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.12),
+        0 0 0 2px rgba(255, 255, 255, 0.8),
+        0 0 15px rgba(237, 19, 112, 0.2);
+    }
   }
 }
 
@@ -1063,7 +1232,10 @@ ion-content {
   left: 0; // Punto de inicio
 }
 
-// ===== TARJETA DE PRODUCTO =====
+// ========================================
+// ⭐ TARJETAS DE PRODUCTOS DESTACADOS - IDÉNTICO A TODOS.PAGE.SCSS
+// ========================================
+
 .featured-products-section .product-card {
   // Cálculo exacto: (100% - (3 gaps × 20px)) / 4 productos
   min-width: calc((100% - 60px) / 4);
@@ -1192,7 +1364,7 @@ ion-content {
 
 // ===== INFO DEL PRODUCTO =====
 .featured-products-section .product-info {
-  padding: 28px;
+  padding: 20px;
   background: white;
   position: relative;
 }
@@ -1202,14 +1374,14 @@ ion-content {
   align-items: center;
   background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
   color: white;
-  padding: 8px 16px;
+  padding: 8px;
   border-radius: 10px;
   font-family: var(--font-primary);
   font-weight: 700;
   font-size: 0.7em;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   box-shadow: 0 4px 12px rgba(39, 49, 141, 0.3);
   transition: all 0.3s ease;
   position: relative;
@@ -1231,7 +1403,7 @@ ion-content {
   font-weight: 800;
   font-size: 1.35em;
   color: #212529;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   line-height: 1.3;
@@ -1270,7 +1442,7 @@ ion-content {
   font-size: 0.9em;
   color: #6c757d;
   line-height: 1.7;
-  margin: 0 0 16px 0;
+  margin: 0 0 10px 0;
   min-height: 3.4em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1282,9 +1454,9 @@ ion-content {
 .featured-products-section .product-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   margin-bottom: 16px;
-  padding: 14px 16px;
+  padding: 10px;
   background: linear-gradient(135deg, rgba(237, 19, 112, 0.05) 0%, rgba(237, 19, 112, 0.02) 100%);
   border-left: 4px solid #ed1370;
   border-radius: 0 10px 10px 0;
@@ -1309,9 +1481,8 @@ ion-content {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 10px;
   gap: 15px;
-  padding-top: 20px;
-  margin-top: 16px;
   border-top: 3px solid #e9ecef;
   position: relative;
 }
@@ -1338,7 +1509,6 @@ ion-content {
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
-  transform: translateY(10px);
   opacity: 1;
   
   // Efecto de onda al hover
@@ -1366,6 +1536,10 @@ ion-content {
     transition: transform 0.3s ease;
   }
   
+  .product-card:hover & {
+    transform: translateY(0);
+  }
+  
   &:hover {
     box-shadow: 0 10px 35px rgba(237, 19, 112, 0.4);
     background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
@@ -1374,27 +1548,259 @@ ion-content {
       width: 300px;
       height: 300px;
     }
+  }
+}
+
+// ========================================
+// 📱 RESPONSIVE - PRODUCTOS DESTACADOS
+// ========================================
+
+@media (max-width: 1200px) {
+  .featured-products-track {
+    gap: 18px;
+  }
+  
+  .featured-products-section .product-card {
+    // 3 productos: (100% - 36px) / 3
+    min-width: calc((100% - 36px) / 3);
+    max-width: calc((100% - 36px) / 3);
+  }
+  
+  .featured-products-section .product-image {
+    height: 280px;
+  }
+  
+  .featured-products-section .product-info {
+    padding: 24px;
+  }
+  
+  .featured-products-section .product-name {
+    font-size: 1.25em;
+  }
+  
+  .featured-products-section .view-product-btn {
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .featured-products-track {
+    gap: 15px;
+  }
+  
+  .featured-products-section .product-card {
+    // 2 productos: (100% - 15px) / 2
+    min-width: calc((100% - 15px) / 2);
+    max-width: calc((100% - 15px) / 2);
+    border-radius: 18px;
     
-    .btn-icon ion-icon {
-      transform: scale(1.2) rotate(15deg);
+    &:hover {
+      transform: translateY(-8px);
     }
   }
   
-  &:active {
-    transform: translateY(0) scale(0.98);
+  .featured-products-section .product-image {
+    height: 260px;
+  }
+  
+  .featured-products-section .product-info {
+    padding: 22px;
+  }
+  
+  .featured-products-section .product-category {
+    padding: 7px 14px;
+    font-size: 0.68em;
+  }
+  
+  .featured-products-section .product-name {
+    font-size: 1.2em;
+    min-height: 2.4em;
+  }
+  
+  .featured-products-section .product-description {
+    font-size: 0.88em;
+  }
+  
+  .featured-products-section .product-brand {
+    padding: 12px 14px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+  
+  .featured-products-section .view-product-btn {
+    padding: 12px 18px;
+    font-size: 0.88em;
+    
+    .btn-icon ion-icon {
+      font-size: 20px;
+    }
   }
 }
 
-.featured-products-section .product-card:hover .view-product-btn {
-  transform: translateY(0);
+@media (max-width: 768px) {
+  .featured-products-wrapper {
+    overflow: hidden;
+    padding: 0;
+  }
+  
+  .featured-products-track {
+    gap: 0; // Sin gap en móvil
+  }
+  
+  .featured-products-section .product-card {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px;
+    
+    &:hover {
+      transform: translateY(-6px);
+    }
+  }
+  
+  .featured-products-section .product-image {
+    height: 240px;
+  }
+  
+  .featured-products-section .product-info {
+    padding: 20px;
+  }
+  
+  .featured-products-section .product-category {
+    font-size: 0.65em;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+  }
+  
+  .featured-products-section .product-name {
+    font-size: 1.1em;
+    min-height: auto;
+  }
+  
+  .featured-products-section .product-description {
+    font-size: 0.85em;
+    min-height: auto;
+    margin-bottom: 14px;
+  }
+  
+  .featured-products-section .product-brand {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+    
+    span {
+      font-size: 0.82em;
+    }
+  }
+  
+  .featured-products-section .view-product-btn {
+    padding: 11px;
+    font-size: 0.85em;
+    transform: translateY(0);
+    opacity: 1;
+    
+    .btn-text {
+      display: none;
+    }
+    
+    .btn-icon ion-icon {
+      font-size: 20px;
+    }
+  }
+  
+  .featured-products-section .product-footer {
+    padding-top: 16px;
+  }
 }
 
-// ===== INDICADORES =====
+@media (max-width: 480px) {
+  .featured-products-section .product-card {
+    border-radius: 16px;
+  }
+  
+  .featured-products-section .product-image {
+    height: 260px;
+  }
+  
+  .featured-products-section .product-info {
+    padding: 20px;
+  }
+  
+  .featured-products-section .product-category {
+    padding: 7px 13px;
+    font-size: 0.68em;
+  }
+  
+  .featured-products-section .product-name {
+    font-size: 1.15em;
+  }
+  
+  .featured-products-section .product-description {
+    font-size: 0.87em;
+  }
+  
+  .featured-products-section .product-brand {
+    padding: 11px 13px;
+  }
+  
+  .featured-products-section .view-product-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 13px;
+    transform: translateY(0);
+    opacity: 1;
+    
+    .btn-text {
+      display: inline;
+    }
+    
+    .btn-icon ion-icon {
+      font-size: 20px;
+    }
+  }
+  
+  .featured-products-section .product-footer {
+    padding-top: 18px;
+  }
+}
+
+// ===== INDICADORES CON DIFUMINADO ELEGANTE =====
 .featured-indicators {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-top: 40px;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 10;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 50px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  
+  // Efecto de brillo sutil
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(39, 49, 141, 0.3), rgba(237, 19, 112, 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+    opacity: 0.6;
+  }
   
   .indicator {
     width: 10px;
@@ -1403,19 +1809,111 @@ ion-content {
     border: none;
     background: #e9ecef;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    
+    // Efecto de halo al hacer hover
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(39, 49, 141, 0.2) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
     
     &.active {
-      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-      width: 35px;
+      background: linear-gradient(135deg, #27318d 0%, #ed1370 100%); // ✅ Difuminado azul a rosa
+      width: 40px;
+      height: 10px;
       border-radius: 5px;
-      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+      box-shadow: 
+        0 4px 15px rgba(237, 19, 112, 0.4),
+        0 0 20px rgba(39, 49, 141, 0.3);
+      position: relative;
+      
+      // Animación de brillo interno
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 5px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.4) 50%,
+          transparent 100%
+        );
+        animation: shimmerIndicator 2s ease-in-out infinite;
+      }
     }
     
     &:hover:not(.active) {
-      background: #ced4da;
-      transform: scale(1.2);
+      background: linear-gradient(135deg, rgba(39, 49, 141, 0.6), rgba(237, 19, 112, 0.6));
+      transform: scale(1.3);
+      box-shadow: 0 4px 12px rgba(237, 19, 112, 0.3);
+      
+      &::before {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// Animación de brillo para el indicador activo
+@keyframes shimmerIndicator {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// ========================================
+// 📱 RESPONSIVE - INDICADORES
+// ========================================
+
+@media (max-width: 768px) {
+  .featured-indicators {
+    margin-top: 40px;
+    padding: 12px 20px;
+    gap: 10px;
+    
+    .indicator {
+      width: 8px;
+      height: 8px;
+      
+      &.active {
+        width: 32px;
+        height: 8px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .featured-indicators {
+    margin-top: 35px;
+    padding: 10px 18px;
+    gap: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    
+    .indicator {
+      width: 7px;
+      height: 7px;
+      
+      &.active {
+        width: 28px;
+        height: 7px;
+      }
     }
   }
 }
@@ -1878,8 +2376,8 @@ ion-content {
 }
 
 .preview-image {
-  width: 100%;
-  height: 400px;
+  width: 400px;
+  height: auto;
   border-radius: 16px;
   overflow: hidden;
   background: white;
@@ -2354,6 +2852,7 @@ ion-content {
   }
   
   .preview-image {
+    width: auto;
     height: 300px;
   }
   
@@ -2477,6 +2976,7 @@ ion-content {
   }
   
   .preview-image {
+    width: 310px;
     height: 250px;
   }
   
@@ -3878,6 +4378,8 @@ ion-content {
   }
 
   .carousel-controls {
+    left: -20px;
+    right: -20px;
     padding: 0 15px;
     
     .carousel-btn {

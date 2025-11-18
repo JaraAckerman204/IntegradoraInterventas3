@@ -13,6 +13,7 @@ import { ProductosService, Producto } from '../services/productos.service';
 import { CartService } from '../services/cart.service';
 import { Firestore, collection, addDoc, query, where, getDocs } from '@angular/fire/firestore';
 import { inject } from '@angular/core';
+import { ToastService } from '../services/toast.service';
 
 import {
   IonHeader,
@@ -34,7 +35,6 @@ import {
   IonMenuButton,
   IonMenu,
   IonSpinner,
-  ToastController
 } from '@ionic/angular/standalone';
 
 import { 
@@ -168,9 +168,10 @@ export class HomePage implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private push: PushService,
-    private toastController: ToastController,
     private productosService: ProductosService,
-    private cartService: CartService
+    private cartService: CartService,
+    private toastService: ToastService
+    
   ) {
     // 🎨 Registrar TODOS los iconos
     addIcons({
@@ -409,7 +410,7 @@ updateFeaturedTransform() {
     if (!this.selectedProduct) return;
 
     if (!this.selectedModalidadObj) {
-      this.showToast('Por favor selecciona una modalidad.', 'warning');
+      this.showToast('Por favor selecciona una modalidad.');
       return;
     }
 
@@ -444,7 +445,7 @@ updateFeaturedTransform() {
       this.cartService.addToCart(productWithModalidad, options);
     }
 
-    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`);
     this.closeModal();
   }
 
@@ -453,13 +454,13 @@ updateFeaturedTransform() {
     event.preventDefault();
     
     if (!this.subscriberName.trim() || !this.subscriberEmail.trim()) {
-      await this.showToast('Por favor completa todos los campos', 'warning');
+      await this.showToast('Por favor completa todos los campos');
       return;
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.subscriberEmail)) {
-      await this.showToast('Por favor ingresa un correo válido', 'warning');
+      await this.showToast('Por favor ingresa un correo válido');
       return;
     }
     
@@ -471,7 +472,7 @@ updateFeaturedTransform() {
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        await this.showToast('⚠️ Este correo ya está suscrito', 'warning');
+        await this.showToast('⚠️ Este correo ya está suscrito');
         this.isSubscribing = false;
         return;
       }
@@ -500,7 +501,7 @@ updateFeaturedTransform() {
 
       console.log('✅ Suscripción registrada:', nuevoSuscriptor);
       
-      await this.showToast('¡Suscripción exitosa! Revisa tu correo de bienvenida 📧', 'success');
+      await this.showToast('¡Suscripción exitosa! Revisa tu correo de bienvenida 📧');
       
       this.subscriberName = '';
       this.subscriberEmail = '';
@@ -511,22 +512,15 @@ updateFeaturedTransform() {
       
     } catch (error) {
       console.error('❌ Error en suscripción:', error);
-      await this.showToast('Error al suscribirse. Intenta nuevamente', 'danger');
+      await this.showToast('Error al suscribirse. Intenta nuevamente');
       this.isSubscribing = false;
     }
   }
 
-  // 🍞 Toast Helper
-  async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'top',
-      color: color,
-      cssClass: `toast-${color}`
-    });
-    await toast.present();
-  }
+// ✅ AGREGAR ESTE MÉTODO
+async showToast(message: string) {
+  await this.toastService.show(message);
+}
 
   // 🚪 Cerrar sesión
   async logout() {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -29,6 +29,8 @@ import {
 import { addIcons } from 'ionicons';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { CartService } from '../../services/cart.service'; // ✅ Importar CartService
+import { Subscription } from 'rxjs'; // ✅ Para manejar suscripciones
 
 interface TooltipLetter {
   char: string;
@@ -44,7 +46,7 @@ interface TooltipLetter {
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   // Estados de menús
   showNosotrosDropdown = false;
   showProductosDropdown = false;
@@ -66,11 +68,12 @@ export class HeaderComponent implements OnInit {
   // Rol del usuario
   isAdmin = false;
 
-  // Carrito
+  // ✅ Carrito - Ahora se actualiza desde el servicio
   cartItemCount = 0;
+  private cartSubscription?: Subscription;
 
   // WhatsApp
-  whatsappUrl = 'https://wa.me/5218711146742'; // Cambia este número por el tuyo
+  whatsappUrl = 'https://wa.me/5218711146742';
   tooltipText = '¡Estamos para servirte!';
   tooltipLetters: TooltipLetter[] = [];
   showWhatsappTooltip = false;
@@ -79,7 +82,11 @@ export class HeaderComponent implements OnInit {
   buttonAnimateIn = false;
   buttonAnimateOut = false;
 
-  constructor(private elRef: ElementRef, private router: Router) {
+  constructor(
+    private elRef: ElementRef, 
+    private router: Router,
+    private cartService: CartService // ✅ Inyectar CartService
+  ) {
     addIcons({ 
       'menu-outline': menuOutline,
       'person-circle-outline': personCircleOutline,
@@ -119,8 +126,21 @@ export class HeaderComponent implements OnInit {
       }
     });
 
+    // ✅ SUSCRIBIRSE AL CONTADOR DEL CARRITO
+    this.cartSubscription = this.cartService.getCartCount().subscribe((count: number) => {
+      this.cartItemCount = count;
+      console.log('🛒 Contador del carrito actualizado:', count);
+    });
+
     // Inicializar letras del tooltip de WhatsApp
     this.initTooltipLetters();
+  }
+
+  // ✅ LIMPIAR SUSCRIPCIONES AL DESTRUIR EL COMPONENTE
+  ngOnDestroy() {
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
+    }
   }
 
   /**
@@ -210,6 +230,10 @@ export class HeaderComponent implements OnInit {
 
   isAdminActive(): boolean {
     return this.router.url.startsWith('/admin');
+  }
+
+  isCartActive(): boolean {
+    return this.router.url.startsWith('/carrito');
   }
 
   // ====================================

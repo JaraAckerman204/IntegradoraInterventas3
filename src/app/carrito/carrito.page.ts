@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../components/header/header.component';
+import { FooterComponent } from '../components/footer/footer.component';
 import {
   IonContent,
   IonHeader,
+  IonFooter,
   IonTitle,
   IonToolbar,
   IonButton,
@@ -36,10 +38,26 @@ import {
   pricetagOutline,
   ribbonOutline,
   barcodeOutline,
-  colorPaletteOutline
+  colorPaletteOutline,
+  compassOutline,
+  bagHandleOutline,
+  closeOutline,
+  personCircleOutline,
+  personOutline,
+  callOutline,
+  receiptOutline,
+  giftOutline,
+  arrowForward,
+  shieldCheckmarkOutline,
+  rocketOutline,
+  headsetOutline,
+  remove,
+  add,
+  close
 } from 'ionicons/icons';
 import { CartService, CartItem } from '../services/cart.service';
 import { Router } from '@angular/router';
+import { ToastService } from '../services/toast.service'; // ⭐ IMPORTAR TOAST
 
 @Component({
   selector: 'app-carrito',
@@ -49,7 +67,9 @@ import { Router } from '@angular/router';
   imports: [
     IonContent,
     HeaderComponent,
+    FooterComponent,
     IonHeader,
+    IonFooter,
     IonTitle,
     IonToolbar,
     IonButton,
@@ -83,10 +103,12 @@ export class CarritoPage implements OnInit {
   // Número de WhatsApp del negocio
   businessWhatsApp = '5218711027262';
 
-  constructor(
-    private cartService: CartService,
-    private router: Router
-  ) {
+  // ⭐ INYECTAR SERVICIOS
+  private cartService = inject(CartService);
+  private router = inject(Router);
+  private toastService = inject(ToastService); // ⭐ INYECTAR TOAST SERVICE
+
+  constructor() {
     addIcons({
       trashOutline,
       cartOutline,
@@ -100,12 +122,32 @@ export class CarritoPage implements OnInit {
       removeOutline,
       addOutline,
       arrowBackOutline,
-      logoWhatsapp
+      logoWhatsapp,
+      compassOutline,
+      bagHandleOutline,
+      closeOutline,
+      personCircleOutline,
+      personOutline,
+      callOutline,
+      receiptOutline,
+      giftOutline,
+      arrowForward,
+      shieldCheckmarkOutline,
+      rocketOutline,
+      headsetOutline,
+      remove,
+      add,
+      close
     });
   }
 
   ngOnInit() {
     this.loadCart();
+  }
+
+  // ⭐ MÉTODO AUXILIAR PARA MOSTRAR TOAST
+  async mostrarToast(mensaje: string) {
+    await this.toastService.show(mensaje);
   }
 
   loadCart() {
@@ -114,9 +156,9 @@ export class CarritoPage implements OnInit {
       this.total = this.cartService.getTotal();
       
       // 🔍 DEBUG: Ver información completa de cada producto
-      console.log('═══════════════════════════════════════');
+      console.log('╔═══════════════════════════════════════╗');
       console.log('🛒 CARRITO CARGADO - Total items:', items.length);
-      console.log('═══════════════════════════════════════');
+      console.log('╚═══════════════════════════════════════╝');
       
       items.forEach((item, index) => {
         console.log(`\n📦 PRODUCTO ${index + 1}:`);
@@ -133,9 +175,9 @@ export class CarritoPage implements OnInit {
         console.log('  └─ Modalidad:', item.modalidadSeleccionada || 'Sin modalidad');
       });
       
-      console.log('\n═══════════════════════════════════════');
+      console.log('\n╔═══════════════════════════════════════╗');
       console.log('💰 TOTAL:', `$${this.total.toFixed(2)}`);
-      console.log('═══════════════════════════════════════\n');
+      console.log('╚═══════════════════════════════════════╝\n');
     });
   }
 
@@ -147,29 +189,60 @@ export class CarritoPage implements OnInit {
     this.cartService.decrementQuantity(cartItemId);
   }
 
-  removeItem(cartItemId: string) {
+  async removeItem(cartItemId: string) {
     this.cartService.removeFromCart(cartItemId);
+    await this.mostrarToast('🗑️ Producto eliminado del carrito');
   }
 
-  clearCart() {
+  async clearCart() {
     if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
       this.cartService.clearCart();
+      await this.mostrarToast('🗑️ Carrito vaciado correctamente');
     }
   }
 
-  checkout() {
+  // ========================================
+// 🧭 NAVEGACIÓN AL CATÁLOGO
+// ========================================
+
+/**
+ * Redirige al usuario a la página de productos/catálogo
+ */
+irACatalogo(): void {
+  // Opción 1: Si tienes una ruta específica para productos
+  this.router.navigate(['/productos/todos']);
+  
+  // Opción 2: Si quieres ir a una categoría específica
+  // this.router.navigate(['/productos'], { queryParams: { categoria: 'Desechables' } });
+  
+  // Opción 3: Si quieres ir al home y hacer scroll a productos
+  // this.router.navigate(['/home']).then(() => {
+  //   setTimeout(() => {
+  //     const element = document.getElementById('productos-section');
+  //     if (element) {
+  //       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  //     }
+  //   }, 100);
+  // });
+}
+
+  async checkout() {
+    // Validar que haya productos
+    if (this.cartItems.length === 0) {
+      await this.mostrarToast('⚠️ Tu carrito está vacío');
+      return;
+    }
+
     // Validar que haya datos del cliente
     if (!this.customerName.trim()) {
-      alert('Por favor ingresa tu nombre');
+      await this.mostrarToast('⚠️ Por favor ingresa tu nombre');
       return;
     }
 
     if (!this.customerPhone.trim()) {
-      alert('Por favor ingresa tu teléfono');
+      await this.mostrarToast('⚠️ Por favor ingresa tu teléfono');
       return;
     }
-
-    
 
     // Generar mensaje para WhatsApp
     const message = this.generateWhatsAppMessage();
@@ -184,9 +257,6 @@ export class CarritoPage implements OnInit {
     // Información del cliente
     message += `👤 *Cliente:* ${this.customerName}\n`;
     message += `📱 *Teléfono:* ${this.customerPhone}\n`;
-
-    
-    
     
     message += `\n━━━━━━━━━━━━━━━━━━━━\n\n`;
     
@@ -265,24 +335,31 @@ export class CarritoPage implements OnInit {
     return message;
   }
 
-  sendToWhatsApp(message: string) {
+  async sendToWhatsApp(message: string) {
     // Codificar el mensaje para URL
     const encodedMessage = encodeURIComponent(message);
     
     // Construir URL de WhatsApp
     const whatsappUrl = `https://wa.me/${this.businessWhatsApp}?text=${encodedMessage}`;
     
+    // Mostrar toast de confirmación
+    await this.mostrarToast('📱 Abriendo WhatsApp...');
+    
     // Abrir WhatsApp en una nueva ventana/pestaña
     window.open(whatsappUrl, '_blank');
     
     // Confirmar y limpiar
-    setTimeout(() => {
+    setTimeout(async () => {
       const confirmado = confirm('¿El pedido se envió correctamente por WhatsApp?');
       if (confirmado) {
         this.cartService.clearCart();
         this.resetCustomerData();
-        alert('✅ ¡Gracias por tu compra! Te contactaremos pronto.');
-        this.router.navigate(['/todos']);
+        await this.mostrarToast('✅ ¡Gracias por tu compra! Te contactaremos pronto.');
+        
+        // Navegar después de mostrar el toast
+        setTimeout(() => {
+          this.router.navigate(['/productos/todos']);
+        }, 1000);
       }
     }, 2000);
   }
@@ -294,7 +371,10 @@ export class CarritoPage implements OnInit {
     this.customerNotes = '';
   }
 
-  continueShopping() {
-    this.router.navigate(['/productos/todos']);
+  async continueShopping() {
+    await this.mostrarToast('🛍️ Continuando con las compras...');
+    setTimeout(() => {
+      this.router.navigate(['/productos/todos']);
+    }, 500);
   }
 }

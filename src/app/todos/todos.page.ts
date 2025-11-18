@@ -1,8 +1,8 @@
 // ==========================================
-// 📄 todos.page.ts - IMPORTS DE ICONOS ACTUALIZADOS
+// 📄 todos.page.ts - CON FILTROS Y PAGINACIÓN + TOAST SERVICE
 // ==========================================
 
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -16,7 +16,6 @@ import {
   IonToolbar,
   IonTitle,
   IonButtons,
-  ToastController,
   ModalController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -34,7 +33,6 @@ import {
   storefrontOutline,
   linkOutline,
   barcodeOutline,
-  // ⭐ NUEVOS ICONOS PARA ESPECIFICACIONES
   informationCircleOutline,
   albumsOutline,
   colorPaletteOutline,
@@ -45,12 +43,19 @@ import {
   snowOutline,
   bulbOutline,
   layersOutline,
-  documentTextOutline
+  documentTextOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  appsOutline,
+  closeCircleOutline,
+  chevronUpOutline,
+  chevronDownOutline
 } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 import { ProductosService, Producto } from '../services/productos.service';
 import { CartService } from '../services/cart.service';
+import { ToastService } from '../services/toast.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -76,11 +81,66 @@ import { Router } from '@angular/router';
   ]
 })
 export class TodosPage implements OnInit, AfterViewInit {
+  // =============================
+  // 🔧 SERVICIOS INYECTADOS
+  // =============================
+  private productosService = inject(ProductosService);
+  private cartService = inject(CartService);
+  private router = inject(Router);
+  private toastService = inject(ToastService);
+  private modalController = inject(ModalController);
+  private cdr = inject(ChangeDetectorRef);
+
+  // =============================
+  // 📦 PRODUCTOS
+  // =============================
   products: Producto[] = [];
+  filteredProducts: Producto[] = [];
+  paginatedProducts: Producto[] = [];
   loading = true;
   cartCount = 0;
   
-  // Para el modal de detalles
+  // =============================
+  // 📄 PAGINACIÓN
+  // =============================
+  currentPage = 1;
+  itemsPerPage = 18;
+  totalPages = 1;
+  Math = Math;
+  
+  // =============================
+  // 🔍 FILTROS DISPONIBLES
+  // =============================
+  categorias: string[] = [];
+  marcas: string[] = [];
+  materiales: string[] = [];
+  colores: string[] = [];
+  
+  // =============================
+  // ✅ FILTROS SELECCIONADOS
+  // =============================
+  selectedFilters = {
+    categorias: [] as string[],
+    marcas: [] as string[],
+    materiales: [] as string[],
+    colores: [] as string[],
+    caracteristicas: [] as string[]
+  };
+
+  // =============================
+  // 🎯 CONTROL DE SECCIONES
+  // =============================
+  filterSectionsOpen = {
+    categorias: true,
+    marcas: false,
+    materiales: false,
+    colores: false,
+    caracteristicas: false
+  };
+  
+  // =============================
+  // 🛍️ MODAL DE PRODUCTO
+  // =============================
   isModalOpen = false;
   selectedProduct: Producto | null = null;
   quantity = 1;
@@ -93,15 +153,11 @@ export class TodosPage implements OnInit, AfterViewInit {
   selectedModalidad: string = '';
   selectedModalidadObj: any = null;
 
-  constructor(
-    private productosService: ProductosService,
-    private cartService: CartService,
-    private router: Router,
-    private toastController: ToastController,
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef  // ⭐ Agregar esto
-  ) {
-    // ⭐ REGISTRAR TODOS LOS ICONOS (INCLUYENDO NUEVOS)
+  // =============================
+  // 🎬 CONSTRUCTOR
+  // =============================
+  constructor() {
+    // Registrar todos los iconos
     addIcons({ 
       documentTextOutline,
       cartOutline,
@@ -117,7 +173,6 @@ export class TodosPage implements OnInit, AfterViewInit {
       storefrontOutline,
       linkOutline,
       barcodeOutline,
-      // Nuevos iconos
       informationCircleOutline,
       albumsOutline,
       colorPaletteOutline,
@@ -127,69 +182,316 @@ export class TodosPage implements OnInit, AfterViewInit {
       radioOutline,
       snowOutline,
       bulbOutline,
-      layersOutline
+      layersOutline,
+      chevronBackOutline,
+      chevronForwardOutline,
+      appsOutline,
+      closeCircleOutline,
+      chevronUpOutline,
+      chevronDownOutline
     });
   }
 
-ngOnInit() {
-  console.log('✅ Página de productos inicializada');
-  this.loadProducts();
-  
-  this.cartService.getCartCount().subscribe(count => {
-    this.cartCount = count;
-  });
-}
+  // =============================
+  // 🔧 INICIALIZACIÓN
+  // =============================
+  ngOnInit() {
+    console.log('✅ Página de productos inicializada');
+    this.loadProducts();
+    
+    this.cartService.getCartCount().subscribe(count => {
+      this.cartCount = count;
+    });
+  }
 
-ngAfterViewInit() {
-  // Ya no es necesario
-}
+  ngAfterViewInit() {
+    // Ya no es necesario
+  }
 
-loadProducts() {
-  console.log('📄 Iniciando carga de productos...');
-  this.loading = true;
-  this.products = [];
-  
-  const timeoutId = setTimeout(() => {
-    console.warn('⚠️ Timeout de carga alcanzado');
-    this.loading = false;
-    this.cdr.detectChanges(); // ⭐ Forzar detección
-    this.showToast('La carga está tardando más de lo esperado. Verifica tu conexión.', 'warning');
-  }, 10000);
-  
-  this.productosService.getProductos().subscribe({
-    next: (productos) => {
-      clearTimeout(timeoutId);
-      console.log('✅ Productos recibidos del servicio:', productos);
-      console.log('📦 Total de productos:', productos.length);
-      
-      this.products = [...productos];
+  // =============================
+  // 💬 UTILIDAD - TOAST
+  // =============================
+  async mostrarToast(mensaje: string) {
+    await this.toastService.show(mensaje);
+  }
+
+  // =============================
+  // 📦 CARGA DE PRODUCTOS
+  // =============================
+  loadProducts() {
+    console.log('🔄 Iniciando carga de productos...');
+    this.loading = true;
+    this.products = [];
+    
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ Timeout de carga alcanzado');
       this.loading = false;
-      
-      // ⭐ Forzar detección de cambios
       this.cdr.detectChanges();
-      
-      console.log('🔍 Estado después de asignar:');
-      console.log('  - loading:', this.loading);
-      console.log('  - products.length:', this.products.length);
-    },
-    error: (error) => {
-      clearTimeout(timeoutId);
-      console.error('❌ Error cargando productos:', error);
-      this.loading = false;
-      this.products = [];
-      this.cdr.detectChanges(); // ⭐ Forzar detección
-      this.showToast('Error al cargar productos. Por favor, intenta de nuevo.', 'danger');
-    },
-    complete: () => {
-      clearTimeout(timeoutId);
-      console.log('🏁 Carga de productos completada');
-    }
-  });
-}
+      this.mostrarToast('⚠️ La carga está tardando más de lo esperado');
+    }, 10000);
+    
+    this.productosService.getProductos().subscribe({
+      next: (productos) => {
+        clearTimeout(timeoutId);
+        console.log('✅ Productos recibidos del servicio:', productos);
+        console.log('📦 Total de productos:', productos.length);
+        
+        this.products = [...productos];
+        this.extractFilters();
+        this.applyFilters();
+        this.loading = false;
+        
+        this.cdr.detectChanges();
+        
+        console.log('📊 Estado después de asignar:');
+        console.log('  - loading:', this.loading);
+        console.log('  - products.length:', this.products.length);
+        console.log('  - filteredProducts.length:', this.filteredProducts.length);
+      },
+      error: (error) => {
+        clearTimeout(timeoutId);
+        console.error('❌ Error cargando productos:', error);
+        this.loading = false;
+        this.products = [];
+        this.cdr.detectChanges();
+        this.mostrarToast('❌ Error al cargar productos');
+      },
+      complete: () => {
+        clearTimeout(timeoutId);
+        console.log('✓ Carga de productos completada');
+      }
+    });
+  }
 
-trackByProductId(index: number, product: Producto): number {
-  return index;
-}
+  // ==========================================
+  // 🔍 MÉTODOS DE FILTROS
+  // ==========================================
+  toggleFilter(filterType: string, value: string) {
+    console.log('🔄 Toggle filter:', filterType, value);
+    
+    switch(filterType) {
+      case 'categoria':
+        this.toggleArrayValue(this.selectedFilters.categorias, value);
+        break;
+      case 'marca':
+        this.toggleArrayValue(this.selectedFilters.marcas, value);
+        break;
+      case 'material':
+        this.toggleArrayValue(this.selectedFilters.materiales, value);
+        break;
+      case 'color':
+        this.toggleArrayValue(this.selectedFilters.colores, value);
+        break;
+      case 'caracteristica':
+        this.toggleArrayValue(this.selectedFilters.caracteristicas, value);
+        break;
+    }
+    
+    this.currentPage = 1; // Resetear a página 1
+    this.applyFilters();
+  }
+
+  extractFilters() {
+    // Extraer categorías únicas
+    this.categorias = [...new Set(
+      this.products
+        .map(p => p.categoria)
+        .filter((c): c is string => c !== undefined && c !== null && c.trim() !== '')
+    )].sort();
+
+    // Extraer marcas únicas
+    this.marcas = [...new Set(
+      this.products
+        .map(p => p.marca)
+        .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
+    )].sort();
+
+    // Extraer materiales únicos
+    this.materiales = [...new Set(
+      this.products
+        .map(p => p.material)
+        .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
+    )].sort();
+
+    // Extraer colores únicos
+    this.colores = [...new Set(
+      this.products
+        .map(p => p.color)
+        .filter((c): c is string => c !== undefined && c !== null && c.trim() !== '')
+    )].sort();
+
+    console.log('🎨 Filtros extraídos:', {
+      categorias: this.categorias,
+      marcas: this.marcas,
+      materiales: this.materiales,
+      colores: this.colores
+    });
+  }
+
+  toggleFilterSection(section: string) {
+    this.filterSectionsOpen[section as keyof typeof this.filterSectionsOpen] = 
+      !this.filterSectionsOpen[section as keyof typeof this.filterSectionsOpen];
+  }
+
+  toggleArrayValue(array: string[], value: string) {
+    const index = array.indexOf(value);
+    if (index > -1) {
+      array.splice(index, 1);
+    } else {
+      array.push(value);
+    }
+  }
+
+  applyFilters() {
+    console.log('🔍 Aplicando filtros...', this.selectedFilters);
+    
+    this.filteredProducts = this.products.filter(product => {
+      // Filtro por categoría
+      if (this.selectedFilters.categorias.length > 0) {
+        if (!product.categoria || !this.selectedFilters.categorias.includes(product.categoria)) {
+          return false;
+        }
+      }
+      
+      // Filtro por marca
+      if (this.selectedFilters.marcas.length > 0) {
+        if (!product.marca || !this.selectedFilters.marcas.includes(product.marca)) {
+          return false;
+        }
+      }
+      
+      // Filtro por material
+      if (this.selectedFilters.materiales.length > 0) {
+        if (!product.material || !this.selectedFilters.materiales.includes(product.material)) {
+          return false;
+        }
+      }
+      
+      // Filtro por color
+      if (this.selectedFilters.colores.length > 0) {
+        if (!product.color || !this.selectedFilters.colores.includes(product.color)) {
+          return false;
+        }
+      }
+      
+      // Filtro por características especiales
+      if (this.selectedFilters.caracteristicas.length > 0) {
+        for (const caracteristica of this.selectedFilters.caracteristicas) {
+          if (caracteristica === 'biodegradable' && !product.biodegradable) return false;
+          if (caracteristica === 'aptoMicroondas' && !product.aptoMicroondas) return false;
+          if (caracteristica === 'aptoCongelador' && !product.aptoCongelador) return false;
+        }
+      }
+      
+      return true;
+    });
+    
+    console.log('📊 Productos filtrados:', this.filteredProducts.length);
+    
+    this.calculatePagination();
+    this.updatePaginatedProducts();
+  }
+
+  clearFilters() {
+    console.log('🧹 Limpiando filtros...');
+    this.selectedFilters = {
+      categorias: [],
+      marcas: [],
+      materiales: [],
+      colores: [],
+      caracteristicas: []
+    };
+    this.currentPage = 1;
+    this.applyFilters();
+    this.mostrarToast('🧹 Filtros eliminados');
+  }
+
+  hasActiveFilters(): boolean {
+    return this.selectedFilters.categorias.length > 0 ||
+           this.selectedFilters.marcas.length > 0 ||
+           this.selectedFilters.materiales.length > 0 ||
+           this.selectedFilters.colores.length > 0 ||
+           this.selectedFilters.caracteristicas.length > 0;
+  }
+
+  // ==========================================
+  // 📄 MÉTODOS DE PAGINACIÓN
+  // ==========================================
+
+  calculatePagination() {
+    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+    console.log('📄 Total de páginas:', this.totalPages);
+  }
+
+  updatePaginatedProducts() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+    
+    console.log('📄 Productos paginados:', {
+      page: this.currentPage,
+      startIndex,
+      endIndex,
+      count: this.paginatedProducts.length
+    });
+    
+    // Scroll hacia arriba al cambiar de página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  goToPage(page: number | string) {
+    if (typeof page === 'string') return;
+    
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedProducts();
+    }
+  }
+
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5; // Máximo de números visibles
+    
+    if (this.totalPages <= maxVisible + 2) {
+      // Mostrar todos los números
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Mostrar con puntos suspensivos
+      pages.push(1);
+      
+      if (this.currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(this.totalPages);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        pages.push('...');
+        for (let i = this.totalPages - 3; i <= this.totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push('...');
+        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  // ==========================================
+  // 🛒 MÉTODOS DE PRODUCTO Y CARRITO
+  // ==========================================
+
+  trackByProductId(index: number, product: Producto): number {
+    return index;
+  }
 
   viewProduct(product: Producto) {
     console.log('👁️ Ver detalles del producto:', product.nombre, 'ID:', product.id);
@@ -231,7 +533,7 @@ trackByProductId(index: number, product: Producto): number {
 
   selectSaleType(type: 'mayoreo' | 'menudeo') {
     this.saleType = type;
-    console.log('🏪 Tipo de venta seleccionado:', type);
+    console.log('🪧 Tipo de venta seleccionado:', type);
   }
 
   getCurrentPrice(): number {
@@ -265,8 +567,9 @@ trackByProductId(index: number, product: Producto): number {
   addToCartFromModal() {
     if (!this.selectedProduct) return;
 
+    // Validar que se haya seleccionado una modalidad
     if (!this.selectedModalidadObj) {
-      this.showToast('Por favor selecciona una modalidad.', 'warning');
+      this.mostrarToast('⚠️ Selecciona una modalidad');
       return;
     }
 
@@ -297,7 +600,6 @@ trackByProductId(index: number, product: Producto): number {
       colores: this.selectedProduct.colores,
       tiendas: this.selectedProduct.tiendas,
       url: this.selectedProduct.url,
-      // ⭐ INCLUIR NUEVOS CAMPOS
       material: this.selectedProduct.material,
       color: this.selectedProduct.color,
       medida: this.selectedProduct.medida,
@@ -319,39 +621,25 @@ trackByProductId(index: number, product: Producto): number {
       cantidad: this.quantity
     });
 
+    // Agregar productos al carrito
     for (let i = 0; i < this.quantity; i++) {
       this.cartService.addToCart(productWithModalidad, options);
     }
 
-    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+    // Toast solo para confirmación de agregado
+    this.mostrarToast(`✅ ${this.quantity > 1 ? this.quantity + ' productos' : 'Producto'} agregado al carrito`);
     this.closeModal();
   }
 
   addToCart(product: Producto) {
     console.log('🛒 Agregando al carrito:', product.nombre);
     this.cartService.addToCart(product);
-    this.showToast(`✅ ${product.nombre} agregado al carrito`, 'success');
+    // Toast simple de confirmación
+    this.mostrarToast(`✅ ${product.nombre} en el carrito`);
   }
 
   goToCart() {
     console.log('🛒 Navegando al carrito...');
     this.router.navigate(['/carrito']);
-  }
-
-  async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastController.create({
-      message,
-      duration: 2500,
-      position: 'bottom',
-      color,
-      cssClass: `toast-${color}`,
-      buttons: [
-        {
-          text: 'OK',
-          role: 'cancel'
-        }
-      ]
-    });
-    await toast.present();
   }
 }

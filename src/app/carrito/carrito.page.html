@@ -1,206 +1,300 @@
 <app-header></app-header>
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/todos"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Mi Carrito</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="clearCart()" *ngIf="cartItems.length > 0">
-        <ion-icon name="trash-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
 
 <ion-content [fullscreen]="true">
-
-  <!-- Carrito vacío -->
-  <div *ngIf="cartItems.length === 0" class="empty-cart">
-    <ion-icon name="cart-outline" class="empty-icon"></ion-icon>
-    <h2>Tu carrito está vacío</h2>
-    <p>Agrega productos para continuar</p>
-    <ion-button expand="block" (click)="continueShopping()">
-      Ver Productos
-    </ion-button>
-  </div>
-
-  <!-- Carrito con productos -->
-  <div *ngIf="cartItems.length > 0" class="cart-container">
-
-    <!-- ✅ TARJETA DE PRODUCTOS -->
-    <div class="cart-items-card">
-      <div class="cart-items-header">
-        <h2>Productos en tu Carrito</h2>
+  <!-- ========================================
+       🎯 HERO SECTION
+       ======================================== -->
+  <section class="cart-hero-section">
+    <div class="cart-hero-content">
+      <div class="cart-hero-icon">
+        <ion-icon name="cart-outline"></ion-icon>
       </div>
+      <h1>Tu Carrito de Compras</h1>
+      <p>Revisa tus productos seleccionados y completa tu pedido</p>
+    </div>
+  </section>
 
-      <div class="cart-items-content">
-        <ion-list>
-          <ion-item *ngFor="let item of cartItems; let i = index" class="cart-item">
+  <!-- ========================================
+       📦 SECCIÓN PRINCIPAL
+       ======================================== -->
+  <section class="cart-main-modern ion-padding">
+    
+<!-- ========================================
+     🛒 ESTADO VACÍO DEL CARRITO
+     ======================================== -->
+<div class="empty-cart-state" *ngIf="cartItems.length === 0">
+  
+  <!-- Ícono principal -->
+  <div class="empty-icon-wrapper">
+    <ion-icon name="cart-outline"></ion-icon>
+  </div>
+  
+  <!-- Título -->
+  <h2>Tu carrito está vacío</h2>
+  
+  <!-- Descripción -->
+  <p>Explora nuestro catálogo y encuentra los productos perfectos para ti</p>
+  
+  <!-- Botón de acción -->
+  <button 
+    class="btn-explore-catalog" 
+    (click)="irACatalogo()"
+    type="button">
+    <ion-icon name="compass-outline"></ion-icon>
+    <span>Explorar Catálogo</span>
+  </button>
+  
+  <!-- Decoración opcional -->
+  <div class="empty-decoration">
+    <div class="decoration-dot"></div>
+    <div class="decoration-dot"></div>
+    <div class="decoration-dot"></div>
+  </div>
+  
+</div>
 
-            <ion-thumbnail slot="start">
-              <img [src]="item.imagen || 'assets/img/placeholder.png'" [alt]="item.nombre">
-            </ion-thumbnail>
+    <!-- ========================================
+         📋 CARRITO CON PRODUCTOS - LAYOUT MODERNO
+         ======================================== -->
+    <div *ngIf="cartItems.length > 0" class="cart-layout-modern">
+      
+      <!-- ========================================
+           📦 COLUMNA IZQUIERDA: PRODUCTOS
+           ======================================== -->
+      <div class="cart-products-modern">
+        
+        <!-- Header con acciones -->
+        <div class="products-header-modern">
+          <div class="header-info">
+            <h2>
+              <ion-icon name="bag-handle-outline"></ion-icon>
+              <span>Tus Productos</span>
+            </h2>
+            <p class="product-count">{{ cartItems.length }} artículo{{ cartItems.length !== 1 ? 's' : '' }} en tu carrito</p>
+          </div>
+        </div>
+
+        <!-- Lista de productos moderna -->
+        <div class="products-list-modern">
+          <div class="product-card-modern" *ngFor="let item of cartItems; let i = index">
             
-            <ion-label>
-              <!-- Nombre del producto -->
-              <h2>{{ item.nombre }}</h2>
+            <!-- Imagen y badge -->
+            <div class="product-image-wrapper">
+              <div class="product-image-modern">
+                <img [src]="item.imagen || 'assets/img/placeholder.png'" [alt]="item.nombre">
+              </div>
               
-              <!-- ✅ MARCA Y SKU -->
-              <div class="product-meta" *ngIf="item.marca || item.sku">
-                <span class="marca" *ngIf="item.marca">
-                  <ion-icon name="ribbon-outline"></ion-icon>
-                  {{ item.marca }}
-                </span>
-                <span class="sku" *ngIf="item.sku">
-                  <ion-icon name="barcode-outline"></ion-icon>
-                  SKU: {{ item.sku }}
-                </span>
-              </div>
-
-              <!-- ✅ CATEGORÍA Y SUBCATEGORÍA -->
-              <div class="category-info" *ngIf="item.categoria">
-                <ion-icon name="pricetag-outline"></ion-icon>
-                <span>{{ item.categoria }}</span>
-                <span *ngIf="item.subcategoria" class="subcategoria"> / {{ item.subcategoria }}</span>
-              </div>
-
-              <!-- Descripción -->
-
-              <!-- Mostrar información de la modalidad seleccionada -->
-              <div class="modalidad-info" *ngIf="item.modalidadSeleccionada">
-                <div 
-                  class="modalidad-badge" 
-                  [class.mayoreo]="item.modalidadSeleccionada.tipo === 'Mayoreo'" 
-                  [class.menudeo]="item.modalidadSeleccionada.tipo === 'Menudeo'">
+              <div class="product-badges" *ngIf="item.modalidadSeleccionada">
+                <span class="badge-modalidad" 
+                      [class.mayoreo]="item.modalidadSeleccionada.tipo === 'Mayoreo'"
+                      [class.menudeo]="item.modalidadSeleccionada.tipo === 'Menudeo'">
                   {{ item.modalidadSeleccionada.tipo }}
-                </div>
-                <div class="modalidad-details">
-                  <span class="detail-item">
-                    <ion-icon name="resize-outline"></ion-icon>
-                    {{ item.modalidadSeleccionada.tamano }}
-                  </span>
-                  <span class="detail-separator">•</span>
-                  <span class="detail-item">
-                    <ion-icon name="layers-outline"></ion-icon>
-                    {{ item.modalidadSeleccionada.contenido }}
-                  </span>
-                </div>
+                </span>
               </div>
-
-              <!-- Opciones antiguas (compatibilidad) -->
-              <div class="options-display" *ngIf="(item.tamano || item.contenido || item.sucursal) && !item.modalidadSeleccionada">
-                <div class="option-item" *ngIf="item.tamano">
-                  <ion-icon name="resize-outline"></ion-icon>
-                  <strong>Tamaño:</strong> {{ item.tamano }}
-                </div>
-                <div class="option-item" *ngIf="item.contenido">
-                  <ion-icon name="layers-outline"></ion-icon>
-                  <strong>Contenido:</strong> {{ item.contenido }}
-                </div>
-                <div class="option-item" *ngIf="item.sucursal">
-                  <ion-icon name="storefront-outline"></ion-icon>
-                  <strong>Sucursal:</strong> {{ item.sucursal }}
-                </div>
-              </div>
-
-              <!-- ✅ SUCURSAL -->
-              <div class="sucursal-info" *ngIf="item.sucursal && item.modalidadSeleccionada">
-                <ion-icon name="storefront-outline"></ion-icon>
-                <span>{{ item.sucursal }}</span>
-              </div>
-
-              <!-- ✅ COLORES DISPONIBLES -->
-              <div class="colores-info" *ngIf="item.colores && item.colores.length > 0">
-                <ion-icon name="color-palette-outline"></ion-icon>
-                <span>Colores: {{ item.colores.join(', ') }}</span>
-              </div>
-              
-              <!-- Precio unitario -->
-              <p class="price">${{ item.precio | number:'1.2-2' }} c/u</p>
-            </ion-label>
-
-            <!-- Controles de cantidad -->
-            <div slot="end" class="quantity-controls">
-              <ion-button 
-                fill="clear" 
-                size="small" 
-                (click)="decrementQuantity(item.cartItemId || '')">
-                <ion-icon name="remove-outline"></ion-icon>
-              </ion-button>
-
-              <ion-badge color="primary">{{ item.quantity }}</ion-badge>
-
-              <ion-button 
-                fill="clear" 
-                size="small" 
-                (click)="incrementQuantity(item.cartItemId || '')">
-                <ion-icon name="add-outline"></ion-icon>
-              </ion-button>
-
-              <ion-button 
-                fill="clear" 
-                color="danger" 
-                size="small" 
-                (click)="removeItem(item.cartItemId || '')">
-                <ion-icon name="trash-outline"></ion-icon>
-              </ion-button>
             </div>
 
-          </ion-item>
-        </ion-list>
+            <!-- Información del producto -->
+            <div class="product-details-modern">
+              
+              <!-- Nombre y categoría -->
+              <div class="product-header-info">
+                <h3 class="product-name-modern">{{ item.nombre }}</h3>
+                
+                <div class="product-meta-tags" *ngIf="item.categoria || item.marca">
+                  <span class="meta-tag category" *ngIf="item.categoria">
+                    <ion-icon name="pricetag-outline"></ion-icon>
+                    {{ item.categoria }}
+                  </span>
+                  
+                  <span class="meta-tag brand" *ngIf="item.marca">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                    {{ item.marca }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Especificaciones -->
+              <div class="product-specs-modern" *ngIf="item.modalidadSeleccionada">
+                <div class="spec-item">
+                  <ion-icon name="resize-outline"></ion-icon>
+                  <span>{{ item.modalidadSeleccionada.tamano }}</span>
+                </div>
+                
+                <div class="spec-item">
+                  <ion-icon name="layers-outline"></ion-icon>
+                  <span>{{ item.modalidadSeleccionada.contenido }}</span>
+                </div>
+                
+                <div class="spec-item" *ngIf="item.sucursal">
+                  <ion-icon name="storefront-outline"></ion-icon>
+                  <span>{{ item.sucursal }}</span>
+                </div>
+              </div>
+
+<!-- Precio y controles -->
+<div class="product-actions-modern">
+  
+  <!-- ⭐ NUEVO: Wrapper para precio y subtotal en la misma fila -->
+  <div class="price-subtotal-row">
+    <!-- Precio (izquierda) -->
+    <div class="price-section-modern">
+      <span class="price-label">Precio</span>
+      <span class="price-unit">${{ item.precio | number:'1.2-2' }}</span>
+    </div>
+    
+    <!-- Subtotal (derecha) -->
+    <div class="subtotal-section-modern">
+      <span class="subtotal-label">Subtotal</span>
+      <span class="subtotal-value">${{ (item.precio * item.quantity) | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <!-- Cantidad (arriba) -->
+  <div class="quantity-section-modern" style="margin-left: 10px;">
+    <div class="quantity-controls-modern">
+      <button class="qty-btn-modern minus" (click)="decrementQuantity(item.cartItemId || '')">
+        <ion-icon name="remove"></ion-icon>
+      </button>
+      <span class="qty-display">{{ item.quantity }}</span>
+      <button class="qty-btn-modern plus" (click)="incrementQuantity(item.cartItemId || '')">
+        <ion-icon name="add"></ion-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+            </div>
+
+            <!-- Botón eliminar -->
+            <button class="remove-btn-modern" (click)="removeItem(item.cartItemId || '')">
+              <ion-icon name="close"></ion-icon>
+            </button>
+
+          </div>
+        </div>
+
       </div>
+
+      <!-- ========================================
+           💳 COLUMNA DERECHA: RESUMEN Y CHECKOUT
+           ======================================== -->
+      <div class="cart-sidebar-modern">
+        
+        <!-- Card de información del cliente -->
+        <div class="sidebar-card customer-info-card">
+          <div class="card-header-modern">
+            <div class="header-icon-wrapper">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </div>
+            <div class="header-text">
+              <h3>Información de Contacto</h3>
+              <p>Completa tus datos para continuar</p>
+            </div>
+          </div>
+
+          <div class="card-body-modern">
+            <div class="input-group-modern">
+              <label class="input-label-modern">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>Nombre completo</span>
+                <span class="required-mark">*</span>
+              </label>
+              <div class="input-wrapper-modern">
+                <input 
+                  type="text" 
+                  [(ngModel)]="customerName" 
+                  placeholder="Juan Pérez"
+                  class="input-modern">
+              </div>
+            </div>
+
+            <div class="input-group-modern">
+              <label class="input-label-modern">
+                <ion-icon name="call-outline"></ion-icon>
+                <span>Teléfono</span>
+                <span class="required-mark">*</span>
+              </label>
+              <div class="input-wrapper-modern">
+                <input 
+                  type="tel" 
+                  [(ngModel)]="customerPhone" 
+                  placeholder="871 123 4567"
+                  class="input-modern">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card de resumen del pedido -->
+        <div class="sidebar-card order-summary-card">
+          <div class="card-header-modern">
+            <div class="header-icon-wrapper">
+              <ion-icon name="receipt-outline"></ion-icon>
+            </div>
+            <div class="header-text">
+              <h3>Resumen del Pedido</h3>
+              <p>Detalles de tu compra</p>
+            </div>
+          </div>
+
+          <div class="card-body-modern">
+
+            <!-- Total destacado -->
+            <div class="total-modern">
+              <div class="total-content">
+                <span class="total-label">Total a Pagar</span>
+                <span class="total-amount">${{ total | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Contenedor de botones en fila -->
+            <div class="cart-action-buttons">
+              <!-- Botón de WhatsApp (75%) -->
+              <button class="whatsapp-btn-modern" (click)="checkout()">
+                <span class="btn-icon-wrapper">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"></path>
+                  </svg>
+                </span>
+                <span class="btn-text-wrapper">
+                  <span class="btn-text-main">Enviar por WhatsApp</span>
+                  <span class="btn-text-sub">Confirma tu pedido ahora</span>
+                </span>
+                <span class="btn-arrow">
+                  <ion-icon name="arrow-forward"></ion-icon>
+                </span>
+              </button>
+
+              <!-- Botón continuar comprando (25%) -->
+              <button class="continue-shopping-btn-modern" (click)="continueShopping()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+              </button>
+            </div>
+
+            <!-- Características de seguridad -->
+            <div class="security-features">
+              <div class="feature-item">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                <span>Pago Seguro</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="rocket-outline"></ion-icon>
+                <span>Envío Rápido</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="headset-outline"></ion-icon>
+                <span>Soporte 24/7</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
-    <!-- ✅ FORMULARIO DE INFORMACIÓN + RESUMEN COMBINADO -->
-    <ion-card class="customer-info-card">
-      <ion-card-header>
-        <ion-card-title>Información de Entrega</ion-card-title>
-      </ion-card-header>
+  </section>
 
-      <ion-card-content>
-        <!-- SECCIÓN: FORMULARIO DE INFORMACIÓN -->
-        <ion-item>
-          <ion-label position="floating">Nombre completo *</ion-label>
-          <ion-input [(ngModel)]="customerName" placeholder="Ej: Juan Pérez" type="text"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="floating">Teléfono *</ion-label>
-          <ion-input [(ngModel)]="customerPhone" placeholder="Ej: 8711234567" type="tel"></ion-input>
-        </ion-item>
-
-        <!-- DIVISOR VISUAL -->
-        <div class="section-divider"></div>
-
-        <!-- SECCIÓN: RESUMEN DEL PEDIDO -->
-        <div class="summary-section">
-          <h3 class="summary-title">Resumen del Pedido</h3>
-          
-          <div class="summary-row">
-            <span>Subtotal:</span>
-            <span>${{ total | number:'1.2-2' }}</span>
-          </div>
-
-          <div class="summary-row total">
-            <strong>Total:</strong>
-            <strong>${{ total | number:'1.2-2' }}</strong>
-          </div>
-
-          <!-- BOTÓN DE WHATSAPP -->
-          <button class="whatsapp-button-animated" (click)="checkout()">
-            <p>Enviar Pedido</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"></path>
-            </svg>
-          </button>
-          
-          <ion-button expand="block" fill="outline" (click)="continueShopping()">
-            Continuar Comprando
-          </ion-button>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-  </div>
+  <app-footer></app-footer>
 </ion-content>
