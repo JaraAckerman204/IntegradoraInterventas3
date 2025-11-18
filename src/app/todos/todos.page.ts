@@ -427,21 +427,29 @@ export class TodosPage implements OnInit, AfterViewInit {
     console.log('📄 Total de páginas:', this.totalPages);
   }
 
-  updatePaginatedProducts() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
-    
-    console.log('📄 Productos paginados:', {
-      page: this.currentPage,
-      startIndex,
-      endIndex,
-      count: this.paginatedProducts.length
-    });
-    
-    // Scroll hacia arriba al cambiar de página
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+updatePaginatedProducts() {
+  const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+  const endIndex = startIndex + this.itemsPerPage;
+  this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+  
+  console.log('📄 Productos paginados:', {
+    page: this.currentPage,
+    startIndex,
+    endIndex,
+    count: this.paginatedProducts.length
+  });
+  
+  // ⭐ Scroll hacia el inicio de la sección de productos
+  setTimeout(() => {
+    const productsContent = document.querySelector('.products-content');
+    if (productsContent) {
+      productsContent.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  }, 200);
+}
 
   goToPage(page: number | string) {
     if (typeof page === 'string') return;
