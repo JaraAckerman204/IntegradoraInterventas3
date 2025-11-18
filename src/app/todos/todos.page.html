@@ -19,29 +19,6 @@
 <!-- 📋 COLUMNA DE FILTROS -->
 <aside class="filters-sidebar">
   
-  <!-- FILTRO POR CATEGORÍA -->
-  <div class="filter-group">
-    <h3 class="filter-title" (click)="toggleFilterSection('categorias')">
-      <ion-icon name="apps-outline"></ion-icon>
-      <span>Categorías</span>
-      <ion-icon 
-        [name]="filterSectionsOpen.categorias ? 'chevron-up-outline' : 'chevron-down-outline'" 
-        class="chevron-icon">
-      </ion-icon>
-    </h3>
-    <div class="filter-options" [class.open]="filterSectionsOpen.categorias">
-      <label class="filter-option" *ngFor="let categoria of categorias">
-        <input 
-          type="checkbox" 
-          [value]="categoria"
-          (change)="toggleFilter('categoria', categoria)"
-          [checked]="selectedFilters.categorias.includes(categoria)">
-        <span class="checkbox-custom"></span>
-        <span class="filter-label">{{ categoria }}</span>
-      </label>
-    </div>
-  </div>
-
   <!-- FILTRO POR MARCA -->
   <div class="filter-group">
     <h3 class="filter-title" (click)="toggleFilterSection('marcas')">

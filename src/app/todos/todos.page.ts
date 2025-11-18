@@ -299,12 +299,16 @@ export class TodosPage implements OnInit, AfterViewInit {
         .filter((c): c is string => c !== undefined && c !== null && c.trim() !== '')
     )].sort();
 
-    // Extraer marcas únicas
-    this.marcas = [...new Set(
-      this.products
-        .map(p => p.marca)
-        .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
-    )].sort();
+  // Extraer marcas únicas
+  this.marcas = [...new Set(
+    this.products
+      .map(p => p.marca)
+      .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
+  )].sort();
+
+  // ⭐ DEBUG: Ver todas las marcas extraídas
+  console.log('🏷️ Total de marcas encontradas:', this.marcas.length);
+  console.log('📋 Marcas:', this.marcas);
 
     // Extraer materiales únicos
     this.materiales = [...new Set(

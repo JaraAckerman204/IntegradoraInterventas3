@@ -265,16 +265,8 @@ ion-content {
   min-height: 400px;
 }
 
-.products-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 30px;
-  max-width: 1600px;
-  margin: 0 auto;
-}
-
 // ==========================================
-// 🎨 SIDEBAR DE FILTROS - ACORDEÓN
+// 🎨 SIDEBAR DE FILTROS - FIJO
 // ==========================================
 
 .filters-sidebar {
@@ -282,11 +274,41 @@ ion-content {
   border-radius: 16px;
   padding: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  height: fit-content;
   position: sticky;
-  top: 20px;
+  top: 100px; // ⭐ Aumentar de 80px a 100px o más para dar más espacio
+  max-height: calc(100vh - 120px); // ⭐ Ajustar también esto (debe ser top + 20px)
+  overflow-y: auto;
   border: 3px solid #e9ecef;
-  overflow: hidden;
+  align-self: flex-start;
+  
+  /* Personalizar scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border-radius: 3px;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
+    }
+  }
+}
+
+// ⭐ IMPORTANTE: Asegurar que el layout permita el sticky
+.products-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  max-width: 1600px;
+  margin: 0 auto;
+  align-items: start; // ⭐ Esto es crucial para que funcione el sticky
 }
 
 .filter-group {
@@ -340,8 +362,28 @@ ion-content {
   background: #fafbfc;
   
   &.open {
-    max-height: 500px;
+    max-height: 1000px; // ⭐ Aumentar de 500px a 1000px
     padding: 12px 20px;
+    overflow-y: auto; // ⭐ Agregar scroll si es necesario
+  }
+
+  /* Personalizar scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border-radius: 3px;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
+    }
   }
 }
 
