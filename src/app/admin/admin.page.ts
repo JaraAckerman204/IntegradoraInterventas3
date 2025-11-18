@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -434,38 +434,6 @@ export class AdminPage {
   limpiarTodasBusquedas() {
     this.busquedaRapida = '';
     this.limpiarTodosFiltros();
-  }
-
-  aplicarOrden() {
-    const [campo, direccion] = this.ordenSeleccionado.split('-');
-    
-    this.productosFiltrados.sort((a, b) => {
-      let valorA = '';
-      let valorB = '';
-
-      switch (campo) {
-        case 'nombre':
-          valorA = (a.nombre || '').toLowerCase();
-          valorB = (b.nombre || '').toLowerCase();
-          break;
-        case 'sku':
-          valorA = (a.sku || '').toLowerCase();
-          valorB = (b.sku || '').toLowerCase();
-          break;
-        case 'marca':
-          valorA = (a.marca || '').toLowerCase();
-          valorB = (b.marca || '').toLowerCase();
-          break;
-      }
-
-      if (direccion === 'asc') {
-        return valorA.localeCompare(valorB);
-      } else {
-        return valorB.localeCompare(valorA);
-      }
-    });
-
-    this.cdr.detectChanges();
   }
 
   tieneFiltrosActivos(): boolean {
@@ -1079,6 +1047,101 @@ export class AdminPage {
     this.aplicarFiltrosInternos();
   }
 
+  // =============================
+// 🔄 ORDENAMIENTO DE PRODUCTOS
+// =============================
+mostrarMenuOrden: boolean = false;
+
+toggleMenuOrden() {
+  this.mostrarMenuOrden = !this.mostrarMenuOrden;
+}
+
+cambiarOrden(nuevoOrden: string) {
+  this.ordenSeleccionado = nuevoOrden;
+  this.mostrarMenuOrden = false;
+  this.aplicarOrden();
+  
+  const textos: { [key: string]: string } = {
+    'nombre-asc': '📝 Ordenado por Nombre (A-Z)',
+    'nombre-desc': '📝 Ordenado por Nombre (Z-A)',
+    'sku-asc': '🏷️ Ordenado por SKU (A-Z)',
+    'sku-desc': '🏷️ Ordenado por SKU (Z-A)',
+    'marca-asc': '🎯 Ordenado por Marca (A-Z)',
+    'marca-desc': '🎯 Ordenado por Marca (Z-A)',
+    'destacado': '⭐ Mostrando destacados primero'
+  };
+  
+  this.mostrarToast(textos[nuevoOrden] || 'Orden aplicado');
+}
+
+obtenerTextoOrden(): string {
+  const textos: { [key: string]: string } = {
+    'nombre-asc': 'A-Z',
+    'nombre-desc': 'Z-A',
+    'sku-asc': 'SKU A-Z',
+    'sku-desc': 'SKU Z-A',
+    'marca-asc': 'Marca A-Z',
+    'marca-desc': 'Marca Z-A',
+    'destacado': 'Destacados'
+  };
+  
+  return textos[this.ordenSeleccionado] || 'Ordenar';
+}
+
+// Actualiza el método aplicarOrden() existente:
+aplicarOrden() {
+  const [campo, direccion] = this.ordenSeleccionado.split('-');
+  
+  // Caso especial para destacados
+  if (this.ordenSeleccionado === 'destacado') {
+    this.productosFiltrados.sort((a, b) => {
+      if (a.destacado === b.destacado) {
+        return (a.nombre || '').toLowerCase().localeCompare((b.nombre || '').toLowerCase());
+      }
+      return a.destacado ? -1 : 1;
+    });
+    this.cdr.detectChanges();
+    return;
+  }
+  
+  this.productosFiltrados.sort((a, b) => {
+    let valorA = '';
+    let valorB = '';
+
+    switch (campo) {
+      case 'nombre':
+        valorA = (a.nombre || '').toLowerCase();
+        valorB = (b.nombre || '').toLowerCase();
+        break;
+      case 'sku':
+        valorA = (a.sku || '').toLowerCase();
+        valorB = (b.sku || '').toLowerCase();
+        break;
+      case 'marca':
+        valorA = (a.marca || '').toLowerCase();
+        valorB = (b.marca || '').toLowerCase();
+        break;
+    }
+
+    if (direccion === 'asc') {
+      return valorA.localeCompare(valorB);
+    } else {
+      return valorB.localeCompare(valorA);
+    }
+  });
+
+  this.cdr.detectChanges();
+}
+
+// Cerrar menú al hacer clic fuera (opcional, agregar en ngOnInit o constructor)
+@HostListener('document:click', ['$event'])
+onClickOutside(event: any) {
+  const sortDropdown = event.target.closest('.sort-dropdown-wrapper');
+  if (!sortDropdown && this.mostrarMenuOrden) {
+    this.mostrarMenuOrden = false;
+    this.cdr.detectChanges();
+  }
+}
   // =============================
 // 📤 PRODUCTOS - EXPORTAR CSV
 // =============================

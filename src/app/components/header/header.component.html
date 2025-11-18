@@ -60,17 +60,6 @@
       <!-- Actions Section -->
       <div class="actions-section">
 
-        <!-- Admin Panel Button (Solo visible para admins) -->
-        <ion-button 
-          *ngIf="isAdmin" 
-          fill="clear" 
-          class="action-btn admin-btn" 
-          routerLink="/admin"
-          [class.active]="isAdminActive()">
-          <ion-icon [icon]="shieldCheckmarkOutline" class="action-icon"></ion-icon>
-          <span class="admin-label">    Administración</span>
-        </ion-button>
-
 <!-- Cart Button -->
 <ion-button fill="clear" class="action-btn cart-btn" routerLink="/carrito" [class.active]="isCartActive()">
   <div class="cart-wrapper">
@@ -212,6 +201,18 @@
         <span class="profile-name">{{ user.displayName || user.email }}</span>
       </div>
     </div>
+
+            <!-- Admin Panel Button (Solo visible para admins) -->
+        <ion-button 
+          *ngIf="isAdmin" 
+          fill="clear" 
+          class="action-btn admin-btn" 
+          routerLink="/admin"
+          [class.active]="isAdminActive()">
+          <ion-icon [icon]="shieldCheckmarkOutline" class="action-icon"></ion-icon>
+          <span class="admin-label">    Administración</span>
+        </ion-button>
+        
     <div class="profile-divider"></div>
     <ion-button expand="block" class="logout-button" (click)="logout()">
       <ion-icon [icon]="logOutOutline" slot="start"></ion-icon>
@@ -228,18 +229,13 @@
     <div class="sidebar-content">
       <!-- Sidebar Header -->
       <div class="sidebar-header">
-        <img class="sidebar-logo" src="../../assets/img/logo.png" alt="Logo">
+        <img class="sidebar-logo" style="width: 150px; height: auto;" src="../../assets/img/logo.png" alt="Logo">
         <ion-button fill="clear" class="close-btn" (click)="closeMenu()">
           <ion-icon name="close-outline"></ion-icon>
         </ion-button>
       </div>
 
       <!-- Dentro del sidebar-nav, después del link de Sucursales -->
-<a class="sidebar-link" routerLink="/carrito" [class.active]="isCartActive()" (click)="closeMenu()">
-  <ion-icon name="cart-outline" class="sidebar-icon"></ion-icon>
-  <span>Carrito</span>
-  <span class="cart-badge-mobile" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
-</a>
 
       <!-- User Info Mobile -->
       <div class="sidebar-user" *ngIf="user">

@@ -1888,7 +1888,7 @@ bottom: 0;
 
 .preview-image {
   width: 400px;
-  height: 400px;
+  height: auto;
   border-radius: 16px;
   overflow: hidden;
   background: white;
@@ -2574,6 +2574,7 @@ bottom: 0;
   }
   
   .preview-image {
+    width: auto;
     height: 300px;
   }
   
@@ -2765,6 +2766,7 @@ bottom: 0;
   }
   
   .preview-image {
+    width: 310px;
     height: 250px;
   }
   

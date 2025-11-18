@@ -135,34 +135,114 @@
       <button 
         *ngIf="busquedaRapida" 
         class="btn-clear-search"
-        (click)="limpiarBusquedaRapida()"
-        style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: rgba(237, 19, 112, 0.1); border-radius: 50%; cursor: pointer; transition: all 0.2s ease; margin-left: 8px;">
-        <ion-icon name="close-circle" style="font-size: 24px; color: #ed1370;"></ion-icon>
+        (click)="limpiarBusquedaRapida()">
+        <ion-icon name="close-circle"></ion-icon>
       </button>
     </div>
   </div>
 
-  <!-- Botones de acción -->
-  <div class="search-actions-group">
-    <!-- Botón Búsqueda Avanzada -->
+  <!-- Botón de Ordenamiento -->
+  <div class="sort-dropdown-wrapper">
     <button 
-      class="btn-advanced-search"
-      (click)="abrirModalBusqueda()"
-      title="Búsqueda Avanzada">
-      <ion-icon name="filter-outline"></ion-icon>
-      <span>Búsqueda Avanzada</span>
+      class="btn-sort"
+      [class.active]="mostrarMenuOrden"
+      (click)="toggleMenuOrden()"
+      title="Ordenar productos">
+      <ion-icon name="swap-vertical-outline"></ion-icon>
+      <span>{{ obtenerTextoOrden() }}</span>
+      <ion-icon name="chevron-down-outline" class="chevron-icon"></ion-icon>
     </button>
 
-    <!-- Botón Productos Destacados -->
-    <button 
-      class="btn-featured-toggle"
-      [class.active]="filtroDestacado === 'si'"
-      (click)="toggleFiltroDestacados()"
-      title="Mostrar solo productos destacados">
-      <ion-icon name="star-outline"></ion-icon>
-      <span>Destacados</span>
-    </button>
+    <!-- Menú desplegable -->
+    <div class="sort-menu" *ngIf="mostrarMenuOrden">
+      <div class="sort-menu-header">
+        <ion-icon name="funnel-outline"></ion-icon>
+        <span>Ordenar por</span>
+      </div>
+      
+      <button 
+        class="sort-option"
+        [class.active]="ordenSeleccionado === 'nombre-asc'"
+        (click)="cambiarOrden('nombre-asc')">
+        <ion-icon name="text-outline"></ion-icon>
+        <span>Nombre (A-Z)</span>
+        <ion-icon *ngIf="ordenSeleccionado === 'nombre-asc'" name="checkmark-outline" class="check-icon"></ion-icon>
+      </button>
+
+      <button 
+        class="sort-option"
+        [class.active]="ordenSeleccionado === 'nombre-desc'"
+        (click)="cambiarOrden('nombre-desc')">
+        <ion-icon name="text-outline"></ion-icon>
+        <span>Nombre (Z-A)</span>
+        <ion-icon *ngIf="ordenSeleccionado === 'nombre-desc'" name="checkmark-outline" class="check-icon"></ion-icon>
+      </button>
+
+      <button 
+        class="sort-option"
+        [class.active]="ordenSeleccionado === 'sku-asc'"
+        (click)="cambiarOrden('sku-asc')">
+        <ion-icon name="barcode-outline"></ion-icon>
+        <span>SKU (A-Z)</span>
+        <ion-icon *ngIf="ordenSeleccionado === 'sku-asc'" name="checkmark-outline" class="check-icon"></ion-icon>
+      </button>
+
+      <button 
+        class="sort-option"
+        [class.active]="ordenSeleccionado === 'sku-desc'"
+        (click)="cambiarOrden('sku-desc')">
+        <ion-icon name="barcode-outline"></ion-icon>
+        <span>SKU (Z-A)</span>
+        <ion-icon *ngIf="ordenSeleccionado === 'sku-desc'" name="checkmark-outline" class="check-icon"></ion-icon>
+      </button>
+
+      <button 
+        class="sort-option"
+        [class.active]="ordenSeleccionado === 'marca-asc'"
+        (click)="cambiarOrden('marca-asc')">
+        <ion-icon name="ribbon-outline"></ion-icon>
+        <span>Marca (A-Z)</span>
+        <ion-icon *ngIf="ordenSeleccionado === 'marca-asc'" name="checkmark-outline" class="check-icon"></ion-icon>
+      </button>
+
+      <button 
+        class="sort-option"
+        [class.active]="ordenSeleccionado === 'marca-desc'"
+        (click)="cambiarOrden('marca-desc')">
+        <ion-icon name="ribbon-outline"></ion-icon>
+        <span>Marca (Z-A)</span>
+        <ion-icon *ngIf="ordenSeleccionado === 'marca-desc'" name="checkmark-outline" class="check-icon"></ion-icon>
+      </button>
+
+      <button 
+        class="sort-option"
+        [class.active]="ordenSeleccionado === 'destacado'"
+        (click)="cambiarOrden('destacado')">
+        <ion-icon name="star-outline"></ion-icon>
+        <span>Destacados primero</span>
+        <ion-icon *ngIf="ordenSeleccionado === 'destacado'" name="checkmark-outline" class="check-icon"></ion-icon>
+      </button>
+    </div>
   </div>
+
+  <!-- Botón Búsqueda Avanzada -->
+  <button 
+    class="btn-advanced-search"
+    (click)="abrirModalBusqueda()"
+    title="Búsqueda Avanzada">
+    <ion-icon name="filter-outline"></ion-icon>
+    <span>Búsqueda Avanzada</span>
+  </button>
+
+  <!-- Botón Productos Destacados -->
+  <button 
+    class="btn-featured-toggle"
+    [class.active]="filtroDestacado === 'si'"
+    (click)="toggleFiltroDestacados()"
+    title="Mostrar solo productos destacados">
+    <ion-icon name="star-outline"></ion-icon>
+    <span>Destacados</span>
+  </button>
 </div>
 
   <!-- Filtros activos -->
@@ -404,53 +484,49 @@
     </div>
   </div>
 
-  <!-- Búsqueda rápida + Botones -->
-  <div class="search-container-wrapper">
-    <!-- Búsqueda Rápida -->
-    <div class="form-group-custom search-group">
-      <label class="form-label-custom">
-        <ion-icon name="search-outline"></ion-icon>
-        <span>Búsqueda Rápida</span>
-      </label>
-      <div class="input-wrapper">
-        <input 
-          type="text" 
-          [(ngModel)]="filtroNombreUsuario"
-          (ngModelChange)="aplicarFiltrosUsuarios()"
-          placeholder="Buscar por nombre o email..."
-          class="custom-input">
-        <button 
-          *ngIf="filtroNombreUsuario" 
-          class="btn-clear-search"
-          (click)="limpiarFiltrosUsuarios()"
-          style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: rgba(237, 19, 112, 0.1); border-radius: 50%; cursor: pointer; transition: all 0.2s ease; margin-left: 8px;">
-          <ion-icon name="close-circle" style="font-size: 24px; color: #ed1370;"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <!-- Botones de acción -->
-    <div class="search-actions-group">
-      <!-- Botón Búsqueda Avanzada -->
+<!-- Búsqueda rápida + Botones - USUARIOS -->
+<div class="users-search-wrapper">
+  <!-- Búsqueda Rápida -->
+  <div class="form-group-custom users-search-group">
+    <label class="form-label-custom">
+      <ion-icon name="search-outline"></ion-icon>
+      <span>Búsqueda Rápida</span>
+    </label>
+    <div class="input-wrapper">
+      <input 
+        type="text" 
+        [(ngModel)]="filtroNombreUsuario"
+        (ngModelChange)="aplicarFiltrosUsuarios()"
+        placeholder="Buscar por nombre o email..."
+        class="custom-input">
       <button 
-        class="btn-advanced-search"
-        (click)="abrirModalBusquedaUsuarios()"
-        title="Búsqueda Avanzada">
-        <ion-icon name="filter-outline"></ion-icon>
-        <span>Búsqueda Avanzada</span>
-      </button>
-
-      <!-- Botón Filtro por Rol -->
-      <button 
-        class="btn-featured-toggle"
-        [class.active]="filtroRolUsuario === 'admin'"
-        (click)="toggleFiltroAdmin()"
-        title="Mostrar solo administradores">
-        <ion-icon name="shield-checkmark-outline"></ion-icon>
-        <span>Administradores</span>
+        *ngIf="filtroNombreUsuario" 
+        class="btn-clear-search"
+        (click)="limpiarFiltrosUsuarios()">
+        <ion-icon name="close-circle"></ion-icon>
       </button>
     </div>
   </div>
+
+  <!-- Botón Búsqueda Avanzada -->
+  <button 
+    class="btn-users-advanced-search"
+    (click)="abrirModalBusquedaUsuarios()"
+    title="Búsqueda Avanzada">
+    <ion-icon name="filter-outline"></ion-icon>
+    <span>Búsqueda Avanzada</span>
+  </button>
+
+  <!-- Botón Filtro Administradores -->
+  <button 
+    class="btn-users-filter-toggle"
+    [class.active]="filtroRolUsuario === 'admin'"
+    (click)="toggleFiltroAdmin()"
+    title="Mostrar solo administradores">
+    <ion-icon name="shield-checkmark-outline"></ion-icon>
+    <span>Administradores</span>
+  </button>
+</div>
 
   <!-- Filtros activos -->
   <div class="active-filters" *ngIf="filtroNombreUsuario || filtroEmailUsuario || filtroRolUsuario">
@@ -656,59 +732,74 @@
     </div>
   </div>
 
-  <!-- Grid de mensajes -->
-  <div class="messages-grid-new">
-    <div *ngFor="let msg of mensajesFiltrados" class="message-card-new">
+  <!-- Grid de mensajes NUEVO - 4 columnas -->
+  <div class="messages-grid-premium">
+    <div *ngFor="let msg of mensajesFiltrados" class="message-card-premium">
       
-      <!-- Badge de fecha -->
-      <div class="message-badge">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <span>{{ msg.date | date:'short' }}</span>
+      <!-- Header de la carta -->
+      <div class="card-header-premium">
+        <div class="avatar-circle">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <div class="header-info">
+          <h3 class="sender-name-premium">{{ msg.name }}</h3>
+          <span class="message-date">{{ msg.date | date:'short' }}</span>
+        </div>
       </div>
 
       <!-- Contenido principal -->
-      <div class="message-main">
+      <div class="card-body-premium">
         
-        <!-- Información del remitente -->
-        <div class="sender-info">
-          <div class="sender-details">
-            <h3 class="sender-name">{{ msg.name }}</h3>
-            <a [href]="'mailto:' + msg.email" class="sender-email">
-              <ion-icon name="mail"></ion-icon>
-              {{ msg.email }}
-            </a>
+        <!-- Email -->
+        <div class="info-row-premium">
+          <div class="info-icon email">
+            <ion-icon name="mail"></ion-icon>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Email</span>
+            <a [href]="'mailto:' + msg.email" class="info-value">{{ msg.email }}</a>
           </div>
         </div>
 
-        <!-- Datos adicionales -->
-        <div class="message-data">
-          <div class="data-item" *ngIf="msg.phone">
+        <!-- Teléfono -->
+        <div class="info-row-premium" *ngIf="msg.phone">
+          <div class="info-icon phone">
             <ion-icon name="call"></ion-icon>
-            <span>{{ msg.phone }}</span>
           </div>
-          <div class="data-item" *ngIf="msg.company">
+          <div class="info-content">
+            <span class="info-label">Teléfono</span>
+            <span class="info-value">{{ msg.phone }}</span>
+          </div>
+        </div>
+
+        <!-- Empresa -->
+        <div class="info-row-premium" *ngIf="msg.company">
+          <div class="info-icon company">
             <ion-icon name="business"></ion-icon>
-            <span>{{ msg.company }}</span>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Empresa</span>
+            <span class="info-value">{{ msg.company }}</span>
           </div>
         </div>
 
         <!-- Mensaje -->
-        <div class="data-item">
-          <div class="message-icon">
+        <div class="message-content-premium">
+          <div class="message-icon-premium">
             <ion-icon name="chatbox-ellipses"></ion-icon>
           </div>
-          <p class="message-content-text">{{ msg.message }}</p>
+          <p class="message-text-premium">{{ msg.message }}</p>
         </div>
 
       </div>
 
-      <!-- Acciones -->
-      <div class="message-actions">
-        <button class="btn-action reply" (click)="responderMensaje(msg.email, msg.message)">
+      <!-- Footer con acciones -->
+      <div class="card-footer-premium">
+        <button class="btn-action-premium reply" (click)="responderMensaje(msg.email, msg.message)">
           <ion-icon name="arrow-undo"></ion-icon>
-          Responder
+          <span>Responder</span>
         </button>
-        <button class="btn-action delete" (click)="eliminarMensaje(msg.id)">
+        <button class="btn-action-premium delete" (click)="eliminarMensaje(msg.id)">
           <ion-icon name="trash"></ion-icon>
         </button>
       </div>
