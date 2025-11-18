@@ -4,13 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 
 @Component({
-  selector: 'app-aunguiplast',
-  templateUrl: './aunguiplast.page.html',
-  styleUrls: ['./aunguiplast.page.scss'],
+  selector: 'app-anguiplast',
+  templateUrl: './anguiplast.page.html',
+  styleUrls: ['./anguiplast.page.scss'],
   standalone: true,
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
-export class AunguiplastPage implements OnInit {
+export class AnguiplastPage implements OnInit {
 
   constructor() { }
 

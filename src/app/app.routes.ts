@@ -108,26 +108,33 @@ export const routes: Routes = [
     path: 'carrito',
     loadComponent: () => import('./carrito/carrito.page').then((m) => m.CarritoPage),
     canActivate: [authGuard],
-  },  {
-    path: 'reyma',
-    loadComponent: () => import('./reyma/reyma.page').then( m => m.ReymaPage)
   },
   {
-    path: 'chiligrin',
-    loadComponent: () => import('./chiligrin/chiligrin.page').then( m => m.ChiligrinPage)
+    path: 'productos/reyma',
+    loadComponent: () => import('./reyma/reyma.page').then( m => m.ReymaPage),
+    canActivate: [authGuard],
   },
   {
-    path: 'aunguiplast',
-    loadComponent: () => import('./aunguiplast/aunguiplast.page').then( m => m.AunguiplastPage)
+    path: 'productos/chiligrin',
+    loadComponent: () => import('./chiligrin/chiligrin.page').then( m => m.ChiligrinPage),
+    canActivate: [authGuard],
   },
   {
-    path: 'dart',
-    loadComponent: () => import('./dart/dart.page').then( m => m.DartPage)
+    path: 'productos/dart',
+    loadComponent: () => import('./dart/dart.page').then( m => m.DartPage),
+        canActivate: [authGuard],
   },
   {
-    path: 'monark',
-    loadComponent: () => import('./monark/monark.page').then( m => m.MonarkPage)
+    path: 'productos/monark',
+    loadComponent: () => import('./monark/monark.page').then( m => m.MonarkPage),
+        canActivate: [authGuard],
   },
+  {
+    path: 'productos/anguiplast',
+    loadComponent: () => import('./anguiplast/anguiplast.page').then( m => m.AnguiplastPage),
+    canActivate: [authGuard],
+  },
+
 
 
 
