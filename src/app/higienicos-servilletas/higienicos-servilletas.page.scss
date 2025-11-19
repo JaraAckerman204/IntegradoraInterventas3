@@ -255,19 +255,547 @@ ion-content {
   }
 }
 
-// ===== PRODUCTS CONTAINER =====
-.products-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
+// ==========================================
+// 📋 LAYOUT PRINCIPAL CON FILTROS
+// ==========================================
+
+.products-main-section {
+  padding: 40px 70px;
+  background: #f8f9fa;
+  min-height: 400px;
 }
 
-// ===== PRODUCTS GRID =====
+// ==========================================
+// 🎨 SIDEBAR DE FILTROS - FIJO
+// ==========================================
+
+.filters-sidebar {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 100px; // ⭐ Aumentar de 80px a 100px o más para dar más espacio
+  max-height: calc(100vh - 120px); // ⭐ Ajustar también esto (debe ser top + 20px)
+  overflow-y: auto;
+  border: 3px solid #e9ecef;
+  align-self: flex-start;
+  
+  /* Personalizar scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border-radius: 3px;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
+    }
+  }
+}
+
+// ⭐ IMPORTANTE: Asegurar que el layout permita el sticky
+.products-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  max-width: 1600px;
+  margin: 0 auto;
+  align-items: start; // ⭐ Esto es crucial para que funcione el sticky
+}
+
+.filter-group {
+  border-bottom: 2px solid #f8f9fa;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.9em;
+  color: #27318d;
+  margin: 0;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  user-select: none;
+  
+  span {
+    flex: 1;
+  }
+  
+  ion-icon:first-child {
+    font-size: 20px;
+    color: #27318d;
+  }
+  
+  .chevron-icon {
+    font-size: 18px;
+    color: #6c757d;
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover {
+    background: #f8f9fa;
+  }
+}
+
+.filter-options {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: 0 20px;
+  background: #fafbfc;
+  
+  &.open {
+    max-height: 1000px; // ⭐ Aumentar de 500px a 1000px
+    padding: 12px 20px;
+    overflow-y: auto; // ⭐ Agregar scroll si es necesario
+  }
+
+  /* Personalizar scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27318d 0%, #ed1370 100%);
+    border-radius: 3px;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1a2365 0%, #d01061 100%);
+    }
+  }
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  margin-bottom: 6px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    background: white;
+  }
+  
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    
+    &:checked + .checkbox-custom {
+      background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
+      border-color: #27318d;
+      
+      &::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #dee2e6;
+  border-radius: 4px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  
+  &::after {
+    content: '✓';
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.15s ease;
+  }
+}
+
+.filter-label {
+  font-family: var(--font-secondary);
+  font-size: 0.85em;
+  color: #495057;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.3;
+  
+  ion-icon {
+    font-size: 16px;
+    color: #27318d;
+  }
+}
+
+.clear-filters-btn {
+  width: calc(100% - 40px);
+  padding: 12px;
+  background: linear-gradient(135deg, #ed1370 0%, #ff4d94 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.85em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  margin: 20px;
+  box-shadow: 0 4px 12px rgba(237, 19, 112, 0.3);
+  
+  ion-icon {
+    font-size: 18px;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(237, 19, 112, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ==========================================
+// 📦 CONTENIDO DE PRODUCTOS
+// ==========================================
+
+.products-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  min-height: 400px;
+}
+
+.results-info {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  
+  p {
+    font-family: var(--font-secondary);
+    font-size: 0.95em;
+    color: #495057;
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+// Modificar el grid de productos a 3 columnas
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 25px;
+}
+
+// ==========================================
+// 📄 PAGINACIÓN
+// ==========================================
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 3px solid #e9ecef;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 3px solid #e9ecef;
+}
+
+.pagination-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 2px solid #27318d;
+  background: white;
+  color: #27318d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  ion-icon {
+    font-size: 20px;
+  }
+  
+  &:hover:not(:disabled) {
+    background: #27318d;
+    color: white;
+    transform: scale(1.05);
+  }
+  
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: #dee2e6;
+    color: #dee2e6;
+  }
+}
+
+.pagination-number {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: transparent;
+  color: #495057;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(.active):not(.dots) {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
+    color: white;
+    border-color: #27318d;
+    box-shadow: 0 4px 12px rgba(39, 49, 141, 0.3);
+  }
+  
+  &.dots {
+    cursor: default;
+    border: none;
+    
+    &:hover {
+      background: transparent;
+    }
+  }
+}
+
+// ==========================================
+// 📱 RESPONSIVE DESIGN
+// ==========================================
+
+// Tablet (768px - 1199px)
+@media (max-width: 1199px) {
+  .products-layout {
+    grid-template-columns: 260px 1fr;
+    gap: 25px;
+  }
+  
+  .filters-sidebar {
+    padding: 20px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+// Tablet pequeña / Mobile grande (481px - 767px)
+@media (max-width: 767px) {
+  .products-main-section {
+    padding: 35px 15px 50px;
+  }
+  
+  .products-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .filters-sidebar {
+    position: static;
+    padding: 18px;
+  }
+  
+  .filter-group {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+  }
+  
+  .filter-title {
+    font-size: 0.95em;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+  
+  .filter-option {
+    padding: 8px 10px;
+  }
+  
+  .filter-label {
+    font-size: 0.85em;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+  
+  .pagination {
+    padding: 12px 15px;
+    gap: 6px;
+  }
+  
+  .pagination-btn,
+  .pagination-number {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+// Mobile (hasta 480px)
+@media (max-width: 480px) {
+  .products-main-section {
+    padding: 30px 12px 40px;
+  }
+  
+  .filters-sidebar {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .filter-group {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+  }
+  
+  .filter-title {
+    font-size: 0.9em;
+    margin-bottom: 12px;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+  
+  .filter-options {
+    gap: 10px;
+  }
+  
+  .filter-option {
+    padding: 8px;
+  }
+  
+  .checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+    
+    &::after {
+      font-size: 12px;
+    }
+  }
+  
+  .filter-label {
+    font-size: 0.8em;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+  
+  .clear-filters-btn {
+    padding: 12px;
+    font-size: 0.85em;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+  
+  .results-info {
+    padding: 12px 15px;
+    
+    p {
+      font-size: 0.85em;
+    }
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .pagination-container {
+    margin-top: 30px;
+    padding-top: 20px;
+  }
+  
+  .pagination {
+    padding: 10px 12px;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .pagination-btn,
+  .pagination-number {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 0.85em;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+  }
 }
 
 // ========================================
@@ -384,7 +912,7 @@ ion-content {
 
 // ===== PRODUCT INFO =====
 .product-info {
-  padding: 28px;
+  padding: 20px;
   background: white;
   position: relative;
 }
@@ -394,14 +922,14 @@ ion-content {
   align-items: center;
   background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%);
   color: white;
-  padding: 8px 16px;
+  padding: 8px;
   border-radius: 10px;
   font-family: var(--font-primary);
   font-weight: 700;
   font-size: 0.7em;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   box-shadow: 0 4px 12px rgba(39, 49, 141, 0.3);
   transition: all 0.3s ease;
   position: relative;
@@ -423,7 +951,7 @@ ion-content {
   font-weight: 800;
   font-size: 1.35em;
   color: #212529;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   line-height: 1.3;
@@ -462,7 +990,7 @@ ion-content {
   font-size: 0.9em;
   color: #6c757d;
   line-height: 1.7;
-  margin: 0 0 16px 0;
+  margin: 0 0 10px 0;
   min-height: 3.4em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -474,9 +1002,9 @@ ion-content {
 .product-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   margin-bottom: 16px;
-  padding: 14px 16px;
+  padding: 10px;
   background: linear-gradient(135deg, rgba(237, 19, 112, 0.05) 0%, rgba(237, 19, 112, 0.02) 100%);
   border-left: 4px solid #ed1370;
   border-radius: 0 10px 10px 0;
@@ -501,9 +1029,8 @@ ion-content {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 10px;
   gap: 15px;
-  padding-top: 20px;
-  margin-top: 16px;
   border-top: 3px solid #e9ecef;
   position: relative;
 }
@@ -530,7 +1057,6 @@ ion-content {
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
-  transform: translateY(10px);
   opacity: 1;
   
   // Efecto de onda al hover
@@ -570,14 +1096,6 @@ ion-content {
       width: 300px;
       height: 300px;
     }
-    
-    .btn-icon ion-icon {
-      transform: scale(1.2) rotate(15deg);
-    }
-  }
-  
-  &:active {
-    transform: translateY(0) scale(0.98);
   }
 }
 
@@ -1411,8 +1929,8 @@ bottom: 0;
 }
 
 .preview-image {
-  width: 100%;
-  height: 400px;
+  width: 400px;
+  height: auto;
   border-radius: 16px;
   overflow: hidden;
   background: white;
@@ -2098,6 +2616,7 @@ bottom: 0;
   }
   
   .preview-image {
+    width: auto;
     height: 300px;
   }
   
@@ -2289,6 +2808,7 @@ bottom: 0;
   }
   
   .preview-image {
+    width: 310px;
     height: 250px;
   }
   

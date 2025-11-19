@@ -1,97 +1,328 @@
+<ion-content [fullscreen]="true">
 <app-header></app-header>
 
-<ion-content [fullscreen]="true">
-  <div class="products-hero">
+  <!-- SECCIÓN HERO -->
+  <section class="products-hero">
     <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="fast-food-outline"></ion-icon>
+      </div>
       <h1>Alimentos</h1>
       <p>Snacks, salsas y productos de dulcería mexicana</p>
     </div>
-  </div>
+  </section>
 
-  <!-- SECCIÓN PRINCIPAL DE PRODUCTOS -->
-  <section class="products-section ion-padding">
+  <!-- SECCIÓN PRINCIPAL CON FILTROS Y PRODUCTOS -->
+  <section class="products-main-section ion-padding">
     
-    <!-- Indicador de carga -->
-    <div *ngIf="loading" class="loading-container">
-      <div class="loading-wrapper">
-        <ion-spinner name="crescent" color="primary"></ion-spinner>
-        <p>Cargando productos...</p>
-        <p style="font-size: 0.85em; color: #6c757d; margin-top: 8px;">
-          Si esto tarda mucho, verifica tu conexión
-        </p>
-      </div>
-    </div>
-
-    <!-- Mensaje si no hay productos -->
-    <div *ngIf="!loading && products.length === 0" class="no-products">
-      <div class="empty-state">
-        <ion-icon name="cube-outline"></ion-icon>
-        <h3>No hay productos disponibles</h3>
-        <p>Pronto tendremos nuevas bolsas para ti</p>
-        <button 
-          class="retry-btn" 
-          (click)="loadProducts()"
-          style="margin-top: 20px; padding: 12px 24px; background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
-          <ion-icon name="refresh-outline" style="margin-right: 8px;"></ion-icon>
-          Reintentar
-        </button>
-      </div>
-    </div>
-
-    <!-- GRID DE PRODUCTOS -->
-    <div class="products-container" *ngIf="products && products.length > 0">
-      <div class="products-grid">
+    <div class="products-layout">
+      
+      <!-- 📋 COLUMNA DE FILTROS -->
+      <aside class="filters-sidebar">
         
-        <div class="product-card" *ngFor="let product of products; let i = index; trackBy: trackByProductId" [style.animation-delay]="(i * 50) + 'ms'">
-          <div class="card-inner">
+        <!-- FILTRO POR SUBCATEGORÍA -->
+        <div class="filter-group" *ngIf="subcategorias.length > 0">
+          <h3 class="filter-title" (click)="toggleFilterSection('subcategorias')">
+            <ion-icon name="layers-outline"></ion-icon>
+            <span>Subcategorías</span>
+            <ion-icon 
+              [name]="filterSectionsOpen.subcategorias ? 'chevron-up-outline' : 'chevron-down-outline'" 
+              class="chevron-icon">
+            </ion-icon>
+          </h3>
+          <div class="filter-options" [class.open]="filterSectionsOpen.subcategorias">
+            <label class="filter-option" *ngFor="let subcategoria of subcategorias">
+              <input 
+                type="checkbox" 
+                [value]="subcategoria"
+                (change)="toggleFilter('subcategoria', subcategoria)"
+                [checked]="selectedFilters.subcategorias.includes(subcategoria)">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">{{ subcategoria }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- FILTRO POR MARCA -->
+        <div class="filter-group" *ngIf="marcas.length > 0">
+          <h3 class="filter-title" (click)="toggleFilterSection('marcas')">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            <span>Marcas</span>
+            <ion-icon 
+              [name]="filterSectionsOpen.marcas ? 'chevron-up-outline' : 'chevron-down-outline'" 
+              class="chevron-icon">
+            </ion-icon>
+          </h3>
+          <div class="filter-options" [class.open]="filterSectionsOpen.marcas">
+            <label class="filter-option" *ngFor="let marca of marcas">
+              <input 
+                type="checkbox" 
+                [value]="marca"
+                (change)="toggleFilter('marca', marca)"
+                [checked]="selectedFilters.marcas.includes(marca)">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">{{ marca }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- FILTRO POR MATERIAL -->
+        <div class="filter-group" *ngIf="materiales.length > 0">
+          <h3 class="filter-title" (click)="toggleFilterSection('materiales')">
+            <ion-icon name="albums-outline"></ion-icon>
+            <span>Material</span>
+            <ion-icon 
+              [name]="filterSectionsOpen.materiales ? 'chevron-up-outline' : 'chevron-down-outline'" 
+              class="chevron-icon">
+            </ion-icon>
+          </h3>
+          <div class="filter-options" [class.open]="filterSectionsOpen.materiales">
+            <label class="filter-option" *ngFor="let material of materiales">
+              <input 
+                type="checkbox" 
+                [value]="material"
+                (change)="toggleFilter('material', material)"
+                [checked]="selectedFilters.materiales.includes(material)">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">{{ material }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- FILTRO POR COLOR -->
+        <div class="filter-group" *ngIf="colores.length > 0">
+          <h3 class="filter-title" (click)="toggleFilterSection('colores')">
+            <ion-icon name="color-palette-outline"></ion-icon>
+            <span>Color</span>
+            <ion-icon 
+              [name]="filterSectionsOpen.colores ? 'chevron-up-outline' : 'chevron-down-outline'" 
+              class="chevron-icon">
+            </ion-icon>
+          </h3>
+          <div class="filter-options" [class.open]="filterSectionsOpen.colores">
+            <label class="filter-option" *ngFor="let color of colores">
+              <input 
+                type="checkbox" 
+                [value]="color"
+                (change)="toggleFilter('color', color)"
+                [checked]="selectedFilters.colores.includes(color)">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">{{ color }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- FILTRO POR MEDIDA -->
+        <div class="filter-group" *ngIf="medidas.length > 0">
+          <h3 class="filter-title" (click)="toggleFilterSection('medidas')">
+            <ion-icon name="resize-outline"></ion-icon>
+            <span>Medidas/Tamaños</span>
+            <ion-icon 
+              [name]="filterSectionsOpen.medidas ? 'chevron-up-outline' : 'chevron-down-outline'" 
+              class="chevron-icon">
+            </ion-icon>
+          </h3>
+          <div class="filter-options" [class.open]="filterSectionsOpen.medidas">
+            <label class="filter-option" *ngFor="let medida of medidas">
+              <input 
+                type="checkbox" 
+                [value]="medida"
+                (change)="toggleFilter('medida', medida)"
+                [checked]="selectedFilters.medidas.includes(medida)">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">{{ medida }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- CARACTERÍSTICAS ESPECIALES -->
+        <div class="filter-group">
+          <h3 class="filter-title" (click)="toggleFilterSection('caracteristicas')">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>Características</span>
+            <ion-icon 
+              [name]="filterSectionsOpen.caracteristicas ? 'chevron-up-outline' : 'chevron-down-outline'" 
+              class="chevron-icon">
+            </ion-icon>
+          </h3>
+          <div class="filter-options" [class.open]="filterSectionsOpen.caracteristicas">
+            <label class="filter-option">
+              <input 
+                type="checkbox"
+                (change)="toggleFilter('caracteristica', 'biodegradable')"
+                [checked]="selectedFilters.caracteristicas.includes('biodegradable')">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">
+                <ion-icon name="leaf-outline"></ion-icon>
+                Biodegradable
+              </span>
+            </label>
             
-            <!-- Imagen del producto -->
-            <div class="product-image">
-              <img 
-                [src]="product.imagen || 'assets/img/placeholder.png'" 
-                [alt]="product.nombre"
-                (error)="$event.target.src='assets/img/placeholder.png'"
-              >
-            </div>
+            <label class="filter-option">
+              <input 
+                type="checkbox"
+                (change)="toggleFilter('caracteristica', 'aptoMicroondas')"
+                [checked]="selectedFilters.caracteristicas.includes('aptoMicroondas')">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">
+                <ion-icon name="radio-outline"></ion-icon>
+                Apto Microondas
+              </span>
+            </label>
+            
+            <label class="filter-option">
+              <input 
+                type="checkbox"
+                (change)="toggleFilter('caracteristica', 'aptoCongelador')"
+                [checked]="selectedFilters.caracteristicas.includes('aptoCongelador')">
+              <span class="checkbox-custom"></span>
+              <span class="filter-label">
+                <ion-icon name="snow-outline"></ion-icon>
+                Apto Congelador
+              </span>
+            </label>
+          </div>
+        </div>
 
-            <!-- Información del producto -->
-            <div class="product-info">
-              
-              <!-- Categoría -->
-              <div>
-                <span class="product-category" *ngIf="product.categoria">
-                  {{ product.categoria }}
-                </span>
+        <!-- BOTÓN LIMPIAR FILTROS -->
+        <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="hasActiveFilters()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          Limpiar Filtros
+        </button>
+        
+      </aside>
+
+      <!-- 📦 COLUMNA DE PRODUCTOS -->
+      <div class="products-content">
+        
+        <!-- Indicador de carga -->
+        <div *ngIf="loading" class="loading-container">
+          <div class="loading-wrapper">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p>Cargando productos de alimentos...</p>
+            <p style="font-size: 0.85em; color: #6c757d; margin-top: 8px;">
+              Si esto tarda mucho, verifica tu conexión
+            </p>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay productos -->
+        <div *ngIf="!loading && paginatedProducts.length === 0" class="no-products">
+          <div class="empty-state">
+            <ion-icon name="fast-food-outline"></ion-icon>
+            <h3>No hay productos disponibles</h3>
+            <p>Intenta ajustar los filtros o recargar la página</p>
+            <button 
+              class="retry-btn" 
+              (click)="clearFilters()"
+              style="margin-top: 20px; padding: 12px 24px; background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
+              <ion-icon name="refresh-outline" style="margin-right: 8px;"></ion-icon>
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+
+        <!-- Información de resultados -->
+        <div class="results-info" *ngIf="!loading && filteredProducts.length > 0">
+          <p>
+            Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+            {{ Math.min(currentPage * itemsPerPage, filteredProducts.length) }} 
+            de {{ filteredProducts.length }} productos
+          </p>
+        </div>
+
+        <!-- GRID DE PRODUCTOS - 3 COLUMNAS -->
+        <div class="products-container" *ngIf="paginatedProducts && paginatedProducts.length > 0">
+          <div class="products-grid">
+            
+            <div class="product-card" *ngFor="let product of paginatedProducts; let i = index; trackBy: trackByProductId" [style.animation-delay]="(i * 50) + 'ms'">
+              <div class="card-inner">
+                
+                <!-- Imagen del producto -->
+                <div class="product-image">
+                  <img 
+                    [src]="product.imagen || 'assets/img/placeholder.png'" 
+                    [alt]="product.nombre"
+                    (error)="$event.target.src='assets/img/placeholder.png'"
+                  >
+                </div>
+
+                <!-- Información del producto -->
+                <div class="product-info">
+                  
+                  <!-- Subcategoría -->
+                  <div>
+                    <span class="product-category" *ngIf="product.subcategoria">
+                      {{ product.subcategoria }}
+                    </span>
+                  </div>
+
+                  <!-- Nombre -->
+                  <h3 class="product-name">{{ product.nombre }}</h3>
+
+                  <!-- Descripción -->
+                  <p class="product-description">{{ product.descripcion }}</p>
+
+                  <!-- Marca -->
+                  <div class="product-brand" *ngIf="product.marca">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                    <span>{{ product.marca }}</span>
+                  </div>
+
+                  <!-- Footer con botón -->
+                  <div class="product-footer">
+                    <button class="view-product-btn" (click)="viewProduct(product)">
+                      <span class="btn-icon">
+                        <ion-icon name="eye-outline"></ion-icon>
+                      </span>
+                      <span class="btn-text">Ver detalles</span>
+                    </button>
+                  </div>
+
+                </div>
+
               </div>
-
-              <!-- Nombre -->
-              <h3 class="product-name">{{ product.nombre }}</h3>
-
-              <!-- Descripción -->
-              <p class="product-description">{{ product.descripcion }}</p>
-
-              <!-- Marca -->
-              <div class="product-brand" *ngIf="product.marca">
-                <ion-icon name="ribbon-outline"></ion-icon>
-                <span>{{ product.marca }}</span>
-              </div>
-
-              <!-- Footer con botón -->
-              <div class="product-footer">
-                <button class="view-product-btn" (click)="viewProduct(product)">
-                  <span class="btn-icon">
-                    <ion-icon name="eye-outline"></ion-icon>
-                  </span>
-                  <span class="btn-text">Ver detalles</span>
-                </button>
-              </div>
-
             </div>
 
           </div>
         </div>
 
+        <!-- 📄 PAGINACIÓN -->
+        <div class="pagination-container" *ngIf="!loading && filteredProducts.length > 0">
+          <div class="pagination">
+            
+            <!-- Botón Anterior -->
+            <button 
+              class="pagination-btn" 
+              [disabled]="currentPage === 1"
+              (click)="goToPage(currentPage - 1)">
+              <ion-icon name="chevron-back-outline"></ion-icon>
+            </button>
+
+            <!-- Números de página -->
+            <button 
+              *ngFor="let page of getPageNumbers()"
+              class="pagination-number"
+              [class.active]="page === currentPage"
+              [class.dots]="page === '...'"
+              [disabled]="page === '...'"
+              (click)="page !== '...' && goToPage(page)">
+              {{ page }}
+            </button>
+
+            <!-- Botón Siguiente -->
+            <button 
+              class="pagination-btn" 
+              [disabled]="currentPage === totalPages"
+              (click)="goToPage(currentPage + 1)">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+            
+          </div>
+        </div>
+
       </div>
+
     </div>
 
   </section>
@@ -105,7 +336,7 @@
         <div class="modal-header-custom">
           <div class="header-left">
             <div class="header-icon">
-              <ion-icon name="cube-outline"></ion-icon>
+              <ion-icon name="fast-food-outline"></ion-icon>
             </div>
             <div class="header-text">
               <h2>Detalles del Producto</h2>
@@ -198,7 +429,7 @@
                       <ion-icon name="resize-outline"></ion-icon>
                     </div>
                     <div class="spec-content">
-                      <span class="spec-label">Medida</span>
+                      <span class="spec-label">Tamaño</span>
                       <span class="spec-value">{{ selectedProduct.medida }}</span>
                     </div>
                   </div>
@@ -370,5 +601,6 @@
       </div>
     </div>
   </div>
+
   <app-footer></app-footer>
 </ion-content>

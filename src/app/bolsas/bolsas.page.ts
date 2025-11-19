@@ -1,5 +1,5 @@
 // ==========================================
-// 📄 bolsas.page.ts - PÁGINA DE BOLSAS
+// 📄 bolsas.page.ts - PÁGINA DE BOLSAS CON FILTROS
 // ==========================================
 
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
@@ -47,7 +47,13 @@ import {
   snowOutline,
   bulbOutline,
   layersOutline,
-  documentTextOutline
+  documentTextOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  appsOutline,
+  closeCircleOutline,
+  chevronUpOutline,
+  bagHandleOutline
 } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
@@ -78,11 +84,59 @@ import { Router } from '@angular/router';
   ]
 })
 export class BolsasPage implements OnInit, AfterViewInit {
+  // =============================
+  // 📦 PRODUCTOS
+  // =============================
   products: Producto[] = [];
+  filteredProducts: Producto[] = [];
+  paginatedProducts: Producto[] = [];
   loading = true;
   cartCount = 0;
   
-  // Para el modal de detalles
+  // =============================
+  // 📄 PAGINACIÓN
+  // =============================
+  currentPage = 1;
+  itemsPerPage = 18;
+  totalPages = 1;
+  Math = Math;
+  
+  // =============================
+  // 🔍 FILTROS DISPONIBLES
+  // =============================
+  subcategorias: string[] = [];
+  marcas: string[] = [];
+  materiales: string[] = [];
+  colores: string[] = [];
+  medidas: string[] = [];
+  
+  // =============================
+  // ✅ FILTROS SELECCIONADOS
+  // =============================
+  selectedFilters = {
+    subcategorias: [] as string[],
+    marcas: [] as string[],
+    materiales: [] as string[],
+    colores: [] as string[],
+    medidas: [] as string[],
+    caracteristicas: [] as string[]
+  };
+
+  // =============================
+  // 🎯 CONTROL DE SECCIONES
+  // =============================
+  filterSectionsOpen = {
+    subcategorias: true,
+    marcas: false,
+    materiales: false,
+    colores: false,
+    medidas: false,
+    caracteristicas: false
+  };
+  
+  // =============================
+  // 🛍️ MODAL DE PRODUCTO
+  // =============================
   isModalOpen = false;
   selectedProduct: Producto | null = null;
   quantity = 1;
@@ -130,7 +184,13 @@ export class BolsasPage implements OnInit, AfterViewInit {
       radioOutline,
       snowOutline,
       bulbOutline,
-      layersOutline
+      layersOutline,
+      chevronBackOutline,
+      chevronForwardOutline,
+      appsOutline,
+      closeCircleOutline,
+      chevronUpOutline,
+      bagHandleOutline
     });
   }
 
@@ -148,25 +208,20 @@ export class BolsasPage implements OnInit, AfterViewInit {
   }
 
   private setupScrollReveal() {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
-    };
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
         }
       });
-    }, observerOptions);
-
-    document.querySelectorAll('.reveal').forEach((element) => {
-      observer.observe(element);
-    });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   }
 
+  // =============================
+  // 📦 CARGA DE PRODUCTOS
+  // =============================
   loadProducts() {
     console.log('📄 Iniciando carga de bolsas...');
     this.loading = true;
@@ -176,7 +231,7 @@ export class BolsasPage implements OnInit, AfterViewInit {
       console.warn('⚠️ Timeout de carga alcanzado');
       this.loading = false;
       this.cdr.detectChanges();
-      this.showToast('La carga está tardando más de lo esperado. Verifica tu conexión.', 'warning');
+      this.showToast('⚠️ La carga está tardando más de lo esperado', 'warning');
     }, 10000);
     
     this.productosService.getProductos().subscribe({
@@ -193,6 +248,9 @@ export class BolsasPage implements OnInit, AfterViewInit {
         );
         
         console.log('🛍️ Bolsas filtradas:', this.products.length);
+        
+        this.extractFilters();
+        this.applyFilters();
         this.loading = false;
         this.cdr.detectChanges();
         
@@ -206,7 +264,7 @@ export class BolsasPage implements OnInit, AfterViewInit {
         this.loading = false;
         this.products = [];
         this.cdr.detectChanges();
-        this.showToast('Error al cargar productos. Por favor, intenta de nuevo.', 'danger');
+        this.showToast('❌ Error al cargar productos', 'danger');
       },
       complete: () => {
         clearTimeout(timeoutId);
@@ -214,6 +272,260 @@ export class BolsasPage implements OnInit, AfterViewInit {
       }
     });
   }
+
+  // ==========================================
+  // 🔍 MÉTODOS DE FILTROS
+  // ==========================================
+  toggleFilter(filterType: string, value: string) {
+    console.log('🔄 Toggle filter:', filterType, value);
+    
+    switch(filterType) {
+      case 'subcategoria':
+        this.toggleArrayValue(this.selectedFilters.subcategorias, value);
+        break;
+      case 'marca':
+        this.toggleArrayValue(this.selectedFilters.marcas, value);
+        break;
+      case 'material':
+        this.toggleArrayValue(this.selectedFilters.materiales, value);
+        break;
+      case 'color':
+        this.toggleArrayValue(this.selectedFilters.colores, value);
+        break;
+      case 'medida':
+        this.toggleArrayValue(this.selectedFilters.medidas, value);
+        break;
+      case 'caracteristica':
+        this.toggleArrayValue(this.selectedFilters.caracteristicas, value);
+        break;
+    }
+    
+    this.currentPage = 1; // Resetear a página 1
+    this.applyFilters();
+  }
+
+  extractFilters() {
+    // Extraer subcategorías únicas
+    this.subcategorias = [...new Set(
+      this.products
+        .map(p => p.subcategoria)
+        .filter((s): s is string => s !== undefined && s !== null && s.trim() !== '')
+    )].sort();
+
+    // Extraer marcas únicas
+    this.marcas = [...new Set(
+      this.products
+        .map(p => p.marca)
+        .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
+    )].sort();
+
+    // Extraer materiales únicos
+    this.materiales = [...new Set(
+      this.products
+        .map(p => p.material)
+        .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
+    )].sort();
+
+    // Extraer colores únicos
+    this.colores = [...new Set(
+      this.products
+        .map(p => p.color)
+        .filter((c): c is string => c !== undefined && c !== null && c.trim() !== '')
+    )].sort();
+
+    // Extraer medidas únicas
+    this.medidas = [...new Set(
+      this.products
+        .map(p => p.medida)
+        .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
+    )].sort();
+
+    console.log('🎨 Filtros extraídos para bolsas:', {
+      subcategorias: this.subcategorias,
+      marcas: this.marcas,
+      materiales: this.materiales,
+      colores: this.colores,
+      medidas: this.medidas
+    });
+  }
+
+  toggleFilterSection(section: string) {
+    this.filterSectionsOpen[section as keyof typeof this.filterSectionsOpen] = 
+      !this.filterSectionsOpen[section as keyof typeof this.filterSectionsOpen];
+  }
+
+  toggleArrayValue(array: string[], value: string) {
+    const index = array.indexOf(value);
+    if (index > -1) {
+      array.splice(index, 1);
+    } else {
+      array.push(value);
+    }
+  }
+
+  applyFilters() {
+    console.log('🔍 Aplicando filtros...', this.selectedFilters);
+    
+    this.filteredProducts = this.products.filter(product => {
+      // Filtro por subcategoría
+      if (this.selectedFilters.subcategorias.length > 0) {
+        if (!product.subcategoria || !this.selectedFilters.subcategorias.includes(product.subcategoria)) {
+          return false;
+        }
+      }
+      
+      // Filtro por marca
+      if (this.selectedFilters.marcas.length > 0) {
+        if (!product.marca || !this.selectedFilters.marcas.includes(product.marca)) {
+          return false;
+        }
+      }
+      
+      // Filtro por material
+      if (this.selectedFilters.materiales.length > 0) {
+        if (!product.material || !this.selectedFilters.materiales.includes(product.material)) {
+          return false;
+        }
+      }
+      
+      // Filtro por color
+      if (this.selectedFilters.colores.length > 0) {
+        if (!product.color || !this.selectedFilters.colores.includes(product.color)) {
+          return false;
+        }
+      }
+      
+      // Filtro por medida
+      if (this.selectedFilters.medidas.length > 0) {
+        if (!product.medida || !this.selectedFilters.medidas.includes(product.medida)) {
+          return false;
+        }
+      }
+      
+      // Filtro por características especiales
+      if (this.selectedFilters.caracteristicas.length > 0) {
+        for (const caracteristica of this.selectedFilters.caracteristicas) {
+          if (caracteristica === 'biodegradable' && !product.biodegradable) return false;
+          if (caracteristica === 'aptoMicroondas' && !product.aptoMicroondas) return false;
+          if (caracteristica === 'aptoCongelador' && !product.aptoCongelador) return false;
+        }
+      }
+      
+      return true;
+    });
+    
+    console.log('📊 Bolsas filtradas:', this.filteredProducts.length);
+    
+    this.calculatePagination();
+    this.updatePaginatedProducts();
+  }
+
+  clearFilters() {
+    console.log('🧹 Limpiando filtros...');
+    this.selectedFilters = {
+      subcategorias: [],
+      marcas: [],
+      materiales: [],
+      colores: [],
+      medidas: [],
+      caracteristicas: []
+    };
+    this.currentPage = 1;
+    this.applyFilters();
+    this.showToast('🧹 Filtros eliminados', 'success');
+  }
+
+  hasActiveFilters(): boolean {
+    return this.selectedFilters.subcategorias.length > 0 ||
+           this.selectedFilters.marcas.length > 0 ||
+           this.selectedFilters.materiales.length > 0 ||
+           this.selectedFilters.colores.length > 0 ||
+           this.selectedFilters.medidas.length > 0 ||
+           this.selectedFilters.caracteristicas.length > 0;
+  }
+
+  // ==========================================
+  // 📄 MÉTODOS DE PAGINACIÓN
+  // ==========================================
+
+  calculatePagination() {
+    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+    console.log('📄 Total de páginas:', this.totalPages);
+  }
+
+  updatePaginatedProducts() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+    
+    console.log('📄 Productos paginados:', {
+      page: this.currentPage,
+      startIndex,
+      endIndex,
+      count: this.paginatedProducts.length
+    });
+    
+    // ⭐ Scroll hacia el inicio de la sección de productos
+    setTimeout(() => {
+      const productsContent = document.querySelector('.products-content');
+      if (productsContent) {
+        productsContent.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }, 200);
+  }
+
+  goToPage(page: number | string) {
+    if (typeof page === 'string') return;
+    
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedProducts();
+    }
+  }
+
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5; // Máximo de números visibles
+    
+    if (this.totalPages <= maxVisible + 2) {
+      // Mostrar todos los números
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Mostrar con puntos suspensivos
+      pages.push(1);
+      
+      if (this.currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(this.totalPages);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        pages.push('...');
+        for (let i = this.totalPages - 3; i <= this.totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push('...');
+        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  // ==========================================
+  // 🛒 MÉTODOS DE PRODUCTO Y CARRITO
+  // ==========================================
 
   trackByProductId(index: number, product: Producto): number {
     return index;
@@ -294,7 +606,7 @@ export class BolsasPage implements OnInit, AfterViewInit {
     if (!this.selectedProduct) return;
 
     if (!this.selectedModalidadObj) {
-      this.showToast('Por favor selecciona una modalidad.', 'warning');
+      this.showToast('⚠️ Por favor selecciona una modalidad.', 'warning');
       return;
     }
 
@@ -347,7 +659,7 @@ export class BolsasPage implements OnInit, AfterViewInit {
       this.cartService.addToCart(productWithModalidad, options);
     }
 
-    this.showToast(`${this.quantity} x ${this.selectedProduct.nombre} agregado(s) al carrito`, 'success');
+    this.showToast(`✅ ${this.quantity > 1 ? this.quantity + ' productos' : 'Producto'} agregado al carrito`, 'success');
     this.closeModal();
   }
 
