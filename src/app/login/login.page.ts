@@ -20,8 +20,13 @@ import {
   IonCardContent,
   IonCardTitle,
   IonSpinner,
-  IonLabel
+  IonLabel,
+  IonIcon
 } from '@ionic/angular/standalone';
+
+// 👁️ Importar iconos necesarios
+import { addIcons } from 'ionicons';
+import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -42,7 +47,8 @@ import {
     IonCardContent,
     IonCardTitle,
     IonSpinner,
-    IonLabel
+    IonLabel,
+    IonIcon
   ],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss']
@@ -53,8 +59,19 @@ export class LoginPage {
   errorMessage = '';
   loading = false;
   showPreloader = false; // Controla la visibilidad del preloader
+  
+  // 👁️ Variable para controlar la visibilidad de la contraseña
+  showPassword = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router) {
+    // 👁️ Registrar iconos de ojo
+    addIcons({ eyeOutline, eyeOffOutline });
+  }
+
+  // 👁️ Función para mostrar/ocultar contraseña
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
 
   /** 🔐 Iniciar sesión con animación */
   async login() {
@@ -102,20 +119,19 @@ export class LoginPage {
   }
 
   async recoverPassword() {
-  if (!this.email) {
-    this.errorMessage = 'Ingresa tu correo electrónico para recuperar la contraseña.';
-    return;
-  }
+    if (!this.email) {
+      this.errorMessage = 'Ingresa tu correo electrónico para recuperar la contraseña.';
+      return;
+    }
 
-  try {
-    await this.auth.sendPasswordReset(this.email);
-    alert('Se ha enviado un enlace de recuperación a tu correo.');
-  } catch (error: any) {
-    console.error('Error al recuperar contraseña:', error);
-    this.errorMessage = 'Hubo un problema enviando el correo de recuperación.';
+    try {
+      await this.auth.sendPasswordReset(this.email);
+      alert('Se ha enviado un enlace de recuperación a tu correo.');
+    } catch (error: any) {
+      console.error('Error al recuperar contraseña:', error);
+      this.errorMessage = 'Hubo un problema enviando el correo de recuperación.';
+    }
   }
-}
-
 
   /** 🧾 Redirigir a registro */
   goToRegister() {

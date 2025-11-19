@@ -411,3 +411,141 @@ ion-content {
     --padding-bottom: 14px;
   }
 }
+
+/* 👁️ Estilos para el contenedor de contraseña con ojito */
+.password-input-wrapper {
+  position: relative;
+  
+  ion-input {
+    padding-right: 45px; // Espacio para el botón del ojo
+  }
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  
+  ion-icon {
+    font-size: 22px;
+    color: #666;
+    transition: color 0.3s ease;
+  }
+  
+  &:hover {
+    ion-icon {
+      color: #27318d;
+    }
+  }
+  
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+  
+  &:focus {
+    outline: 2px solid #27318d;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Ajuste para que el input no oculte el botón */
+.input-group {
+  margin-bottom: 20px;
+  
+  &.password-input-wrapper {
+    ion-input::part(native) {
+      padding-right: 45px;
+    }
+  }
+}
+
+/* Estilos responsive */
+@media (max-width: 576px) {
+  .toggle-password-btn {
+    right: 8px;
+    padding: 6px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+/* ✏️ ESTILOS PARA CURSOR PARPADEANTE EN INPUTS */
+
+/* Forzar que el cursor sea visible en todos los inputs */
+ion-input {
+  caret-color: #27318d; // Color del cursor (azul de tu marca)
+  
+  input {
+    caret-color: #27318d !important;
+  }
+}
+
+/* Asegurar que el native input tenga el cursor visible */
+ion-input::part(native) {
+  caret-color: #27318d !important;
+}
+
+/* Cursor para inputs de tipo texto */
+ion-input input[type="text"],
+ion-input input[type="email"],
+ion-input input[type="password"] {
+  caret-color: #27318d !important;
+}
+
+/* Animación del cursor parpadeante personalizado (opcional - solo si los estilos anteriores no funcionan) */
+@keyframes blink-caret {
+  from, to { 
+    border-right-color: transparent; 
+  }
+  50% { 
+    border-right-color: #27318d; 
+  }
+}
+
+/* Asegurar que el input tenga focus visible */
+.input-group {
+  ion-input {
+    --highlight-color: #27318d;
+    --highlight-color-focused: #27318d;
+    --highlight-color-valid: #27318d;
+    --highlight-color-invalid: #eb445a;
+    
+    &:focus-within {
+      input {
+        caret-color: #27318d !important;
+      }
+    }
+  }
+}
+
+/* Estilos específicos para cuando el input está enfocado */
+ion-input.ion-focused {
+  input {
+    caret-color: #27318d !important;
+  }
+}
+
+/* Para asegurar que funcione en todos los navegadores */
+ion-input input:focus {
+  caret-color: #27318d !important;
+  outline: none;
+}
+
+/* Hacer el cursor más visible aumentando su grosor (opcional) */
+ion-input input {
+  caret-color: #27318d !important;
+  caret-shape: bar; /* Forma de barra para el cursor */
+}

@@ -18,7 +18,12 @@ import {
   IonCardTitle,
   IonCardContent,
   IonSpinner,
+  IonIcon,
 } from '@ionic/angular/standalone';
+
+// 👁️ Importar iconos necesarios
+import { addIcons } from 'ionicons';
+import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 
 import { AuthService } from '../services/auth.service';
 
@@ -39,6 +44,7 @@ import { AuthService } from '../services/auth.service';
     IonCardTitle,
     IonCardContent,
     IonSpinner,
+    IonIcon,
   ],
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
@@ -51,7 +57,24 @@ export class RegisterPage {
   errorMessage = '';
   loading = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  // 👁️ Variables para controlar la visibilidad de las contraseñas
+  showPassword = false;
+  showConfirmPassword = false;
+
+  constructor(private auth: AuthService, private router: Router) {
+    // 👁️ Registrar iconos de ojo
+    addIcons({ eyeOutline, eyeOffOutline });
+  }
+
+  // 👁️ Función para mostrar/ocultar contraseña
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  // 👁️ Función para mostrar/ocultar confirmar contraseña
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   async register() {
     // 🧹 Limpiar espacios

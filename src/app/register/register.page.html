@@ -21,7 +21,7 @@
 
       <ion-card-content>
 
-        <!-- 🟣 Campo para el nombre (nuevo) -->
+        <!-- 🟣 Campo para el nombre -->
         <div class="input-group">
           <ion-input
             label="Nombre completo"
@@ -31,8 +31,8 @@
             placeholder="Tu nombre completo">
           </ion-input>
         </div>
-        <!-- 🟣 Fin del nuevo campo -->
 
+        <!-- 📧 Campo de email -->
         <div class="input-group">
           <ion-input
             label="Correo electrónico"
@@ -43,24 +43,40 @@
           </ion-input>
         </div>
 
-        <div class="input-group">
+        <!-- 🔐 Campo de contraseña con ojito -->
+        <div class="input-group password-input-wrapper">
           <ion-input
             label="Contraseña"
             labelPlacement="floating"
             [(ngModel)]="password"
-            type="password"
+            [type]="showPassword ? 'text' : 'password'"
             placeholder="Tu contraseña">
           </ion-input>
+          <button 
+            type="button" 
+            class="toggle-password-btn" 
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
         </div>
 
-        <div class="input-group">
+        <!-- 🔐 Campo de confirmar contraseña con ojito -->
+        <div class="input-group password-input-wrapper">
           <ion-input
             label="Confirmar contraseña"
             labelPlacement="floating"
             [(ngModel)]="confirmPassword"
-            type="password"
+            [type]="showConfirmPassword ? 'text' : 'password'"
             placeholder="Repite tu contraseña">
           </ion-input>
+          <button 
+            type="button" 
+            class="toggle-password-btn" 
+            (click)="toggleConfirmPasswordVisibility()"
+            [attr.aria-label]="showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
         </div>
 
         <ion-button 

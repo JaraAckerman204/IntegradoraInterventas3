@@ -91,6 +91,7 @@
       </ion-card-header>
 
       <ion-card-content>
+        <!-- 📧 Campo de email -->
         <div class="input-group">
           <ion-input
             label="Correo electrónico"
@@ -102,15 +103,23 @@
           </ion-input>
         </div>
 
-        <div class="input-group">
+        <!-- 🔐 Campo de contraseña con ojito -->
+        <div class="input-group password-input-wrapper">
           <ion-input
             label="Contraseña"
             labelPlacement="floating"
             [(ngModel)]="password"
-            type="password"
+            [type]="showPassword ? 'text' : 'password'"
             placeholder="Tu contraseña"
             class="custom-input">
           </ion-input>
+          <button 
+            type="button" 
+            class="toggle-password-btn" 
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
         </div>
 
         <ion-button 
@@ -127,7 +136,6 @@
             ¿Olvidaste tu contraseña?
           </ion-button>
         </div>
-
 
         <ion-text color="danger" class="error-message" *ngIf="errorMessage">
           {{ errorMessage }}
