@@ -1,13 +1,559 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>reyma</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">reyma</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<app-header></app-header>
+  <!-- SECCIÓN HERO -->
+  <section class="products-hero">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="ribbon-outline"></ion-icon>
+      </div>
+      <h1>Productos Reyma</h1>
+      <p>Descubre nuestra línea completa de productos Reyma de la más alta calidad</p>
+    </div>
+  </section>
+
+  <!-- SECCIÓN PRINCIPAL CON FILTROS Y PRODUCTOS -->
+  <section class="products-main-section ion-padding">
+    
+    <div class="products-layout">
+      
+<!-- 📋 COLUMNA DE FILTROS -->
+<aside class="filters-sidebar">
+  
+  <!-- FILTRO POR CATEGORÍA -->
+  <div class="filter-group">
+    <h3 class="filter-title" (click)="toggleFilterSection('categorias')">
+      <ion-icon name="apps-outline"></ion-icon>
+      <span>Categorías</span>
+      <ion-icon 
+        [name]="filterSectionsOpen.categorias ? 'chevron-up-outline' : 'chevron-down-outline'" 
+        class="chevron-icon">
+      </ion-icon>
+    </h3>
+    <div class="filter-options" [class.open]="filterSectionsOpen.categorias">
+      <label class="filter-option" *ngFor="let categoria of categorias">
+        <input 
+          type="checkbox" 
+          [value]="categoria"
+          (change)="toggleFilter('categoria', categoria)"
+          [checked]="selectedFilters.categorias.includes(categoria)">
+        <span class="checkbox-custom"></span>
+        <span class="filter-label">{{ categoria }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- FILTRO POR MATERIAL -->
+  <div class="filter-group" *ngIf="materiales.length > 0">
+    <h3 class="filter-title" (click)="toggleFilterSection('materiales')">
+      <ion-icon name="albums-outline"></ion-icon>
+      <span>Material</span>
+      <ion-icon 
+        [name]="filterSectionsOpen.materiales ? 'chevron-up-outline' : 'chevron-down-outline'" 
+        class="chevron-icon">
+      </ion-icon>
+    </h3>
+    <div class="filter-options" [class.open]="filterSectionsOpen.materiales">
+      <label class="filter-option" *ngFor="let material of materiales">
+        <input 
+          type="checkbox" 
+          [value]="material"
+          (change)="toggleFilter('material', material)"
+          [checked]="selectedFilters.materiales.includes(material)">
+        <span class="checkbox-custom"></span>
+        <span class="filter-label">{{ material }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- FILTRO POR COLOR -->
+  <div class="filter-group" *ngIf="colores.length > 0">
+    <h3 class="filter-title" (click)="toggleFilterSection('colores')">
+      <ion-icon name="color-palette-outline"></ion-icon>
+      <span>Color</span>
+      <ion-icon 
+        [name]="filterSectionsOpen.colores ? 'chevron-up-outline' : 'chevron-down-outline'" 
+        class="chevron-icon">
+      </ion-icon>
+    </h3>
+    <div class="filter-options" [class.open]="filterSectionsOpen.colores">
+      <label class="filter-option" *ngFor="let color of colores">
+        <input 
+          type="checkbox" 
+          [value]="color"
+          (change)="toggleFilter('color', color)"
+          [checked]="selectedFilters.colores.includes(color)">
+        <span class="checkbox-custom"></span>
+        <span class="filter-label">{{ color }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- CARACTERÍSTICAS ESPECIALES -->
+  <div class="filter-group">
+    <h3 class="filter-title" (click)="toggleFilterSection('caracteristicas')">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      <span>Características</span>
+      <ion-icon 
+        [name]="filterSectionsOpen.caracteristicas ? 'chevron-up-outline' : 'chevron-down-outline'" 
+        class="chevron-icon">
+      </ion-icon>
+    </h3>
+    <div class="filter-options" [class.open]="filterSectionsOpen.caracteristicas">
+      <label class="filter-option">
+        <input 
+          type="checkbox"
+          (change)="toggleFilter('caracteristica', 'biodegradable')"
+          [checked]="selectedFilters.caracteristicas.includes('biodegradable')">
+        <span class="checkbox-custom"></span>
+        <span class="filter-label">
+          <ion-icon name="leaf-outline"></ion-icon>
+          Biodegradable
+        </span>
+      </label>
+      
+      <label class="filter-option">
+        <input 
+          type="checkbox"
+          (change)="toggleFilter('caracteristica', 'aptoMicroondas')"
+          [checked]="selectedFilters.caracteristicas.includes('aptoMicroondas')">
+        <span class="checkbox-custom"></span>
+        <span class="filter-label">
+          <ion-icon name="radio-outline"></ion-icon>
+          Apto Microondas
+        </span>
+      </label>
+      
+      <label class="filter-option">
+        <input 
+          type="checkbox"
+          (change)="toggleFilter('caracteristica', 'aptoCongelador')"
+          [checked]="selectedFilters.caracteristicas.includes('aptoCongelador')">
+        <span class="checkbox-custom"></span>
+        <span class="filter-label">
+          <ion-icon name="snow-outline"></ion-icon>
+          Apto Congelador
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <!-- BOTÓN LIMPIAR FILTROS -->
+  <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="hasActiveFilters()">
+    <ion-icon name="close-circle-outline"></ion-icon>
+    Limpiar Filtros
+  </button>
+  
+</aside>
+
+      <!-- 📦 COLUMNA DE PRODUCTOS -->
+      <div class="products-content">
+        
+        <!-- Indicador de carga -->
+        <div *ngIf="loading" class="loading-container">
+          <div class="loading-wrapper">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p>Cargando productos Reyma...</p>
+            <p style="font-size: 0.85em; color: #6c757d; margin-top: 8px;">
+              Si esto tarda mucho, verifica tu conexión
+            </p>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay productos -->
+        <div *ngIf="!loading && paginatedProducts.length === 0" class="no-products">
+          <div class="empty-state">
+            <ion-icon name="cube-outline"></ion-icon>
+            <h3>No hay productos Reyma disponibles</h3>
+            <p>Intenta ajustar los filtros o recargar la página</p>
+            <button 
+              class="retry-btn" 
+              (click)="clearFilters()"
+              style="margin-top: 20px; padding: 12px 24px; background: linear-gradient(135deg, #27318d 0%, #4a5fc1 100%); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
+              <ion-icon name="refresh-outline" style="margin-right: 8px;"></ion-icon>
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+
+        <!-- Información de resultados -->
+        <div class="results-info" *ngIf="!loading && filteredProducts.length > 0">
+          <p>
+            Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+            {{ Math.min(currentPage * itemsPerPage, filteredProducts.length) }} 
+            de {{ filteredProducts.length }} productos Reyma
+          </p>
+        </div>
+
+        <!-- GRID DE PRODUCTOS - 3 COLUMNAS -->
+        <div class="products-container" *ngIf="paginatedProducts && paginatedProducts.length > 0">
+          <div class="products-grid">
+            
+            <div class="product-card" *ngFor="let product of paginatedProducts; let i = index; trackBy: trackByProductId" [style.animation-delay]="(i * 50) + 'ms'">
+              <div class="card-inner">
+                
+                <!-- Imagen del producto -->
+                <div class="product-image">
+                  <img 
+                    [src]="product.imagen || 'assets/img/placeholder.png'" 
+                    [alt]="product.nombre"
+                    (error)="$event.target.src='assets/img/placeholder.png'"
+                  >
+                </div>
+
+                <!-- Información del producto -->
+                <div class="product-info">
+                  
+                  <!-- Categoría -->
+                  <div>
+                    <span class="product-category" *ngIf="product.categoria">
+                      {{ product.categoria }}
+                    </span>
+                  </div>
+
+                  <!-- Nombre -->
+                  <h3 class="product-name">{{ product.nombre }}</h3>
+
+                  <!-- Descripción -->
+                  <p class="product-description">{{ product.descripcion }}</p>
+
+                  <!-- Marca -->
+                  <div class="product-brand" *ngIf="product.marca">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                    <span>{{ product.marca }}</span>
+                  </div>
+
+                  <!-- Footer con botón -->
+                  <div class="product-footer">
+                    <button class="view-product-btn" (click)="viewProduct(product)">
+                      <span class="btn-icon">
+                        <ion-icon name="eye-outline"></ion-icon>
+                      </span>
+                      <span class="btn-text">Ver detalles</span>
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 📄 PAGINACIÓN -->
+        <div class="pagination-container" *ngIf="!loading && filteredProducts.length > 0">
+          <div class="pagination">
+            
+            <!-- Botón Anterior -->
+            <button 
+              class="pagination-btn" 
+              [disabled]="currentPage === 1"
+              (click)="goToPage(currentPage - 1)">
+              <ion-icon name="chevron-back-outline"></ion-icon>
+            </button>
+
+            <!-- Números de página -->
+            <button 
+              *ngFor="let page of getPageNumbers()"
+              class="pagination-number"
+              [class.active]="page === currentPage"
+              [class.dots]="page === '...'"
+              [disabled]="page === '...'"
+              (click)="page !== '...' && goToPage(page)">
+              {{ page }}
+            </button>
+
+            <!-- Botón Siguiente -->
+            <button 
+              class="pagination-btn" 
+              [disabled]="currentPage === totalPages"
+              (click)="goToPage(currentPage + 1)">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+            
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+<!-- MODAL DE DETALLES DEL PRODUCTO -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-container product-detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <!-- 🎯 Header del Modal -->
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Detalles del Producto</h2>
+            <p>Información completa y opciones de compra</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="closeModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- 📋 Contenido del Modal -->
+      <div class="modal-body-custom">
+        <div class="product-detail-container" *ngIf="selectedProduct">
+          
+          <!-- Imagen grande del producto -->
+          <div class="detail-image-section">
+            <div class="preview-image">
+              <img 
+                [src]="selectedProduct.imagen || 'assets/img/placeholder.png'" 
+                [alt]="selectedProduct.nombre"
+                (error)="$event.target.src='assets/img/placeholder.png'">
+            </div>
+          </div>
+
+          <!-- Información detallada -->
+          <div class="detail-info-section">
+            
+            <!-- SKU -->
+            <div class="form-group-custom" *ngIf="selectedProduct.sku">
+              <label class="form-label-custom">
+                <ion-icon name="barcode-outline"></ion-icon>
+                <span>SKU</span>
+              </label>
+              <div class="detail-value">{{ selectedProduct.sku }}</div>
+            </div>
+
+            <!-- Categoría y Subcategoría -->
+            <div class="detail-badges" *ngIf="selectedProduct.categoria">
+              <span class="detail-category">
+                {{ selectedProduct.categoria }}
+              </span>
+              <span class="detail-subcategory" *ngIf="selectedProduct.subcategoria">
+                {{ selectedProduct.subcategoria }}
+              </span>
+            </div>
+
+            <!-- Nombre -->
+            <h2 class="detail-name">{{ selectedProduct.nombre }}</h2>
+
+            <!-- Marca -->
+            <div class="detail-brand" *ngIf="selectedProduct.marca">
+              <ion-icon name="ribbon-outline"></ion-icon>
+              <span>Marca: <strong>{{ selectedProduct.marca }}</strong></span>
+            </div>
+
+            <!-- ⭐ ESPECIFICACIONES TÉCNICAS -->
+            <div class="specifications-section" *ngIf="selectedProduct.material || selectedProduct.color || selectedProduct.medida || selectedProduct.cantidadPaquete">
+              <h3 class="section-title">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>Especificaciones</span>
+              </h3>
+              
+              <div class="specs-grid">
+                <!-- Material -->
+                <div class="spec-item" *ngIf="selectedProduct.material">
+                  <div class="spec-icon">
+                    <ion-icon name="albums-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Material</span>
+                    <span class="spec-value">{{ selectedProduct.material }}</span>
+                  </div>
+                </div>
+
+                <!-- Color -->
+                <div class="spec-item" *ngIf="selectedProduct.color">
+                  <div class="spec-icon">
+                    <ion-icon name="color-palette-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Color</span>
+                    <span class="spec-value">{{ selectedProduct.color }}</span>
+                  </div>
+                </div>
+
+                <!-- Medida/Capacidad -->
+                <div class="spec-item" *ngIf="selectedProduct.medida">
+                  <div class="spec-icon">
+                    <ion-icon name="resize-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Medida/Capacidad</span>
+                    <span class="spec-value">{{ selectedProduct.medida }}</span>
+                  </div>
+                </div>
+
+                <!-- Cantidad por Paquete -->
+                <div class="spec-item" *ngIf="selectedProduct.cantidadPaquete">
+                  <div class="spec-icon">
+                    <ion-icon name="cube-outline"></ion-icon>
+                  </div>
+                  <div class="spec-content">
+                    <span class="spec-label">Presentación</span>
+                    <span class="spec-value">{{ selectedProduct.cantidadPaquete }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⭐ CARACTERÍSTICAS ESPECIALES -->
+            <div class="features-section" *ngIf="selectedProduct.biodegradable || selectedProduct.aptoMicroondas || selectedProduct.aptoCongelador">
+              <h3 class="section-title">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>Características Especiales</span>
+              </h3>
+              
+              <div class="features-grid">
+                <div class="feature-badge" *ngIf="selectedProduct.biodegradable">
+                  <ion-icon name="leaf-outline"></ion-icon>
+                  <span>Biodegradable</span>
+                </div>
+                
+                <div class="feature-badge" *ngIf="selectedProduct.aptoMicroondas">
+                  <ion-icon name="radio-outline"></ion-icon>
+                  <span>Apto Microondas</span>
+                </div>
+                
+                <div class="feature-badge" *ngIf="selectedProduct.aptoCongelador">
+                  <ion-icon name="snow-outline"></ion-icon>
+                  <span>Apto Congelador</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descripción completa -->
+            <div class="detail-description" *ngIf="selectedProduct.descripcion">
+              <h3>
+                <ion-icon name="document-text-outline"></ion-icon>
+                Descripción
+              </h3>
+              <p>{{ selectedProduct.descripcion }}</p>
+            </div>
+
+            <!-- ⭐ USOS RECOMENDADOS -->
+            <div class="detail-description uses-section" *ngIf="selectedProduct.usosRecomendados">
+              <h3>
+                <ion-icon name="bulb-outline"></ion-icon>
+                Usos Recomendados
+              </h3>
+              <p>{{ selectedProduct.usosRecomendados }}</p>
+            </div>
+
+            <!-- SELECT: Modalidades (Mayoreo/Menudeo) -->
+            <div class="form-group-custom" *ngIf="selectedProduct.modalidades && selectedProduct.modalidades.length > 0">
+              <label class="form-label-custom required">
+                <ion-icon name="cart-outline"></ion-icon>
+                <span>Selecciona una Opción</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select class="custom-select-native" [(ngModel)]="selectedModalidad" (ngModelChange)="onModalidadChange()">
+                  <option value="">Elige una opción de compra</option>
+                  <option *ngFor="let modalidad of selectedProduct.modalidades" [value]="modalidad.id">
+                    {{ modalidad.modalidad }} - {{ modalidad.tamano }} - {{ modalidad.contenido }} - ${{ modalidad.precio }}
+                  </option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Información de la modalidad seleccionada -->
+            <div class="modalidad-selected-info" *ngIf="selectedModalidadObj">
+              <div class="info-card">
+                <div class="info-badge" [class.mayoreo]="selectedModalidadObj.modalidad === 'Mayoreo'" [class.menudeo]="selectedModalidadObj.modalidad === 'Menudeo'">
+                  {{ selectedModalidadObj.modalidad }}
+                </div>
+                <div class="info-details">
+                  <div class="info-row">
+                    <ion-icon name="resize-outline"></ion-icon>
+                    <span>Tamaño: <strong>{{ selectedModalidadObj.tamano }}</strong></span>
+                  </div>
+                  <div class="info-row">
+                    <ion-icon name="layers-outline"></ion-icon>
+                    <span>Contenido: <strong>{{ selectedModalidadObj.contenido }}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SELECT: Sucursales disponibles -->
+            <div class="form-group-custom" *ngIf="selectedProduct.tiendas && selectedProduct.tiendas.length > 0">
+              <label class="form-label-custom">
+                <ion-icon name="storefront-outline"></ion-icon>
+                <span>Selecciona una Sucursal</span>
+              </label>
+              <div class="input-wrapper select-custom-wrapper">
+                <select class="custom-select-native" [(ngModel)]="selectedTienda">
+                  <option value="">Elige una sucursal</option>
+                  <option *ngFor="let tienda of selectedProduct.tiendas" [value]="tienda">
+                    {{ tienda }}
+                  </option>
+                </select>
+                <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Precio y controles -->
+            <div class="detail-purchase-section">
+              
+              <div class="detail-price-container">
+                <span class="detail-price-label">
+                  Precio por unidad
+                </span>
+                <div class="price-display">
+                  <span class="detail-price">${{ getCurrentPrice() | number:'1.2-2' }}</span>
+                </div>
+              </div>
+
+              <!-- Selector de cantidad -->
+              <div class="quantity-selector">
+                <button class="quantity-btn" (click)="decrementQuantity()">
+                  <ion-icon name="remove-outline"></ion-icon>
+                </button>
+                <span class="quantity-value">{{ quantity }}</span>
+                <button class="quantity-btn" (click)="incrementQuantity()">
+                  <ion-icon name="add-outline"></ion-icon>
+                </button>
+              </div>
+
+              <!-- Total -->
+              <div class="total-section">
+                <span class="total-label">Total a pagar</span>
+                <span class="total-price">${{ getTotal() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 📘 Footer del Modal -->
+      <div class="modal-footer-custom">
+        <button 
+          type="button"
+          class="btn-submit"
+          [disabled]="!selectedModalidad"
+          (click)="addToCartFromModal()">
+          <ion-icon name="cart-outline"></ion-icon>
+          <span>Agregar al carrito</span>
+        </button>
+        
+        <button 
+          type="button"
+          class="btn-cancel"
+          (click)="closeModal()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <app-footer></app-footer>
 </ion-content>
