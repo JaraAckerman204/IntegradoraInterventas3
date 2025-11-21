@@ -28,12 +28,7 @@ export class PushService {
     onMessage(this.messaging, async (payload) => {
       console.log('📩 Notificación recibida en primer plano:', payload);
 
-      const toast = await this.toastController.create({
-        message: `${payload.notification?.title}: ${payload.notification?.body}`,
-        duration: 4000,
-        position: 'top',
-      });
-      await toast.present();
+      
     });
   }
 }

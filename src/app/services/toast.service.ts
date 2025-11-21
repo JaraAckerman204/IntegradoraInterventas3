@@ -20,7 +20,7 @@ export class ToastService {
    * @param message Mensaje a mostrar
    * @param duration Duración en ms (default: 3000)
    */
-  show(message: string, duration: number = 3000) {
+  show(message: string, duration: number = 10000000) {
     const id = this.idCounter++;
     const newToast: Toast = { id, message, duration };
     
