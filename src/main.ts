@@ -19,20 +19,27 @@ import { provideFirestore } from '@angular/fire/firestore';
 import { provideStorage } from '@angular/fire/storage';
 import { provideMessaging } from '@angular/fire/messaging';
 
+import { provideAnalytics, getAnalytics, ScreenTrackingService } from '@angular/fire/analytics';
+
 import { isDevMode } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
 
-// ✅ Configuración de Firebase
+// ==============================
+//  Firebase Config
+// ==============================
 const firebaseConfig = {
   apiKey: "AIzaSyB_XyXkGjbBD63DTU_Hfc9RlErYiz79TQI",
   authDomain: "integradorainterventas.firebaseapp.com",
   projectId: "integradorainterventas",
   storageBucket: "integradorainterventas.appspot.com",
   messagingSenderId: "710007139235",
-  appId: "1:710007139235:web:08ff0194124097f7b64816"
+  appId: "1:710007139235:web:08ff0194124097f7b64816",
+  measurementId: "G-9V9JBBFK5P" // ← AGREGA ESTO
 };
 
-// 🚀 Bootstrap principal
+// ==============================
+//  Bootstrap principal
+// ==============================
 bootstrapApplication(AppComponent, {
   providers: [
     provideIonicAngular(),
@@ -44,7 +51,15 @@ bootstrapApplication(AppComponent, {
     provideStorage(() => getStorage()),
     provideMessaging(() => getMessaging()),
 
-    // ✅ Service Worker (PWA / offline + push)
+    // ==========================
+    //  Google Analytics
+    // ==========================
+    provideAnalytics(() => getAnalytics()),
+    ScreenTrackingService,
+
+    // ==========================
+    //  Service Worker PWA
+    // ==========================
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
