@@ -1,13 +1,16 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
 import { map, filter, take } from 'rxjs';
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const toastService = inject(ToastService);
+  
+  // Obtener la ruta actual
+  const path = route.routeConfig?.path || '';
   
   return authService.currentUser$.pipe(
     filter(user => user !== undefined),
@@ -16,11 +19,21 @@ export const authGuard: CanActivateFn = () => {
       if (user && user.emailVerified) {
         return true;
       } else if (user && !user.emailVerified) {
-        toastService.show('Por favor, verifica tu correo electrónico antes de continuar');
+        toastService.show('⚠️ Por favor, verifica tu correo electrónico antes de continuar');
         router.navigate(['/verificar']);
         return false;
       } else {
-        toastService.show('No puedes entrar a tu carrito sin antes iniciar sesión');
+        // ✅ Mostrar mensaje específico según la ruta
+        if (path === 'carrito') {
+          toastService.show('🛒 Necesitas iniciar sesión para acceder al carrito');
+        } else if (path.startsWith('productos')) {
+          toastService.show('📦 Necesitas iniciar sesión para ver los productos');
+        } else if (path === 'perfil') {
+          toastService.show('👤 Necesitas iniciar sesión para ver tu perfil');
+        } else {
+          toastService.show('🔐 Necesitas iniciar sesión para acceder a esta sección');
+        }
+        
         router.navigate(['/login']);
         return false;
       }

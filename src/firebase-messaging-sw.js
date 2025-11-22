@@ -13,20 +13,20 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Mensaje recibido en segundo plano:', payload);
+  console.log('[firebase-messaging-sw.js] Mensaje recibido:', payload);
 
-  const notificationTitle = payload.notification?.title || 'Notificación';
-  const notificationOptions = {
-    body: payload.notification?.body || 'Nueva notificación',
-    icon: '/assets/icon/icon.png',
-    badge: '/assets/icon/badge.png',
-    // Esto oculta la URL "vía localhost"
-    tag: 'app-notification',
-    data: payload.data,
-    // No mostrar URL de origen
-    silent: false,
-    requireInteraction: false
-  };
+  // Solo mostrar manualmente si es un mensaje de DATOS (sin notification)
+  // Si tiene payload.notification, Firebase ya la muestra automáticamente
+  if (!payload.notification) {
+    const notificationTitle = payload.data?.title || 'Notificación';
+    const notificationOptions = {
+      body: payload.data?.body || 'Nueva notificación',
+      icon: '/assets/icon/icon.png',
+      badge: '/assets/icon/badge.png',
+      tag: 'app-notification',
+      data: payload.data
+    };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  }
 });

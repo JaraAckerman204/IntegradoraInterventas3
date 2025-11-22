@@ -1,8 +1,8 @@
 // ==========================================
-// 📄 desechables.page.ts - PÁGINA DE DESECHABLES CON FILTROS
+// 📄 desechables.page.ts - PÁGINA DE DESECHABLES CON FILTROS Y TOAST SERVICE
 // ==========================================
 
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -16,7 +16,6 @@ import {
   IonToolbar,
   IonTitle,
   IonButtons,
-  ToastController,
   ModalController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -58,6 +57,7 @@ import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 import { ProductosService, Producto } from '../services/productos.service';
 import { CartService } from '../services/cart.service';
+import { ToastService } from '../services/toast.service'; // ✅ IMPORTAR TOAST SERVICE
 import { Router } from '@angular/router';
 
 @Component({
@@ -83,6 +83,16 @@ import { Router } from '@angular/router';
   ]
 })
 export class DesechablesPage implements OnInit, AfterViewInit {
+  // =============================
+  // 🔧 SERVICIOS INYECTADOS
+  // =============================
+  private productosService = inject(ProductosService);
+  private cartService = inject(CartService);
+  private toastService = inject(ToastService); // ✅ INYECTAR TOAST SERVICE
+  private router = inject(Router);
+  private modalController = inject(ModalController);
+  private cdr = inject(ChangeDetectorRef);
+
   // =============================
   // 📦 PRODUCTOS
   // =============================
@@ -145,14 +155,7 @@ export class DesechablesPage implements OnInit, AfterViewInit {
   selectedModalidad: string = '';
   selectedModalidadObj: any = null;
 
-  constructor(
-    private productosService: ProductosService,
-    private cartService: CartService,
-    private router: Router,
-    private toastController: ToastController,
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     // Registrar todos los iconos
     addIcons({ 
       documentTextOutline,
@@ -215,10 +218,17 @@ export class DesechablesPage implements OnInit, AfterViewInit {
   }
 
   // =============================
+  // 💬 UTILIDAD - TOAST
+  // =============================
+  async mostrarToast(mensaje: string) {
+    await this.toastService.show(mensaje);
+  }
+
+  // =============================
   // 📦 CARGA DE PRODUCTOS
   // =============================
   loadProducts() {
-    console.log('📄 Iniciando carga de productos desechables...');
+    console.log('🔄 Iniciando carga de productos desechables...');
     this.loading = true;
     this.products = [];
 
@@ -226,7 +236,7 @@ export class DesechablesPage implements OnInit, AfterViewInit {
       console.warn('⚠️ Timeout de carga alcanzado');
       this.loading = false;
       this.cdr.detectChanges();
-      this.showToast('⚠️ La carga está tardando más de lo esperado', 'warning');
+      this.mostrarToast('⚠️ La carga está tardando más de lo esperado');
     }, 10000);
 
     this.productosService.getProductos().subscribe({
@@ -248,7 +258,7 @@ export class DesechablesPage implements OnInit, AfterViewInit {
         this.cdr.detectChanges();
         
         if (this.products.length === 0) {
-          this.showToast('No se encontraron productos desechables disponibles.', 'warning');
+          this.mostrarToast('ℹ️ No se encontraron productos desechables disponibles');
         }
       },
       error: (error) => {
@@ -257,7 +267,7 @@ export class DesechablesPage implements OnInit, AfterViewInit {
         this.loading = false;
         this.products = [];
         this.cdr.detectChanges();
-        this.showToast('❌ Error al cargar productos', 'danger');
+        this.mostrarToast('❌ Error al cargar productos. Por favor recarga la página');
       },
       complete: () => {
         clearTimeout(timeoutId);
@@ -406,7 +416,7 @@ export class DesechablesPage implements OnInit, AfterViewInit {
     };
     this.currentPage = 1;
     this.applyFilters();
-    this.showToast('🧹 Filtros eliminados', 'success');
+    this.mostrarToast('🧹 Filtros eliminados');
   }
 
   hasActiveFilters(): boolean {
@@ -579,7 +589,7 @@ export class DesechablesPage implements OnInit, AfterViewInit {
     if (!this.selectedProduct) return;
 
     if (!this.selectedModalidadObj) {
-      this.showToast('⚠️ Por favor selecciona una modalidad.', 'warning');
+      this.mostrarToast('⚠️ Por favor selecciona una modalidad');
       return;
     }
 
@@ -633,35 +643,22 @@ export class DesechablesPage implements OnInit, AfterViewInit {
       this.cartService.addToCart(productWithModalidad, options);
     }
 
-    this.showToast(`✅ ${this.quantity > 1 ? this.quantity + ' productos' : 'Producto'} agregado al carrito`, 'success');
+    const mensaje = this.quantity > 1 
+      ? `✅ ${this.quantity} productos agregados al carrito` 
+      : '✅ Producto agregado al carrito';
+    
+    this.mostrarToast(mensaje);
     this.closeModal();
   }
 
   addToCart(product: Producto) {
     console.log('🛒 Agregando al carrito:', product.nombre);
     this.cartService.addToCart(product);
-    this.showToast(`✅ ${product.nombre} agregado al carrito`, 'success');
+    this.mostrarToast(`✅ ${product.nombre} agregado al carrito`);
   }
 
   goToCart() {
     console.log('🛒 Navegando al carrito...');
     this.router.navigate(['/carrito']);
-  }
-
-  async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastController.create({
-      message,
-      duration: 2500,
-      position: 'bottom',
-      color,
-      cssClass: 'custom-toast',
-      buttons: [
-        {
-          text: 'OK',
-          role: 'cancel'
-        }
-      ]
-    });
-    await toast.present();
   }
 }

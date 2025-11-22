@@ -1,0 +1,484 @@
+<app-header></app-header>
+
+<ion-content [fullscreen]="true">
+  
+  <!-- ========================================
+       ✅ PANTALLA DE ÉXITO (cuando se verifica el email)
+       ======================================== -->
+  <div class="email-success-state" *ngIf="cambioExitoso">
+    
+    <!-- Ícono principal -->
+    <div class="success-icon-wrapper">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+    </div>
+    
+    <!-- Título -->
+    <h2>¡Cambio Exitoso!</h2>
+    
+    <!-- Descripción -->
+    <p>Tu correo electrónico ha sido actualizado correctamente</p>
+    
+    <!-- Mensaje adicional -->
+    <div class="success-message">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span>Por seguridad, debes iniciar sesión nuevamente con tu nuevo correo</span>
+    </div>
+    
+    <!-- Botón de acción -->
+    <button 
+      class="btn-login-again" 
+      (click)="irAlLogin()"
+      type="button">
+      <ion-icon name="log-in-outline"></ion-icon>
+      <span>Iniciar Sesión</span>
+    </button>
+    
+    <!-- Decoración opcional -->
+    <div class="success-decoration">
+      <div class="decoration-dot"></div>
+      <div class="decoration-dot"></div>
+      <div class="decoration-dot"></div>
+    </div>
+    
+  </div>
+
+  <!-- ========================================
+       📄 CONTENIDO NORMAL DEL PERFIL (cuando no hay cambio exitoso)
+       ======================================== -->
+  <div *ngIf="!cambioExitoso">
+  
+  <!-- SECCIÓN HERO PERFIL -->
+  <section class="profile-hero">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </div>
+      <h1>Mi Perfil</h1>
+      <p>Gestiona tu información personal y configuración de cuenta</p>
+    </div>
+  </section>
+
+  <!-- Banner de Verificación -->
+<div class="verification-banner" *ngIf="mostrarBannerVerificacion">
+  <div class="banner-content">
+    <div class="banner-icon">
+      <ion-icon name="mail-outline"></ion-icon>
+    </div>
+    <div class="banner-text">
+      <h3>Verificación de email pendiente</h3>
+      <p>Se envió un correo de verificación a <strong>{{ emailPendiente }}</strong></p>
+      <p class="banner-hint">Revisa tu bandeja de entrada y haz clic en el enlace para confirmar tu nuevo correo.</p>
+    </div>
+    <div class="banner-actions">
+      <button 
+        class="btn-verificar" 
+        (click)="verificarEmailManualmente()"
+        [disabled]="verificandoEmail">
+        <ion-spinner name="crescent" *ngIf="verificandoEmail"></ion-spinner>
+        <ion-icon name="refresh-outline" *ngIf="!verificandoEmail"></ion-icon>
+        <span>{{ verificandoEmail ? 'Verificando...' : 'Ya verifiqué' }}</span>
+      </button>
+      <button class="btn-cancelar-banner" (click)="cancelarCambioEmail()">
+        <ion-icon name="close-outline"></ion-icon>
+        <span>Cancelar cambio</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- SECCIÓN PRINCIPAL DE PERFIL -->
+  <section class="profile-section ion-padding">
+    <div class="profile-container">
+
+      <!-- ========================================= -->
+      <!-- COLUMNA IZQUIERDA: INFO CUENTA + INFO PERSONAL -->
+      <!-- ========================================= -->
+      <div class="left-column">
+
+<!-- INFORMACIÓN PERSONAL -->
+<div class="profile-info-card">
+  <div class="card-header">
+    <div class="card-icon personal">
+      <ion-icon name="person-outline"></ion-icon>
+    </div>
+    <div>
+      <h2>Información Personal</h2>
+      <p>Actualiza tus datos personales</p>
+    </div>
+  </div>
+
+  <div class="info-options">
+    <!-- Nombre de Usuario -->
+    <button class="info-option" (click)="abrirModalEditarNombre()">
+      <div class="option-icon name">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <div class="option-content">
+        <span class="option-label">Nombre de Usuario</span>
+        <span class="option-value">{{ displayName || 'Sin nombre' }}</span>
+      </div>
+      <ion-icon name="create-outline" class="option-arrow"></ion-icon>
+    </button>
+
+    <!-- Correo Electrónico -->
+    <button class="info-option" (click)="abrirModalEditarEmail()">
+      <div class="option-icon email">
+        <ion-icon name="mail-outline"></ion-icon>
+      </div>
+      <div class="option-content">
+        <span class="option-label">Correo Electrónico</span>
+        <span class="option-value">{{ email }}</span>
+      </div>
+      <ion-icon name="create-outline" class="option-arrow"></ion-icon>
+    </button>
+
+    <!-- Miembro desde -->
+    <div class="info-option static">
+      <div class="option-icon calendar">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </div>
+      <div class="option-content">
+        <span class="option-label">Miembro desde</span>
+        <span class="option-value">{{ formatearFecha(fechaCreacion) }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+
+      <!-- ========================================= -->
+<!-- COLUMNA DERECHA: CONFIGURACIÓN AVANZADA -->
+<!-- ========================================= -->
+<div class="right-column">
+  
+  <!-- CONFIGURACIÓN AVANZADA (UNIFICADA) -->
+  <div class="settings-card">
+    <div class="card-header">
+      <div class="card-icon settings">
+        <ion-icon name="settings-outline"></ion-icon>
+      </div>
+      <div>
+        <h3>Configuración Avanzada</h3>
+        <p>Gestiona la seguridad y configuración de tu cuenta</p>
+      </div>
+    </div>
+
+    <div class="settings-options">
+      <!-- Cambiar Contraseña -->
+      <button class="settings-option" (click)="changePassword()">
+        <div class="option-icon password">
+          <ion-icon name="key-outline"></ion-icon>
+        </div>
+        <div class="option-content">
+          <h4>Cambiar Contraseña</h4>
+          <p>Actualiza tu contraseña periódicamente</p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+      </button>
+
+      <!-- Separador -->
+      <div class="options-divider"></div>
+
+      <!-- Eliminar Cuenta -->
+      <button class="settings-option danger" (click)="confirmDeleteAccount()">
+        <div class="option-icon-danger">
+          <ion-icon name="trash-outline"></ion-icon>
+        </div>
+        <div class="option-content">
+          <h4>Eliminar Cuenta</h4>
+          <p>Eliminar permanentemente tu cuenta</p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+  
+  </div>
+
+</ion-content>
+
+<!-- ========================================= -->
+<!-- MODAL CAMBIAR CONTRASEÑA -->
+<!-- ========================================= -->
+<div class="modal-overlay" *ngIf="mostrarModalCambiarPassword" (click)="cerrarModalCambiarPassword()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="key-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Cambiar Contraseña</h2>
+            <p>Se enviará un correo para restablecer tu contraseña</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalCambiarPassword()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="confirm-message">
+          <ion-icon name="mail-outline"></ion-icon>
+          <p>¿Deseas recibir un correo para restablecer tu contraseña?</p>
+        </div>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button class="btn-submit" (click)="confirmarCambioPassword()">
+          <ion-icon name="send-outline"></ion-icon>
+          <span>Enviar</span>
+        </button>
+        <button class="btn-cancel" (click)="cerrarModalCambiarPassword()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================================= -->
+<!-- MODAL ELIMINAR CUENTA -->
+<!-- ========================================= -->
+<div class="modal-overlay" *ngIf="mostrarModalEliminarCuenta" (click)="cerrarModalEliminarCuenta()">
+  <div class="modal-container delete-modal" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <div class="modal-header-custom danger-header">
+        <div class="header-left">
+          <div class="header-icon danger">
+            <ion-icon name="warning-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Eliminar Cuenta</h2>
+            <p>Esta acción es permanente e irreversible</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalEliminarCuenta()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="delete-warning">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <div>
+            <p><strong>¿Estás seguro de que deseas eliminar tu cuenta?</strong></p>
+            <p>Se eliminarán todos tus datos permanentemente y no podrás recuperarlos.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button class="btn-delete" (click)="solicitarPasswordEliminacion()">
+          <ion-icon name="trash-outline"></ion-icon>
+          <span>Eliminar</span>
+        </button>
+        <button class="btn-cancel" (click)="cerrarModalEliminarCuenta()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================================= -->
+<!-- MODAL CONFIRMAR IDENTIDAD (PASSWORD) -->
+<!-- ========================================= -->
+<div class="modal-overlay" *ngIf="mostrarModalConfirmarPassword" (click)="cerrarModalConfirmarPassword()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Confirmar Identidad</h2>
+            <p>Ingresa tu contraseña para continuar</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalConfirmarPassword()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="form-group-modal">
+          <label class="form-label-modal">
+            <ion-icon name="key-outline"></ion-icon>
+            Contraseña
+          </label>
+          <div class="input-wrapper-modal">
+<input
+  [type]="showDeletePassword ? 'text' : 'password'"
+  [(ngModel)]="passwordEliminacion"
+  name="passwordEliminacion"
+  placeholder="Ingresa tu contraseña"
+  class="input-modal">
+            <button type="button" class="toggle-password-modal" (click)="showDeletePassword = !showDeletePassword">
+              <ion-icon [name]="showDeletePassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button class="btn-delete" (click)="ejecutarEliminacionCuenta()" [disabled]="!passwordEliminacion">
+          <ion-icon name="trash-outline"></ion-icon>
+          <span>Confirmar Eliminación</span>
+        </button>
+        <button class="btn-cancel" (click)="cerrarModalConfirmarPassword()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================================= -->
+<!-- MODAL EDITAR NOMBRE -->
+<!-- ========================================= -->
+<div class="modal-overlay" *ngIf="mostrarModalEditarNombre" (click)="cerrarModalEditarNombre()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Editar Nombre</h2>
+            <p>Actualiza tu nombre de usuario</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalEditarNombre()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="form-group-modal">
+          <label class="form-label-modal">
+            <ion-icon name="person-outline"></ion-icon>
+            Nombre de Usuario
+          </label>
+          <div class="input-wrapper-modal">
+            <input
+              type="text"
+              [(ngModel)]="tempDisplayName"
+              placeholder="Ingresa tu nombre"
+              class="input-modal">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button class="btn-submit" (click)="guardarNombre()" [disabled]="!tempDisplayName?.trim() || savingName">
+          <ion-icon name="checkmark-circle-outline" *ngIf="!savingName"></ion-icon>
+          <ion-spinner name="crescent" *ngIf="savingName"></ion-spinner>
+          <span>{{ savingName ? 'Guardando...' : 'Guardar' }}</span>
+        </button>
+        <button class="btn-cancel" (click)="cerrarModalEditarNombre()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================================= -->
+<!-- MODAL EDITAR EMAIL -->
+<!-- ========================================= -->
+<div class="modal-overlay" *ngIf="mostrarModalEditarEmail" (click)="cerrarModalEditarEmail()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="mail-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Editar Correo</h2>
+            <p>Actualiza tu correo electrónico</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalEditarEmail()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="form-group-modal">
+          <label class="form-label-modal">
+            <ion-icon name="mail-outline"></ion-icon>
+            Nuevo Correo Electrónico
+          </label>
+          <div class="input-wrapper-modal">
+            <input
+              type="email"
+              [(ngModel)]="tempEmail"
+              placeholder="correo@ejemplo.com"
+              class="input-modal">
+          </div>
+        </div>
+
+        <div class="form-group-modal" style="margin-top: 16px;">
+          <label class="form-label-modal">
+            <ion-icon name="key-outline"></ion-icon>
+            Contraseña Actual
+          </label>
+          <div class="input-wrapper-modal">
+            <input
+              [type]="showEmailPassword ? 'text' : 'password'"
+              [(ngModel)]="currentPassword"
+              placeholder="Ingresa tu contraseña actual"
+              class="input-modal">
+            <button type="button" class="toggle-password-modal" (click)="showEmailPassword = !showEmailPassword">
+              <ion-icon [name]="showEmailPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="info-message">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <p>Se enviará un correo de verificación a tu nueva dirección</p>
+        </div>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button class="btn-submit" (click)="guardarEmail()" [disabled]="!tempEmail?.trim() || !currentPassword || savingEmail">
+          <ion-icon name="checkmark-circle-outline" *ngIf="!savingEmail"></ion-icon>
+          <ion-spinner name="crescent" *ngIf="savingEmail"></ion-spinner>
+          <span>{{ savingEmail ? 'Actualizando...' : 'Actualizar' }}</span>
+        </button>
+        <button class="btn-cancel" (click)="cerrarModalEditarEmail()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
