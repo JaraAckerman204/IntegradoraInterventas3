@@ -29,8 +29,8 @@ import {
 import { addIcons } from 'ionicons';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
-import { CartService } from '../../services/cart.service'; // ✅ Importar CartService
-import { Subscription } from 'rxjs'; // ✅ Para manejar suscripciones
+import { CartService } from '../../services/cart.service';
+import { Subscription } from 'rxjs';
 
 interface TooltipLetter {
   char: string;
@@ -68,7 +68,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Rol del usuario
   isAdmin = false;
 
-  // ✅ Carrito - Ahora se actualiza desde el servicio
+  // Carrito
   cartItemCount = 0;
   private cartSubscription?: Subscription;
 
@@ -85,7 +85,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private elRef: ElementRef, 
     private router: Router,
-    private cartService: CartService // ✅ Inyectar CartService
+    private cartService: CartService
   ) {
     addIcons({ 
       'menu-outline': menuOutline,
@@ -126,7 +126,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     });
 
-    // ✅ SUSCRIBIRSE AL CONTADOR DEL CARRITO
+    // Suscribirse al contador del carrito
     this.cartSubscription = this.cartService.getCartCount().subscribe((count: number) => {
       this.cartItemCount = count;
       console.log('🛒 Contador del carrito actualizado:', count);
@@ -136,7 +136,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.initTooltipLetters();
   }
 
-  // ✅ LIMPIAR SUSCRIPCIONES AL DESTRUIR EL COMPONENTE
   ngOnDestroy() {
     if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
@@ -234,6 +233,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isCartActive(): boolean {
     return this.router.url.startsWith('/carrito');
+  }
+
+  isPerfilActive(): boolean {
+    return this.router.url.startsWith('/perfil');
   }
 
   // ====================================
@@ -340,34 +343,40 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // ====================================
   // HOST LISTENERS
   // ====================================
-
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: MouseEvent) {
-    const target = event.target as HTMLElement;
+@HostListener('document:click', ['$event'])
+onClickOutside(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  
+  // ✅ CORREGIDO: Agregar .profile-action
+  const insideProfile =
+    target.closest('.profile-dropdown') ||
+    target.closest('.profile-btn') ||
+    target.closest('.profile-action') ||
+target.closest('.action-pill');  // ✅ Agregar el punto
+  
+  if (!insideProfile) {
+    this.closeProfileMenu();
+  }
+  
+  // ✅ CORREGIDO: Actualizar selectores para el nuevo diseño
+  if (window.innerWidth > 1024) {
+    const inside =
+      target.closest('.desktop-nav') ||
+      target.closest('.nav-pills') ||           // ← AGREGAR
+      target.closest('.dropdown-modern') ||     // ← CAMBIAR
+      target.closest('.modern-dropdown') ||
+      target.closest('.nav-pill') ||            // ← AGREGAR
+      target.closest('.nav-link');
     
-    const insideProfile =
-      target.closest('.profile-dropdown') ||
-      target.closest('.profile-btn');
-    
-    if (!insideProfile) {
-      this.closeProfileMenu();
-    }
-    
-    if (window.innerWidth > 1024) {
-      const inside =
-        target.closest('.desktop-nav') ||
-        target.closest('.modern-dropdown') ||
-        target.closest('.nav-link');
-      
-      if (!inside) {
-        this.closeDropdowns();
-      }
-    }
-
-    if (target.classList.contains('sidebar-overlay')) {
-      this.closeMenu();
+    if (!inside) {
+      this.closeDropdowns();
     }
   }
+
+  if (target.classList.contains('sidebar-overlay')) {
+    this.closeMenu();
+  }
+}
 
   @HostListener('window:scroll', ['$event'])
   onScroll() {

@@ -137,9 +137,8 @@
           </ion-button>
         </div>
 
-        <ion-text color="danger" class="error-message" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </ion-text>
+        <!-- ❌ ELIMINADO: Mensaje de error estático -->
+        <!-- Ahora se usa ToastService para mostrar errores -->
 
         <div class="register-link">
           <p>¿No tienes cuenta?</p>
@@ -152,4 +151,4 @@
   </section>
 
 <app-footer></app-footer>
-</ion-content>
+</ion-content> 

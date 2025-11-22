@@ -79,6 +79,31 @@ export const routes: Routes = [
     loadComponent: () => import('./higienicos-servilletas/higienicos-servilletas.page').then((m) => m.HigienicosServilletasPage),
     canActivate: [authGuard],
   },
+  {
+    path: 'productos/reyma',
+    loadComponent: () => import('./reyma/reyma.page').then( m => m.ReymaPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/chiligrin',
+    loadComponent: () => import('./chiligrin/chiligrin.page').then( m => m.ChiligrinPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/dart',
+    loadComponent: () => import('./dart/dart.page').then( m => m.DartPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/monark',
+    loadComponent: () => import('./monark/monark.page').then( m => m.MonarkPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'productos/anguiplast',
+    loadComponent: () => import('./anguiplast/anguiplast.page').then( m => m.AnguiplastPage),
+    canActivate: [authGuard],
+  },
 
   // 🌱 OTRAS SECCIONES
   {
@@ -94,7 +119,21 @@ export const routes: Routes = [
     loadComponent: () => import('./privacidad/privacidad.page').then((m) => m.PrivacidadPage),
   },
 
-  // 🌱 ADMIN
+  // 🌱 PERFIL (protegida por login) ✅ AGREGADO authGuard
+  {
+    path: 'perfil',
+    loadComponent: () => import('./perfil/perfil.page').then( m => m.PerfilPage),
+    canActivate: [authGuard], // ✅ AGREGADO
+  },
+
+  // 🌱 CARRITO (protegida por login)
+  {
+    path: 'carrito',
+    loadComponent: () => import('./carrito/carrito.page').then((m) => m.CarritoPage),
+    canActivate: [authGuard],
+  },
+
+  // 🌱 ADMIN (protegida por adminGuard)
   {
     path: 'admin',
     loadComponent: () => import('./admin/admin.page').then((m) => m.AdminPage),
@@ -102,42 +141,10 @@ export const routes: Routes = [
   },
 
   // ==========================================
-  // RUTA 404
+  // RUTA 404 (debe ir al final)
   // ==========================================
   {
-    path: 'carrito',
-    loadComponent: () => import('./carrito/carrito.page').then((m) => m.CarritoPage),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'productos/reyma',
-    loadComponent: () => import('./reyma/reyma.page').then( m => m.ReymaPage),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'productos/chiligrin',
-    loadComponent: () => import('./chiligrin/chiligrin.page').then( m => m.ChiligrinPage),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'productos/dart',
-    loadComponent: () => import('./dart/dart.page').then( m => m.DartPage),
-        canActivate: [authGuard],
-  },
-  {
-    path: 'productos/monark',
-    loadComponent: () => import('./monark/monark.page').then( m => m.MonarkPage),
-        canActivate: [authGuard],
-  },
-  {
-    path: 'productos/anguiplast',
-    loadComponent: () => import('./anguiplast/anguiplast.page').then( m => m.AnguiplastPage),
-    canActivate: [authGuard],
-  },
-
-
-
-
-
-
+    path: '**',
+    redirectTo: 'home'
+  }
 ];
