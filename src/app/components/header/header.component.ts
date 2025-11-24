@@ -9,6 +9,7 @@ import {
   logInOutline,
   cartOutline,
   chevronDownOutline,
+  chevronForwardOutline,
   searchOutline,
   closeOutline,
   homeOutline,
@@ -24,7 +25,9 @@ import {
   restaurantOutline,
   pizzaOutline,
   waterOutline,
-  shieldCheckmarkOutline
+  shieldCheckmarkOutline,
+  documentTextOutline,
+  helpCircleOutline
 } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
@@ -53,6 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   showMobileMenu = false;
   showProfileMenu = false;
   dropdownPosition = { top: '0px', left: '0px' };
+  currentTab: 'menu' | 'account' = 'menu'; // AÑADIR ESTA LÍNEA
   
   // Iconos
   menuOutline = menuOutline;
@@ -87,30 +91,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private cartService: CartService
   ) {
-    addIcons({ 
-      'menu-outline': menuOutline,
-      'person-circle-outline': personCircleOutline,
-      'log-out-outline': logOutOutline,
-      'log-in-outline': logInOutline,
-      'cart-outline': cartOutline,
-      'chevron-down-outline': chevronDownOutline,
-      'search-outline': searchOutline,
-      'close-outline': closeOutline,
-      'home-outline': homeOutline,
-      'people-outline': peopleOutline,
-      'cube-outline': cubeOutline,
-      'location-outline': locationOutline,
-      'mail-outline': mailOutline,
-      'information-circle-outline': informationCircleOutline,
-      'grid-outline': gridOutline,
-      'cafe-outline': cafeOutline,
-      'leaf-outline': leafOutline,
-      'bag-outline': bagOutline,
-      'restaurant-outline': restaurantOutline,
-      'pizza-outline': pizzaOutline,
-      'water-outline': waterOutline,
-      'shield-checkmark-outline': shieldCheckmarkOutline
-    });
+addIcons({ 
+  'menu-outline': menuOutline,
+  'person-circle-outline': personCircleOutline,
+  'log-out-outline': logOutOutline,
+  'log-in-outline': logInOutline,
+  'cart-outline': cartOutline,
+  'chevron-down-outline': chevronDownOutline,
+  'chevron-forward-outline': chevronForwardOutline,
+  'search-outline': searchOutline,
+  'close-outline': closeOutline,
+  'home-outline': homeOutline,
+  'people-outline': peopleOutline,
+  'cube-outline': cubeOutline,
+  'location-outline': locationOutline,
+  'mail-outline': mailOutline,
+  'information-circle-outline': informationCircleOutline,
+  'grid-outline': gridOutline,
+  'cafe-outline': cafeOutline,
+  'leaf-outline': leafOutline,
+  'bag-outline': bagOutline,
+  'restaurant-outline': restaurantOutline,
+  'pizza-outline': pizzaOutline,
+  'water-outline': waterOutline,
+  'shield-checkmark-outline': shieldCheckmarkOutline,
+  'document-text-outline': documentTextOutline,
+  'help-circle-outline': helpCircleOutline
+});
   }
 
   async ngOnInit() {
@@ -143,6 +150,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Obtener el texto del perfil según la ruta actual
+   */
+  getProfileText(): string {
+    if (this.router.url.startsWith('/admin')) {
+      return 'Administración';
+    }
+    return 'Perfil';
+  }
+
+  /**
    * Inicializar las letras del tooltip con sus propiedades de animación
    */
   initTooltipLetters() {
@@ -162,6 +179,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
         part: part.toString()
       };
     });
+  }
+
+  /**
+   * Obtener solo el primer nombre del usuario
+   */
+  getUserName(): string {
+    if (!this.user) {
+      return 'Perfil';
+    }
+    
+    // Si tiene displayName, tomar solo el primer nombre
+    if (this.user.displayName) {
+      const firstName = this.user.displayName.split(' ')[0];
+      return firstName;
+    }
+    
+    // Si no tiene displayName, extraer del email
+    if (this.user.email) {
+      const emailName = this.user.email.split('@')[0];
+      return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+    }
+    
+    return 'Perfil';
   }
 
   /**
@@ -340,43 +380,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showProductosDropdown = false;
   }
 
-  // ====================================
-  // HOST LISTENERS
-  // ====================================
-@HostListener('document:click', ['$event'])
-onClickOutside(event: MouseEvent) {
-  const target = event.target as HTMLElement;
-  
-  // ✅ CORREGIDO: Agregar .profile-action
-  const insideProfile =
-    target.closest('.profile-dropdown') ||
-    target.closest('.profile-btn') ||
-    target.closest('.profile-action') ||
-target.closest('.action-pill');  // ✅ Agregar el punto
-  
-  if (!insideProfile) {
-    this.closeProfileMenu();
-  }
-  
-  // ✅ CORREGIDO: Actualizar selectores para el nuevo diseño
-  if (window.innerWidth > 1024) {
-    const inside =
-      target.closest('.desktop-nav') ||
-      target.closest('.nav-pills') ||           // ← AGREGAR
-      target.closest('.dropdown-modern') ||     // ← CAMBIAR
-      target.closest('.modern-dropdown') ||
-      target.closest('.nav-pill') ||            // ← AGREGAR
-      target.closest('.nav-link');
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
     
-    if (!inside) {
-      this.closeDropdowns();
+    // Verificar si el click está fuera del perfil
+    const insideProfile =
+      target.closest('.ultra-profile-menu') ||
+      target.closest('.ultra-profile-btn');
+    
+    if (!insideProfile) {
+      this.closeProfileMenu();
+    }
+    
+    // Verificar si el click está fuera de los dropdowns
+    if (window.innerWidth > 1024) {
+      const inside =
+        target.closest('.ultra-nav-desktop') ||
+        target.closest('.ultra-dropdown');
+      
+      if (!inside) {
+        this.closeDropdowns();
+      }
+    }
+
+    if (target.classList.contains('sidebar-ultra-overlay')) {
+      this.closeMenu();
     }
   }
-
-  if (target.classList.contains('sidebar-overlay')) {
-    this.closeMenu();
-  }
-}
 
   @HostListener('window:scroll', ['$event'])
   onScroll() {

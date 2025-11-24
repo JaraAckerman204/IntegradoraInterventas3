@@ -1,513 +1,543 @@
 <ion-header>
-  <ion-toolbar class="modern-toolbar">
+  <ion-toolbar class="ultra-modern-toolbar">
     
-    <!-- ========================================== -->
-    <!-- HEADER CONTAINER PRINCIPAL -->
-    <!-- ========================================== -->
-    <div class="header-container">
+    <!-- HEADER PRINCIPAL -->
+    <div class="header-ultra-container">
       
-      <!-- Logo Section -->
-      <div class="logo-section">
-        <div class="logo-wrapper" routerLink="/home">
-          <div class="logo-glow"></div>
-          <img class="logo-img" src="../../assets/img/logo.png" alt="Logo Interventas">
+      <!-- Logo con efecto especial -->
+      <div class="logo-ultra-section">
+        <div class="logo-ultra-wrapper" routerLink="/home">
+          <div class="logo-shine"></div>
+          <img class="logo-ultra-img" src="../../assets/img/logo.png" alt="Logo Interventas">
+          <div class="logo-ring"></div>
         </div>
       </div>
 
-      <!-- Desktop Navigation -->
-      <nav class="desktop-nav">
-        <div class="nav-pills">
+      <!-- Navegación Desktop -->
+      <nav class="ultra-nav-desktop">
+        <div class="nav-ultra-items">
           
-          <a class="nav-pill" 
+          <a class="nav-ultra-link" 
              routerLink="/home" 
              [class.active]="isHomeActive()">
-            <ion-icon name="home-outline" class="pill-icon"></ion-icon>
+            <div class="link-bg"></div>
+            <ion-icon name="home-outline"></ion-icon>
             <span>Inicio</span>
-            <div class="pill-glow"></div>
           </a>
 
-          <div class="nav-pill-dropdown">
-            <button class="nav-pill" 
+          <div class="nav-ultra-dropdown" #nosotrosDropdown>
+            <button class="nav-ultra-link" 
                     (click)="toggleDropdown('nosotros', $event)"
                     [class.active]="isNosotrosActive()">
-              <ion-icon name="people-outline" class="pill-icon"></ion-icon>
+              <div class="link-bg"></div>
+              <ion-icon name="people-outline"></ion-icon>
               <span>Nosotros</span>
-              <ion-icon name="chevron-down-outline" class="chevron-icon" [class.rotate]="showNosotrosDropdown"></ion-icon>
-              <div class="pill-glow"></div>
+              <ion-icon name="chevron-down-outline" class="chevron" [class.rotate]="showNosotrosDropdown"></ion-icon>
             </button>
           </div>
 
-          <div class="nav-pill-dropdown">
-            <button class="nav-pill" 
+          <div class="nav-ultra-dropdown" #productosDropdown>
+            <button class="nav-ultra-link" 
                     (click)="toggleDropdown('productos', $event)"
                     [class.active]="isProductosActive()">
-              <ion-icon name="cube-outline" class="pill-icon"></ion-icon>
+              <div class="link-bg"></div>
+              <ion-icon name="cube-outline"></ion-icon>
               <span>Productos</span>
-              <ion-icon name="chevron-down-outline" class="chevron-icon" [class.rotate]="showProductosDropdown"></ion-icon>
-              <div class="pill-glow"></div>
+              <ion-icon name="chevron-down-outline" class="chevron" [class.rotate]="showProductosDropdown"></ion-icon>
             </button>
           </div>
 
-          <a class="nav-pill" 
+          <a class="nav-ultra-link" 
              routerLink="/sucursales"
              [class.active]="isSucursalesActive()">
-            <ion-icon name="location-outline" class="pill-icon"></ion-icon>
+            <div class="link-bg"></div>
+            <ion-icon name="location-outline"></ion-icon>
             <span>Sucursales</span>
-            <div class="pill-glow"></div>
           </a>
           
         </div>
       </nav>
 
-      <!-- Actions Section -->
-      <div class="actions-section">
+<!-- Sección de Acciones -->
+<div class="ultra-actions">
 
-        <!-- Cart Button -->
-        <button class="action-btn cart-action" routerLink="/carrito" [class.active]="isCartActive()">
-          <div class="action-icon-wrapper">
-            <ion-icon name="cart-outline"></ion-icon>
-            <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
-          </div>
-          <div class="action-tooltip">Carrito</div>
-        </button>
+  <!-- Carrito -->
+  <button class="ultra-action-btn" routerLink="/carrito" [class.active]="isCartActive()">
+    <div class="link-bg"></div>
+    <ion-icon name="cart-outline"></ion-icon>
+    <span class="action-text">Carrito</span>
+    <span class="ultra-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+  </button>
 
-        <!-- User Section Desktop -->
-        <div class="user-section-desktop">
-          
-          <!-- Not Logged In -->
-          <ng-container *ngIf="!user">
-            <button class="login-btn-modern" routerLink="/login">
-              <div class="btn-bg"></div>
-              <ion-icon name="log-in-outline"></ion-icon>
-              <span>Iniciar Sesión</span>
-            </button>
-          </ng-container>
+  <!-- Usuario Desktop -->
+  <div class="ultra-user-desktop">
+    
+    <ng-container *ngIf="!user">
+      <button class="ultra-login-btn" routerLink="/login">
+        <div class="link-bg"></div>
+        <ion-icon name="person-circle-outline"></ion-icon>
+        <span>Entrar</span>
+      </button>
+    </ng-container>
 
-          <!-- Logged In -->
-          <ng-container *ngIf="user">
-            <button class="profile-action" (click)="toggleProfileMenu()" [class.active]="showProfileMenu">
-              <div class="profile-avatar-mini">
-                <ion-icon name="person-outline"></ion-icon>
-              </div>
-              <div class="profile-indicator"></div>
-            </button>
-          </ng-container>
-          
-        </div>
+<ng-container *ngIf="user">
+  <button class="ultra-profile-btn active" 
+          (click)="toggleProfileMenu()">
+    <div class="link-bg"></div>
+    <ion-icon name="person-circle-outline"></ion-icon>
+    <span class="action-text">{{ getUserName() }}</span>
+  </button>
+</ng-container>
+    
+  </div>
 
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn" (click)="toggleMenu()" [class.active]="showMobileMenu">
-          <div class="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </button>
+  <!-- Botón Menú Mobile -->
+  <button class="ultra-mobile-btn" (click)="toggleMenu()" [class.active]="showMobileMenu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 
-      </div>
+</div>
 
     </div>
 
-    <!-- Gradient Border Animated -->
-    <div class="gradient-border-animated">
-      <div class="gradient-flow"></div>
+    <!-- Línea decorativa animada -->
+    <div class="ultra-divider">
+      <div class="divider-flow"></div>
     </div>
 
   </ion-toolbar>
 
-  <!-- ========================================== -->
-  <!-- DROPDOWN NOSOTROS - REDISEÑADO -->
-  <!-- ========================================== -->
-  <div class="dropdown-modern" 
-       *ngIf="showNosotrosDropdown" 
-       [style.top]="dropdownPosition['top']"
-       [style.left]="dropdownPosition['left']">
+<!-- DROPDOWN NOSOTROS -->
+<div class="ultra-dropdown" 
+     *ngIf="showNosotrosDropdown" 
+     [style.top]="dropdownPosition['top']"
+     [style.left]="dropdownPosition['left']">
+  
+  <div class="dropdown-ultra-glass">
     
-    <div class="dropdown-glass">
-      <div class="dropdown-header-modern">
-        <div class="header-icon-wrapper">
-          <ion-icon name="people-outline"></ion-icon>
+    <div class="dropdown-ultra-section">
+      <a routerLink="/nosotros/contacto" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="mail-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Contacto</span>
+          <span class="item-desc">Ponte en contacto con nosotros</span>
         </div>
-        <div class="header-text">
-          <h3>Nosotros</h3>
-          <p>Conoce nuestra empresa</p>
-        </div>
-      </div>
-      
-      <div class="dropdown-items">
-        <a class="dropdown-item-modern" routerLink="/nosotros/contacto" (click)="closeMenu()">
-          <div class="item-icon contact">
-            <ion-icon name="mail-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Contacto</span>
-            <span class="item-desc">Ponte en contacto con nosotros</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-        <a class="dropdown-item-modern" routerLink="/nosotros/informacion" (click)="closeMenu()">
-          <div class="item-icon info">
-            <ion-icon name="information-circle-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Información</span>
-            <span class="item-desc">Conoce más sobre nosotros</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-      </div>
-    </div>
-    
-  </div>
-
-  <!-- ========================================== -->
-  <!-- DROPDOWN PRODUCTOS - REDISEÑADO -->
-  <!-- ========================================== -->
-  <div class="dropdown-modern dropdown-productos" 
-       *ngIf="showProductosDropdown" 
-       [style.top]="dropdownPosition['top']"
-       [style.left]="dropdownPosition['left']">
-    
-    <div class="dropdown-glass">
-      <div class="dropdown-header-modern">
-        <div class="header-icon-wrapper productos">
-          <ion-icon name="cube-outline"></ion-icon>
-        </div>
-        <div class="header-text">
-          <h3>Nuestros Productos</h3>
-          <p>Explora nuestro catálogo completo</p>
-        </div>
-      </div>
-      
-      <div class="dropdown-items productos-grid">
-        
-        <a class="dropdown-item-modern" routerLink="/productos/todos" (click)="closeMenu()">
-          <div class="item-icon todos">
-            <ion-icon name="grid-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Todos</span>
-            <span class="item-desc">Ver catálogo completo</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-        <a class="dropdown-item-modern" routerLink="/productos/desechables" (click)="closeMenu()">
-          <div class="item-icon desechables">
-            <ion-icon name="cafe-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Desechables</span>
-            <span class="item-desc">Vasos, platos y cubiertos</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-        <a class="dropdown-item-modern" routerLink="/productos/biodegradables" (click)="closeMenu()">
-          <div class="item-icon biodegradables">
-            <ion-icon name="leaf-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Biodegradables</span>
-            <span class="item-desc">Productos eco-friendly</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-        <a class="dropdown-item-modern" routerLink="/productos/bolsas" (click)="closeMenu()">
-          <div class="item-icon bolsas">
-            <ion-icon name="bag-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Bolsas</span>
-            <span class="item-desc">Para todo tipo de uso</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-        <a class="dropdown-item-modern" routerLink="/productos/cocina-reposteria" (click)="closeMenu()">
-          <div class="item-icon cocina">
-            <ion-icon name="restaurant-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Cocina y Repostería</span>
-            <span class="item-desc">Utensilios y accesorios</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-        <a class="dropdown-item-modern" routerLink="/productos/alimentos" (click)="closeMenu()">
-          <div class="item-icon alimentos">
-            <ion-icon name="pizza-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Alimentos</span>
-            <span class="item-desc">Productos alimenticios</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-        <a class="dropdown-item-modern" routerLink="/productos/higienicos-servilletas" (click)="closeMenu()">
-          <div class="item-icon higienicos">
-            <ion-icon name="water-outline"></ion-icon>
-          </div>
-          <div class="item-info">
-            <span class="item-title">Higiénicos</span>
-            <span class="item-desc">Papel y limpieza</span>
-          </div>
-          <ion-icon name="arrow-forward-outline" class="item-arrow"></ion-icon>
-        </a>
-        
-      </div>
-    </div>
-    
-  </div>
-
-  <!-- ========================================== -->
-  <!-- PROFILE MENU (MANTENER EL QUE YA TIENES) -->
-  <!-- ========================================== -->
-  <div class="profile-dropdown" *ngIf="showProfileMenu && user">
-    <div class="profile-header">
-      <ion-icon [icon]="personCircleOutline" class="profile-avatar"></ion-icon>
-      <div class="profile-info">
-        <span class="profile-greeting">¡Hola!</span>
-        <span class="profile-name">{{ user.displayName || user.email }}</span>
-      </div>
-    </div>
-
-    <div class="profile-menu-content">
-      <a class="profile-menu-item" 
-         *ngIf="isAdmin" 
-         routerLink="/admin"
-         (click)="closeProfileMenu()">
-        <div class="menu-item-icon admin-icon">
-          <ion-icon [icon]="shieldCheckmarkOutline"></ion-icon>
-        </div>
-        <div class="menu-item-text">
-          <span class="menu-item-title">Panel Admin</span>
-          <span class="menu-item-desc">Gestionar sistema</span>
-        </div>
-        <ion-icon name="chevron-forward-outline" class="menu-item-arrow"></ion-icon>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
       </a>
-
-      <a class="profile-menu-item" 
-         routerLink="/perfil"
-         (click)="closeProfileMenu()">
-        <div class="menu-item-icon profile-icon-menu">
-          <ion-icon [icon]="personCircleOutline"></ion-icon>
+      
+      <a routerLink="/nosotros/informacion" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Información</span>
+          <span class="item-desc">Conoce más sobre nuestra empresa</span>
         </div>
-        <div class="menu-item-text">
-          <span class="menu-item-title">Mi Perfil</span>
-          <span class="menu-item-desc">Ver y editar información</span>
-        </div>
-        <ion-icon name="chevron-forward-outline" class="menu-item-arrow"></ion-icon>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
       </a>
     </div>
+  </div>
+  
+</div>
+
+<!-- DROPDOWN PRODUCTOS -->
+<div class="ultra-dropdown ultra-dropdown-wide" 
+     *ngIf="showProductosDropdown" 
+     [style.top]="dropdownPosition['top']"
+     [style.left]="dropdownPosition['left']">
+  
+  <div class="dropdown-ultra-glass">
     
-    <div class="profile-divider"></div>
-    
-    <ion-button expand="block" class="logout-button" (click)="logout()">
-      <ion-icon [icon]="logOutOutline" slot="start"></ion-icon>
-      <span>Cerrar Sesión</span>
-    </ion-button>
+    <div class="dropdown-ultra-section">
+      
+      <a routerLink="/productos/todos" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="grid-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Todos</span>
+          <span class="item-desc">Ver catálogo completo</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+      </a>
+      
+      <a routerLink="/productos/desechables" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="cafe-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Desechables</span>
+          <span class="item-desc">Vasos, platos y más</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+      </a>
+      
+      <a routerLink="/productos/biodegradables" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="leaf-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Biodegradables</span>
+          <span class="item-desc">Productos ecológicos</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+      </a>
+      
+      <a routerLink="/productos/bolsas" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="bag-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Bolsas</span>
+          <span class="item-desc">Todo tipo de bolsas</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+      </a>
+      
+      <a routerLink="/productos/cocina-reposteria" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Cocina</span>
+          <span class="item-desc">Utensilios y más</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+      </a>
+      
+      <a routerLink="/productos/alimentos" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="pizza-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Alimentos</span>
+          <span class="item-desc">Productos alimenticios</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+      </a>
+      
+      <a routerLink="/productos/higienicos-servilletas" 
+         (click)="closeMenu()"
+         class="dropdown-ultra-item-expanded">
+        <ion-icon name="water-outline"></ion-icon>
+        <div class="item-info">
+          <span class="item-title">Higiénicos</span>
+          <span class="item-desc">Papel y servilletas</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+      </a>
+      
+    </div>
+  </div>
+  
+</div>
+
+<!-- MENÚ PERFIL -->
+<div class="ultra-profile-menu" *ngIf="showProfileMenu && user">
+  <div class="profile-ultra-header">
+    <ion-icon name="person-circle-outline"></ion-icon>
+    <div>
+      <span class="greeting">¡Hola!</span>
+      <span class="name">{{ user.displayName || user.email }}</span>
+    </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MOBILE SIDEBAR - REDISEÑADO -->
-  <!-- ========================================== -->
-  <div class="mobile-sidebar-modern" [class.open]="showMobileMenu">
-    <div class="sidebar-overlay" (click)="closeMenu()"></div>
+  <!-- SECCIÓN PRINCIPAL -->
+  <div class="profile-ultra-section">
+    <a *ngIf="isAdmin" 
+       routerLink="/admin"
+       (click)="closeProfileMenu()"
+       class="profile-ultra-item-expanded">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <div class="item-info">
+        <span class="item-title">Panel Admin</span>
+        <span class="item-desc">Gestiona todo el sistema</span>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+    </a>
+
+    <a routerLink="/perfil"
+       (click)="closeProfileMenu()"
+       class="profile-ultra-item-expanded">
+      <ion-icon name="person-circle-outline"></ion-icon>
+      <div class="item-info">
+        <span class="item-title">Mi Perfil</span>
+        <span class="item-desc">Edita tu información personal</span>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+    </a>
+  </div>
+
+  <!-- LÍNEA DIVISORIA -->
+  <div class="profile-ultra-divider"></div>
+
+  <!-- SECCIÓN SECUNDARIA (EN FILA) -->
+  <div class="profile-ultra-footer-links">
+    <a routerLink="/privacidad"
+       (click)="closeProfileMenu()"
+       class="footer-link">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Términos</span>
+    </a>
+
+    <div class="vertical-divider"></div>
+
+    <a routerLink="/nosotros/contacto"
+       (click)="closeProfileMenu()"
+       class="footer-link">
+      <ion-icon name="help-circle-outline"></ion-icon>
+      <span>Ayuda</span>
+    </a>
+  </div>
+  
+  <button class="ultra-logout-btn" (click)="logout()">
+    <ion-icon name="log-out-outline"></ion-icon>
+    <span>Cerrar Sesión</span>
+  </button>
+</div>
+
+<!-- SIDEBAR MOBILE -->
+<div class="ultra-mobile-sidebar" [class.open]="showMobileMenu">
+  <div class="sidebar-ultra-overlay" (click)="closeMenu()"></div>
+  
+  <div class="sidebar-ultra-panel">
     
-    <div class="sidebar-panel">
+    <!-- HEADER CON LOGO Y CLOSE -->
+    <div class="sidebar-header-top">
+      <img src="../../assets/img/logo.png" alt="Logo" class="logo-header">
+      <button class="close-btn-x" (click)="closeMenu()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+<!-- USUARIO CARD HORIZONTAL -->
+<div class="user-horizontal-card" *ngIf="user">
+  <div class="user-avatar-left">
+    <div class="avatar-circle-dashed"></div>
+    <div class="avatar-background">
+      <ion-icon name="person-circle-outline"></ion-icon>
+    </div>
+  </div>
+  <div class="user-info-right">
+    <span class="user-greeting">¡BIENVENIDO!</span>
+    <span class="user-name-main">{{ user.displayName || 'Usuario' }}</span>
+    <span class="user-email-small">{{ user.email }}</span>
+  </div>
+</div>
+
+    <!-- TABS -->
+    <div class="nav-tabs-modern">
+      <button class="tab-button" [class.active]="currentTab === 'menu'" (click)="currentTab = 'menu'">
+        <ion-icon name="grid-outline"></ion-icon>
+        <span>Menú</span>
+      </button>
+      <button class="tab-button" [class.active]="currentTab === 'account'" (click)="currentTab = 'account'" *ngIf="user">
+        <ion-icon name="person-circle-outline"></ion-icon>
+        <span>Cuenta</span>
+      </button>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="sidebar-main-content">
       
-      <!-- Sidebar Header -->
-      <div class="sidebar-header-modern">
-        <div class="header-brand">
-          <img src="../../assets/img/logo.png" alt="Logo" class="sidebar-logo">
+      <!-- TAB: MENÚ CON DISEÑO DE LISTA -->
+      <div class="content-panel" [class.active]="currentTab === 'menu'">
+        
+        <div class="menu-list">
+          
+          <a routerLink="/home" 
+             [class.active]="isHomeActive()" 
+             (click)="closeMenu()"
+             class="menu-list-item">
+            <div class="menu-icon-box">
+              <ion-icon name="home-outline"></ion-icon>
+            </div>
+            <div class="menu-text">
+              <span class="menu-title">Inicio</span>
+              <span class="menu-subtitle">Página principal</span>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="menu-chevron"></ion-icon>
+          </a>
+
+          <!-- NOSOTROS EXPANDIBLE -->
+          <div class="menu-expandable-item" [class.expanded]="showNosotrosDropdown">
+            <button (click)="toggleDropdown('nosotros', $event)" 
+                    [class.active]="isNosotrosActive()"
+                    class="menu-list-item">
+              <div class="menu-icon-box">
+                <ion-icon name="people-outline"></ion-icon>
+              </div>
+              <div class="menu-text">
+                <span class="menu-title">Nosotros</span>
+                <span class="menu-subtitle">Conoce más</span>
+              </div>
+              <ion-icon name="chevron-down-outline" class="expand-arrow" [class.rotate]="showNosotrosDropdown"></ion-icon>
+            </button>
+            
+            <div class="submenu-list" [class.show]="showNosotrosDropdown">
+              <a routerLink="/nosotros/contacto" (click)="closeMenu()" class="submenu-item">
+                <ion-icon name="mail-outline"></ion-icon>
+                <div class="submenu-text">
+                  <span class="submenu-title">Contacto</span>
+                  <span class="submenu-desc">Escríbenos</span>
+                </div>
+              </a>
+              <a routerLink="/nosotros/informacion" (click)="closeMenu()" class="submenu-item">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <div class="submenu-text">
+                  <span class="submenu-title">Información</span>
+                  <span class="submenu-desc">Sobre nosotros</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- PRODUCTOS EXPANDIBLE -->
+          <div class="menu-expandable-item" [class.expanded]="showProductosDropdown">
+            <button (click)="toggleDropdown('productos', $event)" 
+                    [class.active]="isProductosActive()"
+                    class="menu-list-item">
+              <div class="menu-icon-box">
+                <ion-icon name="cube-outline"></ion-icon>
+              </div>
+              <div class="menu-text">
+                <span class="menu-title">Productos</span>
+                <span class="menu-subtitle">Nuestro catálogo</span>
+              </div>
+              <ion-icon name="chevron-down-outline" class="expand-arrow" [class.rotate]="showProductosDropdown"></ion-icon>
+            </button>
+            
+            <div class="submenu-list" [class.show]="showProductosDropdown">
+              <a routerLink="/productos/todos" (click)="closeMenu()" class="submenu-item simple">
+                <ion-icon name="grid-outline"></ion-icon>
+                <span>Todos los productos</span>
+              </a>
+              <a routerLink="/productos/desechables" (click)="closeMenu()" class="submenu-item simple">
+                <ion-icon name="cafe-outline"></ion-icon>
+                <span>Desechables</span>
+              </a>
+              <a routerLink="/productos/biodegradables" (click)="closeMenu()" class="submenu-item simple">
+                <ion-icon name="leaf-outline"></ion-icon>
+                <span>Biodegradables</span>
+              </a>
+              <a routerLink="/productos/bolsas" (click)="closeMenu()" class="submenu-item simple">
+                <ion-icon name="bag-outline"></ion-icon>
+                <span>Bolsas</span>
+              </a>
+              <a routerLink="/productos/cocina-reposteria" (click)="closeMenu()" class="submenu-item simple">
+                <ion-icon name="restaurant-outline"></ion-icon>
+                <span>Cocina y repostería</span>
+              </a>
+              <a routerLink="/productos/alimentos" (click)="closeMenu()" class="submenu-item simple">
+                <ion-icon name="pizza-outline"></ion-icon>
+                <span>Alimentos</span>
+              </a>
+              <a routerLink="/productos/higienicos-servilletas" (click)="closeMenu()" class="submenu-item simple">
+                <ion-icon name="water-outline"></ion-icon>
+                <span>Higiénicos</span>
+              </a>
+            </div>
+          </div>
+
+          <a routerLink="/sucursales" 
+             [class.active]="isSucursalesActive()" 
+             (click)="closeMenu()"
+             class="menu-list-item">
+            <div class="menu-icon-box">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <div class="menu-text">
+              <span class="menu-title">Sucursales</span>
+              <span class="menu-subtitle">Nuestras ubicaciones</span>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="menu-chevron"></ion-icon>
+          </a>
+
         </div>
-        <button class="close-sidebar-btn" (click)="closeMenu()">
-          <ion-icon name="close-outline"></ion-icon>
+
+      </div>
+
+      <!-- TAB: CUENTA -->
+      <div class="content-panel" [class.active]="currentTab === 'account'" *ngIf="user">
+        
+        <div class="account-cards">
+          
+          <a *ngIf="isAdmin" 
+             routerLink="/admin" 
+             [class.active]="isAdminActive()" 
+             (click)="closeMenu()"
+             class="account-card">
+            <div class="account-icon-box">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+            </div>
+            <div class="account-text">
+              <span class="account-title">Panel Admin</span>
+              <span class="account-subtitle">Administración completa</span>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="account-chevron"></ion-icon>
+          </a>
+
+          <a routerLink="/perfil" 
+             [class.active]="isPerfilActive()" 
+             (click)="closeMenu()"
+             class="account-card">
+            <div class="account-icon-box">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </div>
+            <div class="account-text">
+              <span class="account-title">Mi Perfil</span>
+              <span class="account-subtitle">Información personal</span>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="account-chevron"></ion-icon>
+          </a>
+
+          <div class="separator"></div>
+
+          <a routerLink="/privacidad" 
+             (click)="closeMenu()"
+             class="account-card compact">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <span>Términos y privacidad</span>
+          </a>
+
+          <a routerLink="/nosotros/contacto" 
+             (click)="closeMenu()"
+             class="account-card compact">
+            <ion-icon name="help-circle-outline"></ion-icon>
+            <span>Centro de ayuda</span>
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="sidebar-footer-action">
+      <ng-container *ngIf="!user">
+        <button class="action-btn login-btn" routerLink="/login" (click)="closeMenu()">
+          <ion-icon name="log-in-outline"></ion-icon>
+          <span>Iniciar Sesión</span>
         </button>
-      </div>
+      </ng-container>
 
-      <!-- User Card Mobile -->
-      <div class="user-card-mobile" *ngIf="user">
-        <div class="user-card-bg"></div>
-        <div class="user-avatar-mobile">
-          <ion-icon name="person-outline"></ion-icon>
-          <div class="avatar-ring-mobile"></div>
-        </div>
-        <div class="user-info-mobile">
-          <span class="user-greeting-mobile">¡Bienvenido!</span>
-          <span class="user-name-mobile">{{ user.displayName || 'Usuario' }}</span>
-          <span class="user-email-mobile">{{ user.email }}</span>
-        </div>
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="sidebar-nav-modern">
-        
-        <!-- Admin Link -->
-        <a *ngIf="isAdmin" 
-           class="nav-item-mobile admin-nav" 
-           routerLink="/admin" 
-           [class.active]="isAdminActive()" 
-           (click)="closeMenu()">
-          <div class="nav-icon-mobile">
-            <ion-icon name="shield-checkmark-outline"></ion-icon>
-          </div>
-          <span>Panel Admin</span>
-          <ion-icon name="chevron-forward-outline" class="nav-arrow"></ion-icon>
-        </a>
-
-        <!-- Perfil Link -->
-        <a *ngIf="user" 
-           class="nav-item-mobile" 
-           routerLink="/perfil" 
-           [class.active]="isPerfilActive()" 
-           (click)="closeMenu()">
-          <div class="nav-icon-mobile">
-            <ion-icon name="person-outline"></ion-icon>
-          </div>
-          <span>Mi Perfil</span>
-          <ion-icon name="chevron-forward-outline" class="nav-arrow"></ion-icon>
-        </a>
-
-        <div class="nav-divider"></div>
-
-        <!-- Inicio -->
-        <a class="nav-item-mobile" 
-           routerLink="/home" 
-           [class.active]="isHomeActive()" 
-           (click)="closeMenu()">
-          <div class="nav-icon-mobile">
-            <ion-icon name="home-outline"></ion-icon>
-          </div>
-          <span>Inicio</span>
-          <ion-icon name="chevron-forward-outline" class="nav-arrow"></ion-icon>
-        </a>
-
-        <!-- Nosotros Dropdown -->
-        <div class="nav-group-mobile">
-          <button class="nav-item-mobile" 
-                  (click)="toggleDropdown('nosotros', $event)" 
-                  [class.active]="isNosotrosActive()">
-            <div class="nav-icon-mobile">
-              <ion-icon name="people-outline"></ion-icon>
-            </div>
-            <span>Nosotros</span>
-            <ion-icon name="chevron-down-outline" class="nav-chevron" [class.rotate]="showNosotrosDropdown"></ion-icon>
-          </button>
-          <div class="nav-submenu-mobile" [class.open]="showNosotrosDropdown">
-            <a routerLink="/nosotros/contacto" (click)="closeMenu()">
-              <ion-icon name="mail-outline"></ion-icon>
-              Contacto
-            </a>
-            <a routerLink="/nosotros/informacion" (click)="closeMenu()">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              Información
-            </a>
-          </div>
-        </div>
-
-        <!-- Productos Dropdown -->
-        <div class="nav-group-mobile">
-          <button class="nav-item-mobile" 
-                  (click)="toggleDropdown('productos', $event)" 
-                  [class.active]="isProductosActive()">
-            <div class="nav-icon-mobile">
-              <ion-icon name="cube-outline"></ion-icon>
-            </div>
-            <span>Productos</span>
-            <ion-icon name="chevron-down-outline" class="nav-chevron" [class.rotate]="showProductosDropdown"></ion-icon>
-          </button>
-          <div class="nav-submenu-mobile" [class.open]="showProductosDropdown">
-            <a routerLink="/productos/todos" (click)="closeMenu()">
-              <ion-icon name="grid-outline"></ion-icon>
-              Todos los productos
-            </a>
-            <a routerLink="/productos/desechables" (click)="closeMenu()">
-              <ion-icon name="cafe-outline"></ion-icon>
-              Desechables
-            </a>
-            <a routerLink="/productos/biodegradables" (click)="closeMenu()">
-              <ion-icon name="leaf-outline"></ion-icon>
-              Biodegradables
-            </a>
-            <a routerLink="/productos/bolsas" (click)="closeMenu()">
-              <ion-icon name="bag-outline"></ion-icon>
-              Bolsas
-            </a>
-            <a routerLink="/productos/cocina-reposteria" (click)="closeMenu()">
-              <ion-icon name="restaurant-outline"></ion-icon>
-              Cocina y Repostería
-            </a>
-            <a routerLink="/productos/alimentos" (click)="closeMenu()">
-              <ion-icon name="pizza-outline"></ion-icon>
-              Alimentos
-            </a>
-            <a routerLink="/productos/higienicos-servilletas" (click)="closeMenu()">
-              <ion-icon name="water-outline"></ion-icon>
-              Higiénicos y Servilletas
-            </a>
-          </div>
-        </div>
-
-        <!-- Sucursales -->
-        <a class="nav-item-mobile" 
-           routerLink="/sucursales" 
-           [class.active]="isSucursalesActive()" 
-           (click)="closeMenu()">
-          <div class="nav-icon-mobile">
-            <ion-icon name="location-outline"></ion-icon>
-          </div>
-          <span>Sucursales</span>
-          <ion-icon name="chevron-forward-outline" class="nav-arrow"></ion-icon>
-        </a>
-
-        <!-- Carrito -->
-        <a class="nav-item-mobile cart-nav" 
-           routerLink="/carrito" 
-           [class.active]="isCartActive()" 
-           (click)="closeMenu()">
-          <div class="nav-icon-mobile">
-            <ion-icon name="cart-outline"></ion-icon>
-          </div>
-          <span>Mi Carrito</span>
-          <span class="cart-badge-mobile" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
-          <ion-icon name="chevron-forward-outline" class="nav-arrow"></ion-icon>
-        </a>
-
-      </nav>
-
-      <!-- Sidebar Footer -->
-      <div class="sidebar-footer-modern">
-        <ng-container *ngIf="!user">
-          <button class="login-btn-mobile" routerLink="/login" (click)="closeMenu()">
-            <ion-icon name="log-in-outline"></ion-icon>
-            <span>Iniciar Sesión</span>
-          </button>
-          <button class="register-btn-mobile" routerLink="/register" (click)="closeMenu()">
-            <ion-icon name="person-add-outline"></ion-icon>
-            <span>Registrarse</span>
-          </button>
-        </ng-container>
-
-        <ng-container *ngIf="user">
-          <button class="logout-btn-mobile" (click)="logout()">
-            <ion-icon name="log-out-outline"></ion-icon>
-            <span>Cerrar Sesión</span>
-          </button>
-        </ng-container>
-      </div>
-
+      <ng-container *ngIf="user">
+        <button class="action-btn logout-btn" (click)="logout()">
+          <ion-icon name="log-out-outline"></ion-icon>
+          <span>Cerrar Sesión</span>
+        </button>
+      </ng-container>
     </div>
-  </div>
 
-  <!-- ========================================== -->
-  <!-- BOTÓN FLOTANTE DE WHATSAPP -->
-  <!-- ========================================== -->
+  </div>
+</div>
+
+  <!-- BOTÓN WHATSAPP (mantener el original) -->
   <div class="whatsapp-container" [class.animate]="showWhatsappTooltip">
     <div class="tooltip" [class.in]="tooltipAnimateIn" [class.out]="tooltipAnimateOut">
       <div>
