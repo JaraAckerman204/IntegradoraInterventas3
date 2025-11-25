@@ -80,7 +80,7 @@ import { Router } from '@angular/router';
     FooterComponent
   ]
 })
-export class TodosPage implements OnInit, AfterViewInit {
+export class TodosPage implements OnInit {
   // =============================
   // 🔧 SERVICIOS INYECTADOS
   // =============================
@@ -192,23 +192,7 @@ export class TodosPage implements OnInit, AfterViewInit {
     });
   }
 
-  // =============================
-  // 🔧 INICIALIZACIÓN
-  // =============================
-  ngOnInit() {
-    console.log('✅ Página de productos inicializada');
-    this.loadProducts();
-    
-    this.cartService.getCartCount().subscribe(count => {
-      this.cartCount = count;
-    });
-  }
-
-  ngAfterViewInit() {
-    // Ya no es necesario
-  }
-
-  // =============================
+   // =============================
   // 💬 UTILIDAD - TOAST
   // =============================
   async mostrarToast(mensaje: string) {
@@ -216,53 +200,80 @@ export class TodosPage implements OnInit, AfterViewInit {
   }
 
   // =============================
-  // 📦 CARGA DE PRODUCTOS
+  // 🔧 INICIALIZACIÓN
   // =============================
-  loadProducts() {
-    console.log('🔄 Iniciando carga de productos...');
-    this.loading = true;
-    this.products = [];
-    
-    const timeoutId = setTimeout(() => {
-      console.warn('⚠️ Timeout de carga alcanzado');
+ngOnInit() {
+  console.log('✅ Página de productos inicializada');
+  
+  // 📡 Detectar cambios en la conexión
+  window.addEventListener('online', () => {
+    console.log('📡 Conexión restaurada');
+    this.mostrarToast('📡 Conexión restaurada');
+    this.loadProducts();
+  });
+
+  window.addEventListener('offline', () => {
+    console.log('📡 Sin conexión - Modo offline');
+  });
+
+  this.loadProducts();
+  
+  this.cartService.getCartCount().subscribe(count => {
+    this.cartCount = count;
+  });
+}
+
+loadProducts() {
+  console.log('🔄 Iniciando carga de productos...');
+  console.log('📡 Estado de conexión:', navigator.onLine ? 'Online' : 'Offline');
+  
+  this.loading = true;
+  this.products = [];
+  
+  const timeoutId = setTimeout(() => {
+    console.warn('⚠️ Timeout de carga alcanzado');
+    if (this.products.length === 0) {
       this.loading = false;
       this.cdr.detectChanges();
-      this.mostrarToast('⚠️ La carga está tardando más de lo esperado');
-    }, 10000);
-    
-    this.productosService.getProductos().subscribe({
-      next: (productos) => {
-        clearTimeout(timeoutId);
-        console.log('✅ Productos recibidos del servicio:', productos);
-        console.log('📦 Total de productos:', productos.length);
-        
-        this.products = [...productos];
-        this.extractFilters();
-        this.applyFilters();
-        this.loading = false;
-        
-        this.cdr.detectChanges();
-        
-        console.log('📊 Estado después de asignar:');
-        console.log('  - loading:', this.loading);
-        console.log('  - products.length:', this.products.length);
-        console.log('  - filteredProducts.length:', this.filteredProducts.length);
-      },
-      error: (error) => {
-        clearTimeout(timeoutId);
-        console.error('❌ Error cargando productos:', error);
-        this.loading = false;
-        this.products = [];
-        this.cdr.detectChanges();
-        this.mostrarToast('❌ Error al cargar productos');
-      },
-      complete: () => {
-        clearTimeout(timeoutId);
-        console.log('✓ Carga de productos completada');
+      this.mostrarToast('⚠️ No se pudieron cargar productos');
+    }
+  }, 20000);
+  
+  this.productosService.getProductos().subscribe({
+    next: (productos) => {
+      clearTimeout(timeoutId);
+      console.log('✅ Productos recibidos:', productos.length);
+      console.log('📦 Fuente:', navigator.onLine ? 'Firestore/Red' : 'Caché offline');
+      
+      this.products = [...productos];
+      this.extractFilters();
+      this.applyFilters();
+      this.loading = false;
+      
+      this.cdr.detectChanges();
+      
+      if (!navigator.onLine && productos.length > 0) {
       }
-    });
-  }
-
+    },
+    error: (error) => {
+      clearTimeout(timeoutId);
+      console.error('❌ Error cargando productos:', error);
+      this.loading = false;
+      this.products = [];
+      this.cdr.detectChanges();
+      
+      const mensaje = navigator.onLine 
+        ? '❌ Error al cargar productos'
+        : '❌ Sin productos en caché - Necesitas conectarte al menos una vez';
+      
+      this.mostrarToast(mensaje);
+    },
+    complete: () => {
+      clearTimeout(timeoutId);
+      console.log('✓ Carga de productos completada');
+    }
+  });
+}
   // ==========================================
   // 🔍 MÉTODOS DE FILTROS
   // ==========================================

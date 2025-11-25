@@ -5,6 +5,7 @@
     {
       "name": "app",
       "installMode": "prefetch",
+      "updateMode": "prefetch",
       "resources": {
         "files": [
           "/favicon.ico",
@@ -22,20 +23,33 @@
       "resources": {
         "files": [
           "/assets/**",
-          "/*.(png|jpg|jpeg|svg|webp)"
+          "/*.(png|jpg|jpeg|svg|webp|gif|ico|woff|woff2|ttf|eot)"
         ]
       }
     }
   ],
   "dataGroups": [
     {
-      "name": "api-data",
+      "name": "api-firestore",
       "urls": [
-        "https://tuservidor.com/api/**"
+        "https://firestore.googleapis.com/**",
+        "https://firebase.googleapis.com/**"
       ],
       "cacheConfig": {
         "maxSize": 100,
-        "maxAge": "1d",
+        "maxAge": "7d",
+        "strategy": "freshness",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "api-storage",
+      "urls": [
+        "https://firebasestorage.googleapis.com/**"
+      ],
+      "cacheConfig": {
+        "maxSize": 50,
+        "maxAge": "30d",
         "strategy": "performance"
       }
     }

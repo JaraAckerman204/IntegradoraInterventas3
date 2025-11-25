@@ -1,5 +1,5 @@
 // ==========================================
-// 📄 biodegradables.page.ts - PÁGINA DE BIODEGRADABLES CON FILTROS Y TOAST SERVICE
+// 📄 biodegradables.page.ts - CON CACHÉ OFFLINE + FILTROS Y TOAST SERVICE
 // ==========================================
 
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
@@ -35,7 +35,6 @@ import {
   barcodeOutline,
   refreshOutline,
   chevronDownOutline,
-  // Iconos para especificaciones
   informationCircleOutline,
   albumsOutline,
   colorPaletteOutline,
@@ -57,7 +56,7 @@ import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 import { ProductosService, Producto } from '../services/productos.service';
 import { CartService } from '../services/cart.service';
-import { ToastService } from '../services/toast.service'; // ✅ IMPORTAR TOAST SERVICE
+import { ToastService } from '../services/toast.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -88,7 +87,7 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
   // =============================
   private productosService = inject(ProductosService);
   private cartService = inject(CartService);
-  private toastService = inject(ToastService); // ✅ INYECTAR TOAST SERVICE
+  private toastService = inject(ToastService);
   private router = inject(Router);
   private modalController = inject(ModalController);
   private cdr = inject(ChangeDetectorRef);
@@ -195,8 +194,24 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
     });
   }
 
+  // =============================
+  // 🔧 INICIALIZACIÓN
+  // =============================
   ngOnInit() {
     console.log('✅ Página de Biodegradables inicializada');
+    
+    // 📡 Detectar cambios en la conexión
+    window.addEventListener('online', () => {
+      console.log('📡 Conexión restaurada');
+      this.mostrarToast('📡 Conexión a internet restaurada');
+      this.loadProducts();
+    });
+
+    window.addEventListener('offline', () => {
+      console.log('📡 Sin conexión - Modo offline');
+      this.mostrarToast('📡 Sin conexión a Internet');
+    });
+
     this.loadProducts();
     
     this.cartService.getCartCount().subscribe(count => {
@@ -228,24 +243,29 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
   }
 
   // =============================
-  // 📦 CARGA DE PRODUCTOS
+  // 📦 CARGA DE PRODUCTOS CON CACHÉ OFFLINE
   // =============================
   loadProducts() {
-    console.log('📄 Iniciando carga de productos biodegradables...');
+    console.log('🔄 Iniciando carga de productos biodegradables...');
+    console.log('📡 Estado de conexión:', navigator.onLine ? 'Online' : 'Offline');
+    
     this.loading = true;
     this.products = [];
     
     const timeoutId = setTimeout(() => {
       console.warn('⚠️ Timeout de carga alcanzado');
-      this.loading = false;
-      this.cdr.detectChanges();
-      this.mostrarToast('⚠️ La carga está tardando más de lo esperado');
-    }, 10000);
+      if (this.products.length === 0) {
+        this.loading = false;
+        this.cdr.detectChanges();
+        this.mostrarToast('⚠️ No se pudieron cargar productos biodegradables');
+      }
+    }, 20000);
     
     this.productosService.getProductos().subscribe({
       next: (productos) => {
         clearTimeout(timeoutId);
         console.log('✅ Productos recibidos del servicio:', productos.length);
+        console.log('📦 Fuente:', navigator.onLine ? 'Firestore/Red' : 'Caché offline');
         
         // ⭐ FILTRAR PRODUCTOS BIODEGRADABLES
         // Opción 1: Por categoría
@@ -264,7 +284,13 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
         this.extractFilters();
         this.applyFilters();
         this.loading = false;
+        
         this.cdr.detectChanges();
+        
+        // 📡 Notificar si se cargó desde caché offline
+        if (!navigator.onLine && this.products.length > 0) {
+          console.log('📦 Productos biodegradables cargados desde caché offline');
+        }
         
         if (this.products.length === 0) {
           this.mostrarToast('ℹ️ No se encontraron productos biodegradables disponibles');
@@ -272,15 +298,20 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
       },
       error: (error) => {
         clearTimeout(timeoutId);
-        console.error('❌ Error cargando productos:', error);
+        console.error('❌ Error cargando productos biodegradables:', error);
         this.loading = false;
         this.products = [];
         this.cdr.detectChanges();
-        this.mostrarToast('❌ Error al cargar productos. Por favor recarga la página');
+        
+        const mensaje = navigator.onLine 
+          ? '❌ Error al cargar productos biodegradables'
+          : '❌ Sin productos en caché - Necesitas conectarte al menos una vez';
+        
+        this.mostrarToast(mensaje);
       },
       complete: () => {
         clearTimeout(timeoutId);
-        console.log('🏁 Carga de productos biodegradables completada');
+        console.log('✔ Carga de productos biodegradables completada');
       }
     });
   }
@@ -309,7 +340,7 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
         break;
     }
     
-    this.currentPage = 1; // Resetear a página 1
+    this.currentPage = 1;
     this.applyFilters();
   }
 
@@ -376,42 +407,36 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
     console.log('🔍 Aplicando filtros...', this.selectedFilters);
     
     this.filteredProducts = this.products.filter(product => {
-      // Filtro por categoría
       if (this.selectedFilters.categorias.length > 0) {
         if (!product.categoria || !this.selectedFilters.categorias.includes(product.categoria)) {
           return false;
         }
       }
       
-      // Filtro por subcategoría
       if (this.selectedFilters.subcategorias.length > 0) {
         if (!product.subcategoria || !this.selectedFilters.subcategorias.includes(product.subcategoria)) {
           return false;
         }
       }
       
-      // Filtro por marca
       if (this.selectedFilters.marcas.length > 0) {
         if (!product.marca || !this.selectedFilters.marcas.includes(product.marca)) {
           return false;
         }
       }
       
-      // Filtro por material
       if (this.selectedFilters.materiales.length > 0) {
         if (!product.material || !this.selectedFilters.materiales.includes(product.material)) {
           return false;
         }
       }
       
-      // Filtro por color
       if (this.selectedFilters.colores.length > 0) {
         if (!product.color || !this.selectedFilters.colores.includes(product.color)) {
           return false;
         }
       }
       
-      // Filtro por características especiales
       if (this.selectedFilters.caracteristicas.length > 0) {
         for (const caracteristica of this.selectedFilters.caracteristicas) {
           if (caracteristica === 'biodegradable' && !product.biodegradable) return false;
@@ -497,15 +522,13 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
 
   getPageNumbers(): (number | string)[] {
     const pages: (number | string)[] = [];
-    const maxVisible = 5; // Máximo de números visibles
+    const maxVisible = 5;
     
     if (this.totalPages <= maxVisible + 2) {
-      // Mostrar todos los números
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Mostrar con puntos suspensivos
       pages.push(1);
       
       if (this.currentPage <= 3) {
@@ -580,7 +603,7 @@ export class BiodegradablesPage implements OnInit, AfterViewInit {
 
   selectSaleType(type: 'mayoreo' | 'menudeo') {
     this.saleType = type;
-    console.log('🏪 Tipo de venta seleccionado:', type);
+    console.log('🪧 Tipo de venta seleccionado:', type);
   }
 
   getCurrentPrice(): number {
