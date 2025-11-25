@@ -36,19 +36,35 @@
         "https://firebase.googleapis.com/**"
       ],
       "cacheConfig": {
-        "maxSize": 100,
+        "maxSize": 200,
         "maxAge": "7d",
         "strategy": "freshness",
         "timeout": "10s"
       }
     },
     {
-      "name": "api-storage",
+      "name": "product-images",
       "urls": [
-        "https://firebasestorage.googleapis.com/**"
+        "https://firebasestorage.googleapis.com/**",
+        "https://*.googleusercontent.com/**"
       ],
       "cacheConfig": {
-        "maxSize": 50,
+        "maxSize": 500,
+        "maxAge": "30d",
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "external-images",
+      "urls": [
+        "https://**/*.jpg",
+        "https://**/*.jpeg",
+        "https://**/*.png",
+        "https://**/*.webp",
+        "https://**/*.gif"
+      ],
+      "cacheConfig": {
+        "maxSize": 300,
         "maxAge": "30d",
         "strategy": "performance"
       }

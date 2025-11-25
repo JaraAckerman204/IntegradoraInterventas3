@@ -252,7 +252,14 @@ loadProducts() {
       
       this.cdr.detectChanges();
       
+      // 🖼️ PRECARGAR IMÁGENES DE PRODUCTOS EN SEGUNDO PLANO
+      if (navigator.onLine && productos.length > 0) {
+        console.log('🖼️ Iniciando precarga de imágenes...');
+        this.precacheProductImages(productos);
+      }
+      
       if (!navigator.onLine && productos.length > 0) {
+        console.log('📦 Productos cargados desde caché offline');
       }
     },
     error: (error) => {
@@ -270,7 +277,60 @@ loadProducts() {
     },
     complete: () => {
       clearTimeout(timeoutId);
-      console.log('✓ Carga de productos completada');
+      console.log('✔ Carga de productos completada');
+    }
+  });
+}
+
+// ==========================================
+// 🖼️ PRECARGA DE IMÁGENES PARA CACHÉ OFFLINE
+// ==========================================
+private precacheProductImages(productos: Producto[]) {
+  console.log('🖼️ Iniciando precarga de imágenes de productos...');
+  
+  let loadedCount = 0;
+  let errorCount = 0;
+  const totalImages = productos.filter(p => p.imagen).length;
+  
+  if (totalImages === 0) {
+    console.log('⚠️ No hay imágenes para precargar');
+    return;
+  }
+  
+  productos.forEach((producto, index) => {
+    if (producto.imagen) {
+      // Crear elemento Image para forzar la descarga
+      const img = new Image();
+      
+      img.onload = () => {
+        loadedCount++;
+        
+        // Mostrar progreso cada 50 imágenes
+        if (loadedCount % 50 === 0 || loadedCount === totalImages) {
+          console.log(`🖼️ Progreso: ${loadedCount}/${totalImages} imágenes cargadas`);
+        }
+        
+        // Cuando se completen todas
+        if (loadedCount + errorCount === totalImages) {
+          console.log(`✅ Precarga completada: ${loadedCount} exitosas, ${errorCount} fallidas`);
+          this.mostrarToast(`✅ ${loadedCount} imágenes guardadas para uso offline`);
+        }
+      };
+      
+      img.onerror = () => {
+        errorCount++;
+        console.warn(`⚠️ Error precargando: ${producto.nombre} - ${producto.imagen}`);
+        
+        if (loadedCount + errorCount === totalImages) {
+          console.log(`✅ Precarga completada: ${loadedCount} exitosas, ${errorCount} fallidas`);
+          if (loadedCount > 0) {
+            this.mostrarToast(`✅ ${loadedCount} imágenes guardadas para uso offline`);
+          }
+        }
+      };
+      
+      // Iniciar la descarga
+      img.src = producto.imagen;
     }
   });
 }
