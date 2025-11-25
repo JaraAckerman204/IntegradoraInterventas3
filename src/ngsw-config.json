@@ -10,9 +10,9 @@
         "files": [
           "/favicon.ico",
           "/index.html",
-          "/manifest.webmanifest",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "/manifest.webmanifest"
         ]
       }
     },
@@ -23,7 +23,28 @@
       "resources": {
         "files": [
           "/assets/**",
-          "/*.(png|jpg|jpeg|svg|webp|gif|ico|woff|woff2|ttf|eot)"
+          "/*.(png|jpg|jpeg|svg|webp|ico)"
+        ]
+      }
+    },
+    {
+      "name": "fonts",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "urls": [
+          "https://fonts.googleapis.com/**",
+          "https://fonts.gstatic.com/**"
+        ]
+      }
+    },
+    {
+      "name": "ionicons-cdn",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "urls": [
+          "https://cdn.jsdelivr.net/npm/ionicons@7.1.0/**"
         ]
       }
     }
@@ -33,41 +54,37 @@
       "name": "api-firestore",
       "urls": [
         "https://firestore.googleapis.com/**",
-        "https://firebase.googleapis.com/**"
+        "https://*.firebaseio.com/**",
+        "https://identitytoolkit.googleapis.com/**"
       ],
       "cacheConfig": {
-        "maxSize": 200,
-        "maxAge": "7d",
-        "strategy": "freshness",
-        "timeout": "10s"
+        "maxSize": 100,
+        "maxAge": "1h",
+        "timeout": "5s",
+        "strategy": "freshness"
       }
     },
     {
-      "name": "product-images",
+      "name": "analytics",
       "urls": [
-        "https://firebasestorage.googleapis.com/**",
-        "https://*.googleusercontent.com/**"
+        "https://www.googletagmanager.com/**",
+        "https://www.google-analytics.com/**"
       ],
       "cacheConfig": {
-        "maxSize": 500,
-        "maxAge": "30d",
+        "maxSize": 10,
+        "maxAge": "1d",
         "strategy": "performance"
-      }
-    },
-    {
-      "name": "external-images",
-      "urls": [
-        "https://**/*.jpg",
-        "https://**/*.jpeg",
-        "https://**/*.png",
-        "https://**/*.webp",
-        "https://**/*.gif"
-      ],
-      "cacheConfig": {
-        "maxSize": 300,
-        "maxAge": "30d",
-        "strategy": "performance"
+      },
+      "cacheQueryOptions": {
+        "ignoreSearch": true
       }
     }
-  ]
+  ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**"
+  ],
+  "navigationRequestStrategy": "freshness"
 }

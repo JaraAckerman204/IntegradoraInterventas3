@@ -1835,6 +1835,63 @@ Equipo Interventas"
   </div>
 </div>
 
+<!-- ========================================= -->
+<!-- 🔐 MODAL CONFIRMAR IDENTIDAD ADMIN (PASSWORD) -->
+<!-- ========================================= -->
+<div class="modal-overlay" *ngIf="mostrarModalConfirmarPasswordAdmin" (click)="cerrarModalConfirmarPasswordAdmin()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-wrapper">
+      
+      <div class="modal-header-custom">
+        <div class="header-left">
+          <div class="header-icon">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Confirmar Identidad</h2>
+            <p>Ingresa tu contraseña de administrador para continuar</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="cerrarModalConfirmarPasswordAdmin()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="form-group-modal">
+          <label class="form-label-modal">
+            <ion-icon name="key-outline"></ion-icon>
+            Contraseña de Administrador
+          </label>
+          <div class="input-wrapper-modal">
+            <input
+              [type]="showPasswordAdminDelete ? 'text' : 'password'"
+              [(ngModel)]="passwordAdminEliminacion"
+              name="passwordAdminEliminacion"
+              placeholder="Ingresa tu contraseña"
+              class="input-modal">
+            <button type="button" class="toggle-password-modal" (click)="showPasswordAdminDelete = !showPasswordAdminDelete">
+              <ion-icon [name]="showPasswordAdminDelete ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button class="btn-delete" (click)="ejecutarEliminacionUsuario()" [disabled]="!passwordAdminEliminacion">
+          <ion-icon name="trash-outline"></ion-icon>
+          <span>Confirmar Eliminación</span>
+        </button>
+        <button class="btn-cancel" (click)="cerrarModalConfirmarPasswordAdmin()">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- 🎨 MODAL EDITAR USUARIO -->
 <div class="modal-overlay" *ngIf="mostrarModalUsuario" (click)="cerrarModalUsuario()">
     <div class="modal-container user-modal" (click)="$event.stopPropagation()">

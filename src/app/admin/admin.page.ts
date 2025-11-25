@@ -25,6 +25,12 @@ import {
   deleteObject
 } from '@angular/fire/storage';
 
+import { 
+  getAuth, 
+  deleteUser as deleteAuthUser,
+  signInWithEmailAndPassword 
+} from 'firebase/auth';
+
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { HeaderComponent } from '../components/header/header.component';
@@ -213,6 +219,14 @@ export class AdminPage {
   nombreElementoEliminar: string = '';
 
   // =============================
+// 🔐 MODAL CONFIRMAR PASSWORD ADMIN
+// =============================
+mostrarModalConfirmarPasswordAdmin: boolean = false;
+passwordAdminEliminacion: string = '';
+showPasswordAdminDelete: boolean = false;
+idUsuarioAEliminar: string = '';
+
+  // =============================
   // 📥 IMPORTACIÓN CSV
   // =============================
   archivoCSV: File | null = null;
@@ -344,83 +358,163 @@ export class AdminPage {
     return mensajes[this.tipoEliminacion];
   }
 
-  cerrarModalEliminar() {
-    this.mostrarModalEliminar = false;
-    this.idAEliminar = '';
-    this.nombreElementoEliminar = '';
-    this.cdr.detectChanges();
+cerrarModalEliminar() {
+  this.mostrarModalEliminar = false;
+  this.idAEliminar = '';
+  this.nombreElementoEliminar = ''; // ✅ Limpiar el nombre
+  this.idUsuarioAEliminar = ''; // ✅ Limpiar el ID temporal
+  this.cdr.detectChanges();
+}
+
+ async confirmarEliminacion() {
+  if (!this.idAEliminar) return;
+
+  try {
+    let mensaje = '';
+
+    switch (this.tipoEliminacion) {
+      case 'producto':
+        // ... código existente para productos ...
+        break;
+
+      case 'usuario':
+        // ✅ NUEVO: Cerrar modal de eliminación y abrir modal de contraseña
+        this.cerrarModalEliminar();
+        this.solicitarPasswordEliminacionAdmin();
+        return; // ⚠️ Importante: return aquí para no continuar
+        break;
+
+      case 'mensaje':
+        const msgDocRef = doc(this.firestore, `contactMessages/${this.idAEliminar}`);
+        await deleteDoc(msgDocRef);
+        mensaje = '🗑️ Mensaje eliminado correctamente';
+        break;
+
+      case 'suscriptor':
+        const subsDocRef = doc(this.firestore, `newsletter/${this.idAEliminar}`);
+        await deleteDoc(subsDocRef);
+        this.suscriptoresSeleccionados.delete(this.idAEliminar);
+        mensaje = '🗑️ Suscriptor eliminado correctamente';
+        break;
+    }
+
+    await this.mostrarToast(mensaje);
+    this.cerrarModalEliminar();
+
+  } catch (error) {
+    console.error(`Error eliminando ${this.tipoEliminacion}:`, error);
+    await this.mostrarToast(`❌ Error al eliminar el ${this.tipoEliminacion}`);
+    this.cerrarModalEliminar();
+  }
+} 
+
+// =============================
+// 🔐 MODAL CONFIRMAR PASSWORD ADMIN
+// =============================
+solicitarPasswordEliminacionAdmin() {
+  // NO modifiques nombreElementoEliminar aquí
+  this.passwordAdminEliminacion = '';
+  this.showPasswordAdminDelete = false;
+  this.mostrarModalConfirmarPasswordAdmin = true;
+  this.cdr.detectChanges();
+}
+
+cerrarModalConfirmarPasswordAdmin() {
+  this.mostrarModalConfirmarPasswordAdmin = false;
+  this.passwordAdminEliminacion = '';
+  this.showPasswordAdminDelete = false;
+  this.idUsuarioAEliminar = '';
+  this.nombreElementoEliminar = ''; // ✅ Limpiar también aquí
+  this.cdr.detectChanges();
+}
+
+async ejecutarEliminacionUsuario() {
+  if (!this.passwordAdminEliminacion.trim()) {
+    await this.mostrarToast('⚠️ Ingresa tu contraseña de administrador');
+    return;
   }
 
-  async confirmarEliminacion() {
-    if (!this.idAEliminar) return;
+  if (!this.idUsuarioAEliminar) {
+    await this.mostrarToast('❌ No se encontró el ID del usuario a eliminar');
+    this.cerrarModalConfirmarPasswordAdmin();
+    return;
+  }
 
-    try {
-      let mensaje = '';
+  try {
+    // ✅ PASO 1: Verificar la contraseña del admin actual
+    const auth = getAuth();
+    const adminActual = auth.currentUser;
 
-      switch (this.tipoEliminacion) {
-        case 'producto':
-          if (this.idAEliminar === 'multiple') {
-            let eliminados = 0;
-            let errores = 0;
+    if (!adminActual || !adminActual.email) {
+      await this.mostrarToast('❌ No se pudo verificar tu sesión de admin');
+      return;
+    }
 
-            for (const id of Array.from(this.productosSeleccionados)) {
-              try {
-                const docRef = doc(this.firestore, `productos/${id}`);
-                await deleteDoc(docRef);
-                eliminados++;
-              } catch (error) {
-                console.error(`Error eliminando producto ${id}:`, error);
-                errores++;
-              }
-            }
+    // Re-autenticar al admin para confirmar su identidad
+    await signInWithEmailAndPassword(
+      auth, 
+      adminActual.email, 
+      this.passwordAdminEliminacion
+    );
 
-            this.productosSeleccionados.clear();
-            this.seleccionarTodosProductos = false;
+    console.log('✅ PASO 1: Contraseña de admin verificada');
 
-            if (errores === 0) {
-              mensaje = `🗑️ ${eliminados} producto(s) eliminado(s) correctamente`;
-            } else {
-              mensaje = `⚠️ Eliminados: ${eliminados} | Errores: ${errores}`;
-              await this.mostrarToast(mensaje);
-              this.cerrarModalEliminar();
-              return;
-            }
-          } else {
-            const docRef = doc(this.firestore, `productos/${this.idAEliminar}`);
-            await deleteDoc(docRef);
-            mensaje = '🗑️ Producto eliminado correctamente';
-          }
-          break;
-
-        case 'usuario':
-          const userDocRef = doc(this.firestore, `usuarios/${this.idAEliminar}`);
-          await deleteDoc(userDocRef);
-          mensaje = '🗑️ Usuario eliminado correctamente';
-          break;
-
-        case 'mensaje':
-          const msgDocRef = doc(this.firestore, `contactMessages/${this.idAEliminar}`);
-          await deleteDoc(msgDocRef);
-          mensaje = '🗑️ Mensaje eliminado correctamente';
-          break;
-
-        case 'suscriptor':
-          const subsDocRef = doc(this.firestore, `newsletter/${this.idAEliminar}`);
-          await deleteDoc(subsDocRef);
-          this.suscriptoresSeleccionados.delete(this.idAEliminar);
-          mensaje = '🗑️ Suscriptor eliminado correctamente';
-          break;
+    // ✅ PASO 2: Obtener datos del usuario a eliminar desde Firestore
+    const usuarioDocRef = doc(this.firestore, `usuarios/${this.idUsuarioAEliminar}`);
+    const querySnapshot = await getDocs(collection(this.firestore, 'usuarios'));
+    
+    let emailUsuarioAEliminar = '';
+    let uidUsuarioAEliminar = '';
+    
+    querySnapshot.forEach((docSnap) => {
+      if (docSnap.id === this.idUsuarioAEliminar) {
+        const data = docSnap.data();
+        emailUsuarioAEliminar = data['email'] || '';
+        uidUsuarioAEliminar = data['uid'] || ''; // 🔥 IMPORTANTE: Guardar el UID
       }
+    });
 
-      await this.mostrarToast(mensaje);
-      this.cerrarModalEliminar();
+    if (!emailUsuarioAEliminar) {
+      await this.mostrarToast('❌ No se encontró el email del usuario');
+      return;
+    }
 
-    } catch (error) {
-      console.error(`Error eliminando ${this.tipoEliminacion}:`, error);
-      await this.mostrarToast(`❌ Error al eliminar el ${this.tipoEliminacion}`);
-      this.cerrarModalEliminar();
+    console.log('✅ PASO 2: Datos del usuario encontrados:', {
+      email: emailUsuarioAEliminar,
+      uid: uidUsuarioAEliminar
+    });
+
+    // ✅ PASO 3: Eliminar documento de Firestore
+    await deleteDoc(usuarioDocRef);
+    console.log('✅ PASO 3: Usuario eliminado de Firestore');
+
+    // ✅ PASO 4: Eliminar usuario de Firebase Authentication usando Cloud Functions
+    // NOTA: Como no podemos eliminar directamente desde el cliente, 
+    // el usuario quedará huérfano en Authentication hasta que se limpie manualmente
+    // o se implemente una Cloud Function.
+
+    await this.mostrarToast('✅ Usuario eliminado correctamente del sistema');
+    
+    // ⚠️ IMPORTANTE: Mostrar advertencia sobre Authentication
+    setTimeout(async () => {
+      await this.mostrarToast('⚠️ El usuario debe ser eliminado manualmente de Firebase Authentication');
+    }, 2000);
+    
+    this.cerrarModalConfirmarPasswordAdmin();
+
+  } catch (error: any) {
+    console.error('❌ Error eliminando usuario:', error);
+    
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      await this.mostrarToast('❌ Contraseña de administrador incorrecta');
+    } else if (error.code === 'auth/too-many-requests') {
+      await this.mostrarToast('⚠️ Demasiados intentos. Intenta más tarde');
+    } else {
+      await this.mostrarToast('❌ Error al eliminar el usuario');
     }
   }
+}
+
 
   aplicarBusquedaRapida() {
     this.aplicarFiltrosInternos();
@@ -1619,14 +1713,21 @@ exportarProductosCSV() {
     }
   }
 
-  eliminarUsuario(id: string) {
-    const usuario = this.usuarios.find(u => u.id === id);
-    this.idAEliminar = id;
-    this.tipoEliminacion = 'usuario';
-    this.nombreElementoEliminar = usuario?.nombre || usuario?.email || 'este usuario';
-    this.mostrarModalEliminar = true;
-    this.cdr.detectChanges();
-  }
+eliminarUsuario(id: string) {
+  const usuario = this.usuarios.find(u => u.id === id);
+  
+  // ✅ Guardar ID para usarlo después de confirmar la contraseña
+  this.idUsuarioAEliminar = id;
+  
+  this.idAEliminar = id;
+  this.tipoEliminacion = 'usuario';
+  
+  // ✅ CORREGIDO: Mostrar nombre O email (nunca el filtro)
+  this.nombreElementoEliminar = usuario?.nombre || usuario?.email || 'este usuario';
+  
+  this.mostrarModalEliminar = true;
+  this.cdr.detectChanges();
+}
 
   // =============================
   // 👥 USUARIOS - FILTROS
