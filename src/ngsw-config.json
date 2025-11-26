@@ -25,7 +25,7 @@
     },
     {
       "name": "assets",
-      "installMode": "lazy",
+      "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
         "files": [
@@ -37,28 +37,18 @@
   ],
   "dataGroups": [
     {
-      "name": "firebase-firestore",
+      "name": "firebase-api",
       "urls": [
         "https://firestore.googleapis.com/**",
         "https://*.firebaseio.com/**",
-        "https://firebase.googleapis.com/**"
+        "https://firebase.googleapis.com/**",
+        "https://firebasestorage.googleapis.com/**"
       ],
       "cacheConfig": {
         "maxSize": 100,
         "maxAge": "7d",
-        "strategy": "freshness",
-        "timeout": "10s"
-      }
-    },
-    {
-      "name": "firebase-storage",
-      "urls": [
-        "https://firebasestorage.googleapis.com/**"
-      ],
-      "cacheConfig": {
-        "maxSize": 50,
-        "maxAge": "30d",
-        "strategy": "performance"
+        "strategy": "performance",
+        "timeout": "3s"
       }
     }
   ]
