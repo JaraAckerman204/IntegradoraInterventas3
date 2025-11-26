@@ -1,5 +1,5 @@
 // ==========================================
-// 📄 todos.page.ts - CON FILTROS Y PAGINACIÓN + TOAST SERVICE
+// 📄 todos.page.ts - CON CACHE AUTOMÁTICO
 // ==========================================
 
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
@@ -49,7 +49,8 @@ import {
   appsOutline,
   closeCircleOutline,
   chevronUpOutline,
-  chevronDownOutline
+  chevronDownOutline,
+  refreshOutline
 } from 'ionicons/icons';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
@@ -99,6 +100,10 @@ export class TodosPage implements OnInit, AfterViewInit {
   paginatedProducts: Producto[] = [];
   loading = true;
   cartCount = 0;
+  
+  // Variables para cache
+  usandoCache = false;
+  fechaCache: Date | null = null;
   
   // =============================
   // 📄 PAGINACIÓN
@@ -157,7 +162,6 @@ export class TodosPage implements OnInit, AfterViewInit {
   // 🎬 CONSTRUCTOR
   // =============================
   constructor() {
-    // Registrar todos los iconos
     addIcons({ 
       documentTextOutline,
       cartOutline,
@@ -188,7 +192,8 @@ export class TodosPage implements OnInit, AfterViewInit {
       appsOutline,
       closeCircleOutline,
       chevronUpOutline,
-      chevronDownOutline
+      chevronDownOutline,
+      refreshOutline
     });
   }
 
@@ -222,6 +227,7 @@ export class TodosPage implements OnInit, AfterViewInit {
     console.log('🔄 Iniciando carga de productos...');
     this.loading = true;
     this.products = [];
+    this.usandoCache = false;
     
     const timeoutId = setTimeout(() => {
       console.warn('⚠️ Timeout de carga alcanzado');
@@ -231,12 +237,24 @@ export class TodosPage implements OnInit, AfterViewInit {
     }, 10000);
     
     this.productosService.getProductos().subscribe({
-      next: (productos) => {
+      next: (productos: Producto[]) => {
         clearTimeout(timeoutId);
         console.log('✅ Productos recibidos del servicio:', productos);
         console.log('📦 Total de productos:', productos.length);
         
         this.products = [...productos];
+        
+        // Verificar si se está usando cache
+        this.usandoCache = this.productosService.isUsingCache();
+        
+        if (this.usandoCache) {
+          console.log('📱 Productos cargados desde cache');
+          const cacheDate = this.productosService.getCacheDate();
+          if (cacheDate) {
+            this.fechaCache = new Date(cacheDate);
+          }
+        }
+        
         this.extractFilters();
         this.applyFilters();
         this.loading = false;
@@ -247,8 +265,9 @@ export class TodosPage implements OnInit, AfterViewInit {
         console.log('  - loading:', this.loading);
         console.log('  - products.length:', this.products.length);
         console.log('  - filteredProducts.length:', this.filteredProducts.length);
+        console.log('  - usandoCache:', this.usandoCache);
       },
-      error: (error) => {
+      error: (error: any) => {
         clearTimeout(timeoutId);
         console.error('❌ Error cargando productos:', error);
         this.loading = false;
@@ -261,6 +280,39 @@ export class TodosPage implements OnInit, AfterViewInit {
         console.log('✓ Carga de productos completada');
       }
     });
+  }
+
+  // Método para forzar actualización (pull-to-refresh)
+  actualizarProductos(event?: any) {
+    console.log('🔄 Actualizando productos desde Firebase...');
+    
+    this.productosService.forceRefresh().subscribe({
+      next: (productos: Producto[]) => {
+        this.products = [...productos];
+        this.extractFilters();
+        this.applyFilters();
+        
+        this.usandoCache = false;
+        this.fechaCache = null;
+        
+        if (event) event.target.complete();
+        this.mostrarToast('✅ Productos actualizados');
+      },
+      error: (error: any) => {
+        console.error('❌ Error actualizando productos:', error);
+        if (event) event.target.complete();
+        this.mostrarToast('❌ Error al actualizar');
+      }
+    });
+  }
+
+  // Limpiar cache manualmente
+  limpiarCache() {
+    this.productosService.clearCache();
+    this.fechaCache = null;
+    this.usandoCache = false;
+    this.mostrarToast('🗑️ Cache limpiado');
+    this.loadProducts();
   }
 
   // ==========================================
@@ -287,37 +339,32 @@ export class TodosPage implements OnInit, AfterViewInit {
         break;
     }
     
-    this.currentPage = 1; // Resetear a página 1
+    this.currentPage = 1;
     this.applyFilters();
   }
 
   extractFilters() {
-    // Extraer categorías únicas
     this.categorias = [...new Set(
       this.products
         .map(p => p.categoria)
         .filter((c): c is string => c !== undefined && c !== null && c.trim() !== '')
     )].sort();
 
-  // Extraer marcas únicas
-  this.marcas = [...new Set(
-    this.products
-      .map(p => p.marca)
-      .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
-  )].sort();
+    this.marcas = [...new Set(
+      this.products
+        .map(p => p.marca)
+        .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
+    )].sort();
 
-  // ⭐ DEBUG: Ver todas las marcas extraídas
-  console.log('🏷️ Total de marcas encontradas:', this.marcas.length);
-  console.log('📋 Marcas:', this.marcas);
+    console.log('🏷️ Total de marcas encontradas:', this.marcas.length);
+    console.log('📋 Marcas:', this.marcas);
 
-    // Extraer materiales únicos
     this.materiales = [...new Set(
       this.products
         .map(p => p.material)
         .filter((m): m is string => m !== undefined && m !== null && m.trim() !== '')
     )].sort();
 
-    // Extraer colores únicos
     this.colores = [...new Set(
       this.products
         .map(p => p.color)
@@ -350,35 +397,30 @@ export class TodosPage implements OnInit, AfterViewInit {
     console.log('🔍 Aplicando filtros...', this.selectedFilters);
     
     this.filteredProducts = this.products.filter(product => {
-      // Filtro por categoría
       if (this.selectedFilters.categorias.length > 0) {
         if (!product.categoria || !this.selectedFilters.categorias.includes(product.categoria)) {
           return false;
         }
       }
       
-      // Filtro por marca
       if (this.selectedFilters.marcas.length > 0) {
         if (!product.marca || !this.selectedFilters.marcas.includes(product.marca)) {
           return false;
         }
       }
       
-      // Filtro por material
       if (this.selectedFilters.materiales.length > 0) {
         if (!product.material || !this.selectedFilters.materiales.includes(product.material)) {
           return false;
         }
       }
       
-      // Filtro por color
       if (this.selectedFilters.colores.length > 0) {
         if (!product.color || !this.selectedFilters.colores.includes(product.color)) {
           return false;
         }
       }
       
-      // Filtro por características especiales
       if (this.selectedFilters.caracteristicas.length > 0) {
         for (const caracteristica of this.selectedFilters.caracteristicas) {
           if (caracteristica === 'biodegradable' && !product.biodegradable) return false;
@@ -427,29 +469,28 @@ export class TodosPage implements OnInit, AfterViewInit {
     console.log('📄 Total de páginas:', this.totalPages);
   }
 
-updatePaginatedProducts() {
-  const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-  const endIndex = startIndex + this.itemsPerPage;
-  this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
-  
-  console.log('📄 Productos paginados:', {
-    page: this.currentPage,
-    startIndex,
-    endIndex,
-    count: this.paginatedProducts.length
-  });
-  
-  // ⭐ Scroll hacia el inicio de la sección de productos
-  setTimeout(() => {
-    const productsContent = document.querySelector('.products-content');
-    if (productsContent) {
-      productsContent.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }
-  }, 200);
-}
+  updatePaginatedProducts() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+    
+    console.log('📄 Productos paginados:', {
+      page: this.currentPage,
+      startIndex,
+      endIndex,
+      count: this.paginatedProducts.length
+    });
+    
+    setTimeout(() => {
+      const productsContent = document.querySelector('.products-content');
+      if (productsContent) {
+        productsContent.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }, 200);
+  }
 
   goToPage(page: number | string) {
     if (typeof page === 'string') return;
@@ -462,15 +503,13 @@ updatePaginatedProducts() {
 
   getPageNumbers(): (number | string)[] {
     const pages: (number | string)[] = [];
-    const maxVisible = 5; // Máximo de números visibles
+    const maxVisible = 5;
     
     if (this.totalPages <= maxVisible + 2) {
-      // Mostrar todos los números
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Mostrar con puntos suspensivos
       pages.push(1);
       
       if (this.currentPage <= 3) {
@@ -579,7 +618,6 @@ updatePaginatedProducts() {
   addToCartFromModal() {
     if (!this.selectedProduct) return;
 
-    // Validar que se haya seleccionado una modalidad
     if (!this.selectedModalidadObj) {
       this.mostrarToast('⚠️ Selecciona una modalidad');
       return;
@@ -633,12 +671,10 @@ updatePaginatedProducts() {
       cantidad: this.quantity
     });
 
-    // Agregar productos al carrito
     for (let i = 0; i < this.quantity; i++) {
       this.cartService.addToCart(productWithModalidad, options);
     }
 
-    // Toast solo para confirmación de agregado
     this.mostrarToast(`✅ ${this.quantity > 1 ? this.quantity + ' productos' : 'Producto'} agregado al carrito`);
     this.closeModal();
   }
@@ -646,7 +682,6 @@ updatePaginatedProducts() {
   addToCart(product: Producto) {
     console.log('🛒 Agregando al carrito:', product.nombre);
     this.cartService.addToCart(product);
-    // Toast simple de confirmación
     this.mostrarToast(`✅ ${product.nombre} en el carrito`);
   }
 
